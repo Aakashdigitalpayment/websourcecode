@@ -226,10 +226,16 @@ if ($kycRow) {
 }
 $extraHead = '';
 if ($profileKycCapture) {
-    $extraHead = '<link rel="stylesheet" href="' . htmlspecialchars($siteUrl) . 'assets/css/kyc-capture.css?v=10.6">' . "\n"
-        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=10.10"></script>';
+    $extraHead = (function_exists('coopThemeLinkHtml')
+            ? coopThemeLinkHtml('assets/css/kyc-capture.css')
+            : '<link rel="stylesheet" href="' . htmlspecialchars($siteUrl) . 'assets/css/kyc-capture.css?v=10.6">' . "\n")
+        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=10.11"></script>';
 }
 
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-profile-page.css')
+        : '');
 require __DIR__ . '/includes/chrome.php';
 
 $kymStatusKey = (string)($kycRow['status'] ?? 'not_submitted');
@@ -256,19 +262,19 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
     ? ((string)$kymDobKr['dob_bs'] . ' (BS)')
     : ((trim((string)($kymDobKr['dob_ad'] ?? '')) !== '') ? (string)$kymDobKr['dob_ad'] : '—');
 ?>
-    <?php if ($error): ?><div class="mem-alert mem-alert-error"><i class="fas fa-circle-exclamation"></i><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
-    <?php if ($success): ?><div class="mem-alert mem-alert-success"><i class="fas fa-circle-check"></i><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="mem-alert mem-alert-error"><i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
+    <?php if ($success): ?><div class="mem-alert mem-alert-success"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
 
     <div class="mem-profile-tab-shell">
         <div class="mem-profile-tab-rail" role="tablist" aria-label="<?php echo $_t('प्रोफाइल सेक्सनहरू', 'Profile sections'); ?>">
             <button type="button" role="tab" class="mem-profile-tab active" id="tabBtnProfile" aria-selected="true">
-                <span class="mem-profile-tab-ic"><i class="fas fa-user"></i></span><span><?php echo $_t('क. प्रोफाइल', 'A. Profile'); ?></span>
+                <span class="mem-profile-tab-ic"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></span><span><?php echo $_t('क. प्रोफाइल', 'A. Profile'); ?></span>
             </button>
             <button type="button" role="tab" class="mem-profile-tab" id="tabBtnSecurity" aria-selected="false">
-                <span class="mem-profile-tab-ic"><i class="fas fa-lock"></i></span><span><?php echo $_t('ख. खाता / सुरक्षा', 'B. Account / Security'); ?></span>
+                <span class="mem-profile-tab-ic"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i></span><span><?php echo $_t('ख. खाता / सुरक्षा', 'B. Account / Security'); ?></span>
             </button>
             <button type="button" role="tab" class="mem-profile-tab" id="tabBtnKyc" aria-selected="false">
-                <span class="mem-profile-tab-ic"><i class="fas fa-id-card"></i></span><span><?php echo $_t('ग. KYC विवरण', 'C. KYC Details'); ?></span>
+                <span class="mem-profile-tab-ic"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></span><span><?php echo $_t('ग. KYC विवरण', 'C. KYC Details'); ?></span>
             </button>
         </div>
     </div>
@@ -279,14 +285,14 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
         <div class="mem-card mem-kym-hero-card" id="panelProfileInfo">
             <div class="mem-card-header mem-kym-card-header">
                 <div class="mem-kym-heading">
-                    <span class="mem-kym-heading-icon"><i class="fas fa-user-circle"></i></span>
+                    <span class="mem-kym-heading-icon"><i class="lucide-icon" data-lucide="circle-user" aria-hidden="true"></i></span>
                     <div>
                         <div class="mem-kym-heading-title"><?php echo $_t('KYM सारांश', 'KYM Summary'); ?></div>
                         <div class="mem-kym-heading-sub"><?php echo $_t('प्रोफाइल — तपाईंको दर्ता विवरण', 'Profile — your registration details'); ?></div>
                     </div>
                 </div>
                 <a href="<?php echo htmlspecialchars($kycEditUrl); ?>" class="mem-kym-cta">
-                    <i class="fas fa-pen-to-square"></i><span><?php echo $_t('पूर्ण KYM फारम भर्नुहोस् / अपडेट गर्नुहोस्', 'Open / update full KYM form'); ?></span>
+                    <i class="lucide-icon" data-lucide="square-pen" aria-hidden="true"></i><span><?php echo $_t('पूर्ण KYM फारम भर्नुहोस् / अपडेट गर्नुहोस्', 'Open / update full KYM form'); ?></span>
                 </a>
             </div>
             <div class="mem-card-body mem-kym-body">
@@ -302,7 +308,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <div class="mem-kym-hero-text">
                             <h2 class="mem-kym-name"><?php echo htmlspecialchars($viewName ?: '—'); ?></h2>
                             <?php if (!empty($mem['member_card_no'])): ?>
-                            <p class="mem-kym-member-id"><i class="fas fa-id-badge" aria-hidden="true"></i><?php echo htmlspecialchars($mem['member_card_no']); ?></p>
+                            <p class="mem-kym-member-id"><i class="lucide-icon" data-lucide="badge-check" aria-hidden="true"></i><?php echo htmlspecialchars($mem['member_card_no']); ?></p>
                             <?php endif; ?>
                             <div class="mem-kym-social-row">
                                 <?php if ($mem['google_id']): ?><span class="mem-kym-oauth mem-kym-oauth--google"><i class="fab fa-google" aria-hidden="true"></i>Google</span><?php endif; ?>
@@ -311,34 +317,34 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         </div>
                     </div>
                     <div class="mem-kym-hero-aside">
-                        <span class="mem-kym-pill <?php echo htmlspecialchars($kymStatusClass); ?>"><i class="fas <?php echo htmlspecialchars($kymStatusIcon); ?>" aria-hidden="true"></i><?php echo htmlspecialchars($kymStatusLabel); ?></span>
+                        <span class="mem-kym-pill <?php echo htmlspecialchars($kymStatusClass); ?>"><?php echo coop_nav_icon_html('fas ' . $kymStatusIcon, 'fas fa-circle-question', ''); ?><?php echo htmlspecialchars($kymStatusLabel); ?></span>
                     </div>
                 </div>
 
                 <div class="mem-kym-details" role="list">
                     <div class="mem-kym-item" role="listitem">
-                        <span class="mem-kym-item-icon mem-kym-ic--cyan" aria-hidden="true"><i class="fas fa-envelope"></i></span>
+                        <span class="mem-kym-item-icon mem-kym-ic--cyan" aria-hidden="true"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></span>
                         <div class="mem-kym-item-body">
                             <span class="mem-kym-item-label">इमेल</span>
                             <span class="mem-kym-item-value mem-kym-item-value--break"><?php echo htmlspecialchars($viewEmail ?: '—'); ?></span>
                         </div>
                     </div>
                     <div class="mem-kym-item" role="listitem">
-                        <span class="mem-kym-item-icon mem-kym-ic--violet" aria-hidden="true"><i class="fas fa-phone"></i></span>
+                        <span class="mem-kym-item-icon mem-kym-ic--violet" aria-hidden="true"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></span>
                         <div class="mem-kym-item-body">
                             <span class="mem-kym-item-label">मोबाइल</span>
                             <span class="mem-kym-item-value"><?php echo htmlspecialchars($viewPhone ?: '—'); ?></span>
                         </div>
                     </div>
                     <div class="mem-kym-item" role="listitem">
-                        <span class="mem-kym-item-icon mem-kym-ic--amber" aria-hidden="true"><i class="fas fa-calendar-days"></i></span>
+                        <span class="mem-kym-item-icon mem-kym-ic--amber" aria-hidden="true"><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i></span>
                         <div class="mem-kym-item-body">
                             <span class="mem-kym-item-label">जन्म मिति</span>
                             <span class="mem-kym-item-value"><?php echo htmlspecialchars($kymDobDisplay); ?></span>
                         </div>
                     </div>
                     <div class="mem-kym-item mem-kym-item--wide" role="listitem">
-                        <span class="mem-kym-item-icon mem-kym-ic--rose" aria-hidden="true"><i class="fas fa-location-dot"></i></span>
+                        <span class="mem-kym-item-icon mem-kym-ic--rose" aria-hidden="true"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></span>
                         <div class="mem-kym-item-body">
                             <span class="mem-kym-item-label">ठेगाना</span>
                             <span class="mem-kym-item-value mem-kym-item-value--break"><?php echo htmlspecialchars($viewAddress ?: '—'); ?></span>
@@ -347,7 +353,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                 </div>
 
                 <div class="mem-kym-note" role="note">
-                    <span class="mem-kym-note-icon" aria-hidden="true"><i class="fas fa-circle-info"></i></span>
+                    <span class="mem-kym-note-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i></span>
                     <p><strong>Profile = KYM Summary</strong> हो। DOB वा अन्य विवरण सम्पादन गर्न <a href="<?php echo htmlspecialchars($kycEditUrl); ?>">पूर्ण KYM फारम</a> मार्फत मात्र अपडेट गर्नुहोस्।</p>
                 </div>
             </div>
@@ -360,12 +366,12 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
             <div class="mem-card" style="margin-bottom:18px;">
                 <?php $hasPwd = !empty($mem['password_hash']); ?>
                 <div class="mem-card-header">
-                    <div class="mem-card-title"><i class="fas fa-lock"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?></div>
+                    <div class="mem-card-title"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?></div>
                 </div>
                 <div class="mem-card-body">
                     <?php if (!$hasPwd): ?>
                     <div class="mem-alert" style="background:#fef2f2;border-left:3px solid var(--secondary-color,#c0392b);color:var(--secondary-dark,#922b21);font-size:0.8rem;padding:9px 12px;margin-bottom:12px;">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         तपाईंको account OAuth (Google/Facebook) बाट बनेको छ। तल नयाँ पासवर्ड सेट गर्नुहोस् — त्यसपछि इमेल + पासवर्डले पनि लगिन गर्न सक्नुहुनेछ।
                     </div>
                     <?php endif; ?>
@@ -388,7 +394,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                             <input type="password" name="confirm_pw" id="mem_confirm_pw" required placeholder="माथिको जस्तै" minlength="8" autocomplete="new-password">
                         </div>
                         <button type="submit" class="mem-submit-btn" style="background:linear-gradient(135deg,#374151,#1f2937);">
-                            <i class="fas fa-key me-2"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?>
+                            <i class="lucide-icon me-2" data-lucide="key" aria-hidden="true"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?>
                         </button>
                     </form>
                 </div>
@@ -397,7 +403,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
             <!-- Account info card -->
             <div class="mem-card">
                 <div class="mem-card-header">
-                    <div class="mem-card-title"><i class="fas fa-info-circle"></i>Account जानकारी</div>
+                    <div class="mem-card-title"><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>Account जानकारी</div>
                 </div>
                 <div class="mem-card-body">
                     <table style="width:100%;font-size:0.82rem;">
@@ -415,9 +421,9 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         </td></tr>
                     </table>
                     <hr style="margin:14px 0;border:none;border-top:1px solid #f3f4f6;">
-                    <a href="<?php echo $siteUrl; ?>member/logout.php"
+                    <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php"
                        style="display:block;text-align:center;padding:10px;background:#fef2f2;color:#dc2626;border-radius:10px;text-decoration:none;font-size:0.85rem;font-weight:700;border:1px solid #fecaca;">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout गर्नुहोस्
+                        <i class="lucide-icon me-2" data-lucide="log-out" aria-hidden="true"></i>Logout गर्नुहोस्
                     </a>
                 </div>
             </div>
@@ -425,16 +431,16 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
 
             <div class="mem-card d-none" style="margin-top:18px;display:none;" id="panelKycInfo">
                 <div class="mem-card-header">
-                    <div class="mem-card-title"><i class="fas fa-id-card"></i>KYC जानकारी</div>
+                    <div class="mem-card-title"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i>KYC जानकारी</div>
                     <?php if ($kycRow && !empty($kycRow['id'])): ?>
-                    <a href="<?php echo SITE_URL; ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;" rel="noopener noreferrer">
-                        <i class="fas fa-print me-1"></i>Print KYC
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;" rel="noopener noreferrer">
+                        <i class="lucide-icon me-1" data-lucide="printer" aria-hidden="true"></i>Print KYC
                     </a>
                     <?php endif; ?>
                 </div>
                 <div class="mem-card-body">
                     <?php if (!$kycRow): ?>
-                        <div class="text-muted small">केवाइएम रेकर्ड भेटिएन। <a href="<?php echo SITE_URL; ?>member/kyc.php">KYC अपडेट गर्नुहोस्</a></div>
+                        <div class="text-muted small">केवाइएम रेकर्ड भेटिएन। <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/kyc.php">KYC अपडेट गर्नुहोस्</a></div>
                     <?php else: ?>
                         <div class="mb-2">
                             <span class="badge <?php echo ($kycRow['status']==='approved' ? 'bg-success' : (($kycRow['status']==='pending') ? 'bg-warning text-dark' : 'bg-secondary')); ?>">
@@ -606,7 +612,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                             <input type="hidden" name="do_kyc_docs" value="1">
                             <?php if ($kycLocked): ?>
                             <div class="mem-alert" style="margin-bottom:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:0.8rem;padding:10px 12px;">
-                                <i class="fas fa-circle-info me-1"></i> KYC अनुमोदित छ। <strong>हराइरहेका वा फाइल नभएका</strong> कागजात मात्र थप्न सकिन्छ; पहिले नै भएको फाइल यहाँबाट बदल्न मिल्दैन।
+                                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i> KYC अनुमोदित छ। <strong>हराइरहेका वा फाइल नभएका</strong> कागजात मात्र थप्न सकिन्छ; पहिले नै भएको फाइल यहाँबाट बदल्न मिल्दैन।
                             </div>
                             <?php endif; ?>
                             <div class="small text-muted mb-2">KYM single-source कायम राख्दै, हराइरहेको कागजात यहींबाट अपडेट गर्न सक्नुहुन्छ।</div>
@@ -617,7 +623,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                                     <span class="kyc-cap-label">पासपोर्ट साइज फोटो — दुवै आँखा र दुवै कान स्पष्ट हुनुपर्छ</span>
                                     <input type="hidden" name="photo">
                                 </div>
-                                <div style="font-size:.75rem;color:#b45309;margin-top:4px;"><i class="fas fa-triangle-exclamation"></i> आँखा र कान स्पष्ट नदेखिएमा Admin ले Reject गर्नेछन्।</div>
+                                <div style="font-size:.75rem;color:#b45309;margin-top:4px;"><i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i> आँखा र कान स्पष्ट नदेखिएमा Admin ले Reject गर्नेछन्।</div>
                             </div>
                             <?php endif; ?>
                             <?php if (kycDocNeedsUpload($kycRow['citizenship_front'] ?? null)): ?>
@@ -627,7 +633,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                                     <span class="kyc-cap-label">नागरिकता अगाडिको फोटो — असली नागरिकता पत्र मात्र</span>
                                     <input type="hidden" name="citizenship_front">
                                 </div>
-                                <div style="font-size:.75rem;color:#b45309;margin-top:4px;"><i class="fas fa-triangle-exclamation"></i> राष्ट्रिय परिचयपत्र वा अन्य कागजात हाल्न नहोस्।</div>
+                                <div style="font-size:.75rem;color:#b45309;margin-top:4px;"><i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i> राष्ट्रिय परिचयपत्र वा अन्य कागजात हाल्न नहोस्।</div>
                             </div>
                             <?php endif; ?>
                             <?php if (kycDocNeedsUpload($kycRow['citizenship_back'] ?? null)): ?>
@@ -665,11 +671,11 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                                 </div>
                             </div>
                             <?php endif; ?>
-                            <button type="submit" class="mem-submit-btn" style="margin-top:4px;"><i class="fas fa-upload me-2"></i>हराइरहेको KYC कागजात अपडेट</button>
+                            <button type="submit" class="mem-submit-btn" style="margin-top:4px;"><i class="lucide-icon me-2" data-lucide="upload" aria-hidden="true"></i>हराइरहेको KYC कागजात अपडेट</button>
                         </form>
                         <?php else: ?>
                         <div class="mem-alert" style="margin-top:8px;background:#fef2f2;border-left:3px solid var(--secondary-color,#c0392b);color:var(--secondary-dark,#922b21);font-size:0.8rem;padding:9px 12px;">
-                            <i class="fas fa-database me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="database" aria-hidden="true"></i>
                             सबै KYM data single-source रूपमा सुरक्षित छ। थप field/नयाँ आवेदनको लागि
                             <a href="<?php echo htmlspecialchars($kycEditUrl); ?>" style="margin-left:6px;font-weight:700;">KYM फर्म खोल्नुहोस्</a>।
                         </div>
@@ -742,15 +748,4 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
     });
 })();
 </script>
-<style>
-@media (max-width:640px) { .mem-grid-2 { grid-template-columns:1fr !important; } }
-@media (max-width:640px) {
-    .mem-kym-card-header { flex-direction:column; align-items:stretch !important; }
-    .mem-kym-cta { justify-content:center; width:100%; }
-    .kyc-detail-table tr { display:block; border-bottom:1px solid #eef2f7; padding:6px 0; }
-    .kyc-detail-table td { display:block; width:100% !important; padding:2px 0 !important; }
-    .kyc-detail-table td:first-child { color:#475569; font-weight:700; font-size:0.76rem; }
-    .kyc-detail-table td:last-child { font-size:0.82rem; word-break:break-word; }
-}
-</style>
 <?php require __DIR__ . '/includes/chrome-foot.php'; ?>

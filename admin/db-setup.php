@@ -3,7 +3,7 @@
  * =====================================================
  * ADMIN: DB SETUP — Superadmin Only
  * =====================================================
- * ⚠️ VIEW ONLY FROM ADMIN PANEL
+ * VIEW ONLY FROM ADMIN PANEL
  * Database credentials edit garnu cPanel File Manager Bata garnus!
  *
  * Edit via cPanel:
@@ -19,6 +19,16 @@ $currentPage = 'db-setup';
  * login bypass — unlock: database.local.php भरिएको वा superadmin-config फर्म
  * ════════════════════════════════════════════════════════════════ */
 require_once __DIR__ . '/../includes/config.php';
+
+$__bootShared = __DIR__ . '/../includes/boot-shared.php';
+if (is_file($__bootShared)) {
+    require_once $__bootShared;
+    if (function_exists('coop_require_boot_shared')) {
+        coop_require_boot_shared();
+    }
+}
+unset($__bootShared);
+
 require_once __DIR__ . '/../includes/superadmin-config.php';
 
 $db = null;
@@ -117,7 +127,8 @@ if ($bootstrapMode) {
         }
     }
 } else {
-    /* Normal mode — full admin-header + superadmin check */
+    /* Normal mode — thin boot + admin-header + superadmin check */
+    require_once __DIR__ . '/includes/admin-page-boot.php';
     require_once 'includes/admin-header.php';
     if (empty($_SESSION['is_superadmin'])) {
         setFlash('error', 'यो page केवल Superadmin ले access गर्न सक्छ।');
@@ -238,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         if (file_exists($p) && @unlink($p)) $cleared++;
     }
     logSecurityEvent('schema_locks_reset', "Cleared {$cleared} schema lock files.");
-    setFlash('success', "✅ {$cleared} schema lock files cleared। अर्को page load मा schema verify हुन्छ।");
+    setFlash('success', "{$cleared} schema lock files cleared। अर्को page load मा schema verify हुन्छ।");
     redirect('db-setup.php');
     exit();
 }
@@ -271,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             }
             if (move_uploaded_file($file['tmp_name'], $dest)) {
                 logSecurityEvent('sql_file_uploaded', 'SQL file saved to database/ folder: ' . $safeName);
-                setFlash('success', '"' . htmlspecialchars($safeName) . '" database/ folder मा save भयो! तल list मा देखिन्छ — Run गर्नुहोस्।');
+                setFlash('success', '"' . htmlspecialchars($safeName, ENT_QUOTES, 'UTF-8') . '" database/ folder मा save भयो! तल list मा देखिन्छ — Run गर्नुहोस्।');
             } else {
                 setFlash('error', 'File save हुन सकेन। database/ folder को permission 755 छ कि छैन check गर्नुहोस्।');
             }
@@ -314,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         setFlash('error', 'includes/database.local.php write गर्न सकिएन। includes/ folder writable (755) र file 644 check गर्नुहोस्।');
     } elseif (file_put_contents($dbFilePath, $newContent) !== false) {
         logSecurityEvent('db_credentials_updated', 'DB credentials saved to database.local.php from admin panel');
-        setFlash('success', '✅ Database credentials `includes/database.local.php` मा save भयो! अब Migration Runner चलाउनुहोस्।');
+        setFlash('success', 'Database credentials `includes/database.local.php` मा save भयो! अब Migration Runner चलाउनुहोस्।');
     } else {
         setFlash('error', 'database.local.php save हुन सकेन। cPanel File Manager बाट manually बनाउनुहोस्।');
     }
@@ -370,20 +381,25 @@ if (!function_exists('execStatement')) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
 
+    /* Bootstrap mode skips admin-header CSRF; require token here for all setup actions. */
+    if (!function_exists('verifyCSRFToken') || !verifyCSRFToken()) {
+        $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i>सुरक्षा जाँच असफल (CSRF)। पृष्ठ refresh गरेर पुनः प्रयास गर्नुहोस्।</div>';
+    } else {
+
     $action = $_POST['action'] ?? '';
     $dangerousActions = ['reset_rebuild_testing', 'run_uploaded_sql', 'run_server_sql'];
 
     if (in_array($action, $dangerousActions, true) && !$allowDangerousSqlRunner) {
-        $actionResult = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i>Security mode: यो SQL action default मा बन्द छ। आवश्यक परे अस्थायी रूपमा <code>ALLOW_DANGEROUS_DB_SETUP_SQL</code> true गर्नुहोस्।</div>';
+        $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i>Security mode: यो SQL action default मा बन्द छ। आवश्यक परे अस्थायी रूपमा <code>ALLOW_DANGEROUS_DB_SETUP_SQL</code> true गर्नुहोस्।</div>';
     }
 
     /* ── ०. TESTING HARD RESET: पुरानो data+tables drop गरेर fresh rebuild ── */
     elseif ($action === 'reset_rebuild_testing') {
         $confirmText = trim((string)($_POST['confirm_text'] ?? ''));
         if ($confirmText !== 'RESET TEST DB') {
-            $actionResult = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i>Confirmation text mismatch। <code>RESET TEST DB</code> ठीक टाइप गर्नुहोस्।</div>';
+            $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i>Confirmation text mismatch। <code>RESET TEST DB</code> ठीक टाइप गर्नुहोस्।</div>';
         } elseif (!$sqlExists) {
-            $actionResult = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i><code>database/install.sql</code> नभएकोले reset पछि rebuild गर्न सकिँदैन।</div>';
+            $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i><code>database/install.sql</code> नभएकोले reset पछि rebuild गर्न सकिँदैन।</div>';
         } else {
             try {
                 $db->beginTransaction();
@@ -414,23 +430,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                         if (stripos($msg,'Duplicate column')!==false || stripos($msg,'already exists')!==false || stripos($msg,'Duplicate key')!==false) {
                             $skipped++;
                         } else {
-                            $errors[] = htmlspecialchars($msg);
+                            $errors[] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8');
                         }
                     }
                 }
                 if (empty($errors)) {
                     $actionResultOk = true;
-                    $actionResult = '<div class="alert alert-success"><i class="fas fa-check-circle fa-lg me-2"></i><strong>Testing DB hard reset सफल!</strong> पुरानो data/table drop गरेर fresh schema rebuild भयो। '
+                    $actionResult = '<div class="alert alert-success"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check" style="width:1.25rem;height:1.25rem;"></i><strong>Testing DB hard reset सफल!</strong> पुरानो data/table drop गरेर fresh schema rebuild भयो। '
                         . $ok . ' statements run भए' . ($skipped ? ' (' . $skipped . ' skip)' : '') . '.</div>';
                     logSecurityEvent('db_hard_reset_testing', 'All tables dropped and rebuilt from install.sql');
                 } else {
-                    $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle fa-lg me-2"></i><strong>Reset पछिको rebuild मा errors आए:</strong><ul class="mb-0 small mt-2">'
+                    $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x" style="width:1.25rem;height:1.25rem;"></i><strong>Reset पछिको rebuild मा errors आए:</strong><ul class="mb-0 small mt-2">'
                         . implode('', array_map(fn($e) => '<li>'.$e.'</li>', $errors)) . '</ul></div>';
                 }
             } catch (Throwable $e) {
                 if ($db->inTransaction()) $db->rollBack();
                 try { $db->exec("SET FOREIGN_KEY_CHECKS=1"); } catch (Throwable $ie) {}
-                $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>Hard reset असफल: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x"></i>Hard reset असफल: ' . htmlspecialchars($e->getMessage()) . '</div>';
             }
         }
     }
@@ -438,7 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     /* ── १. install.sql run गर्ने ── */
     elseif ($action === 'run_full_setup') {
         if (!$sqlExists) {
-            $actionResult   = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i><code>database/install.sql</code> file भेटिएन।</div>';
+            $actionResult   = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i><code>database/install.sql</code> file भेटिएन।</div>';
         } else {
             $sql = file_get_contents($sqlFile);
             try {
@@ -453,15 +469,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                     catch (\PDOException $e) {
                         $msg = $e->getMessage();
                         if (stripos($msg,'Duplicate column')!==false || stripos($msg,'already exists')!==false || stripos($msg,'Duplicate key')!==false) {
-                            $notices[] = htmlspecialchars($msg); $skipped++;
+                            $notices[] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); $skipped++;
                         } else {
-                            $errors[] = htmlspecialchars($msg);
+                            $errors[] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8');
                         }
                     }
                 }
                 if (empty($errors)) {
                     $actionResultOk = true;
-                    $actionResult = '<div class="alert alert-success"><i class="fas fa-check-circle fa-lg me-2"></i>'
+                    $actionResult = '<div class="alert alert-success"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check" style="width:1.25rem;height:1.25rem;"></i>'
                         . '<strong>Database Setup सम्पन्न!</strong> '
                         . $ok . ' statements run भए।'
                         . ($skipped > 0 ? ' (' . $skipped . ' skip — already exist)' : '')
@@ -482,13 +498,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                     $tablesFound = count(array_filter($tableStatus));
                     $tablesMissing = count($allTables) - $tablesFound;
                 } else {
-                    $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle fa-lg me-2"></i>'
+                    $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x" style="width:1.25rem;height:1.25rem;"></i>'
                         . '<strong>केही errors आए:</strong><ul class="mb-0 small mt-2">'
                         . implode('', array_map(fn($e) => '<li>' . $e . '</li>', $errors))
                         . '</ul>' . ($ok > 0 ? '<small class="text-muted d-block mt-2">' . $ok . ' statements OK थिए।</small>' : '') . '</div>';
                 }
             } catch (Exception $e) {
-                $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x"></i>Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
             }
         }
     }
@@ -502,11 +518,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                 password VARCHAR(255) NOT NULL DEFAULT '',
                 full_name VARCHAR(100) NOT NULL,
                 email VARCHAR(100),
-                role ENUM('super_admin','admin','editor') DEFAULT 'admin',
+                role ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin',
                 is_active TINYINT(1) DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_login TIMESTAMP NULL DEFAULT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+            if (function_exists('coop_widen_admin_role_enum')) {
+                coop_widen_admin_role_enum($db);
+            } else {
+                try {
+                    $db->exec(
+                        "ALTER TABLE `admin_users` MODIFY COLUMN `role` "
+                        . "ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin'"
+                    );
+                } catch (Throwable $e) { /* already wide */ }
+            }
 
             $db->exec("CREATE TABLE IF NOT EXISTS site_settings (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -525,7 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
             $actionResultOk = true;
-            $actionResult = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i><strong>Core tables बनाइयो!</strong> (admin_users, site_settings, activity_log)</div>';
+            $actionResult = '<div class="alert alert-success"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check"></i><strong>Core tables बनाइयो!</strong> (admin_users, site_settings, activity_log)</div>';
             logSecurityEvent('core_tables_created', 'Core tables created from admin panel by superadmin');
 
             foreach (['admin_users','site_settings','activity_log'] as $tbl) {
@@ -541,7 +567,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     /* ── ३. SQL Upload गरेर run गर्ने ── */
     elseif ($action === 'run_uploaded_sql') {
         if (empty($_FILES['sql_file']) || $_FILES['sql_file']['error'] !== UPLOAD_ERR_OK) {
-            $actionResult = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>.sql file छान्नुहोस्।</div>';
+            $actionResult = '<div class="alert alert-warning"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="triangle-alert"></i>.sql file छान्नुहोस्।</div>';
         } else {
             $file = $_FILES['sql_file'];
             $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -560,17 +586,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                         catch (\PDOException $e) {
                             $msg = $e->getMessage();
                             if (stripos($msg,'Duplicate column')!==false || stripos($msg,'already exists')!==false) { $skipped++; }
-                            else { $errors[] = htmlspecialchars($msg); }
+                            else { $errors[] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8'); }
                         }
                     }
                     if (empty($errors)) {
                         $actionResultOk = true;
-                        $actionResult = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>'
-                            . '<strong>' . htmlspecialchars($file['name']) . ' सफलतापूर्वक run भयो!</strong> '
+                        $actionResult = '<div class="alert alert-success"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check"></i>'
+                            . '<strong>' . htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') . ' सफलतापूर्वक run भयो!</strong> '
                             . $ok . ' statements execute भए।' . ($skipped > 0 ? ' (' . $skipped . ' skip)' : '') . '</div>';
                         logSecurityEvent('sql_upload_run', 'Uploaded SQL run from db-setup: ' . $file['name']);
                     } else {
-                        $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle me-2"></i>'
+                        $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x"></i>'
                             . '<strong>Errors (' . count($errors) . '):</strong><ul class="mb-0 small mt-1">'
                             . implode('', array_map(fn($e) => '<li>' . $e . '</li>', $errors))
                             . '</ul></div>';
@@ -592,9 +618,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
         $realFile = @is_file($filePath) ? @realpath($filePath) : false;
 
         if (empty($safeFile) || pathinfo($safeFile, PATHINFO_EXTENSION) !== 'sql') {
-            $actionResult = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i>गलत file। केवल .sql files मात्र।</div>';
+            $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i>गलत file। केवल .sql files मात्र।</div>';
         } elseif ($realBase === false || $realFile === false || !str_starts_with($realFile, $realBase . DIRECTORY_SEPARATOR)) {
-            $actionResult = '<div class="alert alert-danger"><i class="fas fa-ban me-2"></i><code>' . htmlspecialchars($safeFile, ENT_QUOTES, 'UTF-8') . '</code> — अनुमति छैन वा file भेटिएन।</div>';
+            $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="ban"></i><code>' . htmlspecialchars($safeFile, ENT_QUOTES, 'UTF-8') . '</code> — अनुमति छैन वा file भेटिएन।</div>';
         } else {
             $sql = file_get_contents($filePath);
             try {
@@ -609,14 +635,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                         if (stripos($msg,'Duplicate column')!==false || stripos($msg,'already exists')!==false || stripos($msg,'Duplicate key')!==false) {
                             $skipped++;
                         } else {
-                            $errors[] = htmlspecialchars($msg);
+                            $errors[] = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8');
                         }
                     }
                 }
                 if (empty($errors)) {
                     $actionResultOk = true;
-                    $actionResult = '<div class="alert alert-success"><i class="fas fa-check-circle fa-lg me-2"></i>'
-                        . '<strong><code>' . htmlspecialchars($safeFile) . '</code> सफलतापूर्वक run भयो!</strong> '
+                    $actionResult = '<div class="alert alert-success"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check" style="width:1.25rem;height:1.25rem;"></i>'
+                        . '<strong><code>' . htmlspecialchars($safeFile, ENT_QUOTES, 'UTF-8') . '</code> सफलतापूर्वक run भयो!</strong> '
                         . $ok . ' statements execute भए।'
                         . ($skipped > 0 ? ' (' . $skipped . ' skip — already exist)' : '')
                         . '</div>';
@@ -631,7 +657,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
                     $tablesFound   = count(array_filter($tableStatus));
                     $tablesMissing = count($allTables) - $tablesFound;
                 } else {
-                    $actionResult = '<div class="alert alert-danger"><i class="fas fa-times-circle fa-lg me-2"></i>'
+                    $actionResult = '<div class="alert alert-danger"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-x" style="width:1.25rem;height:1.25rem;"></i>'
                         . '<strong>Errors (' . count($errors) . '):</strong>'
                         . '<ul class="mb-0 small mt-2">'
                         . implode('', array_map(fn($e) => '<li>' . $e . '</li>', $errors))
@@ -646,6 +672,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     }
 
     /* update_db_credentials र toggle_lock अब माथि DB-independent block मा handle हुन्छ */
+    } /* end CSRF-ok branch */
 }
 
 /* ── Bootstrap: unlock नभएसम्म — सुरक्षित locked UI ── */
@@ -659,7 +686,13 @@ if ($bootstrapMode && !$bootstrapSetupUnlocked) {
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DB Setup — Locked</title>
-<link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/vendor/bootstrap.min.css');
+} else {
+    echo '<link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">' . "\n";
+}
+?>
 </head>
 <body class="bg-light p-4">
 <div class="container dbs-bootstrap-wrap">
@@ -717,13 +750,27 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DB Setup — Bootstrap Mode</title>
-<link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/vendor/bootstrap.min.css');
+} else {
+    echo '<link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">' . "\n";
+}
+?>
 
-<style>body{background:#f4f6f8;}.bootstrap-banner{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:12px 20px;text-align:center;font-weight:600;}</style>
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/admin-db-setup-page.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/admin-db-setup-page.css');
+} else {
+    echo '<link rel="stylesheet" href="../assets/css/admin-db-setup-page.css">' . "\n";
+}
+?>
 </head>
 <body>
 <div class="bootstrap-banner">
-  <i class="fas fa-tools me-2"></i>BOOTSTRAP MODE — Database connect भएन वा Admin user छैन। Setup पूरा भएपछि login पेज देखिनेछ।
+  <i class="lucide-icon me-2" aria-hidden="true" data-lucide="wrench"></i>BOOTSTRAP MODE — Database connect भएन वा Admin user छैन। Setup पूरा भएपछि login पेज देखिनेछ।
   <?php if (!empty($bootstrapAutoUnlockFromDbFile)): ?>
   <div class="dbs-boot-note">
     <code>includes/database.local.php</code> मा DB name/user भरिएको छ — सिधै यहाँ credentials मिलाउनुहोस् वा <code>install.sql</code> चलाउनुहोस्।
@@ -738,7 +785,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
     <!-- Page Header -->
     <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
         <div class="dbs-page-icon">
-            <i class="fas fa-database fa-xl"></i>
+            <i class="lucide-icon" aria-hidden="true" data-lucide="database" style="width:1.5rem;height:1.5rem;"></i>
         </div>
         <div>
             <h4 class="mb-0 fw-bold">DB Setup <span class="badge bg-secondary">View Only</span></h4>
@@ -746,26 +793,26 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         </div>
         <div class="ms-auto d-flex gap-2 flex-wrap">
             <a href="run-migration.php" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-code-branch me-1"></i>Migration Runner
+                <i class="lucide-icon me-1" data-lucide="git-branch" aria-hidden="true"></i>Migration Runner
             </a>
             <form method="post" class="d-inline" onsubmit="return confirm('Schema lock files clear गर्ने? अर्को page load मा सबै tables verify हुन्छ।')">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="reset_schema_locks">
                 <button type="submit" class="btn btn-outline-warning btn-sm" title="v2: Schema लाई पुनः verify गर्न lock files हटाउने">
-                    <i class="fas fa-sync me-1"></i>Re-verify Schema
+                    <i class="lucide-icon me-1" data-lucide="refresh-cw" aria-hidden="true"></i>Re-verify Schema
                 </button>
             </form>
             <a href="site-setup.php" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-sliders me-1"></i>Site Setup
+                <i class="lucide-icon me-1" data-lucide="sliders-horizontal" aria-hidden="true"></i>Site Setup
             </a>
         </div>
     </div>
 
-    <!-- ⚠️ VIEW ONLY WARNING -->
+    <!-- VIEW ONLY WARNING -->
     <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i>
         <div>
-            <strong>⚠️ View Only:</strong> 
+            <strong>View Only:</strong> 
             Database credentials edit garnu cPanel File Manager <code>(includes/database.local.php)</code> bata garnus!
             Admin panel ma sirf table status herna मात्र सकिन्छ।
         </div>
@@ -780,8 +827,8 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
     <?php $flash = getFlash(); if ($flash): ?>
     <?php $flashTypeClass = in_array(($flash['type'] ?? ''), ['success', 'info', 'warning'], true) ? $flash['type'] : 'danger'; ?>
     <div class="alert alert-<?php echo $flashTypeClass; ?> alert-dismissible fade show mb-3">
-        <i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':($flash['type']==='info'?'info-circle':'exclamation-circle'); ?> me-2"></i>
-        <?php echo htmlspecialchars($flash['message']); ?>
+        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="<?php echo $flash['type']==='success'?'circle-check':($flash['type']==='info'?'info':'circle-alert'); ?>"></i>
+        <?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <?php endif; ?>
@@ -789,10 +836,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
     <!-- DB Connection Error Banner -->
     <?php if ($dbError): ?>
     <div class="alert alert-danger d-flex align-items-start gap-2 mb-4">
-        <i class="fas fa-exclamation-circle fa-lg mt-1 flex-shrink-0"></i>
+        <i class="lucide-icon lucide-lg mt-1 flex-shrink-0" data-lucide="circle-alert" aria-hidden="true"></i>
         <div>
             <strong>Database Connection असफल!</strong><br>
-            <code class="small"><?php echo htmlspecialchars($dbError); ?></code><br>
+            <code class="small"><?php echo htmlspecialchars($dbError, ENT_QUOTES, 'UTF-8'); ?></code><br>
             <small class="text-muted">
                 <code>includes/database.local.php</code> (वा पुरानो <code>includes/database.php</code>) मा DB credentials check गर्नुहोस्।
             </small>
@@ -807,11 +854,11 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100 text-center p-3">
                 <?php if ($db): ?>
-                    <div class="dbs-stat-icon is-ok"><i class="fas fa-check-circle"></i></div>
+                    <div class="dbs-stat-icon is-ok"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                     <div class="fw-bold mt-1">DB Connected</div>
                     <div class="text-muted small">Database जोडिएको छ</div>
                 <?php else: ?>
-                    <div class="dbs-stat-icon is-bad"><i class="fas fa-times-circle"></i></div>
+                    <div class="dbs-stat-icon is-bad"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
                     <div class="fw-bold mt-1">DB Disconnected</div>
                     <div class="text-muted small">Connection छैन</div>
                 <?php endif; ?>
@@ -822,7 +869,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100 text-center p-3">
                 <div class="dbs-stat-icon <?php echo $tablesMissing>0 ? 'is-bad' : 'is-ok'; ?>">
-                    <i class="fas fa-table"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="table"></i>
                 </div>
                 <div class="fw-bold mt-1"><?php echo $tablesFound; ?>/<?php echo count($allTables); ?> Tables</div>
                 <div class="text-muted small">
@@ -835,7 +882,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100 text-center p-3">
                 <div class="dbs-stat-icon <?php echo $sqlExists ? 'is-info' : 'is-muted'; ?>">
-                    <i class="fas fa-file-code"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="file-code"></i>
                 </div>
                 <div class="fw-bold mt-1"><?php echo $sqlExists?'install.sql OK':'install.sql छैन'; ?></div>
                 <div class="text-muted small">
@@ -848,7 +895,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100 text-center p-3">
                 <div class="dbs-stat-icon <?php echo $setupLocked ? 'is-ok' : 'is-bad'; ?>">
-                    <i class="fas fa-<?php echo $setupLocked?'lock':'lock-open'; ?>"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo $setupLocked?'lock':'lock-open'; ?>"></i>
                 </div>
                 <div class="fw-bold mt-1"><?php echo $setupLocked?'Install Locked':'Install Unlocked'; ?></div>
                 <div class="text-muted small">Public URL <?php echo $setupLocked?'बन्द':'खुल्ला'; ?> छ</div>
@@ -865,7 +912,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm mb-4 dbs-card dbs-card-primary">
                 <div class="card-header py-3 d-flex align-items-center gap-2"
                      >
-                    <i class="fas fa-play-circle fa-lg"></i>
+                    <i class="lucide-icon lucide-lg" data-lucide="play-circle" aria-hidden="true"></i>
                     <div>
                         <h5 class="mb-0">Full Database Setup चलाउनुहोस्</h5>
                         <small class="opacity-75">install.sql — सबै tables एकैपटक बन्छन् (safe: repeat run OK)</small>
@@ -875,7 +922,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                     <?php if ($sqlExists): ?>
                     <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-3 dbs-soft-ok">
-                        <i class="fas fa-file-code fa-xl text-success mt-1"></i>
+                        <i class="lucide-icon lucide-xl text-success mt-1" data-lucide="file-code" aria-hidden="true"></i>
                         <div>
                             <div class="fw-semibold">install.sql</div>
                             <small class="text-muted">
@@ -885,10 +932,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         </div>
                         <div class="ms-auto">
                             <?php if ($tablesMissing === 0): ?>
-                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>सबै tables छन्</span>
+                                <span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>सबै tables छन्</span>
                             <?php else: ?>
                                 <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-exclamation-triangle me-1"></i><?php echo $tablesMissing; ?> tables छैनन्
+                                    <i class="lucide-icon me-1" aria-hidden="true" data-lucide="triangle-alert"></i><?php echo $tablesMissing; ?> tables छैनन्
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -897,16 +944,16 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     <form method="POST"
                           onsubmit="return confirm('install.sql run गर्ने? (data delete हुँदैन — safe operation)\n\nOK = Run गर्नुहोस्')">
                         <input type="hidden" name="action" value="run_full_setup">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <button type="submit" class="btn btn-success btn-lg px-4">
-                            <i class="fas fa-play-circle me-2"></i>Database Setup Run गर्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="play-circle" aria-hidden="true"></i>Database Setup Run गर्नुहोस्
                         </button>
                         <span class="text-muted small ms-2">Repeat run गर्यो भने पनि data delete हुँदैन।</span>
                     </form>
 
                     <?php else: ?>
                     <div class="alert alert-warning mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="triangle-alert"></i>
                         <strong>install.sql file भेटिएन।</strong><br>
                         तल "SQL File Upload" section बाट आफ्नो install.sql upload गरेर run गर्नुहोस्।
                     </div>
@@ -918,7 +965,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm mb-4 dbs-card dbs-card-danger">
                 <div class="card-header py-3 d-flex align-items-center gap-2"
                      >
-                    <i class="fas fa-skull-crossbones fa-lg"></i>
+                    <i class="lucide-icon lucide-lg" data-lucide="skull" aria-hidden="true"></i>
                     <div>
                         <h5 class="mb-0">Testing Hard Reset (पुरानो data हटाउने)</h5>
                         <small class="opacity-75">सबै tables drop गरेर install.sql बाट fresh rebuild — irreversible</small>
@@ -926,17 +973,17 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                 </div>
                 <div class="card-body">
                     <div class="alert alert-danger mb-3">
-                        <i class="fas fa-triangle-exclamation me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i>
                         यो action ले पुरानो data पूर्ण हटाउँछ। Testing environment मा मात्र प्रयोग गर्नुहोस्।
                     </div>
                     <form method="POST" onsubmit="return confirm('यो action irreversible छ। सबै data/table हटाएर fresh rebuild गर्ने?\n\nOK = जारी राख्नुहोस्')">
                         <input type="hidden" name="action" value="reset_rebuild_testing">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <label for="db_confirm_text" class="form-label small fw-semibold">Confirm text टाइप गर्नुहोस्: <code>RESET TEST DB</code></label>
                         <div class="input-group">
                             <input type="text" name="confirm_text" id="db_confirm_text" class="form-control" placeholder="RESET TEST DB" required>
                             <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash me-1"></i>Hard Reset + Rebuild
+                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>Hard Reset + Rebuild
                             </button>
                         </div>
                     </form>
@@ -947,7 +994,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm mb-4 dbs-card dbs-card-info">
                 <div class="card-header py-3 d-flex align-items-center gap-2"
                      >
-                    <i class="fas fa-folder-open fa-lg"></i>
+                    <i class="lucide-icon lucide-lg" data-lucide="folder-open" aria-hidden="true"></i>
                     <div>
                         <h5 class="mb-0">Database Folder SQL Files</h5>
                         <small class="opacity-75">
@@ -967,10 +1014,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                           class="d-flex align-items-end gap-2 flex-wrap"
                           onsubmit="return confirm('यो SQL file database/ folder मा save गर्ने?\n\nSave भएपछि तल list मा देखिनेछ — त्यहाँबाट Run गर्न मिल्छ।')">
                         <input type="hidden" name="action"     value="upload_to_db_folder">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <div class="flex-grow-1">
                             <label for="newSqlFileInput" class="form-label fw-semibold mb-1 small">
-                                <i class="fas fa-file-arrow-up me-1 text-primary"></i>
+                                <i class="lucide-icon me-1 text-primary" data-lucide="upload" aria-hidden="true"></i>
                                 नयाँ SQL File upload गर्नुहोस् <span class="text-muted fw-normal">(database/ folder मा save हुन्छ)</span>
                             </label>
                             <input type="file" name="new_sql_file" accept=".sql"
@@ -982,7 +1029,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         </div>
                         <div>
                             <button type="submit" class="btn btn-primary btn-sm px-3">
-                                <i class="fas fa-cloud-upload-alt me-1"></i>Upload &amp; Save
+                                <i class="lucide-icon me-1" data-lucide="cloud-upload" aria-hidden="true"></i>Upload &amp; Save
                             </button>
                         </div>
                     </form>
@@ -992,7 +1039,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                     <?php if (!is_dir($dbFolderPath)): ?>
                     <div class="p-4 text-center text-muted">
-                        <i class="fas fa-folder-xmark fa-2x mb-2 opacity-25 d-block"></i>
+                        <i class="lucide-icon lucide-2x mb-2 opacity-25 d-block" data-lucide="folder-x" aria-hidden="true"></i>
                         <strong>database/ folder भेटिएन।</strong><br>
                         <small>
                             माथिबाट SQL file upload गर्नुहोस् — folder automatically बन्नेछ।
@@ -1001,7 +1048,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                     <?php elseif (empty($serverSqlFiles)): ?>
                     <div class="p-4 text-center text-muted">
-                        <i class="fas fa-file-arrow-up fa-2x mb-2 opacity-25 d-block"></i>
+                        <i class="lucide-icon lucide-2x mb-2 opacity-25 d-block" data-lucide="upload" aria-hidden="true"></i>
                         <strong>database/ folder खाली छ।</strong><br>
                         <small>माथिबाट SQL file upload गर्नुहोस् — यहाँ देखिनेछ।</small>
                     </div>
@@ -1011,9 +1058,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <table class="table table-hover align-middle mb-0 small">
                             <thead class="dbs-soft-head">
                                 <tr>
-                                    <th class="ps-3"><i class="fas fa-file-code me-1 text-primary"></i>File Name</th>
-                                    <th><i class="fas fa-weight-hanging me-1 text-muted"></i>Size</th>
-                                    <th><i class="fas fa-clock me-1 text-muted"></i>Modified</th>
+                                    <th class="ps-3"><i class="lucide-icon me-1 text-primary" data-lucide="file-code" aria-hidden="true"></i>File Name</th>
+                                    <th><i class="lucide-icon me-1 text-muted" data-lucide="weight" aria-hidden="true"></i>Size</th>
+                                    <th><i class="lucide-icon me-1 text-muted" data-lucide="clock" aria-hidden="true"></i>Modified</th>
                                     <th class="text-center pe-3">Run</th>
                                 </tr>
                             </thead>
@@ -1022,9 +1069,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                                 <tr>
                                     <td class="ps-3">
                                         <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-file-code fa-lg text-primary opacity-75"></i>
+                                            <i class="lucide-icon lucide-lg text-primary opacity-75" data-lucide="file-code" aria-hidden="true"></i>
                                             <div>
-                                                <div class="fw-semibold"><?php echo htmlspecialchars($sf['name']); ?></div>
+                                                <div class="fw-semibold"><?php echo htmlspecialchars($sf['name'], ENT_QUOTES, 'UTF-8'); ?></div>
                                                 <?php if ($sf['name'] === 'install.sql'): ?>
                                                 <span class="badge bg-success dbs-mini-badge">मुख्य file</span>
                                                 <?php endif; ?>
@@ -1047,9 +1094,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                                               onsubmit="return confirm('«<?php echo htmlspecialchars($sf['name'], ENT_QUOTES); ?>» run गर्ने?\n\nData delete हुँदैन — safe operation।\n\nOK = Run गर्नुहोस्')">
                                             <input type="hidden" name="action"       value="run_server_sql">
                                             <input type="hidden" name="sql_filename" value="<?php echo htmlspecialchars($sf['name'], ENT_QUOTES); ?>">
-                                            <input type="hidden" name="csrf_token"   value="<?php echo $csrfToken; ?>">
+                                            <input type="hidden" name="csrf_token"   value="<?php echo e($csrfToken); ?>">
                                             <button type="submit" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-play-circle me-1"></i>Run
+                                                <i class="lucide-icon me-1" data-lucide="play-circle" aria-hidden="true"></i>Run
                                             </button>
                                         </form>
                                     </td>
@@ -1059,7 +1106,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         </table>
                     </div>
                     <div class="p-2 text-muted small border-top dbs-table-footnote">
-                        <i class="fas fa-info-circle me-1 text-primary"></i>
+                        <i class="lucide-icon me-1 text-primary" data-lucide="info" aria-hidden="true"></i>
                         नयाँ .sql file थप्न: cPanel → File Manager → <code>public_html/database/</code> मा upload गर्नुहोस् — यहाँ automatically देखिनेछ।
                     </div>
                     <?php endif; ?>
@@ -1070,7 +1117,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header py-2 d-flex align-items-center gap-2"
                      >
-                    <i class="fas fa-file-upload"></i>
+                    <i class="lucide-icon" data-lucide="file-up" aria-hidden="true"></i>
                     <div>
                         <h6 class="mb-0">Computer बाट SQL Upload गरेर Run गर्नुहोस्</h6>
                         <small class="opacity-75">आफ्नो computer बाट .sql file directly run गर्नुहोस्</small>
@@ -1080,18 +1127,18 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     <form method="POST" enctype="multipart/form-data"
                           onsubmit="return confirm('Upload गरिएको SQL file run गर्ने?\n\nOK = Run गर्नुहोस्')">
                         <input type="hidden" name="action" value="run_uploaded_sql">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-8">
                                 <label for="db_sql_file" class="form-label fw-semibold small">
-                                    <i class="fas fa-file-code me-1 text-primary"></i>.sql File छान्नुहोस्:
+                                    <i class="lucide-icon me-1 text-primary" data-lucide="file-code" aria-hidden="true"></i>.sql File छान्नुहोस्:
                                 </label>
                                 <input type="file" name="sql_file" id="db_sql_file" accept=".sql" class="form-control" required>
                                 <div class="form-text">केवल .sql — max 25MB। File server मा save हुँदैन, directly execute हुन्छ।</div>
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-play-circle me-1"></i>Run SQL File
+                                    <i class="lucide-icon me-1" data-lucide="play-circle" aria-hidden="true"></i>Run SQL File
                                 </button>
                             </div>
                         </div>
@@ -1103,7 +1150,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header py-2"
                      >
-                    <h6 class="mb-0"><i class="fas fa-table me-2"></i>Core Tables मात्र बनाउनुहोस्</h6>
+                    <h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="table" aria-hidden="true"></i>Core Tables मात्र बनाउनुहोस्</h6>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-3">
@@ -1112,9 +1159,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     </p>
                     <form method="POST" onsubmit="return confirm('Core tables बनाउने? (already exist भए skip हुन्छन्)')">
                         <input type="hidden" name="action" value="create_core_tables">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <button type="submit" class="btn btn-outline-secondary">
-                            <i class="fas fa-layer-group me-1"></i>Core Tables बनाउनुहोस्
+                            <i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>Core Tables बनाउनुहोस्
                         </button>
                     </form>
                 </div>
@@ -1130,23 +1177,23 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                 <div class="card-header py-2"
                      >
                     <h6 class="mb-0">
-                        <i class="fas fa-<?php echo $setupLocked?'lock':'lock-open'; ?> me-2"></i>
+                        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="<?php echo $setupLocked?'lock':'lock-open'; ?>"></i>
                         install.php Access Control
                     </h6>
                 </div>
                 <div class="card-body text-center">
                     <div class="mb-2 dbs-lock-icon <?php echo $setupLocked ? 'is-locked' : 'is-unlocked'; ?>">
-                        <i class="fas fa-<?php echo $setupLocked?'shield-check':'shield-exclamation'; ?>"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo $setupLocked?'shield-check':'shield-alert'; ?>"></i>
                     </div>
                     <p class="small text-muted mb-3">
                         <?php echo htmlspecialchars($installer['detail'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                     </p>
                     <form method="POST" onsubmit="return confirm('<?php echo $setupLocked ? 'Install lock हटाउने?' : 'install.php lock गर्ने?'; ?>')">
                         <input type="hidden" name="action" value="toggle_lock">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <button type="submit"
                                 class="btn btn-sm <?php echo $setupLocked?'btn-outline-danger':'btn-danger'; ?> w-100">
-                            <i class="fas fa-<?php echo $setupLocked?'lock-open':'lock'; ?> me-1"></i>
+                            <i class="lucide-icon me-1" aria-hidden="true" data-lucide="<?php echo $setupLocked?'lock-open':'lock'; ?>"></i>
                             <?php echo $setupLocked ? 'Unlock locks' : 'Lock गर्नुहोस् (सिफारिस)'; ?>
                         </button>
                     </form>
@@ -1156,24 +1203,24 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <!-- Quick Links -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header py-2 bg-light">
-                    <h6 class="mb-0 text-muted"><i class="fas fa-link me-2"></i>सम्बन्धित Links</h6>
+                    <h6 class="mb-0 text-muted"><i class="lucide-icon me-2" data-lucide="link" aria-hidden="true"></i>सम्बन्धित Links</h6>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
                         <a href="settings.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-sliders me-2 text-primary"></i>Site Settings
+                            <i class="lucide-icon me-2 text-primary" data-lucide="sliders-horizontal" aria-hidden="true"></i>Site Settings
                         </a>
                         <a href="manage-admins.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-users-gear me-2 text-success"></i>Admin User व्यवस्थापन
+                            <i class="lucide-icon me-2 text-success" data-lucide="users-round" aria-hidden="true"></i>Admin User व्यवस्थापन
                         </a>
                         <a href="backup-restore.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-shield-alt me-2 text-danger"></i>Backup / Restore
+                            <i class="lucide-icon me-2 text-danger" data-lucide="shield-check" aria-hidden="true"></i>Backup / Restore
                         </a>
                         <a href="system-info.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-server me-2 text-secondary"></i>System Info
+                            <i class="lucide-icon me-2 text-secondary" data-lucide="server" aria-hidden="true"></i>System Info
                         </a>
                         <a href="site-health.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-heart-pulse me-2 text-danger"></i>Site Health
+                            <i class="lucide-icon me-2 text-danger" data-lucide="heart-pulse" aria-hidden="true"></i>Site Health
                         </a>
                     </div>
                 </div>
@@ -1183,7 +1230,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
             <div class="card border-0 shadow-sm">
                 <div class="card-header py-2 d-flex align-items-center gap-2"
                      >
-                    <i class="fas fa-key"></i>
+                    <i class="lucide-icon" data-lucide="key" aria-hidden="true"></i>
                     <div>
                         <h6 class="mb-0">DB Credentials बदल्नुहोस्</h6>
                         <small class="opacity-75 dbs-mini-help">includes/database.local.php</small>
@@ -1195,7 +1242,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                 <div class="card-body p-3">
                     <?php if (!$adminDbCredWritable): ?>
                     <div class="alert alert-warning py-2 small mb-3">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="triangle-alert"></i>
                         <strong>includes/ folder वा database.local.php write गर्न मिल्दैन!</strong><br>
                         cPanel → File Manager: includes/ 755, database.local.php 644।
                     </div>
@@ -1204,12 +1251,12 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     <form method="POST" action=""
                           onsubmit="return confirm('DB credentials अपडेट गर्ने?\n\nGalat values राख्यो भने site काम गर्न छाड्छ!\n\nOK = अपडेट गर्नुहोस्')">
                         <input type="hidden" name="action"     value="update_db_credentials">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                         <!-- DB Host -->
                         <div class="mb-2">
                             <label for="db_host" class="form-label fw-semibold mb-1 dbs-form-label-sm">
-                                <i class="fas fa-server me-1 text-muted"></i>DB Host
+                                <i class="lucide-icon me-1 text-muted" data-lucide="server" aria-hidden="true"></i>DB Host
                             </label>
                             <input type="text" name="db_host" id="db_host" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_HOST') ? DB_HOST : 'localhost'); ?>"
@@ -1220,7 +1267,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <!-- DB Name -->
                         <div class="mb-2">
                             <label for="db_name" class="form-label fw-semibold mb-1 dbs-form-label-sm">
-                                <i class="fas fa-database me-1 text-muted"></i>Database Name
+                                <i class="lucide-icon me-1 text-muted" data-lucide="database" aria-hidden="true"></i>Database Name
                             </label>
                             <input type="text" name="db_name" id="db_name" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_NAME') ? DB_NAME : ''); ?>"
@@ -1230,7 +1277,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <!-- DB User -->
                         <div class="mb-2">
                             <label for="db_user" class="form-label fw-semibold mb-1 dbs-form-label-sm">
-                                <i class="fas fa-user me-1 text-muted"></i>DB Username
+                                <i class="lucide-icon me-1 text-muted" data-lucide="user" aria-hidden="true"></i>DB Username
                             </label>
                             <input type="text" name="db_user" id="db_user" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_USER') ? DB_USER : ''); ?>"
@@ -1240,7 +1287,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <!-- DB Password -->
                         <div class="mb-2">
                             <label for="dbPassInput" class="form-label fw-semibold mb-1 dbs-form-label-sm">
-                                <i class="fas fa-lock me-1 text-muted"></i>DB Password
+                                <i class="lucide-icon me-1 text-muted" data-lucide="lock" aria-hidden="true"></i>DB Password
                             </label>
                             <div class="input-group input-group-sm">
                                 <input type="password" name="db_pass" id="dbPassInput"
@@ -1249,7 +1296,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                                        placeholder="DB password" autocomplete="new-password">
                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                         onclick="var i=document.getElementById('dbPassInput');i.type=i.type==='password'?'text':'password';" aria-label="View" title="View">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -1257,7 +1304,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <!-- Site URL -->
                         <div class="mb-3">
                             <label for="db_site_url" class="form-label fw-semibold mb-1 dbs-form-label-sm">
-                                <i class="fas fa-globe me-1 text-muted"></i>Site URL
+                                <i class="lucide-icon me-1 text-muted" data-lucide="globe" aria-hidden="true"></i>Site URL
                             </label>
                             <input type="url" name="site_url" id="db_site_url" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('SITE_URL') ? SITE_URL : ''); ?>"
@@ -1267,13 +1314,13 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                         <!-- Warning -->
                         <div class="p-2 rounded-2 mb-3 dbs-cred-warning">
-                            <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                            <i class="lucide-icon text-warning me-1" data-lucide="triangle-alert" aria-hidden="true"></i>
                             <strong>सावधान!</strong> गलत credentials राख्यो भने site काम गर्दैन। Save गर्नु अघि values confirm गर्नुहोस्।
                         </div>
 
                         <button type="submit" class="btn btn-sm btn-dark w-100 fw-semibold"
                                 <?php echo !$adminDbCredWritable ? 'disabled' : ''; ?>>
-                            <i class="fas fa-save me-1"></i>Credentials Save गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>Credentials Save गर्नुहोस्
                         </button>
                     </form>
                 </div>
@@ -1286,7 +1333,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
     <div class="card border-0 shadow-sm mt-2">
         <div class="card-header py-2 d-flex align-items-center justify-content-between"
              >
-            <span><i class="fas fa-table me-2"></i>Database Tables Status</span>
+            <span><i class="lucide-icon me-2" data-lucide="table" aria-hidden="true"></i>Database Tables Status</span>
             <span class="badge <?php echo $tablesMissing===0?'bg-success':'bg-warning text-dark'; ?>">
                 <?php echo $tablesFound; ?>/<?php echo count($allTables); ?> Tables
             </span>
@@ -1298,10 +1345,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     $exists = $tableStatus[$tbl] ?? false; ?>
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="d-flex align-items-center gap-2 p-2 border-bottom border-end dbs-table-status-item">
-                        <i class="fas fa-<?php echo $exists?'check-circle text-success':'times-circle text-danger'; ?>"></i>
+                        <i class="lucide-icon <?php echo $exists?'text-success':'text-danger'; ?>" aria-hidden="true" data-lucide="<?php echo $exists?'circle-check':'circle-x'; ?>"></i>
                         <div>
-                            <div class="fw-semibold text-truncate dbs-table-status-label"><?php echo htmlspecialchars($label); ?></div>
-                            <code class="text-muted dbs-mini-help"><?php echo htmlspecialchars($tbl); ?></code>
+                            <div class="fw-semibold text-truncate dbs-table-status-label"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></div>
+                            <code class="text-muted dbs-mini-help"><?php echo htmlspecialchars($tbl, ENT_QUOTES, 'UTF-8'); ?></code>
                         </div>
                     </div>
                 </div>
@@ -1310,7 +1357,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         </div>
         <?php else: ?>
         <div class="card-body text-center py-3 text-muted">
-            <i class="fas fa-database me-2"></i>Database connected भएपछि table status देखिनेछ।
+            <i class="lucide-icon me-2" data-lucide="database" aria-hidden="true"></i>Database connected भएपछि table status देखिनेछ।
         </div>
         <?php endif; ?>
     </div>

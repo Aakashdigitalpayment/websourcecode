@@ -131,16 +131,9 @@ if (!function_exists('core_render_portal_fatal_page')) {
         echo '<!DOCTYPE html><html lang="ne"><head><meta charset="UTF-8">';
         echo '<meta name="viewport" content="width=device-width,initial-scale=1">';
         echo '<title>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</title>';
-        echo '<style>
-            body{margin:0;background:linear-gradient(135deg,#fef2f2,#fee2e2);min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:"Mukta","Noto Sans Devanagari","Segoe UI",sans-serif;padding:20px}
-            .err-box{max-width:480px;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.1);padding:32px;text-align:center}
-            .err-icon{width:72px;height:72px;background:#fee2e2;color:#b91c1c;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px}
-            h1{color:#1f2937;font-size:1.25rem;margin:0 0 10px}
-            p{color:#6b7280;font-size:.9rem;line-height:1.6;margin:0 0 22px}
-            .err-detail{background:#fef2f2;color:#991b1b;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:.78rem;margin:14px 0;text-align:left;border:1px solid #fecaca;word-break:break-all}
-            .err-btn{display:inline-block;background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:600;font-size:.88rem}
-            .err-btn:hover{opacity:.92}
-        </style></head><body>';
+        $__fatalCss = (defined('SITE_URL') ? rtrim((string) SITE_URL, '/') . '/' : '/') . 'assets/css/core-portal-fatal-page.css';
+        echo '<link rel="stylesheet" href="' . htmlspecialchars($__fatalCss, ENT_QUOTES, 'UTF-8') . '">';
+        echo '</head><body>';
         echo '<div class="err-box">';
         echo '<div class="err-icon">⚠</div>';
         echo '<h1>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</h1>';
@@ -261,34 +254,19 @@ require_once ROOT_PATH . 'includes/config.php';
 require_once CORE_PATH . '/helpers.php';
 
 // ═══════════════════════════════════════════════════════════════
-// STEP 4: BS/AD Date Converter
+// STEP 4–9: Shared modules (SSOT: includes/boot-shared.php)
 // ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/nepali-bs-convert.php');
-
-// ═══════════════════════════════════════════════════════════════
-// STEP 5: Audit + Soft-delete helpers
-// ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/audit.php');
-
-// ═══════════════════════════════════════════════════════════════
-// STEP 6: Notification Templates
-// ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/notification-templates.php');
-
-// ═══════════════════════════════════════════════════════════════
-// STEP 7: Role-Based Access Control
-// ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/auth-roles.php');
-
-// ═══════════════════════════════════════════════════════════════
-// STEP 8: Cross-Panel Uniform UI helpers
-// ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/panel-uniform.php');
-
-// ═══════════════════════════════════════════════════════════════
-// STEP 9: Safe Query Helpers
-// ═══════════════════════════════════════════════════════════════
-core_require_if_exists('includes/safe-query.php');
+core_require_if_exists('includes/boot-shared.php');
+if (function_exists('coop_require_boot_shared')) {
+    coop_require_boot_shared();
+} else {
+    core_require_if_exists('includes/nepali-bs-convert.php');
+    core_require_if_exists('includes/audit.php');
+    core_require_if_exists('includes/notification-templates.php');
+    core_require_if_exists('includes/auth-roles.php');
+    core_require_if_exists('includes/panel-uniform.php');
+    core_require_if_exists('includes/safe-query.php');
+}
 
 // ═══════════════════════════════════════════════════════════════
 // STEP 10: Portal-Specific Bootstrap

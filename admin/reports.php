@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -208,12 +209,12 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
     <ul class="nav nav-tabs admin-nav-tabs mb-3">
         <li class="nav-item">
             <a class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" href="reports.php?<?php echo htmlspecialchars(http_build_query(array_filter(['type' => $filterType !== 'all' ? $filterType : null, 'panel' => 'list'])), ENT_QUOTES, 'UTF-8'); ?>">
-                <i class="fas fa-list me-2"></i><?php echo $__t('सूची', 'List'); ?>
+                <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('सूची', 'List'); ?>
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" href="reports.php?panel=form">
-                <i class="fas fa-pen me-2"></i><?php echo $editReport ? $__t('सम्पादन', 'Edit') : $__t('फर्म', 'Form'); ?>
+                <i class="lucide-icon me-2" data-lucide="pen" aria-hidden="true"></i><?php echo $editReport ? $__t('सम्पादन', 'Edit') : $__t('फर्म', 'Form'); ?>
             </a>
         </li>
     </ul>
@@ -232,7 +233,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <input type="hidden" name="return_type" value="<?php echo htmlspecialchars($filterType, ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="action" value="<?php echo $editReport ? 'edit' : 'add'; ?>">
                         <?php if ($editReport): ?>
-                        <input type="hidden" name="id" value="<?php echo $editReport['id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo (int)$editReport['id']; ?>">
                         <?php endif; ?>
 
                         <div class="mb-3">
@@ -256,7 +257,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                             <select name="report_month" id="rpt_month" class="form-select">
                                 <option value="">-- <?php echo $__t('महिना छान्नुहोस्', 'Select month'); ?> --</option>
                                 <?php foreach ($nepaliMonths as $key => $month): ?>
-                                <option value="<?php echo $key; ?>" <?php echo ($editReport['report_month'] ?? '') === $key ? 'selected' : ''; ?>>
+                                <option value="<?php echo e($key); ?>" <?php echo ($editReport['report_month'] ?? '') === $key ? 'selected' : ''; ?>>
                                     <?php echo $month; ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -269,7 +270,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                             <select name="report_quarter" id="rpt_quarter" class="form-select">
                                 <option value="">-- <?php echo $__t('त्रैमास छान्नुहोस्', 'Select quarter'); ?> --</option>
                                 <?php foreach ($quarters as $key => $quarter): ?>
-                                <option value="<?php echo $key; ?>" <?php echo ($editReport['report_quarter'] ?? '') === $key ? 'selected' : ''; ?>>
+                                <option value="<?php echo e($key); ?>" <?php echo ($editReport['report_quarter'] ?? '') === $key ? 'selected' : ''; ?>>
                                     <?php echo $quarter; ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -278,7 +279,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 
                         <div class="mb-3">
                             <label for="rpt_title" class="form-label">Title (English)</label>
-                            <input type="text" name="title" id="rpt_title" class="form-control" required value="<?php echo $editReport['title'] ?? ''; ?>">
+                            <input type="text" name="title" id="rpt_title" class="form-control" required value="<?php echo e($editReport['title'] ?? ''); ?>">
                         </div>
 
                         <div class="mb-3">
@@ -329,101 +330,13 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
     <?php else: ?>
 
         <!-- List Section -->
-    <style>
-    /* Page-scoped: escape global .btn / card-header icon-button CSS */
-    body.admin-page-reports .rpt-filter-bar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-        padding: 12px 16px;
-        background: #f8faf9;
-        border-bottom: 1px solid #e6eee9;
+    <?php
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/css/admin-reports-page.css');
+    } elseif (function_exists('coopThemeLinkHtml')) {
+        echo coopThemeLinkHtml('assets/css/admin-reports-page.css');
     }
-    body.admin-page-reports .rpt-chip {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        width: auto !important;
-        min-width: unset !important;
-        height: auto !important;
-        min-height: 34px !important;
-        padding: 6px 14px !important;
-        margin: 0 !important;
-        border-radius: 999px !important;
-        border: 1.5px solid #c5d0c9 !important;
-        background: #fff !important;
-        color: #1f2937 !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        line-height: 1.2 !important;
-        white-space: nowrap !important;
-        text-decoration: none !important;
-        box-shadow: none !important;
-    }
-    body.admin-page-reports .rpt-chip.is-active {
-        background: #111827 !important;
-        color: #fff !important;
-        border-color: #111827 !important;
-    }
-    body.admin-page-reports .rpt-actions-cell {
-        width: 132px !important;
-        min-width: 132px !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-        white-space: nowrap !important;
-    }
-    body.admin-page-reports .rpt-row-actions {
-        display: inline-flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 6px !important;
-        margin: 0 auto;
-    }
-    body.admin-page-reports .rpt-act-form {
-        display: inline-flex !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 34px !important;
-        height: 34px !important;
-        flex: 0 0 34px !important;
-    }
-    body.admin-page-reports .rpt-act {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        flex: 0 0 34px !important;
-        border-radius: 8px !important;
-        border: none !important;
-        line-height: 1 !important;
-        text-decoration: none !important;
-        box-shadow: none !important;
-        cursor: pointer !important;
-    }
-    body.admin-page-reports .rpt-act-view { background: #0f766e !important; color: #fff !important; }
-    body.admin-page-reports .rpt-act-edit { background: #1f2937 !important; color: #fff !important; }
-    body.admin-page-reports .rpt-act-del { background: #dc2626 !important; color: #fff !important; }
-    body.admin-page-reports .rpt-act-placeholder {
-        visibility: hidden;
-        pointer-events: none;
-        background: transparent !important;
-    }
-    body.admin-page-reports .rpt-act i,
-    body.admin-page-reports .rpt-act svg {
-        width: 15px !important;
-        height: 15px !important;
-        color: #fff !important;
-        stroke: #fff !important;
-    }
-    </style>
+    ?>
     <div class="row">
         <div class="col-12">
             <div class="card admin-table-card rpt-list-card">
@@ -510,13 +423,13 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                             if ($adminFileHref !== ''):
                                             ?>
                                             <a href="<?php echo htmlspecialchars($adminFileHref, ENT_QUOTES, 'UTF-8'); ?>" class="rpt-act rpt-act-view" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer" aria-label="<?php echo $__t('हेर्नुहोस्','View'); ?>">
-                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                             </a>
                                             <?php else: ?>
                                             <span class="rpt-act rpt-act-placeholder" aria-hidden="true"></span>
                                             <?php endif; ?>
                                             <a href="<?php echo htmlspecialchars($adminReportsFormUrl((int) $report['id'], $filterType), ENT_QUOTES, 'UTF-8'); ?>" class="rpt-act rpt-act-edit" title="<?php echo $__t('सम्पादन','Edit'); ?>" aria-label="<?php echo $__t('सम्पादन','Edit'); ?>">
-                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                             </a>
                                             <form method="POST" class="rpt-act-form" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
@@ -524,7 +437,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?php echo (int) $report['id']; ?>">
                                                 <button type="submit" class="rpt-act rpt-act-del" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
-                                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                                    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -535,7 +448,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                 <tr>
                                     <td colspan="5" class="text-center py-5">
                                         <div class="text-muted">
-                                            <i class="lucide-icon fa-3x mb-3 d-block opacity-50" aria-hidden="true" data-lucide="inbox"></i>
+                                            <i class="lucide-icon lucide-3x mb-3 d-block opacity-50" aria-hidden="true" data-lucide="inbox"></i>
                                             <h6><?php echo $__t('कुनै प्रतिवेदन छैन','No reports found'); ?></h6>
                                             <small><?php echo $__t('पहिले प्रतिवेदन थप्नुहोस्','Add a report first'); ?></small>
                                         </div>

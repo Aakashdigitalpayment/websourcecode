@@ -1,0 +1,401 @@
+/* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
+ * Source bytes=10651 sha256=57c71bd647bdae17
+ * Future PR: thin @import shim; keep app-* frozen until verified.
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ */
+/* ========== animations.css ========== */
+/* ══════════════════════════════════════════════════════════════════════════════
+   HRM & CMS ANIMATIONS & TRANSITIONS
+   Optimized animation speeds, easing functions, and interactive effects
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Animation Speed Variables
+   ────────────────────────────────────────────────────────────────────────────  */
+
+:root {
+    --anim-fast: 150ms;
+    --anim-normal: 250ms;
+    --anim-slow: 350ms;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Stat Cards & Dashboard Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+/* Stat card hover lift effect */
+.stat-uniform-card {
+    transition: transform var(--anim-normal) var(--ease-out),
+                box-shadow var(--anim-normal) var(--ease-out),
+                background-color var(--anim-fast) var(--ease-out);
+}
+
+.stat-uniform-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-uniform-card .stat-value {
+    transition: color var(--anim-fast) var(--ease-out),
+                transform var(--anim-normal) var(--ease-out);
+}
+
+.stat-uniform-card:hover .stat-value {
+    transform: scale(1.08);
+}
+
+/* Stat card background color animation */
+.stat-uniform-card.stat-primary-bg { background-color: var(--color-primary-lighter); }
+.stat-uniform-card.stat-success-bg { background-color: var(--color-success-light); }
+.stat-uniform-card.stat-info-bg { background-color: var(--color-info-light); }
+.stat-uniform-card.stat-warning-bg { background-color: var(--color-warning-light); }
+.stat-uniform-card.stat-danger-bg { background-color: var(--color-danger-light); }
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Button Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.btn {
+    transition: all var(--anim-fast) var(--ease-out);
+    position: relative;
+    /* overflow:hidden removed — was clipping Devanagari text descenders and icon bottoms */
+    text-decoration: none !important;
+}
+a.btn, a.btn:hover, a.btn:focus { text-decoration: none !important; }
+
+.btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.btn:not(:disabled):active {
+    transform: translateY(0);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Form Element Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.form-control,
+.form-select {
+    transition: border-color var(--anim-fast) var(--ease-out),
+                box-shadow var(--anim-fast) var(--ease-out),
+                background-color var(--anim-fast) var(--ease-out);
+}
+
+.form-control::placeholder {
+    transition: color var(--anim-fast) var(--ease-out);
+}
+
+.form-control:focus::placeholder {
+    color: var(--color-primary);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Card & Container Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.card {
+    transition: transform var(--anim-normal) var(--ease-out),
+                box-shadow var(--anim-normal) var(--ease-out),
+                border-color var(--anim-fast) var(--ease-out);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+.card-header {
+    transition: background-color var(--anim-fast) var(--ease-out),
+                border-color var(--anim-fast) var(--ease-out);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Alert & Badge Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.alert {
+    animation: slideInDown var(--anim-normal) var(--ease-out);
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.badge {
+    transition: transform var(--anim-fast) var(--ease-out),
+                box-shadow var(--anim-fast) var(--ease-out);
+}
+
+.badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Pulse animation for notification badges */
+.badge.pulse {
+    animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Navigation & Dropdown Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.dropdown-menu {
+    animation: fadeInDropdown var(--anim-fast) var(--ease-out);
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    transition: background-color var(--anim-fast) var(--ease-out),
+                color var(--anim-fast) var(--ease-out),
+                transform var(--anim-fast) var(--ease-out);
+}
+
+.dropdown-item:hover {
+    transform: translateX(4px);
+}
+
+/* Sidebar toggle animation */
+.sidebar {
+    transition: transform var(--anim-normal) var(--ease-out),
+                opacity var(--anim-normal) var(--ease-out);
+}
+
+@media (max-width: 768px) {
+    .sidebar.closed {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Table Row Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.table tbody tr {
+    transition: background-color var(--anim-fast) var(--ease-out),
+                box-shadow var(--anim-fast) var(--ease-out);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--bg-secondary) !important;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Fade in animation for table rows on load */
+.table tbody tr {
+    animation: fadeInRow var(--anim-normal) var(--ease-out) backwards;
+}
+
+.table tbody tr:nth-child(1) { animation-delay: 0ms; }
+.table tbody tr:nth-child(2) { animation-delay: 30ms; }
+.table tbody tr:nth-child(3) { animation-delay: 60ms; }
+.table tbody tr:nth-child(4) { animation-delay: 90ms; }
+.table tbody tr:nth-child(5) { animation-delay: 120ms; }
+.table tbody tr:nth-child(n+6) { animation-delay: 150ms; }
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Modal & Dialog Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.modal.fade .modal-dialog {
+    transition: transform var(--anim-normal) var(--ease-out);
+}
+
+.modal.show .modal-dialog {
+    animation: slideInUp var(--anim-normal) var(--ease-out);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-backdrop {
+    animation: fadeIn var(--anim-fast) var(--ease-out);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Icon & Spinner Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.fa-spinner,
+.fa-circle-notch,
+.fa-cog,
+.fa-refresh,
+.fa-rotate {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Hover animation for icon buttons */
+.icon-btn,
+.hp-icon {
+    transition: all var(--anim-fast) var(--ease-out);
+}
+
+.icon-btn:hover,
+.hp-icon:hover {
+    transform: scale(1.1) rotate(2deg);
+    color: var(--color-primary);
+}
+
+/* Icon scale effect */
+.icon-scale {
+    transition: transform var(--anim-fast) var(--ease-out);
+}
+
+.icon-scale:hover {
+    transform: scale(1.2);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Toggle Switch Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.toggle-switch,
+.form-check-input {
+    transition: all var(--anim-fast) var(--ease-out);
+}
+
+.form-check-input:checked {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Loading Skeleton Animation
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.skeleton,
+.placeholder-wave {
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Hover Scale Effects for Interactive Elements
+   ────────────────────────────────────────────────────────────────────────────  */
+
+.hover-scale {
+    transition: transform var(--anim-fast) var(--ease-out);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-scale-sm:hover {
+    transform: scale(1.02);
+}
+
+.hover-scale-lg:hover {
+    transform: scale(1.1);
+}
+
+/* Fade in on scroll (using AOS library compatibility) */
+[data-aos] {
+    transition: all var(--anim-normal) var(--ease-out);
+    opacity: 0;
+}
+
+[data-aos].aos-animate {
+    opacity: 1;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Print Mode - Disable Animations
+   ────────────────────────────────────────────────────────────────────────────  */
+
+@media print {
+    * {
+        animation-duration: 0 !important;
+        transition-duration: 0 !important;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   Prefers Reduced Motion - Accessibility
+   ────────────────────────────────────────────────────────────────────────────  */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+

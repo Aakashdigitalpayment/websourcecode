@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Absent Members';
 $currentPage = 'program-reports-absent';
 require_once 'includes/admin-header.php';

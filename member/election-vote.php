@@ -166,27 +166,20 @@ if ($cycle) {
     $totalVoters = (int)$tv->fetchColumn();
 }
 
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-election-vote-page.css')
+        : '');
 require __DIR__ . '/includes/chrome.php';
 ?>
-<style>
-.vote-card{border:2px solid transparent;transition:.2s;cursor:pointer;}
-.vote-card.selected{border-color:var(--primary-color);background:rgba(26,95,42,.04);}
-.vote-photo{width:100%;height:180px;object-fit:cover;border-radius:8px;}
-.vote-photo-empty{height:180px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;border-radius:8px;color:#9ca3af;}
-.tally-bar{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-top:6px;}
-.tally-bar > div{height:100%;background:linear-gradient(90deg,var(--primary-color),var(--primary-light));}
-.vote-cycle-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.65rem;flex-wrap:wrap;}
-.vote-cycle-tenure{background:var(--primary-color);color:#fff;border-radius:999px;padding:.26rem .62rem;font-size:.74rem;font-weight:700;white-space:nowrap;}
-@media (max-width:575px){.vote-cycle-tenure{width:100%;text-align:left;}}
-</style>
 <div class="mp-main py-4">
 <div class="mp-container mp-container-medium">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h1 class="h4 mb-0"><i class="fas fa-check-to-slot me-2"></i><?php echo $_t('मतदान', 'Voting'); ?></h1>
+        <h1 class="h4 mb-0"><i class="lucide-icon me-2" data-lucide="vote" aria-hidden="true"></i><?php echo $_t('मतदान', 'Voting'); ?></h1>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <?php if ($cycle): ?>
             <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/election-information.php?cycle=' . (int)$cycleId); ?>">
-                <i class="fas fa-info-circle me-1"></i><?php echo $_t('सार्वजनिक जानकारी', 'Public info'); ?>
+                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo $_t('सार्वजनिक जानकारी', 'Public info'); ?>
             </a>
             <span class="badge bg-light text-dark border"><?php echo $_t('कुल मतदाता', 'Total Voters'); ?>: <?php echo $totalVoters; ?></span>
             <?php endif; ?>
@@ -205,15 +198,15 @@ require __DIR__ . '/includes/chrome.php';
                 <div class="vote-cycle-head">
                     <h2 class="h5 mb-1"><?php echo htmlspecialchars($cycle['title_np']); ?></h2>
                     <?php if (!empty($cycle['period_label'])): ?>
-                        <span class="vote-cycle-tenure"><i class="fas fa-calendar-alt me-1"></i><?php echo $_t('कार्यकाल', 'Tenure'); ?>: <?php echo htmlspecialchars((string)$cycle['period_label']); ?></span>
+                        <span class="vote-cycle-tenure"><i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?php echo $_t('कार्यकाल', 'Tenure'); ?>: <?php echo htmlspecialchars((string)$cycle['period_label']); ?></span>
                     <?php endif; ?>
                 </div>
                 <?php if (!empty($cycle['vote_start_at'])): ?>
-                    <div class="small mt-1"><i class="fas fa-clock me-1"></i><?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_start_at'])); ?> <?php echo $_t('देखि', 'to'); ?> <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_end_at'])); ?> <?php echo $_t('सम्म (नेपाल समय)', '(Nepal Time)'); ?></div>
+                    <div class="small mt-1"><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i><?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_start_at'])); ?> <?php echo $_t('देखि', 'to'); ?> <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_end_at'])); ?> <?php echo $_t('सम्म (नेपाल समय)', '(Nepal Time)'); ?></div>
                 <?php endif; ?>
                 <div class="mt-2">
                     <?php if ($alreadyVoted): ?>
-                        <span class="badge bg-success"><i class="fas fa-check me-1"></i><?php echo $_t('मत दिइसकिएको छ', 'Vote already submitted'); ?></span>
+                        <span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $_t('मत दिइसकिएको छ', 'Vote already submitted'); ?></span>
                     <?php else: ?>
                         <?php echo electionVoteStateBadgeHtml($cycle); ?>
                         <?php if (!empty($attendanceOnly)): ?>
@@ -225,7 +218,7 @@ require __DIR__ . '/includes/chrome.php';
                     <div class="small mt-2 text-muted" id="voteCountdown"
                          data-start="<?php echo htmlspecialchars((string)$cycle['vote_start_at'], ENT_QUOTES, 'UTF-8'); ?>"
                          data-end="<?php echo htmlspecialchars((string)$cycle['vote_end_at'], ENT_QUOTES, 'UTF-8'); ?>">
-                        <i class="fas fa-hourglass-half me-1"></i> समय गणना हुँदैछ...
+                        <i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i> समय गणना हुँदैछ...
                     </div>
                 <?php endif; ?>
             </div>
@@ -238,9 +231,9 @@ require __DIR__ . '/includes/chrome.php';
             <?php if (!$canVoteNow): ?>
                 <div class="alert alert-light border mb-3">
                     <?php if ($alreadyVoted): ?>
-                        <i class="fas fa-check-circle text-success me-1"></i> तपाईंले मतदान गरिसक्नुभएको छ। उम्मेदवार सूची हेर्न सक्नुहुन्छ।
+                        <i class="lucide-icon text-success me-1" data-lucide="circle-check" aria-hidden="true"></i> तपाईंले मतदान गरिसक्नुभएको छ। उम्मेदवार सूची हेर्न सक्नुहुन्छ।
                     <?php else: ?>
-                        <i class="fas fa-clock text-warning me-1"></i> मतदान अहिले खुला छैन। मतदान समय खुल्दा मात्र मत दिन मिल्छ।
+                        <i class="lucide-icon text-warning me-1" data-lucide="clock" aria-hidden="true"></i> मतदान अहिले खुला छैन। मतदान समय खुल्दा मात्र मत दिन मिल्छ।
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -251,7 +244,7 @@ require __DIR__ . '/includes/chrome.php';
             <?php if (count($samitiGroups) > 1): ?>
             <ul class="nav nav-pills justify-content-center mb-3 vote-samiti-tabs" role="tablist">
                 <?php foreach ($samitiGroups as $sk => $grp): ?>
-                    <li class="nav-item"><button class="nav-link <?php echo $sk===$firstKey ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#vgrp-<?php echo (int)$sk; ?>" type="button"><i class="fas fa-users-gear me-1"></i><?php echo htmlspecialchars($grp['name']); ?></button></li>
+                    <li class="nav-item"><button type="button" class="nav-link <?php echo $sk===$firstKey ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#vgrp-<?php echo (int)$sk; ?>" type="button"><i class="lucide-icon me-1" data-lucide="users-round" aria-hidden="true"></i><?php echo htmlspecialchars($grp['name']); ?></button></li>
                 <?php endforeach; ?>
             </ul>
             <?php endif; ?>
@@ -259,12 +252,12 @@ require __DIR__ . '/includes/chrome.php';
             <div class="tab-content">
             <?php foreach ($samitiGroups as $sk => $grp): ?>
                 <div class="tab-pane fade <?php echo $sk===$firstKey ? 'show active' : ''; ?>" id="vgrp-<?php echo (int)$sk; ?>">
-                    <?php if (count($samitiGroups) > 1): ?><h6 class="text-center text-muted mb-3"><i class="fas fa-users-gear me-1"></i><?php echo htmlspecialchars($grp['name']); ?></h6><?php endif; ?>
+                    <?php if (count($samitiGroups) > 1): ?><h6 class="text-center text-muted mb-3"><i class="lucide-icon me-1" data-lucide="users-round" aria-hidden="true"></i><?php echo htmlspecialchars($grp['name']); ?></h6><?php endif; ?>
                     <?php foreach ($grp['positions'] as $pos):
                         $list = $candByPos[(int)$pos['id']] ?? []; $maxV = (int)$pos['max_votes_per_voter']; ?>
                         <div class="card mb-3 shadow-sm">
                             <div class="card-header d-flex justify-content-between flex-wrap">
-                                <h6 class="mb-0"><i class="fas fa-briefcase me-1"></i><?php echo htmlspecialchars($pos['title_np']); ?></h6>
+                                <h6 class="mb-0"><i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i><?php echo htmlspecialchars($pos['title_np']); ?></h6>
                                 <span class="badge bg-info text-dark"><?php echo $_t('अधिकतम मत', 'Max Votes'); ?>: <?php echo $maxV; ?></span>
                             </div>
                             <div class="card-body">
@@ -277,9 +270,9 @@ require __DIR__ . '/includes/chrome.php';
                                             <label class="vote-card card h-100 p-2 mb-0">
                                                 <input type="<?php echo $maxV > 1 ? 'checkbox' : 'radio'; ?>" name="picks[<?php echo (int)$pos['id']; ?>]<?php echo $maxV > 1 ? '[]' : ''; ?>" value="<?php echo (int)$cd['id']; ?>" class="form-check-input mb-2 vote-input" <?php echo $canVoteNow ? '' : 'disabled'; ?>>
                                                 <?php if (!empty($cd['photo'])): ?>
-                                                    <img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" class="vote-photo" alt="">
+                                                    <img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" class="vote-photo" alt="">
                                                 <?php else: ?>
-                                                    <div class="vote-photo-empty"><i class="fas fa-user fa-3x"></i></div>
+                                                    <div class="vote-photo-empty"><i class="lucide-icon lucide-3x" data-lucide="user" aria-hidden="true"></i></div>
                                                 <?php endif; ?>
                                                 <div class="mt-2">
                                                     <strong><?php echo htmlspecialchars($cd['name']); ?></strong>
@@ -307,7 +300,7 @@ require __DIR__ . '/includes/chrome.php';
 
             <?php if ($canVoteNow): ?>
                 <div class="d-flex justify-content-end gap-2 mb-5">
-                    <button type="button" class="btn btn-primary btn-lg" id="reviewBtn"><i class="fas fa-eye me-1"></i><?php echo $_t('समीक्षा र पुष्टि', 'Review & Confirm'); ?></button>
+                    <button type="button" class="btn btn-primary btn-lg" id="reviewBtn"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo $_t('समीक्षा र पुष्टि', 'Review & Confirm'); ?></button>
                 </div>
             <?php endif; ?>
 
@@ -315,12 +308,12 @@ require __DIR__ . '/includes/chrome.php';
             <div class="modal fade" id="confirmModal" tabindex="-1">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-clipboard-check me-2"></i><?php echo $_t('पुष्टि गर्नुहोस्', 'Confirm'); ?></h5>
+                        <div class="modal-header"><h5 class="modal-title"><i class="lucide-icon me-2" data-lucide="clipboard-check" aria-hidden="true"></i><?php echo $_t('पुष्टि गर्नुहोस्', 'Confirm'); ?></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                         <div class="modal-body" id="confirmBody"></div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?php echo $_t('सच्याउनुहोस्', 'Edit'); ?></button>
-                            <button type="submit" class="btn btn-success"><i class="fas fa-check me-1"></i><?php echo $_t('मत दर्ज गर्नुहोस्', 'Submit Vote'); ?></button>
+                            <button type="submit" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $_t('मत दर्ज गर्नुहोस्', 'Submit Vote'); ?></button>
                         </div>
                     </div>
                 </div>
@@ -365,7 +358,7 @@ require __DIR__ . '/includes/chrome.php';
         <?php endif; ?>
 
         <?php if ($resultsVisible): ?>
-            <h2 class="h6 mb-3"><i class="fas fa-chart-bar me-2"></i><?php echo $_t('हालको परिणाम (live)', 'Current Results (Live)'); ?></h2>
+            <h2 class="h6 mb-3"><i class="lucide-icon me-2" data-lucide="bar-chart-3" aria-hidden="true"></i><?php echo $_t('हालको परिणाम (live)', 'Current Results (Live)'); ?></h2>
             <?php foreach ($positions as $pos): $list = $candByPos[(int)$pos['id']] ?? [];
                   usort($list, fn($a,$b) => ($tally[(int)$b['id']]??0) - ($tally[(int)$a['id']]??0));
                   $maxT = max(1, !empty($tally) ? max($tally) : 1); ?>
@@ -374,9 +367,9 @@ require __DIR__ . '/includes/chrome.php';
                     <div class="card-body">
                         <?php $i=0; foreach ($list as $cd): $i++; $cnt=$tally[(int)$cd['id']]??0; $isLead = $i <= (int)$pos['seats']; ?>
                             <div class="d-flex align-items-center gap-3 py-2 border-bottom">
-                                <?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars((string)$cd['name'], ENT_QUOTES, 'UTF-8'); ?>" style="width:42px;height:42px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted"><i class="fas fa-user-circle fa-2x"></i></span><?php endif; ?>
+                                <?php if (!empty($cd['photo'])): ?><img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars((string)$cd['name'], ENT_QUOTES, 'UTF-8'); ?>" style="width:42px;height:42px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted"><i class="lucide-icon lucide-2x" data-lucide="circle-user" aria-hidden="true"></i></span><?php endif; ?>
                                 <div class="flex-grow-1">
-                                    <div><?php if ($isLead): ?><i class="fas fa-trophy text-warning me-1"></i><?php endif; ?><strong><?php echo htmlspecialchars($cd['name']); ?></strong>
+                                    <div><?php if ($isLead): ?><i class="lucide-icon text-warning me-1" data-lucide="trophy" aria-hidden="true"></i><?php endif; ?><strong><?php echo htmlspecialchars($cd['name']); ?></strong>
                                         <?php if (!empty($cd['symbol_no'])): ?> <span class="badge bg-secondary">#<?php echo htmlspecialchars($cd['symbol_no']); ?></span><?php endif; ?>
                                     </div>
                                     <div class="tally-bar"><div style="width:<?php echo round($cnt/$maxT*100); ?>%"></div></div>
@@ -390,7 +383,7 @@ require __DIR__ . '/includes/chrome.php';
             <?php endforeach; ?>
         <?php elseif ($cycle): ?>
             <div class="alert alert-secondary mt-3">
-                <i class="fas fa-hourglass-half me-1"></i> परिणाम निर्वाचन समितिले final status राखेपछि मात्र देखाइनेछ।
+                <i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i> परिणाम निर्वाचन समितिले final status राखेपछि मात्र देखाइनेछ।
             </div>
         <?php endif; ?>
         <?php else: ?>
@@ -436,11 +429,11 @@ require __DIR__ . '/includes/chrome.php';
     function tick() {
         var now = new Date();
         if (now < start) {
-            el.innerHTML = '<i class="fas fa-hourglass-start me-1"></i> <?php echo addslashes($_t('मतदान सुरु हुन बाँकी', 'Voting starts in')); ?>: <strong>' + fmt(start - now) + '</strong>';
+            el.innerHTML = '<i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i> <?php echo addslashes($_t('मतदान सुरु हुन बाँकी', 'Voting starts in')); ?>: <strong>' + fmt(start - now) + '</strong>';
         } else if (now <= end) {
-            el.innerHTML = '<i class="fas fa-hourglass-half me-1"></i> <?php echo addslashes($_t('मतदान बन्द हुन बाँकी', 'Voting ends in')); ?>: <strong>' + fmt(end - now) + '</strong>';
+            el.innerHTML = '<i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i> <?php echo addslashes($_t('मतदान बन्द हुन बाँकी', 'Voting ends in')); ?>: <strong>' + fmt(end - now) + '</strong>';
         } else {
-            el.innerHTML = '<i class="fas fa-hourglass-end me-1"></i> <?php echo addslashes($_t('मतदान समय समाप्त भयो।', 'Voting time has ended.')); ?>';
+            el.innerHTML = '<i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i> <?php echo addslashes($_t('मतदान समय समाप्त भयो।', 'Voting time has ended.')); ?>';
             clearInterval(timer);
         }
     }

@@ -15,12 +15,8 @@ $__t = static function (string $np, string $en): string {
 };
 $pageTitle   = $__t('गुनासो व्यवस्थापन', 'Grievance Management');
 $currentPage = 'grievances';
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
 
 $db = getDB();
 ensureRequestStatusHistoryTable($db);
@@ -346,7 +342,7 @@ if ($viewGrv):
 <div class="card shadow-sm mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-exclamation-circle me-2"></i><?php echo $__t('गुनासो विवरण', 'Grievance Details'); ?>
+            <i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i><?php echo $__t('गुनासो विवरण', 'Grievance Details'); ?>
             <code class="grv-track-code">
                 <?php echo htmlspecialchars($trackId); ?>
             </code>
@@ -377,7 +373,7 @@ if ($viewGrv):
                             <td><?php echo $viewGrv['member_id'] ? '<span class="badge bg-success-subtle text-success-emphasis fw-semibold px-2">'.htmlspecialchars($viewGrv['member_id']).'</span>' : '<span class="text-muted">—</span>'; ?></td></tr>
                         <?php else: ?>
                         <tr><td colspan="2" class="text-center text-muted fst-italic py-2">
-                            <i class="fas fa-user-secret me-1"></i><?php echo $__t('गुप्त पहिचान (Anonymous)', 'Anonymous Identity'); ?>
+                            <i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i><?php echo $__t('गुप्त पहिचान (Anonymous)', 'Anonymous Identity'); ?>
                         </td></tr>
                         <?php endif; ?>
                         <tr><th><?php echo $__t('वर्ग', 'Category'); ?></th>
@@ -397,7 +393,7 @@ if ($viewGrv):
 
                 <?php if (!empty($viewGrv['subject'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-tag"></i><?php echo $__t('विषय', 'Subject'); ?></div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="tag" aria-hidden="true"></i><?php echo $__t('विषय', 'Subject'); ?></div>
                     <div class="p-3 fw-semibold grv-subject-box">
                         <?php echo htmlspecialchars($viewGrv['subject']); ?>
                     </div>
@@ -405,7 +401,7 @@ if ($viewGrv):
                 <?php endif; ?>
 
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-comment-dots"></i><?php echo $__t('गुनासोको विस्तृत विवरण', 'Detailed Description'); ?></div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i><?php echo $__t('गुनासोको विस्तृत विवरण', 'Detailed Description'); ?></div>
                     <div class="p-3 grv-desc-box">
                         <?php echo nl2br(htmlspecialchars($viewGrv['description'] ?? '—')); ?>
                     </div>
@@ -413,7 +409,7 @@ if ($viewGrv):
 
                 <?php if (!empty($viewGrv['admin_response'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-reply"></i>Admin प्रतिक्रिया <small class="fw-normal text-muted ms-1">(Member ले tracker मा देख्छ)</small></div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="reply" aria-hidden="true"></i>Admin प्रतिक्रिया <small class="fw-normal text-muted ms-1">(Member ले tracker मा देख्छ)</small></div>
                     <div class="p-3 grv-response-box">
                         <?php echo nl2br(htmlspecialchars($viewGrv['admin_response'])); ?>
                     </div>
@@ -422,7 +418,7 @@ if ($viewGrv):
 
                 <?php if (!empty($viewGrv['admin_note'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header grv-note-head"><i class="fas fa-sticky-note grv-note-icon"></i>Admin आन्तरिक टिप्पणी <small class="fw-normal text-muted ms-1">(केवल admin)</small></div>
+                    <div class="adm-info-group-header grv-note-head"><i class="lucide-icon grv-note-icon" data-lucide="sticky-note" aria-hidden="true"></i>Admin आन्तरिक टिप्पणी <small class="fw-normal text-muted ms-1">(केवल admin)</small></div>
                     <div class="p-3 grv-note-box">
                         <?php echo nl2br(htmlspecialchars($viewGrv['admin_note'])); ?>
                     </div>
@@ -431,21 +427,21 @@ if ($viewGrv):
 
                 <?php if (!empty($viewGrv['admin_attachment'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-paperclip"></i>Admin संलग्न Document</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i>Admin संलग्न Document</div>
                     <div class="p-3 d-flex align-items-center gap-3">
-                        <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
+                        <i class="lucide-icon lucide-2x text-primary opacity-75" data-lucide="file-text" aria-hidden="true"></i>
                         <div class="flex-grow-1 small fw-semibold">
                             <?php echo htmlspecialchars(grvAttachName($viewGrv['admin_attachment'])); ?>
                         </div>
                         <a href="<?php echo htmlspecialchars(grvAttachUrl($viewGrv['admin_attachment'])); ?>"
                            class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
-                            <i class="fas fa-download me-1"></i>Download
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Download
                         </a>
                         <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo $__t('फाइल हटाउने?', 'Remove this file?'); ?>')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="remove_attachment" value="1">
-                            <input type="hidden" name="id" value="<?php echo $viewGrv['id']; ?>">
-                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                            <input type="hidden" name="id" value="<?php echo (int)$viewGrv['id']; ?>">
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                         </form>
                     </div>
                 </div>
@@ -453,7 +449,7 @@ if ($viewGrv):
 
                 <?php if (!empty($grvHistory)): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-clock-rotate-left"></i><?php echo $__t('Status / Comment History', 'Status / Comment History'); ?></div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i><?php echo $__t('Status / Comment History', 'Status / Comment History'); ?></div>
                     <div class="p-3">
                         <?php echo arvLogList($grvHistory); ?>
                     </div>
@@ -465,23 +461,23 @@ if ($viewGrv):
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header gradient-card-header py-2">
-                        <i class="fas fa-edit me-2"></i><?php echo $__t('स्थिति अपडेट / प्रतिक्रिया / Note / Document', 'Status Update / Response / Note / Document'); ?>
+                        <i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i><?php echo $__t('स्थिति अपडेट / प्रतिक्रिया / Note / Document', 'Status Update / Response / Note / Document'); ?>
                     </div>
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="update_grievance" value="1">
-                            <input type="hidden" name="id" value="<?php echo $viewGrv['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$viewGrv['id']; ?>">
 
                             <!-- Status -->
                             <div class="mb-3">
                                 <label for="grv_status" class="form-label fw-semibold">
-                                    <i class="fas fa-circle-dot me-1"></i>अवस्था (Status)
+                                    <i class="lucide-icon me-1" data-lucide="circle-dot" aria-hidden="true"></i>अवस्था (Status)
                                 </label>
                                 <select name="status" id="grv_status" class="form-select">
                                     <?php foreach ($statusLabel as $v => $l): ?>
-                                    <option value="<?php echo $v; ?>" <?php echo $viewGrv['status']===$v?'selected':''; ?>>
-                                        <?php echo $l; ?>
+                                    <option value="<?php echo e($v); ?>" <?php echo $viewGrv['status']===$v?'selected':''; ?>>
+                                        <?php echo e($l); ?>
                                     </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -490,7 +486,7 @@ if ($viewGrv):
                             <!-- Admin Response — member ले tracker मा देख्छ -->
                             <div class="mb-3">
                                 <label for="grv_admin_response" class="form-label fw-semibold">
-                                    <i class="fas fa-reply me-1 text-success"></i>Admin प्रतिक्रिया
+                                    <i class="lucide-icon me-1 text-success" data-lucide="reply" aria-hidden="true"></i>Admin प्रतिक्रिया
                                     <span class="text-muted fw-normal small">— Member ले Application Tracker मा देख्छ</span>
                                 </label>
                                 <textarea name="admin_response" id="grv_admin_response" class="form-control" rows="3"
@@ -502,18 +498,18 @@ if ($viewGrv):
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                 </label>
                                 <div class="arv-notify-channels">
-                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                             </div>
 
                             <!-- Admin Internal Note — member देख्दैन -->
                             <div class="mb-3">
                                 <label for="grv_admin_note" class="form-label fw-semibold">
-                                    <i class="fas fa-sticky-note me-1 grv-note-icon"></i>
+                                    <i class="lucide-icon me-1 grv-note-icon" data-lucide="sticky-note" aria-hidden="true"></i>
                                     Admin आन्तरिक टिप्पणी (Note)
                                     <span class="text-muted fw-normal small">— Member ले देख्दैन</span>
                                 </label>
@@ -525,14 +521,14 @@ if ($viewGrv):
                             <!-- Document Upload -->
                             <div class="mb-4">
                                 <label for="grv_admin_attachment" class="form-label fw-semibold">
-                                    <i class="fas fa-paperclip me-1 text-primary"></i>Document संलग्न गर्नुहोस्
+                                    <i class="lucide-icon me-1 text-primary" data-lucide="paperclip" aria-hidden="true"></i>Document संलग्न गर्नुहोस्
                                     <span class="text-muted fw-normal small">— PDF, Word, Image (max 5MB)</span>
                                 </label>
                                 <input type="file" name="admin_attachment" id="grv_admin_attachment" class="form-control"
                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
                                 <?php if (!empty($viewGrv['admin_attachment'])): ?>
                                 <div class="form-text text-primary">
-                                    <i class="fas fa-info-circle me-1"></i>
+                                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                                     हाल संलग्न: <strong><?php echo htmlspecialchars(grvAttachName($viewGrv['admin_attachment'])); ?></strong>
                                     — नयाँ file upload गर्नुभयो भने पुरानो replace हुन्छ।
                                 </div>
@@ -555,9 +551,9 @@ if ($viewGrv):
                         <form method="POST" onsubmit="return confirm('<?php echo $__t('के तपाईं यो गुनासो स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to permanently delete this grievance?'); ?>')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete" value="1">
-                            <input type="hidden" name="id" value="<?php echo $viewGrv['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$viewGrv['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो गुनासो मेटाउनुहोस्
+                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>यो गुनासो मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -573,28 +569,28 @@ if ($viewGrv):
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="grievances.php" class="stat-mini <?php echo $statusFilter===''?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-list"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="list" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $total; ?></div>
         <div class="sm-lbl"><?php echo $__t('जम्मा गुनासो', 'Total Grievances'); ?></div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $statusFilter==='pending'?'active-filter':''; ?>">
         <div class="sm-icon ic-pending"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i></div>
-        <div class="sm-val"><?php echo $counts['pending']; ?></div>
+        <div class="sm-val"><?php echo (int)$counts['pending']; ?></div>
         <div class="sm-lbl"><?php echo $__t('पेन्डिङ', 'Pending'); ?></div>
     </a>
     <a href="?status=in_progress" class="stat-mini <?php echo $statusFilter==='in_progress'?'active-filter':''; ?>">
-        <div class="sm-icon ic-process"><i class="fas fa-spinner"></i></div>
-        <div class="sm-val"><?php echo $counts['in_progress']; ?></div>
+        <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="loader-2" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['in_progress']; ?></div>
         <div class="sm-lbl"><?php echo $__t('प्रक्रियामा', 'In Progress'); ?></div>
     </a>
     <a href="?status=resolved" class="stat-mini <?php echo $statusFilter==='resolved'?'active-filter':''; ?>">
-        <div class="sm-icon ic-resolved"><i class="lucide-icon" aria-hidden="true" data-lucide="check-circle"></i></div>
-        <div class="sm-val"><?php echo $counts['resolved']; ?></div>
+        <div class="sm-icon ic-resolved"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['resolved']; ?></div>
         <div class="sm-lbl"><?php echo $__t('समाधान', 'Resolved'); ?></div>
     </a>
     <a href="?status=closed" class="stat-mini <?php echo $statusFilter==='closed'?'active-filter':''; ?>">
         <div class="sm-icon ic-anon"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i></div>
-        <div class="sm-val"><?php echo $counts['closed']; ?></div>
+        <div class="sm-val"><?php echo (int)$counts['closed']; ?></div>
         <div class="sm-lbl"><?php echo $__t('बन्द', 'Closed'); ?></div>
     </a>
 </div>
@@ -609,13 +605,13 @@ $grvFilterQs = array_filter([
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-2 col-6">
-            <label><?php echo $__t('स्थिति', 'Status'); ?></label>
+            <label for="qf_grv_status"><?php echo $__t('स्थिति', 'Status'); ?></label>
             <select name="status" id="qf_grv_status" class="form-select form-select-sm">
                 <option value=""><?php echo $__t('सबै स्थिति', 'All Status'); ?></option>
-                <option value="pending"     <?php echo $statusFilter==='pending'?'selected':''; ?>>⏳ <?php echo $__t('पेन्डिङ', 'Pending'); ?></option>
-                <option value="in_progress" <?php echo $statusFilter==='in_progress'?'selected':''; ?>>🔄 <?php echo $__t('प्रक्रियामा', 'In Progress'); ?></option>
-                <option value="resolved"    <?php echo $statusFilter==='resolved'?'selected':''; ?>>✅ <?php echo $__t('समाधान', 'Resolved'); ?></option>
-                <option value="closed"      <?php echo $statusFilter==='closed'?'selected':''; ?>>🔒 <?php echo $__t('बन्द', 'Closed'); ?></option>
+                <option value="pending"     <?php echo $statusFilter==='pending'?'selected':''; ?>><?php echo $__t('पेन्डिङ', 'Pending'); ?></option>
+                <option value="in_progress" <?php echo $statusFilter==='in_progress'?'selected':''; ?>><?php echo $__t('प्रक्रियामा', 'In Progress'); ?></option>
+                <option value="resolved"    <?php echo $statusFilter==='resolved'?'selected':''; ?>><?php echo $__t('समाधान', 'Resolved'); ?></option>
+                <option value="closed"      <?php echo $statusFilter==='closed'?'selected':''; ?>><?php echo $__t('बन्द', 'Closed'); ?></option>
             </select>
         </div>
         <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo); ?>
@@ -625,7 +621,7 @@ $grvFilterQs = array_filter([
                 <span class="input-group-text bg-white"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="<?php echo $__t('नाम, फोन, इमेल, Tracking ID, विषय...', 'name, phone, email, Tracking ID, subject...'); ?>">
-                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($statusFilter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($statusFilter); ?>" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon" data-lucide="x" aria-hidden="true"></i></a><?php endif; ?>
             </div>
         </div>
         <div class="col-md-1 col-6">
@@ -639,7 +635,7 @@ $grvFilterQs = array_filter([
 <!-- ── Grievances Table ── -->
 <div class="card border-0 shadow-sm grv-table-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-exclamation-circle me-2 grv-note-icon"></i><?php echo $__t('गुनासो सूची', 'Grievance List'); ?></h6>
+        <h6><i class="lucide-icon me-2 grv-note-icon" data-lucide="circle-alert" aria-hidden="true"></i><?php echo $__t('गुनासो सूची', 'Grievance List'); ?></h6>
         <span class="result-count-badge"><?php echo count($grievances); ?> <?php echo $__t('गुनासो', 'grievances'); ?></span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -657,7 +653,7 @@ $grvFilterQs = array_filter([
             </thead>
             <tbody>
             <?php if (empty($grievances)): ?>
-            <tr class="no-results-row"><td colspan="7"><i class="lucide-icon fa-2x d-block mb-2" aria-hidden="true" data-lucide="inbox"></i><?php echo $__t('कुनै गुनासो फेला परेन।', 'No grievances found.'); ?></td></tr>
+            <tr class="no-results-row"><td colspan="7"><i class="lucide-icon lucide-2x d-block mb-2" aria-hidden="true" data-lucide="inbox"></i><?php echo $__t('कुनै गुनासो फेला परेन।', 'No grievances found.'); ?></td></tr>
             <?php else: foreach ($grievances as $grv):
                 $tId = $grv['tracking_id'] ?? 'GRV-' . str_pad($grv['id'], 6, '0', STR_PAD_LEFT);
                 $initLetter = $grv['is_anonymous'] ? '?' : mb_strtoupper(mb_substr($grv['name'] ?? 'G', 0, 1));
@@ -665,11 +661,11 @@ $grvFilterQs = array_filter([
             <tr data-status="<?php echo htmlspecialchars($grv['status']); ?>">
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        <div class="av-letter <?php echo $grv['is_anonymous'] ? 'av-anon' : 'av-grv'; ?>"><?php echo $initLetter; ?></div>
+                        <div class="av-letter <?php echo $grv['is_anonymous'] ? 'av-anon' : 'av-grv'; ?>"><?php echo e($initLetter); ?></div>
                         <div>
                             <?php if (!$grv['is_anonymous']): ?>
                             <div class="cell-main"><?php echo htmlspecialchars($grv['name'] ?? ''); ?></div>
-                            <div class="cell-sub"><i class="fas fa-phone fa-xs me-1"></i><?php echo htmlspecialchars($grv['phone'] ?? ''); ?><?php if ($grv['member_id']): ?> · <?php echo htmlspecialchars($grv['member_id']); ?><?php endif; ?></div>
+                            <div class="cell-sub"><i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($grv['phone'] ?? ''); ?><?php if ($grv['member_id']): ?> · <?php echo htmlspecialchars($grv['member_id']); ?><?php endif; ?></div>
                             <?php else: ?>
                             <div class="cell-main fst-italic text-muted">गुप्त पहिचान</div>
                             <div class="cell-sub"><span class="badge bg-secondary grv-anon-badge">Anonymous</span></div>
@@ -688,16 +684,16 @@ $grvFilterQs = array_filter([
                 <td><span class="badge-status badge-<?php echo htmlspecialchars($grv['status']); ?>"><?php echo $statusLabel[$grv['status']] ?? $grv['status']; ?></span></td>
                 <td class="no-print">
                     <div class="adm-action-icons">
-                        <a href="grievances.php?view=<?php echo $grv['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत / अपडेट', 'Details / Update'); ?>" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
-                        <a href="?export=csv&amp;id=<?php echo (int)$grv['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <a href="grievances.php?view=<?php echo (int)$grv['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत / अपडेट', 'Details / Update'); ?>" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
+                        <a href="?export=csv&amp;id=<?php echo (int)$grv['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                         <?php echo adminPrintFormIcon('grievance', (int)$grv['id']); ?>
                         <?php if ($grv['status'] === 'pending' || $grv['status'] === 'in_progress'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('यो गुनासो समाधान भएको मान्नुहुन्छ?', 'Mark this grievance as resolved?'); ?>')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_resolve" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $grv['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$grv['id']; ?>">
                             <input type="hidden" name="quick_resolve_status" value="resolved">
-                            <button type="submit" class="btn-qresolve"><i class="fas fa-check me-1"></i><?php echo $__t('समाधान', 'Resolve'); ?></button>
+                            <button type="submit" class="btn-qresolve"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $__t('समाधान', 'Resolve'); ?></button>
                         </form>
                         <?php endif; ?>
                     </div>

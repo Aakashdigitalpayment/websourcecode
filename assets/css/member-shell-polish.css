@@ -5,19 +5,20 @@
  */
 
 :root {
-  --mem-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
-  --mem-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
-  --mem-radius: 12px;
-  --mem-radius-sm: 9px;
-  --mem-border: #d7e0db;
-  --mem-border-focus: var(--primary-color, #1a5f2a);
-  --mem-surface: #ffffff;
-  --mem-surface-soft: #f6f9f7;
-  --mem-text: #0f1a15;
-  --mem-muted: #5b6b62;
-  --mem-bottom-nav-h: 64px;
-  --mem-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
-  --mem-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
+  /* Aliases only — token values live in global.css */
+  --mem-font-body: var(--shell-font-body);
+  --mem-font-head: var(--shell-font-head);
+  --mem-radius: var(--shell-radius);
+  --mem-radius-sm: var(--shell-radius-sm);
+  --mem-border: var(--shell-border);
+  --mem-border-focus: var(--shell-border-focus);
+  --mem-surface: var(--shell-surface);
+  --mem-surface-soft: var(--shell-surface-soft);
+  --mem-text: var(--shell-text);
+  --mem-muted: var(--shell-muted);
+  --mem-bottom-nav-h: var(--shell-bottom-nav-h);
+  --mem-focus-ring: var(--shell-focus-ring);
+  --mem-shadow: var(--shell-shadow);
 }
 
 /* ── Fonts ─────────────────────────────────────────────────────────── */
@@ -55,6 +56,25 @@ body,
 .vp-input,
 .vp-btn {
   font-family: var(--mem-font-body) !important;
+}
+
+/* Offline banner — moved off chrome.php inline styles */
+#coopOfflineBanner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: var(--primary-color, #1a5f2a);
+  color: var(--text-on-primary, #fff);
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--mem-shadow, 0 2px 8px rgba(0, 0, 0, 0.22));
 }
 
 /* ── Member cards / sections ───────────────────────────────────────── */
@@ -1066,33 +1086,222 @@ body.verify-auth-page .vp-secure {
   outline-offset: 2px !important;
 }
 
-/* Lang-aware date field UX */
+/* Lang-aware date field UX — shared look SSOT in final-ui-polish;
+   member-only control radius / hint visibility stay here. */
 .coop-date-wrap {
   width: 100%;
   transition: box-shadow 0.15s ease;
-}
-.coop-date-wrap:focus-within {
-  border-radius: 10px;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, transparent);
-}
-.coop-date-wrap .coop-date-ico {
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
-  color: var(--primary-color, #1a5f2a);
-  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
-  cursor: pointer;
 }
 .coop-date-wrap .form-control,
 .coop-date-wrap .mem-form-control {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
-.coop-date-hint {
-  margin-top: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--text-muted, #6b7280);
-}
 .mem-form-group .coop-date-wrap + .coop-date-hint,
 .form-group .coop-date-wrap + .coop-date-hint {
   display: block;
 }
 
+/* ── Member chrome (moved from chrome.php inline) ───────────────── */
+.bell-wrap { position: relative; }
+.bell-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  max-height: 460px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(var(--primary-rgb, 26, 95, 42), .18);
+  z-index: 1000;
+  color: var(--text-color, #1f2937);
+}
+.bell-dropdown.open { display: block; }
+.bell-dd-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 14%, #e5e7eb);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: var(--text-on-primary, white);
+  border-radius: 12px 12px 0 0;
+}
+.bell-dd-head .title { font-weight: 700; font-size: .9rem; }
+.bell-dd-head .badge {
+  background: var(--secondary-color);
+  color: var(--text-on-secondary, var(--text-on-primary, white));
+  font-size: .7rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.bell-dd-empty { padding: 30px 16px; text-align: center; color: var(--text-light, #6b7280); font-size: .85rem; }
+.bell-dd-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 10%, #f3f4f6);
+  cursor: pointer;
+  transition: background .15s;
+}
+.bell-dd-item:hover { background: color-mix(in srgb, var(--primary-color) 8%, white); }
+.bell-dd-item.unread { background: color-mix(in srgb, var(--primary-color) 12%, white); }
+.bell-dd-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: .85rem;
+}
+.bell-dd-body { flex: 1; min-width: 0; }
+.bell-dd-title { font-weight: 600; font-size: .82rem; color: var(--text-color, #111827); }
+.bell-dd-msg {
+  font-size: .74rem;
+  color: var(--text-light, #6b7280);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.bell-dd-time { font-size: .68rem; color: var(--text-muted, #9ca3af); margin-top: 3px; }
+.bell-dd-foot {
+  padding: 10px 14px;
+  text-align: center;
+  border-top: 1px solid color-mix(in srgb, var(--primary-color) 14%, #e5e7eb);
+  background: color-mix(in srgb, var(--primary-color) 8%, white);
+  border-radius: 0 0 12px 12px;
+}
+.bell-dd-foot a { color: var(--primary-color); font-weight: 600; font-size: .82rem; text-decoration: none; }
+.mem-bell-btn {
+  position: relative;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background .15s;
+}
+.mem-bell-btn:hover { background: rgba(255,255,255,.15); }
+.mem-bell-btn .mem-notif-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--secondary-color);
+  color: var(--text-on-secondary, var(--text-on-primary, white));
+  border-radius: 10px;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+}
+.mem-lang-btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.mem-lang-code { font-size: 12px; font-weight: 800; line-height: 1; }
+.mem-nav-item-rel { position: relative; }
+.mem-notif-dot-inline { position: static; margin-left: 4px; }
+.mem-nav-vote-live { position: relative; }
+.mem-vote-live-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-success, #16a34a);
+  margin-left: 6px;
+  box-shadow: 0 0 0 0 rgba(22,163,74,.55);
+  animation: memVoteLivePulse 1.4s infinite;
+}
+@keyframes memVoteLivePulse {
+  0% { box-shadow: 0 0 0 0 rgba(22,163,74,.55); }
+  70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mem-vote-live-dot { animation: none !important; box-shadow: none !important; }
+}
+.mem-nav-apply-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 0 0 auto;
+}
+.mem-nav-apply-toggle {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  background: transparent;
+  color: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.mem-nav-apply-toggle .mem-nav-apply-chevron {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: .65em;
+  transition: transform .2s ease;
+}
+.mem-nav-apply-wrap.open .mem-nav-apply-chevron { transform: rotate(180deg); }
+.mem-nav-apply-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  min-width: min(240px, 80vw);
+  padding: 8px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(15,23,42,.14);
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+}
+.mem-nav-apply-wrap.open .mem-nav-apply-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mem-nav-apply-panel .mem-nav-item {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px !important;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.mem-nav-apply-panel .mem-nav-item i {
+  display: inline-block !important;
+  margin: 0 !important;
+  font-size: .9rem !important;
+}
+@media (max-width: 899px) {
+  .mem-nav-apply-wrap { flex: 0 0 auto; }
+  .mem-nav-apply-panel { left: auto; right: 0; }
+}
+
+/* Lucide size/spin utilities → assets/css/lucide-icon-utils.css (late-bundle) */
+
+/* Empty-state Lucide glyphs (emoji → Lucide) */
+.mem-empty-icon .lucide-icon,
+.mem-empty-icon .lucide-icon svg {
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  display: inline-block !important;
+  stroke: currentColor !important;
+  color: inherit !important;
+}
+.mem-notif-dot-icon .lucide-icon,
+.mem-notif-dot-icon .lucide-icon svg {
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  stroke: currentColor !important;
+}

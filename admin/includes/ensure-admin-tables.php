@@ -6,6 +6,9 @@ require_once __DIR__ . '/../../includes/notification-templates-tables.php';
 require_once __DIR__ . '/../../includes/honor-tables.php';
 require_once __DIR__ . '/../../includes/member-marketplace-tables.php';
 require_once __DIR__ . '/../../includes/information-room-tables.php';
+if (is_file(__DIR__ . '/../../includes/auth-roles.php')) {
+    require_once __DIR__ . '/../../includes/auth-roles.php';
+}
 /**
  * Admin panel मा आवश्यक सबै tables automatically create गर्छ
  * Re-run safe — CREATE TABLE IF NOT EXISTS
@@ -28,7 +31,7 @@ function ensureAdminTables(): bool {
             password VARCHAR(255) NOT NULL,
             full_name VARCHAR(100) NOT NULL,
             email VARCHAR(100),
-            role ENUM('super_admin','admin','editor') DEFAULT 'admin',
+            role ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin',
             is_active TINYINT(1) DEFAULT 1,
             must_change_password TINYINT(1) NOT NULL DEFAULT 0,
             twofa_enabled TINYINT DEFAULT 0,
@@ -39,8 +42,27 @@ function ensureAdminTables(): bool {
             last_login TIMESTAMP NULL DEFAULT NULL,
             INDEX idx_role (role)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        /* Additive widen for older DBs created with short ENUM — never DROP values */
+        if (function_exists('coop_widen_admin_role_enum')) {
+            coop_widen_admin_role_enum($db);
+        } else {
+            try {
+                $db->exec(
+                    "ALTER TABLE `admin_users` MODIFY COLUMN `role` "
+                    . "ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin'"
+                );
+            } catch (Throwable $e) { /* already wide / table missing */ }
+        }
+        /* Alias-only row normalize (superadmin → super_admin); dual-read still accepts both */
+        if (function_exists('coop_normalize_admin_role_aliases')) {
+            coop_normalize_admin_role_aliases($db);
+        }
         try {
-            $db->exec('ALTER TABLE admin_users ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0');
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'admin_users', 'must_change_password', 'TINYINT(1) NOT NULL DEFAULT 0');
+            } else {
+                $db->exec('ALTER TABLE admin_users ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0');
+            }
         } catch (Throwable $e) { /* already exists */ }
 
         /* ── 1. NOTICES ─────────────────────────────────── */
@@ -154,7 +176,11 @@ function ensureAdminTables(): bool {
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         try {
-            $db->exec("ALTER TABLE pages ADD COLUMN menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'pages', 'menu_icon', "VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+            } else {
+                $db->exec("ALTER TABLE pages ADD COLUMN menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+            }
         } catch (\Throwable $e) { /* already exists */ }
 
         /* ── 8. DOWNLOADS ───────────────────────────────── */
@@ -411,46 +437,76 @@ function ensureAdminTables(): bool {
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        /* ── 24b. ALTER: Add missing columns for existing DB installs ─
-                   MySQL 5.7 compatible: no IF NOT EXISTS — catch dup error ── */
-        $ipAlters = [
-            "ALTER TABLE institutional_profile ADD COLUMN report_date_bs VARCHAR(60) DEFAULT ''",
-            "ALTER TABLE institutional_profile ADD COLUMN report_date_ad DATE NULL",
-            "ALTER TABLE institutional_profile ADD COLUMN report_month VARCHAR(20) DEFAULT NULL",
-            "ALTER TABLE institutional_profile ADD COLUMN total_balance_member INT DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN share_capital_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN reserved_fund DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN reserved_fund_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN other_fund DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN bank_cash_balance DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN fixed_assets DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN deposit_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN loan_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN total_loan_members INT DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_fund DECIMAL(15,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN npl_percent DECIMAL(5,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN liquidity_percent DECIMAL(8,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN net_profit DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN profit_loss DECIMAL(18,2) DEFAULT 0",
-            "ALTER TABLE institutional_profile ADD COLUMN report_note TEXT DEFAULT NULL",
-        ];
-        foreach ($ipAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
-
-        /* ── notices popup image columns ── */
-        foreach ([
-            "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT ''",
-            "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) DEFAULT 0",
-        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
-
-        /* ── gallery video support columns ── */
-        foreach ([
-            "ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT 'photo'",
-            "ALTER TABLE gallery ADD COLUMN video_url VARCHAR(500) DEFAULT ''",
-            "ALTER TABLE gallery ADD COLUMN thumbnail VARCHAR(255) DEFAULT ''",
-            "ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL",
-            "ALTER TABLE gallery ADD COLUMN album_id INT NULL",
-        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        /* ── 24b. ALTER: Add missing columns via safeAddColumn (no IF NOT EXISTS needed) ─ */
+        if (function_exists('safeAddColumn')) {
+            $ipCols = [
+                'report_date_bs' => "VARCHAR(60) DEFAULT ''",
+                'report_date_ad' => 'DATE NULL',
+                'report_month' => 'VARCHAR(20) DEFAULT NULL',
+                'total_balance_member' => 'INT DEFAULT 0',
+                'share_capital_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'reserved_fund' => 'DECIMAL(18,2) DEFAULT 0',
+                'reserved_fund_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'other_fund' => 'DECIMAL(18,2) DEFAULT 0',
+                'bank_cash_balance' => 'DECIMAL(18,2) DEFAULT 0',
+                'fixed_assets' => 'DECIMAL(18,2) DEFAULT 0',
+                'deposit_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'loan_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'total_loan_members' => 'INT DEFAULT 0',
+                'total_loan_reserve_fund' => 'DECIMAL(15,2) DEFAULT 0',
+                'total_loan_reserve_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'npl_percent' => 'DECIMAL(5,2) DEFAULT 0',
+                'liquidity_percent' => 'DECIMAL(8,2) DEFAULT 0',
+                'net_profit' => 'DECIMAL(18,2) DEFAULT 0',
+                'profit_loss' => 'DECIMAL(18,2) DEFAULT 0',
+                'report_note' => 'TEXT DEFAULT NULL',
+            ];
+            foreach ($ipCols as $col => $def) {
+                safeAddColumn($db, 'institutional_profile', $col, $def);
+            }
+            safeAddColumn($db, 'notices', 'popup_image', "VARCHAR(255) DEFAULT ''");
+            safeAddColumn($db, 'notices', 'popup_photo_only', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'gallery', 'media_type', "VARCHAR(20) DEFAULT 'photo'");
+            safeAddColumn($db, 'gallery', 'video_url', "VARCHAR(500) DEFAULT ''");
+            safeAddColumn($db, 'gallery', 'thumbnail', "VARCHAR(255) DEFAULT ''");
+            safeAddColumn($db, 'gallery', 'album', 'VARCHAR(200) NULL');
+            safeAddColumn($db, 'gallery', 'album_id', 'INT NULL');
+        } else {
+            $ipAlters = [
+                "ALTER TABLE institutional_profile ADD COLUMN report_date_bs VARCHAR(60) DEFAULT ''",
+                "ALTER TABLE institutional_profile ADD COLUMN report_date_ad DATE NULL",
+                "ALTER TABLE institutional_profile ADD COLUMN report_month VARCHAR(20) DEFAULT NULL",
+                "ALTER TABLE institutional_profile ADD COLUMN total_balance_member INT DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN share_capital_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN reserved_fund DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN reserved_fund_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN other_fund DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN bank_cash_balance DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN fixed_assets DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN deposit_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN loan_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN total_loan_members INT DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_fund DECIMAL(15,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN npl_percent DECIMAL(5,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN liquidity_percent DECIMAL(8,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN net_profit DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN profit_loss DECIMAL(18,2) DEFAULT 0",
+                "ALTER TABLE institutional_profile ADD COLUMN report_note TEXT DEFAULT NULL",
+            ];
+            foreach ($ipAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+            foreach ([
+                "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT ''",
+                "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) DEFAULT 0",
+            ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+            foreach ([
+                "ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT 'photo'",
+                "ALTER TABLE gallery ADD COLUMN video_url VARCHAR(500) DEFAULT ''",
+                "ALTER TABLE gallery ADD COLUMN thumbnail VARCHAR(255) DEFAULT ''",
+                "ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL",
+                "ALTER TABLE gallery ADD COLUMN album_id INT NULL",
+            ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        }
 
         /* ── gallery albums table + legacy migration ── */
         try {
@@ -459,34 +515,49 @@ function ensureAdminTables(): bool {
         } catch (Throwable $e) { /* best-effort */ }
 
         /* ── admin_users 2FA columns ── */
-        foreach ([
-            "ALTER TABLE admin_users ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
-            "ALTER TABLE admin_users ADD COLUMN twofa_secret VARCHAR(64) NULL",
-            "ALTER TABLE admin_users ADD COLUMN twofa_backup_codes TEXT NULL",
-            "ALTER TABLE admin_users ADD COLUMN twofa_enabled_at DATETIME NULL",
-        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
-
-        /* ── team_members: पुरानो DB मा नयाँ columns थप्ने ── */
-        $tmAlters = [
-            "ALTER TABLE team_members ADD COLUMN name_en VARCHAR(120) AFTER name",
-            "ALTER TABLE team_members ADD COLUMN position_np VARCHAR(100) AFTER position",
-            "ALTER TABLE team_members ADD COLUMN position_en VARCHAR(100) AFTER position_np",
-            "ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0",
-            "ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0",
-            "ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0",
-            "ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0",
-            "ALTER TABLE team_members ADD COLUMN display_order INT DEFAULT 0",
-            "ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order",
-        ];
-        foreach ($tmAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
-
-        /* ── committee_types: navbar + icon + menu link ── */
-        $ctAlters = [
-            "ALTER TABLE committee_types ADD COLUMN show_in_navbar TINYINT(1) DEFAULT 0",
-            "ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'",
-            "ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL",
-        ];
-        foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'admin_users', 'twofa_enabled', 'TINYINT DEFAULT 0');
+            safeAddColumn($db, 'admin_users', 'twofa_secret', 'VARCHAR(64) NULL');
+            safeAddColumn($db, 'admin_users', 'twofa_backup_codes', 'TEXT NULL');
+            safeAddColumn($db, 'admin_users', 'twofa_enabled_at', 'DATETIME NULL');
+            safeAddColumn($db, 'team_members', 'name_en', 'VARCHAR(120) AFTER name');
+            safeAddColumn($db, 'team_members', 'position_np', 'VARCHAR(100) AFTER position');
+            safeAddColumn($db, 'team_members', 'position_en', 'VARCHAR(100) AFTER position_np');
+            safeAddColumn($db, 'team_members', 'is_information_officer', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'team_members', 'is_grievance_officer', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'team_members', 'is_chairman', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'team_members', 'is_ceo', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'team_members', 'display_order', 'INT DEFAULT 0');
+            safeAddColumn($db, 'team_members', 'chart_row', "TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order");
+            safeAddColumn($db, 'committee_types', 'show_in_navbar', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'committee_types', 'icon', "VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+            safeAddColumn($db, 'committee_types', 'menu_category_id', 'INT NULL DEFAULT NULL');
+        } else {
+            foreach ([
+                "ALTER TABLE admin_users ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
+                "ALTER TABLE admin_users ADD COLUMN twofa_secret VARCHAR(64) NULL",
+                "ALTER TABLE admin_users ADD COLUMN twofa_backup_codes TEXT NULL",
+                "ALTER TABLE admin_users ADD COLUMN twofa_enabled_at DATETIME NULL",
+            ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+            $tmAlters = [
+                "ALTER TABLE team_members ADD COLUMN name_en VARCHAR(120) AFTER name",
+                "ALTER TABLE team_members ADD COLUMN position_np VARCHAR(100) AFTER position",
+                "ALTER TABLE team_members ADD COLUMN position_en VARCHAR(100) AFTER position_np",
+                "ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0",
+                "ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0",
+                "ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0",
+                "ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0",
+                "ALTER TABLE team_members ADD COLUMN display_order INT DEFAULT 0",
+                "ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order",
+            ];
+            foreach ($tmAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+            $ctAlters = [
+                "ALTER TABLE committee_types ADD COLUMN show_in_navbar TINYINT(1) DEFAULT 0",
+                "ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'",
+                "ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL",
+            ];
+            foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        }
 
         /* ── कर्मचारी वर्ग / समूह (team_staff_groups) ── */
         try {
@@ -511,12 +582,17 @@ function ensureAdminTables(): bool {
             is_active    TINYINT(1) DEFAULT 1,
             created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-        /* Add category FK column to services (safe — ignored if already exists) */
-        $svcAlters = [
-            "ALTER TABLE services ADD COLUMN nav_group VARCHAR(40) DEFAULT 'general'",
-            "ALTER TABLE services ADD COLUMN service_category_id INT DEFAULT NULL",
-        ];
-        foreach ($svcAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        /* Add category FK column to services */
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'services', 'nav_group', "VARCHAR(40) DEFAULT 'general'");
+            safeAddColumn($db, 'services', 'service_category_id', 'INT DEFAULT NULL');
+        } else {
+            $svcAlters = [
+                "ALTER TABLE services ADD COLUMN nav_group VARCHAR(40) DEFAULT 'general'",
+                "ALTER TABLE services ADD COLUMN service_category_id INT DEFAULT NULL",
+            ];
+            foreach ($svcAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+        }
 
         /* ── 25. NOTIFICATION LOG — ensurePublicTables + notification-log-tables.php ── */
 
@@ -608,12 +684,20 @@ function ensureAdminTables(): bool {
 
 /* Admin header / login include — `.admin-schema.lock` बाट guard
  * सफल भए मात्र lock लेख्ने (खाली DB मा false lock नहोस्) */
-$_adminSchemaVersion = 'v12-information-room-2026';
+$_adminSchemaVersion = 'v15-schema-mig-role-alias-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {
     if (ensureAdminTables()) {
         @file_put_contents($_adminLock, "Admin schema initialized at " . date('Y-m-d H:i:s') . " [{$_adminSchemaVersion}]\n");
+        if (is_file(dirname(__DIR__, 2) . '/includes/schema-migrations.php')) {
+            require_once dirname(__DIR__, 2) . '/includes/schema-migrations.php';
+        }
+        if (function_exists('coop_record_schema_migration') && function_exists('getDB')) {
+            try {
+                coop_record_schema_migration(getDB(), $_adminSchemaVersion, 'ensureAdminTables lock write');
+            } catch (Throwable $e) { /* ignore */ }
+        }
     }
 }
 unset($_adminLock, $_lockContent, $_adminSchemaVersion);

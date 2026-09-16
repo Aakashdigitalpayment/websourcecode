@@ -32,5 +32,5 @@ if (!defined('DB_PASS')) {
 
 /*
 | SITE_URL: database.local.php वा legacy database.php मा define गर्नुहोस्।
-| नभए admin panel / config.php ले dynamic URL प्रयोग गर्छ।
+| नभए config.php ले Host बाट बनाउँछ (sanitized; SITE_ALLOWED_HOSTS ले pin गर्न सकिन्छ)।
 */

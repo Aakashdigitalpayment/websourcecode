@@ -7,6 +7,7 @@
  * Excel/CSV: ?export=csv (+ status/search/date_from/date_to) वा ?export=csv&id=N
  */
 /* CSV export अघि HTML नछापियोस् — नत्र Excel मा page source देखिन्छ */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -826,8 +827,8 @@ if ($viewApp && $kycSsotDivergent !== [] && function_exists('memberSsotDivergenc
 
 if ($viewApp && $kycFromMemberId > 0): ?>
 <div class="mb-3">
-    <a href="members.php?view=<?php echo $kycFromMemberId; ?>" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Member विवरणमा फर्कनुहोस्
+    <a href="members.php?view=<?php echo (int)$kycFromMemberId; ?>" class="btn btn-sm btn-outline-secondary">
+        <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>Member विवरणमा फर्कनुहोस्
     </a>
 </div>
 <?php endif;
@@ -843,7 +844,7 @@ if ($viewApp):
 <div class="card shadow-sm mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-user-check me-2"></i>केवाइएम आवेदन विवरण
+            <i class="lucide-icon me-2" data-lucide="user-check" aria-hidden="true"></i>केवाइएम आवेदन विवरण
             <code class="apt-track-chip">
                 <?php echo htmlspecialchars($trackId); ?>
             </code>
@@ -872,7 +873,7 @@ if ($viewApp):
 
                 <!-- व्यक्तिगत जानकारी -->
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-user"></i>व्यक्तिगत जानकारी</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>व्यक्तिगत जानकारी</div>
                     <table class="table adm-detail-table">
                         <tr><th>पूरा नाम</th>
                             <td><strong><?php echo htmlspecialchars($viewApp['full_name'] ?? '—'); ?></strong></td></tr>
@@ -987,7 +988,7 @@ if ($viewApp):
                         <tr><th>डिजिटल ID कार्ड</th>
                             <td>
                                 <?php if (!empty($viewApp['want_id_card'])): ?>
-                                    <span class="badge kyc-id-requested"><i class="fas fa-id-card me-1"></i>अनुरोध गरिएको — स्वीकृतिमा स्वतः तयार हुनेछ</span>
+                                    <span class="badge kyc-id-requested"><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>अनुरोध गरिएको — स्वीकृतिमा स्वतः तयार हुनेछ</span>
                                 <?php else: ?>
                                     <span class="text-muted kyc-id-not-requested">अनुरोध गरिएको छैन</span>
                                 <?php endif; ?>
@@ -1000,7 +1001,7 @@ if ($viewApp):
 
                 <?php if (!empty($viewApp['citizenship_front']) || !empty($viewApp['citizenship_back']) || !empty($viewApp['national_id_card']) || !empty($viewApp['signature']) || !empty($viewApp['left_thumb']) || !empty($viewApp['right_thumb'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-id-card"></i>नागरिकता / National ID / औंठाछाप</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i>नागरिकता / National ID / औंठाछाप</div>
                     <div class="p-3">
                     <div class="row g-3">
                         <?php if (!empty($viewApp['citizenship_front'])): ?>
@@ -1081,7 +1082,7 @@ if ($viewApp):
                 ?>
                 <?php if (!empty($familyRows)): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-users"></i>पारिवारिक विवरण (Relation-wise)</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i>पारिवारिक विवरण (Relation-wise)</div>
                     <div class="p-3">
                         <div class="table-responsive">
                             <table class="table table-sm adm-detail-table align-middle mb-0">
@@ -1198,7 +1199,7 @@ if ($viewApp):
                 ?>
                 <?php if (!empty($amlRows)): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-shield-halved"></i>AML/KYM थप विवरण</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i>AML/KYM थप विवरण</div>
                     <table class="table adm-detail-table">
                         <?php foreach ($amlRows as $row): ?>
                         <tr>
@@ -1212,13 +1213,13 @@ if ($viewApp):
 
                 <?php if (!empty($viewApp['admin_attachment'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-paperclip"></i>Admin संलग्न Document</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i>Admin संलग्न Document</div>
                     <div class="p-3 d-flex align-items-center gap-3">
-                        <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
+                        <i class="lucide-icon lucide-2x text-primary opacity-75" data-lucide="file-text" aria-hidden="true"></i>
                         <div class="flex-grow-1 fw-semibold small"><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApp['admin_attachment'], '/')); ?>"
                            class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
-                            <i class="fas fa-download me-1"></i>Download
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Download
                         </a>
                     </div>
                 </div>
@@ -1226,7 +1227,7 @@ if ($viewApp):
 
                 <?php if (!empty($viewApp['remarks'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-sticky-note"></i>Admin टिप्पणी (Member ले Tracker मा देख्छ)</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="sticky-note" aria-hidden="true"></i>Admin टिप्पणी (Member ले Tracker मा देख्छ)</div>
                     <div class="p-3 apt-text-block apt-text-block-success">
                         <?php echo nl2br(htmlspecialchars($viewApp['remarks'])); ?>
                     </div>
@@ -1234,7 +1235,7 @@ if ($viewApp):
                 <?php endif; ?>
                 <?php if (!empty($kycHistory)): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-clock-rotate-left"></i>Status / Comment History</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>Status / Comment History</div>
                     <div class="p-3">
                         <?php echo arvLogList($kycHistory); ?>
                     </div>
@@ -1304,7 +1305,7 @@ if ($viewApp):
                 ?>
                 <div class="card border-0 shadow-sm mb-3" id="kycProfileEdit">
                     <div class="card-header bg-white py-2 fw-bold text-primary">
-                        <i class="fas fa-user-pen me-1"></i>KYM विवरण सम्पादन
+                        <i class="lucide-icon me-1" data-lucide="user-pen" aria-hidden="true"></i>KYM विवरण सम्पादन
                     </div>
                     <div class="card-body">
                         <?php if (function_exists('memberSsotEditGuideHtml')) {
@@ -1315,7 +1316,7 @@ if ($viewApp):
                             <input type="hidden" name="update_kyc_profile" value="1">
                             <input type="hidden" name="id" value="<?php echo (int)$viewApp['id']; ?>">
                             <?php if ($kycFromMemberId > 0): ?>
-                            <input type="hidden" name="from_member" value="<?php echo $kycFromMemberId; ?>">
+                            <input type="hidden" name="from_member" value="<?php echo (int)$kycFromMemberId; ?>">
                             <?php endif; ?>
 
                             <ul class="nav nav-tabs admin-nav-tabs mb-3" role="tablist">
@@ -1475,7 +1476,7 @@ if ($viewApp):
 
                             <div class="d-flex gap-2 mt-3 pt-2 border-top">
                                 <button type="submit" class="btn btn-primary btn-sm px-3">
-                                    <i class="fas fa-save me-1"></i>KYM विवरण सुरक्षित
+                                    <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>KYM विवरण सुरक्षित
                                 </button>
                             </div>
                         </form>
@@ -1483,7 +1484,7 @@ if ($viewApp):
                 </div>
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-header bg-white py-2 fw-bold small text-success">
-                        <i class="fas fa-link me-1"></i>Member ID SSOT
+                        <i class="lucide-icon me-1" data-lucide="link" aria-hidden="true"></i>Member ID SSOT
                     </div>
                     <div class="card-body py-3">
                         <div class="mb-2"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($viewSsot) : '—'; ?></div>
@@ -1495,7 +1496,7 @@ if ($viewApp):
                                 <input type="hidden" name="ssot_create_member" value="1">
                                 <input type="hidden" name="kyc_id" value="<?php echo (int)$viewApp['id']; ?>">
                                 <button type="submit" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-user-plus me-1"></i>Create / Link Member
+                                    <i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i>Create / Link Member
                                 </button>
                             </form>
                             <?php elseif ($viewMid !== ''): ?>
@@ -1506,10 +1507,10 @@ if ($viewApp):
                             }
                             ?>
                             <a href="<?php echo htmlspecialchars($kycOpenMemberUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-user-tag me-1"></i>Open Member
+                                <i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i>Open Member
                             </a>
                             <a href="member-online-portal.php?search=<?php echo urlencode($viewMid); ?>" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-globe me-1"></i>Portal
+                                <i class="lucide-icon me-1" data-lucide="globe" aria-hidden="true"></i>Portal
                             </a>
                             <?php endif; ?>
                         </div>
@@ -1517,39 +1518,39 @@ if ($viewApp):
                 </div>
                 <div class="card border-0 shadow-sm">
                     <div class="card-header gradient-card-header py-2">
-                        <i class="fas fa-check-circle me-2"></i>स्थिति / Approve
+                        <i class="lucide-icon me-2" data-lucide="circle-check" aria-hidden="true"></i>स्थिति / Approve
                     </div>
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="update_status" value="1">
-                            <input type="hidden" name="id" value="<?php echo $viewApp['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$viewApp['id']; ?>">
 
                             <div class="mb-3">
-                                <label for="kyc_st_status" class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>KYC अवस्था</label>
+                                <label for="kyc_st_status" class="form-label fw-semibold"><i class="lucide-icon me-1" data-lucide="circle-dot" aria-hidden="true"></i>KYC अवस्था</label>
                                 <select name="status" id="kyc_st_status" class="form-select">
                                     <?php foreach ($statusLabel as $v => $l): ?>
-                                    <option value="<?php echo $v; ?>" <?php echo $viewApp['status']===$v?'selected':''; ?>><?php echo $l; ?></option>
+                                    <option value="<?php echo e($v); ?>" <?php echo $viewApp['status']===$v?'selected':''; ?>><?php echo e($l); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
 
                             <div class="row g-2 mb-3">
                                 <div class="col-md-12">
-                                    <label for="kyc_st_member_id" class="form-label fw-semibold"><i class="fas fa-id-badge me-1 text-primary"></i>Member ID</label>
+                                    <label for="kyc_st_member_id" class="form-label fw-semibold"><i class="lucide-icon me-1 text-primary" data-lucide="badge-check" aria-hidden="true"></i>Member ID</label>
                                     <input type="text" name="member_id" id="kyc_st_member_id" class="form-control"
                                            value="<?php echo htmlspecialchars($viewApp['member_id'] ?? ''); ?>"
                                            placeholder="जस्तै: 1234" required>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="small text-muted border rounded px-2 py-2 bg-light">
-                                        <i class="fas fa-phone me-1"></i><?php echo htmlspecialchars((string)($viewApp['mobile'] ?? '—')); ?>
-                                        · <i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars((string)($viewApp['email'] ?? '—')); ?>
+                                        <i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars((string)($viewApp['mobile'] ?? '—')); ?>
+                                        · <i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars((string)($viewApp['email'] ?? '—')); ?>
                                         <div class="mt-1">मोबाइल/इमेल → <a href="#kycProfileEdit">KYM विवरण सम्पादन</a> (duplicate छैन)</div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <label for="kyc_st_risk" class="form-label fw-semibold"><i class="fas fa-layer-group me-1 text-primary"></i>Risk Category</label>
+                                    <label for="kyc_st_risk" class="form-label fw-semibold"><i class="lucide-icon me-1 text-primary" data-lucide="layers" aria-hidden="true"></i>Risk Category</label>
                                     <?php $curRisk = strtolower(trim((string)($viewApp['risk_category'] ?? 'medium'))); ?>
                                     <select name="risk_category" id="kyc_st_risk" class="form-select">
                                         <option value="low" <?php echo $curRisk==='low'?'selected':''; ?>>Low Risk (3 years)</option>
@@ -1561,7 +1562,7 @@ if ($viewApp):
 
                             <div class="mb-3">
                                 <label for="kyc_st_remarks" class="form-label fw-semibold">
-                                    <i class="fas fa-reply me-1 text-success"></i>Admin टिप्पणी
+                                    <i class="lucide-icon me-1 text-success" data-lucide="reply" aria-hidden="true"></i>Admin टिप्पणी
                                     <span class="text-muted fw-normal small">— Member ले Tracker मा देख्छ</span>
                                 </label>
                                 <textarea name="remarks" id="kyc_st_remarks" class="form-control" rows="4"
@@ -1573,35 +1574,35 @@ if ($viewApp):
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                 </label>
                                 <div class="arv-notify-channels">
-                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                             </div>
 
                             <!-- Admin ले KYC approval letter attach गर्न सक्छ -->
                             <div class="mb-4">
                                 <label for="kyc_st_attachment" class="form-label fw-semibold">
-                                    <i class="fas fa-paperclip me-1 text-primary"></i>KYC Document/Letter संलग्न
+                                    <i class="lucide-icon me-1 text-primary" data-lucide="paperclip" aria-hidden="true"></i>KYC Document/Letter संलग्न
                                     <span class="text-muted fw-normal small">— PDF, Word, Image (max 5MB)</span>
                                 </label>
                                 <input type="file" name="admin_attachment" id="kyc_st_attachment" class="form-control"
                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <?php if (!empty($viewApp['admin_attachment'])): ?>
                                 <div class="form-text text-primary mt-1">
-                                    <i class="fas fa-info-circle me-1"></i>हाल: <strong><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></strong>
+                                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>हाल: <strong><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></strong>
                                 </div>
                                 <?php endif; ?>
                             </div>
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary px-4">
-                                    <i class="fas fa-save me-1"></i>अपडेट गर्नुहोस्
+                                    <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्
                                 </button>
                                 <a href="kyc-applications.php" class="btn btn-outline-secondary">
-                                    <i class="fas fa-arrow-left me-1"></i>सूचीमा
+                                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा
                                 </a>
                             </div>
                         </form>
@@ -1611,9 +1612,9 @@ if ($viewApp):
                               onsubmit="return confirm('के तपाईं यो केवाइएम आवेदन स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete" value="1">
-                            <input type="hidden" name="delete_id" value="<?php echo $viewApp['id']; ?>">
+                            <input type="hidden" name="delete_id" value="<?php echo (int)$viewApp['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो केवाइएम आवेदन मेटाउनुहोस्
+                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>यो केवाइएम आवेदन मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -1629,27 +1630,27 @@ if ($viewApp):
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="kyc-applications.php" class="stat-mini <?php echo $status_filter===''?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-id-card"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $total; ?></div>
         <div class="sm-lbl">जम्मा KYC</div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $status_filter==='pending'?'active-filter':''; ?>">
-        <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
+        <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $pendingCount; ?></div>
         <div class="sm-lbl">पेन्डिङ</div>
     </a>
     <a href="?status=approved" class="stat-mini <?php echo $status_filter==='approved'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $approvedCount; ?></div>
         <div class="sm-lbl">स्वीकृत</div>
     </a>
     <a href="?status=rejected" class="stat-mini <?php echo $status_filter==='rejected'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $rejectedCount; ?></div>
         <div class="sm-lbl">अस्वीकृत</div>
     </a>
     <a href="?status=incomplete" class="stat-mini <?php echo $status_filter==='incomplete'?'active-filter':''; ?>">
-        <div class="sm-icon kyc-sm-icon-muted"><i class="fas fa-file-circle-exclamation"></i></div>
+        <div class="sm-icon kyc-sm-icon-muted"><i class="lucide-icon" data-lucide="file-warning" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $incompleteCount; ?></div>
         <div class="sm-lbl">अपूर्ण</div>
     </a>
@@ -1669,14 +1670,14 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-2 col-6">
-            <label>स्थिति</label>
+            <label for="qf_kyc_status">स्थिति</label>
             <select name="status" id="qf_kyc_status" class="form-select form-select-sm">
                 <option value="">सबै स्थिति</option>
-                <option value="pending"  <?php echo $status_filter==='pending'?'selected':''; ?>>⏳ पेन्डिङ</option>
-                <option value="approved" <?php echo $status_filter==='approved'?'selected':''; ?>>✅ स्वीकृत</option>
-                <option value="rejected" <?php echo $status_filter==='rejected'?'selected':''; ?>>❌ अस्वीकृत</option>
-                <option value="incomplete" <?php echo $status_filter==='incomplete'?'selected':''; ?>>📝 अपूर्ण</option>
-                <option value="partial" <?php echo $status_filter==='partial'?'selected':''; ?>>🧩 आंशिक</option>
+                <option value="pending"  <?php echo $status_filter==='pending'?'selected':''; ?>>पेन्डिङ</option>
+                <option value="approved" <?php echo $status_filter==='approved'?'selected':''; ?>>स्वीकृत</option>
+                <option value="rejected" <?php echo $status_filter==='rejected'?'selected':''; ?>>अस्वीकृत</option>
+                <option value="incomplete" <?php echo $status_filter==='incomplete'?'selected':''; ?>>अपूर्ण</option>
+                <option value="partial" <?php echo $status_filter==='partial'?'selected':''; ?>>आंशिक</option>
             </select>
         </div>
         <div class="col-md-2 col-6">
@@ -1702,22 +1703,22 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
         <div class="col-md-3 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <span class="input-group-text bg-white"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="Member ID, नाम, मोबाइल, नागरिकता नं., Tracking ID...">
                 <?php if ($search || $dateFrom || $dateTo || $link_filter): ?>
-                <a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm" title="Clear"><i class="fas fa-times"></i></a>
+                <a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm" title="Clear"><i class="lucide-icon" data-lucide="x" aria-hidden="true"></i></a>
                 <?php endif; ?>
             </div>
         </div>
         <div class="col-md-1 col-6">
-            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
+            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
         </div>
     </form>
     <div class="d-flex flex-wrap gap-2 mt-2 align-items-center">
         <a href="kyc-applications.php?<?php echo htmlspecialchars(http_build_query($kycExportQs), ENT_QUOTES, 'UTF-8'); ?>"
            class="btn btn-success btn-sm">
-            <i class="fas fa-file-excel me-1"></i>Excel डाउनलोड
+            <i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Excel डाउनलोड
             <span class="opacity-75">(<?php echo (int)$total; ?> — फिल्टर अनुसार)</span>
         </a>
         <span class="small text-muted">मिति / स्थिति / खोज अनुसार bulk CSV — Excel ले सिधै खोल्छ (UTF-8)।</span>
@@ -1728,7 +1729,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
 <!-- ── KYC Table ── -->
 <div class="card border-0 shadow-sm app-rounded-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-user-check me-2 text-primary"></i>केवाइएम आवेदन सूची</h6>
+        <h6><i class="lucide-icon me-2 text-primary" data-lucide="user-check" aria-hidden="true"></i>केवाइएम आवेदन सूची</h6>
         <span class="result-count-badge"><?php echo $total; ?> आवेदन</span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -1749,7 +1750,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </thead>
             <tbody>
             <?php if (empty($applications)): ?>
-            <tr class="no-results-row"><td colspan="10"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
+            <tr class="no-results-row"><td colspan="10"><i class="lucide-icon lucide-2x d-block mb-2" data-lucide="inbox" aria-hidden="true"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
             <?php else:
                 $ssotMap = function_exists('memberSsotBatchStatusForKycRows')
                     ? memberSsotBatchStatusForKycRows($db, $applications)
@@ -1777,7 +1778,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                 <td data-label="Member ID"><code class="cell-sub"><?php echo htmlspecialchars($app['member_id'] ?? '—'); ?></code></td>
                 <td data-label="लिंक"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                 <td data-label="सम्पर्क">
-                    <div class="cell-main"><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($app['mobile']); ?></div>
+                    <div class="cell-main"><i class="lucide-icon text-muted me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($app['mobile']); ?></div>
                     <?php if ($app['email']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['email']); ?></div><?php endif; ?>
                 </td>
                 <td data-label="नागरिकता"><div class="cell-sub"><?php echo htmlspecialchars($app['citizenship_no'] ?: '—'); ?></div></td>
@@ -1790,7 +1791,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                 <td data-label="स्थिति"><span class="badge-status badge-<?php echo htmlspecialchars($app['status']); ?>"><?php echo $statusLabel[$app['status']] ?? $app['status']; ?></span></td>
                 <td class="no-print" data-label="कार्यहरू">
                     <div class="adm-action-icons">
-                        <a href="kyc-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <a href="kyc-applications.php?view=<?php echo (int)$app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
                         <?php
                         $midSsot = trim((string)($app['member_id'] ?? ''));
                         if ($midSsot !== '' && $ssotCode === 'kym_only'):
@@ -1803,42 +1804,42 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                             <input type="hidden" name="back_link" value="<?php echo htmlspecialchars($link_filter, ENT_QUOTES, 'UTF-8'); ?>">
                             <input type="hidden" name="back_search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>">
                             <button type="submit" class="adm-icon-btn" title="Create Member (SSOT)" aria-label="Create Member" style="color:#b45309;border:0;background:transparent;cursor:pointer;">
-                                <i class="fas fa-user-plus"></i>
+                                <i class="lucide-icon" data-lucide="user-plus" aria-hidden="true"></i>
                             </button>
                         </form>
                         <?php elseif ($midSsot !== ''): ?>
                         <a href="members.php?search=<?php echo urlencode($midSsot); ?>"
                            class="adm-icon-btn" title="Open Member (SSOT)"
-                           aria-label="Open Member" style="color:#0f766e;"><i class="fas fa-user-tag"></i></a>
+                           aria-label="Open Member" style="color:#0f766e;"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i></a>
                         <a href="member-online-portal.php?search=<?php echo urlencode($midSsot); ?>"
                            class="adm-icon-btn" title="Portal unlock"
-                           aria-label="Portal" style="color:#1d4ed8;"><i class="fas fa-globe"></i></a>
+                           aria-label="Portal" style="color:#1d4ed8;"><i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i></a>
                         <?php endif; ?>
                         <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>"
                            class="adm-icon-btn" title="Excel डाउनलोड" aria-label="Excel"
-                           style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
+                           style="color:#15803d;"><i class="lucide-icon" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                         <?php echo adminPrintFormIcon('kyc', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('केवाइएम स्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $app['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$app['id']; ?>">
                             <input type="hidden" name="quick_status_val" value="approved">
-                            <button type="submit" class="btn-qapprove"><i class="fas fa-check me-1"></i>स्वीकृत</button>
+                            <button type="submit" class="btn-qapprove"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत</button>
                         </form>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('KYC अस्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $app['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$app['id']; ?>">
                             <input type="hidden" name="quick_status_val" value="rejected">
-                            <button type="submit" class="btn-qreject"><i class="fas fa-times me-1"></i>अस्वीकृत</button>
+                            <button type="submit" class="btn-qreject"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>अस्वीकृत</button>
                         </form>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('KYC अपूर्ण (document थप चाहियो) राख्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $app['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$app['id']; ?>">
                             <input type="hidden" name="quick_status_val" value="incomplete">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2"><i class="fas fa-file-circle-exclamation me-1"></i>अपूर्ण</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2"><i class="lucide-icon me-1" data-lucide="file-warning" aria-hidden="true"></i>अपूर्ण</button>
                         </form>
                         <?php endif; ?>
                     </div>
@@ -1852,13 +1853,13 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
     <div class="p-3 border-top no-print">
         <div class="adm-pagination">
             <?php $qs = $kycFilterQs; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="fas fa-angle-double-left"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="fas fa-angle-left"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
             <?php $start=max(1,$page-2);$end=min($totalPages,$page+2); for($i=$start;$i<=$end;$i++): ?>
             <?php echo $i==$page ? "<span class='active'>$i</span>" : "<a href='?".http_build_query(array_merge($qs,['page'=>$i]))."'>$i</a>"; ?>
             <?php endfor; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>"><i class="fas fa-angle-right"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>"><i class="fas fa-angle-double-right"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
             <span class="acc-page-meta"><?php echo $page; ?>/<?php echo $totalPages; ?> · <?php echo $total; ?> रेकर्ड</span>
         </div>
     </div>

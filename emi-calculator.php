@@ -34,10 +34,10 @@ $loanTypes = [
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><i class="fas fa-calculator me-2"></i><?php echo isEnglish() ? 'EMI Loan Calculator' : 'EMI ऋण क्याल्कुलेटर'; ?></h1>
+        <h1><i class="lucide-icon me-2" data-lucide="calculator" aria-hidden="true"></i><?php echo isEnglish() ? 'EMI Loan Calculator' : 'EMI ऋण क्याल्कुलेटर'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'EMI Calculator' : 'EMI क्याल्कुलेटर'; ?></li>
             </ol>
         </nav>
@@ -64,7 +64,7 @@ $loanTypes = [
         <div class="col-lg-5">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="sliders-h" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Loan Details' : 'ऋण विवरण'; ?>
                     </h5>
                 </div>
@@ -168,14 +168,14 @@ $loanTypes = [
 
                     <!-- Calculate Button -->
                     <button type="button" class="btn btn-primary btn-lg w-100" id="calcBtn" onclick="calculateEMI()">
-                        <i class="fas fa-calculator me-2"></i>
+                        <i class="lucide-icon me-2" data-lucide="calculator" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Calculate EMI' : 'EMI गणना गर्नुहोस्'; ?>
                     </button>
 
                     <!-- Apply for Loan CTA -->
                     <div class="mt-3 text-center">
-                        <a href="<?php echo SITE_URL; ?>loan-apply.php" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-file-alt me-1"></i>
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>loan-apply.php" class="btn btn-outline-success btn-sm">
+                            <i class="lucide-icon me-1" data-lucide="file-text" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Apply for Loan →' : 'ऋणको लागि आवेदन दिनुहोस् →'; ?>
                         </a>
                     </div>
@@ -228,7 +228,7 @@ $loanTypes = [
             <div class="card shadow-sm mb-4" id="breakdownCard" style="display:none;">
                 <div class="card-body">
                     <h6 class="fw-semibold mb-3">
-                        <i class="fas fa-chart-bar me-2 text-primary"></i>
+                        <i class="lucide-icon me-2 text-primary" data-lucide="bar-chart-3" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Payment Breakdown' : 'भुक्तानी विवरण'; ?>
                     </h6>
                     <div class="progress mb-2" style="height:28px;border-radius:8px;overflow:hidden;">
@@ -260,7 +260,7 @@ $loanTypes = [
             <div class="card shadow-sm" id="scheduleCard" style="display:none;">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h6 class="mb-0 fw-semibold">
-                        <i class="fas fa-table me-2 text-primary"></i>
+                        <i class="lucide-icon me-2 text-primary" data-lucide="table" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Monthly Repayment Schedule' : 'मासिक भुक्तानी तालिका'; ?>
                     </h6>
                     <div class="d-flex gap-2 flex-wrap">
@@ -274,7 +274,7 @@ $loanTypes = [
                         </div>
                         <!-- Print button -->
                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSchedule()">
-                            <i class="fas fa-print me-1"></i><?php echo isEnglish() ? 'Print' : 'प्रिन्ट'; ?>
+                            <i class="lucide-icon me-1" data-lucide="printer" aria-hidden="true"></i><?php echo isEnglish() ? 'Print' : 'प्रिन्ट'; ?>
                         </button>
                     </div>
                 </div>
@@ -297,7 +297,7 @@ $loanTypes = [
                     </div>
                 </div>
                 <div class="card-footer small text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                     <?php echo isEnglish()
                         ? 'This is an approximate schedule. Actual amounts may vary slightly based on processing dates.'
                         : 'यो अनुमानित तालिका हो। वास्तविक रकम processing मितिको आधारमा केही फरक पर्न सक्छ।'; ?>
@@ -312,7 +312,7 @@ $loanTypes = [
         <div class="col-md-4">
             <div class="card border-0 bg-light">
                 <div class="card-body text-center p-3">
-                    <i class="fas fa-formula text-primary fa-2x mb-2"></i>
+                    <i class="lucide-icon text-primary lucide-2x mb-2" data-lucide="sigma" aria-hidden="true"></i>
                     <h6 class="fw-semibold"><?php echo isEnglish() ? 'EMI Formula' : 'EMI सूत्र'; ?></h6>
                     <p class="small text-muted mb-0">
                         <strong>EMI = P × r × (1+r)ⁿ / ((1+r)ⁿ − 1)</strong><br>
@@ -324,7 +324,7 @@ $loanTypes = [
         <div class="col-md-4">
             <div class="card border-0 bg-light">
                 <div class="card-body text-center p-3">
-                    <i class="fas fa-lightbulb text-warning fa-2x mb-2"></i>
+                    <i class="lucide-icon text-warning lucide-2x mb-2" data-lucide="lightbulb" aria-hidden="true"></i>
                     <h6 class="fw-semibold"><?php echo isEnglish() ? 'EMI Tips' : 'EMI सुझाव'; ?></h6>
                     <p class="small text-muted mb-0">
                         <?php echo isEnglish()
@@ -337,14 +337,14 @@ $loanTypes = [
         <div class="col-md-4">
             <div class="card border-0 bg-light">
                 <div class="card-body text-center p-3">
-                    <i class="fas fa-phone-alt text-success fa-2x mb-2"></i>
+                    <i class="lucide-icon text-success lucide-2x mb-2" data-lucide="phone-outgoing" aria-hidden="true"></i>
                     <h6 class="fw-semibold"><?php echo isEnglish() ? 'Need Help?' : 'सहयोग चाहिन्छ?'; ?></h6>
                     <p class="small text-muted mb-0">
                         <?php echo isEnglish()
                             ? 'Contact our loan officers for personalized guidance.'
                             : 'ऋण सम्बन्धी जानकारीको लागि हाम्रो कार्यालयमा सम्पर्क गर्नुहोस्।'; ?>
                     </p>
-                    <a href="<?php echo SITE_URL; ?>contact.php" class="btn btn-sm btn-success mt-2">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="btn btn-sm btn-success mt-2">
                         <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क'; ?>
                     </a>
                 </div>

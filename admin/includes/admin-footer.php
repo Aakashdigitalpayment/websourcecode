@@ -38,7 +38,23 @@
 
     <!-- Admin JS -->
     <script src="assets/admin.js"></script>
-    <script src="assets/icon-picker.js?v=4"></script>
+    <?php
+    /* FA→Lucide map for icon-picker preview (DB still stores FA class strings). */
+    if (function_exists('fa_to_lucide_map')):
+        $__faLucideMap = fa_to_lucide_map();
+    ?>
+    <script>
+    window.COOP_FA_LUCIDE_MAP = <?php echo json_encode($__faLucideMap, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+    window.coopFaToLucide = function (faClass) {
+      var map = window.COOP_FA_LUCIDE_MAP || {};
+      var clean = String(faClass || '').trim();
+      var name = clean.replace(/^(fa[bsr]?\s+|fa-)/i, '');
+      var fallback = name.replace(/^fa-/, '');
+      return map[name] || map[clean] || map['fa-' + fallback] || fallback || 'circle';
+    };
+    </script>
+    <?php endif; ?>
+    <script src="assets/icon-picker.js?v=6"></script>
     <script src="../assets/js/v9-mobile-fix.js?v=9.7" defer></script>
 
     <!-- PWA — Service Worker + Install Handler -->
@@ -311,12 +327,12 @@
                     panes.docs.innerHTML = '<div class="arv-empty-tab"><i class="lucide-icon" aria-hidden="true" data-lucide="folder-open"></i><strong>कागजात छैन</strong><span>यस अनुरोधमा कागजात / attachment भेटिएन।</span></div>';
                 }
                 if (!panes.log.children.length) {
-                    panes.log.innerHTML = '<div class="arv-empty-tab"><i class="fas fa-clock-rotate-left"></i><strong>गतिविधि लग छैन</strong><span>Status/comment history उपलब्ध छैन।</span></div>';
+                    panes.log.innerHTML = '<div class="arv-empty-tab"><i class="lucide-icon" aria-hidden="true" data-lucide="history"></i><strong>गतिविधि लग छैन</strong><span>Status/comment history उपलब्ध छैन।</span></div>';
                 }
                 var availableTabs = [
                     ['overview', '<i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i> अवलोकन'],
-                    ['docs', '<i class="fas fa-paperclip me-1"></i> कागजात'],
-                    ['log', '<i class="fas fa-clock-rotate-left me-1"></i> गतिविधि लग']
+                    ['docs', '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="paperclip"></i> कागजात'],
+                    ['log', '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="history"></i> गतिविधि लग']
                 ];
 
                 availableTabs.forEach(function(item, index) {

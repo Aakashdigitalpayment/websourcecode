@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'प्रोफाइल';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -45,7 +46,7 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-user-edit"></i> प्रोफाइल जानकारी</h5>
+                <h5><i class="lucide-icon" data-lucide="user-pen" aria-hidden="true"></i> प्रोफाइल जानकारी</h5>
             </div>
             <div class="card-body">
                 <?php
@@ -53,12 +54,12 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
                 $flashOk  = getFlash('success');
                 if ($flashErr): ?>
                 <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-circle me-1"></i> <?php echo e($flashErr); ?>
+                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo e($flashErr); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <?php endif; if ($flashOk): ?>
                 <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-1"></i> <?php echo e($flashOk); ?>
+                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i> <?php echo e($flashOk); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <?php endif; ?>
@@ -69,19 +70,19 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="admin_profile_username" class="form-label">युजरनेम</label>
-                            <input type="text" id="admin_profile_username" class="form-control" value="<?php echo $admin['username']; ?>" disabled>
+                            <input type="text" id="admin_profile_username" class="form-control" value="<?php echo e($admin['username']); ?>" disabled>
                             <small class="text-muted">युजरनेम परिवर्तन गर्न मिल्दैन</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="admin_profile_full_name" class="form-label">पूरा नाम <span class="text-danger">*</span></label>
-                            <input type="text" name="full_name" id="admin_profile_full_name" class="form-control" value="<?php echo $admin['full_name']; ?>" required autocomplete="name">
+                            <input type="text" name="full_name" id="admin_profile_full_name" class="form-control" value="<?php echo e($admin['full_name']); ?>" required autocomplete="name">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="admin_profile_email" class="form-label">इमेल</label>
-                            <input type="email" name="email" id="admin_profile_email" class="form-control" value="<?php echo $admin['email']; ?>" autocomplete="email">
+                            <input type="email" name="email" id="admin_profile_email" class="form-control" value="<?php echo e($admin['email']); ?>" autocomplete="email">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="admin_profile_last_login" class="form-label">अन्तिम लगइन</label>
@@ -91,16 +92,16 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-save me-1"></i> प्रोफाइल अपडेट गर्नुहोस्
+                            <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i> प्रोफाइल अपडेट गर्नुहोस्
                         </button>
                         <a href="change-password.php" class="btn btn-outline-primary">
-                            <i class="fas fa-key"></i> पासवर्ड बदल्नुहोस्
+                            <i class="lucide-icon" data-lucide="key" aria-hidden="true"></i> पासवर्ड बदल्नुहोस्
                         </a>
                     </div>
                 </form>
                 <?php else: ?>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> प्रोफाइल जानकारी लोड गर्न सकिएन।
+                    <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i> प्रोफाइल जानकारी लोड गर्न सकिएन।
                 </div>
                 <?php endif; ?>
             </div>

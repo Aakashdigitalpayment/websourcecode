@@ -4,9 +4,8 @@
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
 $pageTitle = 'सम्मान तथा पुरस्कार व्यवस्थापन';
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
@@ -99,13 +98,13 @@ $awardsArch = $awPart['archived'];
     'सम्मान तथा पुरस्कार',
     'fa-trophy',
     'संस्थाले प्राप्त गरेका पुरस्कार र सम्मानहरू।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($awards) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="check-circle"></i>सक्रिय: ' . count($awardsLive) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($awards) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="circle-check"></i>सक्रिय: ' . count($awardsLive) . '</span>'
     . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="archive"></i>अभिलेख: ' . count($awardsArch) . '</span>'
 );
 if ($flash = getFlash()):
 ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
@@ -113,13 +112,13 @@ if ($flash = getFlash()):
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#aw-list" id="aw-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>पुरस्कार सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>पुरस्कार सूची
             <span class="badge bg-success ms-1"><?php echo count($awards); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#aw-form" id="aw-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="awFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="awFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -157,12 +156,12 @@ if ($flash = getFlash()):
                         <tbody>
                             <?php if (empty($awards)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="lucide-icon fa-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="trophy"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="trophy"></i>
                                 कुनै पुरस्कार छैन।
                             </td></tr>
                             <?php elseif (empty($awardsLive)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="lucide-icon fa-3x mb-2 d-block opacity-25 text-success" aria-hidden="true" data-lucide="check-circle"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" aria-hidden="true" data-lucide="circle-check"></i>
                                 सक्रिय पुरस्कार छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
@@ -172,7 +171,7 @@ if ($flash = getFlash()):
                                     <?php if (!empty($a['image'])): ?>
                                     <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($a['title_np'] ?: ($a['title'] ?? 'Award'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
-                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success fa-lg" aria-hidden="true" data-lucide="trophy"></i></div>
+                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success lucide-lg" aria-hidden="true" data-lucide="trophy"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -184,7 +183,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-aw"
-                                            data-id="<?php echo $a['id']; ?>"
+                                            data-id="<?php echo (int)$a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-awarded-by="<?php echo htmlspecialchars($a['awarded_by'] ?? '', ENT_QUOTES); ?>"
@@ -192,17 +191,17 @@ if ($flash = getFlash()):
                                             data-desc="<?php echo htmlspecialchars($a['description'] ?? '', ENT_QUOTES); ?>"
                                             data-desc-np="<?php echo htmlspecialchars($a['description_np'] ?? '', ENT_QUOTES); ?>"
                                             data-date="<?php echo htmlspecialchars($a['award_date'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $a['display_order']; ?>"
-                                            data-active="<?php echo $a['is_active']; ?>"
+                                            data-order="<?php echo (int)$a['display_order']; ?>"
+                                            data-active="<?php echo (int)$a['is_active']; ?>"
                                             data-image="<?php echo htmlspecialchars($a['image'] ?? '', ENT_QUOTES); ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो पुरस्कार मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$a['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -227,7 +226,7 @@ if ($flash = getFlash()):
                         <tbody>
                             <?php if (empty($awardsArch)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="lucide-icon fa-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="folder-open"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="folder-open"></i>
                                 अभिलेखमा कुनै पुरस्कार छैन।
                             </td></tr>
                             <?php endif; ?>
@@ -237,7 +236,7 @@ if ($flash = getFlash()):
                                     <?php if (!empty($a['image'])): ?>
                                     <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($a['title_np'] ?: ($a['title'] ?? 'Award'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
-                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success fa-lg" aria-hidden="true" data-lucide="trophy"></i></div>
+                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success lucide-lg" aria-hidden="true" data-lucide="trophy"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -249,7 +248,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-aw"
-                                            data-id="<?php echo $a['id']; ?>"
+                                            data-id="<?php echo (int)$a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-awarded-by="<?php echo htmlspecialchars($a['awarded_by'] ?? '', ENT_QUOTES); ?>"
@@ -257,17 +256,17 @@ if ($flash = getFlash()):
                                             data-desc="<?php echo htmlspecialchars($a['description'] ?? '', ENT_QUOTES); ?>"
                                             data-desc-np="<?php echo htmlspecialchars($a['description_np'] ?? '', ENT_QUOTES); ?>"
                                             data-date="<?php echo htmlspecialchars($a['award_date'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $a['display_order']; ?>"
-                                            data-active="<?php echo $a['is_active']; ?>"
+                                            data-order="<?php echo (int)$a['display_order']; ?>"
+                                            data-active="<?php echo (int)$a['is_active']; ?>"
                                             data-image="<?php echo htmlspecialchars($a['image'] ?? '', ENT_QUOTES); ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो पुरस्कार मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$a['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -286,7 +285,7 @@ if ($flash = getFlash()):
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="awFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ पुरस्कार थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ पुरस्कार थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelAw">
                     <i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>सूचीमा फर्कनुहोस्
@@ -294,7 +293,7 @@ if ($flash = getFlash()):
             </div>
             <div class="card-body p-4">
                 <form method="POST" enctype="multipart/form-data" id="awForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="awf_action" value="add">
                     <input type="hidden" name="id" id="awf_id" value="">
                     <input type="hidden" name="existing_image" id="awf_img" value="">
@@ -328,7 +327,7 @@ if ($flash = getFlash()):
                             <label for="awf_date" class="form-label fw-semibold text-success">मिति (बि.सं.)</label>
                             <div class="input-group">
                                 <input type="text" name="award_date" id="awf_date" class="form-control admin-fancy-input nepali-datepicker" placeholder="२०७८-०१-१५">
-                                <span class="input-group-text bg-success text-white"><i class="fas fa-calendar-alt"></i></span>
+                                <span class="input-group-text bg-success text-white"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -353,10 +352,10 @@ if ($flash = getFlash()):
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="awf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="awf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -390,8 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('awf_active').checked    = true;
         document.getElementById('awf_img_prev').innerHTML = '';
         document.getElementById('awf_img_note').textContent = '';
-        document.getElementById('awf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('awFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ पुरस्कार थप्नुहोस्';
+        document.getElementById('awf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('awFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ पुरस्कार थप्नुहोस्';
         document.getElementById('awFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -423,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 : '';
             document.getElementById('awf_img_note').textContent = d.image ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ' : '';
             document.getElementById('awf_submit').innerHTML = '<i class="lucide-icon me-2" aria-hidden="true" data-lucide="save"></i>अपडेट गर्नुहोस्';
-            document.getElementById('awFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>पुरस्कार सम्पादन';
+            document.getElementById('awFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>पुरस्कार सम्पादन';
             document.getElementById('awFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

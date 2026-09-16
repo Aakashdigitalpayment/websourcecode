@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'KYC Risk Review';
 $currentPage = 'kyc-risk-reviews';
 require_once 'includes/admin-header.php';
@@ -87,7 +88,7 @@ if ($flash) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger',
                 </select>
             </div>
             <div class="col-md-2">
-                <button class="btn btn-primary w-100" type="submit"><i class="fas fa-filter me-1"></i>Apply</button>
+                <button class="btn btn-primary w-100" type="submit"><i class="lucide-icon me-1" data-lucide="filter" aria-hidden="true"></i>Apply</button>
             </div>
         </form>
 

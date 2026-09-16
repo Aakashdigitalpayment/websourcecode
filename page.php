@@ -97,7 +97,7 @@ require_once 'includes/header.php';
         <h1><?php echo $page ? htmlspecialchars($pageTitle) : (isEnglish() ? 'Page Not Found' : 'पृष्ठ फेला परेन'); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $page ? htmlspecialchars($pageTitle) : '404'; ?></li>
             </ol>
         </nav>
@@ -131,7 +131,7 @@ require_once 'includes/header.php';
 
                     <?php if (!empty($page['meta_keywords'])): ?>
                     <div class="page-tags mt-4">
-                        <strong><i class="fas fa-tags me-2"></i><?php echo isEnglish() ? 'Tags:' : 'ट्यागहरू:'; ?></strong>
+                        <strong><i class="lucide-icon me-2" data-lucide="tags" aria-hidden="true"></i><?php echo isEnglish() ? 'Tags:' : 'ट्यागहरू:'; ?></strong>
                         <?php
                         $tags = explode(',', $page['meta_keywords']);
                         foreach ($tags as $tag):
@@ -151,12 +151,12 @@ require_once 'includes/header.php';
             <div class="col-lg-8 mx-auto text-center">
                 <div class="error-box py-5">
                     <div class="error-icon mb-4">
-                        <i class="fas fa-exclamation-triangle fa-5x text-warning"></i>
+                        <i class="lucide-icon lucide-5x text-warning" data-lucide="triangle-alert" aria-hidden="true"></i>
                     </div>
                     <h2><?php echo isEnglish() ? 'Page Not Found' : 'पृष्ठ फेला परेन'; ?></h2>
                     <p class="text-muted mb-4"><?php echo isEnglish() ? 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.' : 'तपाईंले खोज्नुभएको पृष्ठ हटाइएको हुन सक्छ, यसको नाम परिवर्तन गरिएको हुन सक्छ, वा अस्थायी रूपमा उपलब्ध छैन।'; ?></p>
-                    <a href="<?php echo SITE_URL; ?>" class="btn btn-primary">
-                        <i class="fas fa-home me-2"></i><?php echo isEnglish() ? 'Back to Home' : 'गृहपृष्ठमा फर्कनुहोस्'; ?>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-primary">
+                        <i class="lucide-icon me-2" data-lucide="house" aria-hidden="true"></i><?php echo isEnglish() ? 'Back to Home' : 'गृहपृष्ठमा फर्कनुहोस्'; ?>
                     </a>
                 </div>
             </div>

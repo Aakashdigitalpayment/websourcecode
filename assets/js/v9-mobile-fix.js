@@ -34,7 +34,18 @@
     toggle.parentNode.replaceChild(freshToggle, toggle);
     toggle = freshToggle;
     toggle.dataset.v96Bound = '1';
-    var toggleIcon = toggle.querySelector('i');
+    var toggleIcon = toggle.querySelector('i, .lucide-icon, [data-lucide]');
+
+    function setToggleLucide(name) {
+      if (!toggleIcon) return;
+      toggleIcon.className = 'lucide-icon';
+      toggleIcon.setAttribute('data-lucide', name);
+      toggleIcon.setAttribute('aria-hidden', 'true');
+      toggleIcon.innerHTML = '';
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons({ nodes: [toggleIcon] });
+      }
+    }
 
     var closeBtn = document.getElementById(closeId);
     if (closeBtn && closeBtn.parentNode) {
@@ -52,7 +63,7 @@
         li.querySelectorAll(':scope > .dd-chevron-btn').forEach(function (btn) { btn.remove(); });
         var link = li.querySelector(':scope > a');
         if (!link) return;
-        var inlineChevron = link.querySelector('.fa-chevron-down');
+        var inlineChevron = link.querySelector('.fa-chevron-down, .lucide-icon[data-lucide="chevron-down"], [data-lucide="chevron-down"]');
         if (inlineChevron) {
           inlineChevron.style.display = 'inline-flex';
           inlineChevron.style.marginLeft = 'auto';
@@ -79,10 +90,7 @@
       var isOpen = nav.classList.contains('nav-open') || nav.classList.contains('open') || nav.classList.contains('active');
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       toggle.classList.toggle('is-open', isOpen);
-      if (toggleIcon) {
-        toggleIcon.classList.toggle('fa-xmark', isOpen);
-        toggleIcon.classList.toggle('fa-bars', !isOpen);
-      }
+      setToggleLucide(isOpen ? 'x' : 'menu');
       if (closeBtn) {
         // JS-level safety so leaked CSS cannot leave a floating close icon visible.
         closeBtn.style.visibility = isOpen ? 'visible' : 'hidden';
@@ -267,7 +275,7 @@
       var link = li.querySelector(':scope > a');
       if (!link) return;
       li.querySelectorAll(':scope > .dd-chevron-btn').forEach(function (btn) { btn.remove(); });
-      var inlineChevron = link.querySelector('.fa-chevron-down');
+      var inlineChevron = link.querySelector('.fa-chevron-down, .lucide-icon[data-lucide="chevron-down"], [data-lucide="chevron-down"]');
       if (inlineChevron) {
         inlineChevron.style.display = 'inline-flex';
         inlineChevron.style.marginLeft = 'auto';

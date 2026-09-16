@@ -3,6 +3,7 @@
  * ब्याज दर व्यवस्थापन — Interest Rates Management
  * बचत र ऋणको ब्याज दरहरू — Tab UI (सूची + Form Tab)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'ब्याज दर व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -76,7 +77,7 @@ $flash = getFlash();
 <?php echo adminPageHeader(
     'ब्याज दर व्यवस्थापन', 'fa-percent',
     'बचत, ऋण र अन्य ब्याज दरहरू।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . $totalRates . ' ब्याज दर</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . $totalRates . ' ब्याज दर</span>'
 );
 ?>
 <?php echo adminHelpTip('यो पृष्ठबाट Savings र Loan को ब्याज दर अपडेट गर्न सकिन्छ।', ['दर बदल्न: सम्बन्धित row को Edit बटन थिच्नुहोस्।', 'नयाँ category थप्न: "+" बटन थिच्नुहोस्।', 'परिवर्तन live site मा तुरुन्त देखिन्छ।']); ?>
@@ -86,19 +87,19 @@ $flash = getFlash();
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="rateTabs">
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $category !== 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-saving" id="tab-saving-btn">
-            <i class="fas fa-piggy-bank me-2 text-success"></i>बचत ब्याज दर
+            <i class="lucide-icon me-2 text-success" data-lucide="piggy-bank" aria-hidden="true"></i>बचत ब्याज दर
             <span class="badge bg-success ms-1"><?php echo count($savingRates); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $category === 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-loan" id="tab-loan-btn">
-            <i class="fas fa-hand-holding-usd me-2 text-primary"></i>ऋण ब्याज दर
+            <i class="lucide-icon me-2 text-primary" data-lucide="hand-coins" aria-hidden="true"></i>ऋण ब्याज दर
             <span class="badge bg-primary ms-1"><?php echo count($loanRates); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-rate-form" id="tab-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="rateFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="rateFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -109,9 +110,9 @@ $flash = getFlash();
     <div class="tab-pane fade <?php echo $category !== 'loan' ? 'show active' : ''; ?>" id="panel-saving">
         <div class="card admin-table-card ir-flat-top">
             <div class="card-header gradient-card-header d-flex align-items-center justify-content-between ir-head-primary">
-                <h5 class="mb-0 text-white fw-bold"><i class="fas fa-piggy-bank me-2"></i>बचत ब्याज दर</h5>
+                <h5 class="mb-0 text-white fw-bold"><i class="lucide-icon me-2" data-lucide="piggy-bank" aria-hidden="true"></i>बचत ब्याज दर</h5>
                 <button type="button" class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="saving">
-                    <i class="fas fa-plus me-1"></i>बचत दर थप्नुहोस्
+                    <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>बचत दर थप्नुहोस्
                 </button>
             </div>
             <div class="card-body p-0">
@@ -126,7 +127,7 @@ $flash = getFlash();
                         </tr></thead>
                         <tbody>
                             <?php if (empty($savingRates)): ?>
-                            <tr><td colspan="5" class="text-center py-5 text-muted"><i class="fas fa-piggy-bank fa-3x mb-2 d-block opacity-25"></i>बचत ब्याज दर छैन।</td></tr>
+                            <tr><td colspan="5" class="text-center py-5 text-muted"><i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="piggy-bank" aria-hidden="true"></i>बचत ब्याज दर छैन।</td></tr>
                             <?php endif; ?>
                             <?php foreach ($savingRates as $i => $item): ?>
                             <tr>
@@ -143,15 +144,15 @@ $flash = getFlash();
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-rate"
-                                            data-id="<?php echo $item['id']; ?>"
+                                            data-id="<?php echo (int)$item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"
-                                            data-rate="<?php echo $item['rate']; ?>"
+                                            data-rate="<?php echo e($item['rate']); ?>"
                                             data-category="saving"
                                             data-description="<?php echo htmlspecialchars($item['description'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $item['display_order']; ?>"
-                                            data-active="<?php echo $item['is_active']; ?>">
-                                        <i class="fas fa-edit"></i>
+                                            data-order="<?php echo (int)$item['display_order']; ?>"
+                                            data-active="<?php echo (int)$item['is_active']; ?>">
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="ir-inline-form" onsubmit="return confirm('यो ब्याजदर मेटाउने हो?')">
                                         <input type="hidden" name="action" value="delete">
@@ -159,7 +160,7 @@ $flash = getFlash();
                                         <input type="hidden" name="category" value="saving">
                                         <?php echo csrfField(); ?>
                                         <button type="submit" class="btn btn-sm btn-danger" title="मेटाउनुहोस्">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -176,9 +177,9 @@ $flash = getFlash();
     <div class="tab-pane fade <?php echo $category === 'loan' ? 'show active' : ''; ?>" id="panel-loan">
         <div class="card admin-table-card ir-flat-top">
             <div class="card-header d-flex align-items-center justify-content-between ir-head-loan ir-head-theme">
-                <h5 class="mb-0 text-white fw-bold"><i class="fas fa-hand-holding-usd me-2"></i>ऋण ब्याज दर</h5>
+                <h5 class="mb-0 text-white fw-bold"><i class="lucide-icon me-2" data-lucide="hand-coins" aria-hidden="true"></i>ऋण ब्याज दर</h5>
                 <button type="button" class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="loan">
-                    <i class="fas fa-plus me-1"></i>ऋण दर थप्नुहोस्
+                    <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>ऋण दर थप्नुहोस्
                 </button>
             </div>
             <div class="card-body p-0">
@@ -193,7 +194,7 @@ $flash = getFlash();
                         </tr></thead>
                         <tbody>
                             <?php if (empty($loanRates)): ?>
-                            <tr><td colspan="5" class="text-center py-5 text-muted"><i class="fas fa-hand-holding-usd fa-3x mb-2 d-block opacity-25"></i>ऋण ब्याज दर छैन।</td></tr>
+                            <tr><td colspan="5" class="text-center py-5 text-muted"><i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="hand-coins" aria-hidden="true"></i>ऋण ब्याज दर छैन।</td></tr>
                             <?php endif; ?>
                             <?php foreach ($loanRates as $i => $item): ?>
                             <tr>
@@ -210,15 +211,15 @@ $flash = getFlash();
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-rate"
-                                            data-id="<?php echo $item['id']; ?>"
+                                            data-id="<?php echo (int)$item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"
-                                            data-rate="<?php echo $item['rate']; ?>"
+                                            data-rate="<?php echo e($item['rate']); ?>"
                                             data-category="loan"
                                             data-description="<?php echo htmlspecialchars($item['description'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $item['display_order']; ?>"
-                                            data-active="<?php echo $item['is_active']; ?>">
-                                        <i class="fas fa-edit"></i>
+                                            data-order="<?php echo (int)$item['display_order']; ?>"
+                                            data-active="<?php echo (int)$item['is_active']; ?>">
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="ir-inline-form" onsubmit="return confirm('यो ब्याजदर मेटाउने हो?')">
                                         <input type="hidden" name="action" value="delete">
@@ -226,7 +227,7 @@ $flash = getFlash();
                                         <input type="hidden" name="category" value="loan">
                                         <?php echo csrfField(); ?>
                                         <button type="submit" class="btn btn-sm btn-danger" title="मेटाउनुहोस्">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>
@@ -244,10 +245,10 @@ $flash = getFlash();
         <div class="card ir-flat-top">
             <div class="card-header d-flex justify-content-between align-items-center ir-head-primary ir-head-theme">
                 <h5 class="mb-0 fw-bold" id="rateFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ ब्याज दर थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ ब्याज दर थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelRate">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </button>
             </div>
             <div class="card-body p-4">
@@ -261,10 +262,10 @@ $flash = getFlash();
                             <label id="fld_category_label" class="form-label fw-semibold text-success">वर्ग <span class="text-danger">*</span></label>
                             <div class="d-flex gap-2" role="group" aria-labelledby="fld_category_label">
                                 <button type="button" class="btn btn-success flex-fill cat-btn" data-val="saving" id="catSaving">
-                                    <i class="fas fa-piggy-bank me-1"></i>बचत (Saving)
+                                    <i class="lucide-icon me-1" data-lucide="piggy-bank" aria-hidden="true"></i>बचत (Saving)
                                 </button>
                                 <button type="button" class="btn btn-outline-primary flex-fill cat-btn" data-val="loan" id="catLoan">
-                                    <i class="fas fa-hand-holding-usd me-1"></i>ऋण (Loan)
+                                    <i class="lucide-icon me-1" data-lucide="hand-coins" aria-hidden="true"></i>ऋण (Loan)
                                 </button>
                             </div>
                         </div>
@@ -302,10 +303,10 @@ $flash = getFlash();
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="rate_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="rate_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -355,8 +356,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('fld_rate_id').value = '';
         document.getElementById('fld_active').checked = true;
         setCategory(cat);
-        document.getElementById('rate_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('rateFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ ब्याज दर थप्नुहोस्';
+        document.getElementById('rate_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('rateFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ ब्याज दर थप्नुहोस्';
         document.getElementById('rateFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -393,8 +394,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('fld_order').value   = d.order || 0;
             document.getElementById('fld_active').checked = d.active === '1';
             setCategory(d.category);
-            document.getElementById('rate_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('rateFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>ब्याज दर सम्पादन';
+            document.getElementById('rate_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('rateFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>ब्याज दर सम्पादन';
             document.getElementById('rateFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

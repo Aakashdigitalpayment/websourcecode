@@ -5,13 +5,9 @@
  */
 $pageTitle = 'सहकारी पात्रो कार्यक्रम';
 $currentPage = 'sahakari-calendar-events';
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/nepali-bs-convert.php';
 require_once __DIR__ . '/../includes/sahakari-calendar-events-tables.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
 
 $db = getDB();
 ensureSahakariCalendarEventTables($db);
@@ -175,8 +171,8 @@ echo adminPageHeader(
     'सहकारी पात्रो कार्यक्रम',
     'fa-calendar-alt',
     'बोर्ड बैठक, दिवस, स्थापना दिन — मिति छानेर सहकारी पात्रोमा देखाउनुहोस्। मासिक दोहोरिने: हरेक महिनाको सोही गते।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-calendar-check me-1"></i>बी.स. ' . (int)$filterYear . ': ' . count($rows) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . $liveCount . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="calendar-check" aria-hidden="true"></i>बी.स. ' . (int)$filterYear . ': ' . count($rows) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय: ' . $liveCount . '</span>'
 );
 $_sceFlash = getFlash();
 if ($_sceFlash) {
@@ -187,14 +183,14 @@ if ($_sceFlash) {
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link <?php echo $form['id'] ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#sce-list" type="button">
-            <i class="fas fa-list me-2"></i>सूची
+        <button type="button" class="nav-link <?php echo $form['id'] ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#sce-list" type="button">
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सूची
             <span class="badge bg-success ms-1"><?php echo count($rows); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $form['id'] ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#sce-form" type="button" id="sce-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="sceFormTabLabel"><?php echo $form['id'] ? 'सम्पादन' : 'नयाँ थप्नुहोस्'; ?></span>
+        <button type="button" class="nav-link <?php echo $form['id'] ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#sce-form" type="button" id="sce-form-btn">
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="sceFormTabLabel"><?php echo $form['id'] ? 'सम्पादन' : 'नयाँ थप्नुहोस्'; ?></span>
         </button>
     </li>
 </ul>
@@ -214,19 +210,19 @@ if ($_sceFlash) {
                                 if (in_array($y, $yearOptions, true)) {
                                     continue;
                                 } ?>
-                            <option value="<?php echo $y; ?>"><?php echo $y; ?> (नयाँ)</option>
+                            <option value="<?php echo (int)$y; ?>"><?php echo $y; ?> (नयाँ)</option>
                             <?php endfor; ?>
                             <?php for ($y = $defaultYear - 1; $y >= $defaultYear - 5; $y--):
                                 if (in_array($y, $yearOptions, true)) {
                                     continue;
                                 } ?>
-                            <option value="<?php echo $y; ?>"><?php echo $y; ?></option>
+                            <option value="<?php echo (int)$y; ?>"><?php echo $y; ?></option>
                             <?php endfor; ?>
                         </select>
                     </div>
                     <div class="col-auto">
                         <a href="../sahakari-patro.php?tab=patro&cal_year=<?php echo (int)$filterYear; ?>" class="btn btn-sm btn-outline-success" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-external-link-alt me-1"></i>पात्रोमा हेर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>पात्रोमा हेर्नुहोस्
                         </a>
                     </div>
                 </form>
@@ -271,14 +267,14 @@ if ($_sceFlash) {
                             </td>
                             <td class="text-end text-nowrap">
                                 <div class="d-inline-flex align-items-center gap-1">
-                                    <a class="adm-icon-btn adm-icon-btn--edit" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                    <a class="adm-icon-btn adm-icon-btn--edit" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                     <form method="post" class="svc-inline-form" onsubmit="return confirm('स्थिति बदल्ने?');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
                                         <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo (int)$r['is_active'] ? 'निष्क्रिय पार्नुहोस्' : 'सक्रिय पार्नुहोस्'; ?>" aria-label="<?php echo (int)$r['is_active'] ? 'निष्क्रिय पार्नुहोस्' : 'सक्रिय पार्नुहोस्'; ?>">
-                                            <i class="fas <?php echo (int)$r['is_active'] ? 'fa-toggle-on' : 'fa-toggle-off'; ?>"></i>
+                                            <i class="lucide-icon" data-lucide="<?php echo (int)$r['is_active'] ? 'toggle-right' : 'toggle-left'; ?>" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                     <form method="post" class="svc-inline-form" onsubmit="return confirm('मेट्ने निश्चित हो?');">
@@ -286,7 +282,7 @@ if ($_sceFlash) {
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
                                         <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </td>
@@ -365,7 +361,7 @@ if ($_sceFlash) {
                     </div>
 
                     <div class="mt-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i><?php echo $form['id'] ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?></button>
+                        <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $form['id'] ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?></button>
                         <?php if ($form['id']): ?>
                         <a href="?year=<?php echo (int)$filterYear; ?>" class="btn btn-outline-secondary">रद्द</a>
                         <?php endif; ?>

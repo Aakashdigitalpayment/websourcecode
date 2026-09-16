@@ -54,40 +54,21 @@ if (!$kycRow) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo htmlspecialchars($_t('KYC प्रिन्ट', 'KYC Print')); ?></title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; color: #111827; background: #f3f4f6; }
-        .wrap { max-width: 980px; margin: 12px auto; background: #fff; border: 1px solid #d1d5db; }
-        .toolbar { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; display: flex; gap: 8px; }
-        .btn { border: 1px solid var(--primary-color); color: var(--primary-color); background: #ecfdf5; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 700; }
-        .btn:hover { background: #dcfce7; }
-        .page { padding: 14px 16px; }
-        .hdr { text-align: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; margin-bottom: 10px; }
-        .hdr h2 { margin: 0; font-size: 18px; color: #14532d; }
-        .hdr .sub { font-size: 12px; color: #475569; margin-top: 4px; }
-        .meta { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin: 10px 0; font-size: 12px; }
-        .meta div { background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 8px; border-radius: 6px; }
-        .sec { margin-top: 10px; border: 1px solid #fecaca; border-radius: 8px; overflow: hidden; }
-        .sec h3 { margin: 0; font-size: 14px; padding: 7px 10px; background: #fef2f2; color: var(--secondary-dark,#922b21); }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        td, th { border-bottom: 1px solid #e5e7eb; padding: 6px 8px; vertical-align: top; }
-        th { width: 32%; text-align: left; color: #475569; background: #f8fafc; }
-        .small { font-size: 11px; color: #6b7280; }
-        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .empty { padding: 10px; color: #6b7280; font-size: 12px; }
-        @media print {
-            body { background: #fff; }
-            .wrap { border: none; margin: 0; max-width: none; }
-            .toolbar { display: none; }
-            .page { padding: 0; }
-            .sec { break-inside: avoid; }
-        }
-    </style>
+    <?php
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/css/member-kyc-print-page.css');
+    } elseif (function_exists('coopThemeLinkHtml')) {
+        echo coopThemeLinkHtml('assets/css/member-kyc-print-page.css');
+    } else {
+        echo '<link rel="stylesheet" href="' . htmlspecialchars(rtrim(SITE_URL, '/') . '/assets/css/member-kyc-print-page.css', ENT_QUOTES, 'UTF-8') . '">' . "\n";
+    }
+    ?>
 </head>
 <body>
 <div class="wrap">
     <div class="toolbar">
         <button type="button" class="btn" onclick="window.print();"><?php echo $_t('प्रिन्ट', 'Print'); ?></button>
-        <a href="<?php echo SITE_URL; ?>member/profile.php" class="btn"><?php echo $_t('फिर्ता', 'Back'); ?></a>
+        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/profile.php" class="btn"><?php echo $_t('फिर्ता', 'Back'); ?></a>
     </div>
     <div class="page">
         <?php if (!$kycRow): ?>

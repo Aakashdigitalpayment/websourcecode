@@ -6,6 +6,7 @@
  * Modal पूर्ण रूपले हटाइयो।
  * Excel: ?export=csv (+ filters) वा ?export=csv&id=N
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -358,7 +359,7 @@ if ($viewApt):
                 </div>
 
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-calendar-alt"></i>भेटघाट विवरण</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>भेटघाट विवरण</div>
                     <table class="table adm-detail-table">
                         <tr><th>मिति</th>
                             <td><strong><?php echo !empty($viewApt['preferred_date']) ? formatNepaliDate($viewApt['preferred_date']) : '—'; ?></strong></td></tr>
@@ -378,7 +379,7 @@ if ($viewApt):
                 <?php $memberMessage = trim((string)($viewApt['purpose_detail'] ?? $viewApt['message'] ?? '')); ?>
                 <?php if ($memberMessage !== ''): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-comment-dots"></i><?php echo $isCoopVisit ? 'भ्रमण विवरण' : 'सदस्यको सन्देश'; ?></div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i><?php echo $isCoopVisit ? 'भ्रमण विवरण' : 'सदस्यको सन्देश'; ?></div>
                     <div class="p-3 apt-text-block">
                         <?php echo nl2br(htmlspecialchars($memberMessage)); ?>
                     </div>
@@ -387,7 +388,7 @@ if ($viewApt):
 
                 <?php if (!empty($viewApt['remarks'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-reply"></i>Admin टिप्पणी (Member ले Tracker मा देख्छ)</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="reply" aria-hidden="true"></i>Admin टिप्पणी (Member ले Tracker मा देख्छ)</div>
                     <div class="p-3 apt-text-block apt-text-block-success">
                         <?php echo nl2br(htmlspecialchars($viewApt['remarks'])); ?>
                     </div>
@@ -396,22 +397,22 @@ if ($viewApt):
 
                 <?php if (!empty($viewApt['admin_attachment'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-paperclip"></i>Admin संलग्न Document</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i>Admin संलग्न Document</div>
                     <div class="p-3 d-flex align-items-center gap-3">
-                        <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
+                        <i class="lucide-icon lucide-2x text-primary opacity-75" data-lucide="file-text" aria-hidden="true"></i>
                         <div class="flex-grow-1">
                             <div class="fw-semibold small"><?php echo htmlspecialchars(basename($viewApt['admin_attachment'])); ?></div>
                         </div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApt['admin_attachment'], '/')); ?>"
                            class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
-                            <i class="fas fa-download me-1"></i>Download
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Download
                         </a>
                     </div>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($appointmentHistory)): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-clock-rotate-left"></i>Status / Comment History</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>Status / Comment History</div>
                     <div class="p-3">
                         <?php echo arvLogList($appointmentHistory); ?>
                     </div>
@@ -423,16 +424,16 @@ if ($viewApt):
             <div class="col-lg-5">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header gradient-card-header py-2">
-                        <i class="fas fa-edit me-2"></i>स्थिति अपडेट / कैफियत / Document
+                        <i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>स्थिति अपडेट / कैफियत / Document
                     </div>
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
                             <?php echo csrfField(); /* CSRF protection — admin POST मा अनिवार्य */ ?>
                             <input type="hidden" name="update_status" value="1">
-                            <input type="hidden" name="id" value="<?php echo $viewApt['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$viewApt['id']; ?>">
 
                             <div class="mb-3">
-                                <label for="appt_status" class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>अवस्था</label>
+                                <label for="appt_status" class="form-label fw-semibold"><i class="lucide-icon me-1" data-lucide="circle-dot" aria-hidden="true"></i>अवस्था</label>
                                 <select name="status" id="appt_status" class="form-select">
                                     <option value="pending"   <?php echo $viewApt['status']==='pending'  ?'selected':''; ?>>पेन्डिङ</option>
                                     <option value="confirmed" <?php echo $viewApt['status']==='confirmed'?'selected':''; ?>>पुष्टि भएको</option>
@@ -443,7 +444,7 @@ if ($viewApt):
 
                             <div class="mb-3">
                                 <label for="appt_remarks" class="form-label fw-semibold">
-                                    <i class="fas fa-reply me-1 text-success"></i>Admin कैफियत
+                                    <i class="lucide-icon me-1 text-success" data-lucide="reply" aria-hidden="true"></i>Admin कैफियत
                                     <span class="text-muted fw-normal small">— Member ले Tracker मा देख्छ</span>
                                 </label>
                                 <textarea name="remarks" id="appt_remarks" class="form-control" rows="4"
@@ -455,25 +456,25 @@ if ($viewApt):
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                 </label>
                                 <div class="arv-notify-channels">
-                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                             </div>
 
                             <!-- Admin ले appointment confirmation letter attach गर्न सक्छ -->
                             <div class="mb-4">
                                 <label for="appt_admin_attachment" class="form-label fw-semibold">
-                                    <i class="fas fa-paperclip me-1 text-primary"></i>Confirmation Letter/Document
+                                    <i class="lucide-icon me-1 text-primary" data-lucide="paperclip" aria-hidden="true"></i>Confirmation Letter/Document
                                     <span class="text-muted fw-normal small">— PDF, Image (max 5MB)</span>
                                 </label>
                                 <input type="file" name="admin_attachment" id="appt_admin_attachment" class="form-control"
                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                 <?php if (!empty($viewApt['admin_attachment'])): ?>
                                 <div class="form-text text-primary mt-1">
-                                    <i class="fas fa-info-circle me-1"></i>हाल: <strong><?php echo htmlspecialchars(basename($viewApt['admin_attachment'])); ?></strong>
+                                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>हाल: <strong><?php echo htmlspecialchars(basename($viewApt['admin_attachment'])); ?></strong>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -493,9 +494,9 @@ if ($viewApt):
                               onsubmit="return confirm('के तपाईं यो भेटघाट स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete" value="1">
-                            <input type="hidden" name="delete_id" value="<?php echo $viewApt['id']; ?>">
+                            <input type="hidden" name="delete_id" value="<?php echo (int)$viewApt['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो भेटघाट मेटाउनुहोस्
+                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>यो भेटघाट मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -510,7 +511,7 @@ if ($viewApt):
                         <div class="small">
                             <i class="lucide-icon me-1 text-muted" aria-hidden="true" data-lucide="clock"></i><?php echo htmlspecialchars($viewApt['preferred_time'] ?? '—'); ?>
                             <?php if ($viewApt['branch']): ?>
-                            &nbsp;|&nbsp;<i class="fas fa-building me-1 text-muted"></i><?php echo htmlspecialchars($viewApt['branch']); ?>
+                            &nbsp;|&nbsp;<i class="lucide-icon me-1 text-muted" data-lucide="building" aria-hidden="true"></i><?php echo htmlspecialchars($viewApt['branch']); ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -531,33 +532,33 @@ if ($viewApt):
         <div class="sm-lbl">जम्मा</div>
     </a>
     <a href="?kind=cooperative" class="stat-mini <?php echo $kind_filter==='cooperative'?'active-filter':''; ?>">
-        <div class="sm-icon ic-process"><i class="fas fa-handshake"></i></div>
+        <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="handshake" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo (int)($counts['cooperative'] ?? 0); ?></div>
         <div class="sm-lbl">सहकारी भ्रमण</div>
     </a>
     <a href="?kind=member" class="stat-mini <?php echo $kind_filter==='member'?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-user"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo (int)($counts['member'] ?? 0); ?></div>
         <div class="sm-lbl">सदस्य भेटघाट</div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $status_filter==='pending'?'active-filter':''; ?>">
         <div class="sm-icon ic-pending"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i></div>
-        <div class="sm-val"><?php echo $counts['pending']; ?></div>
+        <div class="sm-val"><?php echo (int)$counts['pending']; ?></div>
         <div class="sm-lbl">पेन्डिङ</div>
     </a>
     <a href="?status=confirmed" class="stat-mini <?php echo $status_filter==='confirmed'?'active-filter':''; ?>">
-        <div class="sm-icon ic-process"><i class="fas fa-check"></i></div>
-        <div class="sm-val"><?php echo $counts['confirmed']; ?></div>
+        <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['confirmed']; ?></div>
         <div class="sm-lbl">पुष्टि भएको</div>
     </a>
     <a href="?status=completed" class="stat-mini <?php echo $status_filter==='completed'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-double"></i></div>
-        <div class="sm-val"><?php echo $counts['completed']; ?></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="check-check" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['completed']; ?></div>
         <div class="sm-lbl">सम्पन्न</div>
     </a>
     <a href="?status=cancelled" class="stat-mini <?php echo $status_filter==='cancelled'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
-        <div class="sm-val"><?php echo $counts['cancelled']; ?></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['cancelled']; ?></div>
         <div class="sm-lbl">रद्द</div>
     </a>
 </div>
@@ -572,7 +573,7 @@ $aptFilterQs = array_filter([
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-2 col-6">
-            <label>प्रकार</label>
+            <label for="apt_qf_kind">प्रकार</label>
             <select name="kind" id="apt_qf_kind" class="form-select form-select-sm">
                 <option value="">सबै प्रकार</option>
                 <option value="cooperative" <?php echo $kind_filter==='cooperative'?'selected':''; ?>>सहकारी भ्रमण</option>
@@ -580,13 +581,13 @@ $aptFilterQs = array_filter([
             </select>
         </div>
         <div class="col-md-2 col-6">
-            <label>स्थिति</label>
+            <label for="apt_qf_status">स्थिति</label>
             <select name="status" id="apt_qf_status" class="form-select form-select-sm">
                 <option value="">सबै स्थिति</option>
-                <option value="pending"   <?php echo $status_filter==='pending'?'selected':''; ?>>⏳ पेन्डिङ</option>
-                <option value="confirmed" <?php echo $status_filter==='confirmed'?'selected':''; ?>>✅ पुष्टि भएको</option>
-                <option value="completed" <?php echo $status_filter==='completed'?'selected':''; ?>>☑️ सम्पन्न</option>
-                <option value="cancelled" <?php echo $status_filter==='cancelled'?'selected':''; ?>>❌ रद्द</option>
+                <option value="pending"   <?php echo $status_filter==='pending'?'selected':''; ?>>पेन्डिङ</option>
+                <option value="confirmed" <?php echo $status_filter==='confirmed'?'selected':''; ?>>पुष्टि भएको</option>
+                <option value="completed" <?php echo $status_filter==='completed'?'selected':''; ?>>सम्पन्न</option>
+                <option value="cancelled" <?php echo $status_filter==='cancelled'?'selected':''; ?>>रद्द</option>
             </select>
         </div>
         <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
@@ -596,7 +597,7 @@ $aptFilterQs = array_filter([
                 <span class="input-group-text bg-white"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="नाम, फोन, Tracking ID, सहकारी, सम्पर्क व्यक्ति...">
-                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($status_filter); ?>&amp;kind=<?php echo urlencode($kind_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($status_filter); ?>&amp;kind=<?php echo urlencode($kind_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon" data-lucide="x" aria-hidden="true"></i></a><?php endif; ?>
             </div>
         </div>
         <div class="col-md-2 col-6">
@@ -631,7 +632,7 @@ $aptFilterQs = array_filter([
             </thead>
             <tbody>
             <?php if (empty($appointments)): ?>
-            <tr class="no-results-row"><td colspan="7"><i class="lucide-icon fa-2x d-block mb-2" aria-hidden="true" data-lucide="inbox"></i>कुनै भेटघाट फेला परेन।</td></tr>
+            <tr class="no-results-row"><td colspan="7"><i class="lucide-icon lucide-2x d-block mb-2" aria-hidden="true" data-lucide="inbox"></i>कुनै भेटघाट फेला परेन।</td></tr>
             <?php else: foreach ($appointments as $apt):
                 $sc = $statusClass[$apt['status']] ?? 'secondary';
                 $sl = $statusLabel[$apt['status']] ?? $apt['status'];
@@ -647,7 +648,7 @@ $aptFilterQs = array_filter([
                     <?php elseif (!empty($apt['member_id'])): ?>
                         <div class="cell-sub">ID: <?php echo htmlspecialchars($apt['member_id']); ?></div>
                     <?php endif; ?>
-                    <div class="cell-sub"><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($apt['phone'] ?? ''); ?></div>
+                    <div class="cell-sub"><i class="lucide-icon text-muted me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($apt['phone'] ?? ''); ?></div>
                 </td>
                 <td>
                     <div class="cell-main"><?php echo !empty($apt['preferred_date']) ? formatNepaliDate($apt['preferred_date']) : '—'; ?></div>
@@ -662,23 +663,23 @@ $aptFilterQs = array_filter([
                 </td>
                 <td class="no-print">
                     <div class="adm-action-icons">
-                        <a href="appointments.php?view=<?php echo $apt['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
-                        <a href="?export=csv&amp;id=<?php echo (int)$apt['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <a href="appointments.php?view=<?php echo (int)$apt['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
+                        <a href="?export=csv&amp;id=<?php echo (int)$apt['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                         <?php echo adminPrintFormIcon('appointment', (int)$apt['id']); ?>
                         <?php if ($apt['status'] === 'pending'): ?>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $apt['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$apt['id']; ?>">
                             <input type="hidden" name="quick_status_val" value="confirmed">
-                            <button type="submit" class="btn-qapprove" title="पुष्टि गर्नुहोस्"><i class="fas fa-check me-1"></i>पुष्टि</button>
+                            <button type="submit" class="btn-qapprove" title="पुष्टि गर्नुहोस्"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>पुष्टि</button>
                         </form>
                         <form method="POST" class="d-inline" onsubmit="return confirm('रद्द गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
-                            <input type="hidden" name="quick_id" value="<?php echo $apt['id']; ?>">
+                            <input type="hidden" name="quick_id" value="<?php echo (int)$apt['id']; ?>">
                             <input type="hidden" name="quick_status_val" value="cancelled">
-                            <button type="submit" class="btn-qreject" title="रद्द"><i class="fas fa-times me-1"></i>रद्द</button>
+                            <button type="submit" class="btn-qreject" title="रद्द"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
                         </form>
                         <?php endif; ?>
                     </div>

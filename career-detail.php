@@ -217,7 +217,7 @@ $L = getLangStrings();
         <h1><?php echo e(getLangField($job, 'title')); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item"><a href="career.php"><?php echo isEnglish() ? 'Career' : 'क्यारियर'; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Details' : 'विवरण'; ?></li>
             </ol>
@@ -230,7 +230,7 @@ $L = getLangStrings();
     <div class="container">
         <?php if ($success): ?>
         <div class="text-center py-4 px-3 rounded-4 mb-4 cd-success-wrap">
-            <div class="cd-success-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="cd-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
             <h4 class="mt-2 fw-bold text-success"><?php echo isEnglish() ? 'Application Submitted Successfully!' : 'आवेदन सफलतापूर्वक पेश भयो!'; ?></h4>
             <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will contact you soon.' : 'हामी चाँडै तपाईंलाई सम्पर्क गर्नेछौं।'; ?></p>
             <div class="d-inline-block px-4 py-3 rounded-3 mb-3 cd-success-track-wrap">
@@ -250,7 +250,7 @@ $L = getLangStrings();
 
         <?php if ($error): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
+            <i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i>
             <?php echo e($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -264,21 +264,21 @@ $L = getLangStrings();
                             <h2><?php echo e(getLangField($job, 'title')); ?></h2>
                             <div class="job-meta">
                                 <?php if (!empty($job['department'])): ?>
-                                <span><i class="fas fa-building"></i> <?php echo e($job['department']); ?></span>
+                                <span><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo e($job['department']); ?></span>
                                 <?php endif; ?>
                                 <?php if (!empty($job['location'])): ?>
-                                <span><i class="fas fa-map-marker-alt"></i> <?php echo e($job['location']); ?></span>
+                                <span><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo e($job['location']); ?></span>
                                 <?php endif; ?>
                                 <span class="job-type-badge"><?php echo e($jobTypeLabel); ?></span>
                             </div>
                         </div>
                         <?php if ($deadlinePassed): ?>
                         <span class="deadline-badge expired">
-                            <i class="fas fa-times-circle"></i> <?php echo isEnglish() ? 'Deadline Expired' : 'म्याद सकियो'; ?>
+                            <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i> <?php echo isEnglish() ? 'Deadline Expired' : 'म्याद सकियो'; ?>
                         </span>
                         <?php else: ?>
                         <span class="deadline-badge active">
-                            <i class="fas fa-clock"></i> <?php echo isEnglish() ? 'Deadline:' : 'म्याद:'; ?> <?php echo e($deadlineLabel); ?>
+                            <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo isEnglish() ? 'Deadline:' : 'म्याद:'; ?> <?php echo e($deadlineLabel); ?>
                         </span>
                         <?php endif; ?>
                     </div>
@@ -332,19 +332,19 @@ $L = getLangStrings();
                     <div class="job-detail-footer">
                         <?php $jobAttachUrl = coop_public_download_url($job['attachment'] ?? ''); if ($jobAttachUrl !== ''): ?>
                         <a href="<?php echo e($jobAttachUrl); ?>" class="btn btn-outline-primary" download rel="noopener noreferrer">
-                            <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download Details' : 'विवरण डाउनलोड गर्नुहोस्'; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo isEnglish() ? 'Download Details' : 'विवरण डाउनलोड गर्नुहोस्'; ?>
                         </a>
                         <?php endif; ?>
 
                         <?php if ($allowOnlineApply && !$success): ?>
                         <button type="button" class="btn btn-primary" id="showApplicationFormBtn" onclick="showApplicationForm()"<?php echo $showApplyForm ? ' style="display:none"' : ''; ?>>
-                            <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Apply Now' : 'अहिले आवेदन दिनुहोस्'; ?>
+                            <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo isEnglish() ? 'Apply Now' : 'अहिले आवेदन दिनुहोस्'; ?>
                         </button>
                         <?php elseif ($deadlinePassed): ?>
-                        <span class="text-muted"><i class="fas fa-lock me-1"></i><?php echo isEnglish() ? 'Applications closed' : 'आवेदन बन्द'; ?></span>
+                        <span class="text-muted"><i class="lucide-icon me-1" data-lucide="lock" aria-hidden="true"></i><?php echo isEnglish() ? 'Applications closed' : 'आवेदन बन्द'; ?></span>
                         <?php elseif (!$success): ?>
                         <a href="mailto:<?php echo e(getSetting('email', 'info@sahakari.org.np')); ?>?subject=<?php echo rawurlencode('Job Application: ' . getLangField($job, 'title')); ?>" class="btn btn-outline-primary">
-                            <i class="fas fa-envelope"></i> <?php echo isEnglish() ? 'Email HR to apply' : 'आवेदनका लागि HR मा इमेल'; ?>
+                            <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo isEnglish() ? 'Email HR to apply' : 'आवेदनका लागि HR मा इमेल'; ?>
                         </a>
                         <?php endif; ?>
                     </div>
@@ -352,7 +352,7 @@ $L = getLangStrings();
 
                 <?php if ($allowOnlineApply && !$success): ?>
                 <div class="application-form-section public-form-shell" id="apply-form" style="<?php echo $showApplyForm ? '' : 'display: none;'; ?>">
-                    <h3><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Online Application Form' : 'अनलाइन आवेदन फारम'; ?></h3>
+                    <h3><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i> <?php echo isEnglish() ? 'Online Application Form' : 'अनलाइन आवेदन फारम'; ?></h3>
                     <p class="form-subtitle"><?php echo isEnglish() ? 'Fill out the form below to apply for this position. Fields marked with * are required.' : 'यस पदको लागि आवेदन दिन तलको फारम भर्नुहोस्। * चिन्ह भएका फिल्डहरू अनिवार्य छन्।'; ?></p>
 
                     <form method="POST" enctype="multipart/form-data" class="needs-validation job-application-form coop-form-sticky" novalidate action="career-detail.php?id=<?php echo (int)$jobId; ?>#apply-form">
@@ -380,7 +380,7 @@ $L = getLangStrings();
                                     <label for="dob_nepali" class="form-label"><?php echo isEnglish() ? 'Date of Birth (B.S.)' : 'जन्म मिति (बि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
                                         <input type="text" name="date_of_birth" id="dob_nepali" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo e($_POST['date_of_birth'] ?? ''); ?>" autocomplete="off">
-                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -460,7 +460,7 @@ $L = getLangStrings();
 
                         <?php echo coop_public_form_anti_bot_html('job_apply', 'job', isEnglish(), 'col-12'); ?>
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
+                            <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
                         </button>
                     </form>
                 </div>
@@ -472,35 +472,35 @@ $L = getLangStrings();
                     <h4><?php echo isEnglish() ? 'Job Summary' : 'कामको सारांश'; ?></h4>
                     <ul class="summary-list">
                         <li>
-                            <i class="fas fa-briefcase"></i>
+                            <i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i>
                             <div>
                                 <span class="label"><?php echo isEnglish() ? 'Job Type' : 'काम प्रकार'; ?></span>
                                 <span class="value"><?php echo e($jobTypeLabel); ?></span>
                             </div>
                         </li>
                         <li>
-                            <i class="fas fa-map-marker-alt"></i>
+                            <i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i>
                             <div>
                                 <span class="label"><?php echo isEnglish() ? 'Location' : 'स्थान'; ?></span>
                                 <span class="value"><?php echo e($job['location'] ?: (isEnglish() ? 'Head Office' : 'केन्द्रीय कार्यालय')); ?></span>
                             </div>
                         </li>
                         <li>
-                            <i class="fas fa-users"></i>
+                            <i class="lucide-icon" data-lucide="users" aria-hidden="true"></i>
                             <div>
                                 <span class="label"><?php echo isEnglish() ? 'Vacancies' : 'रिक्त पद'; ?></span>
                                 <span class="value"><?php echo (int)$vacancyCount; ?></span>
                             </div>
                         </li>
                         <li>
-                            <i class="fas fa-calendar-alt"></i>
+                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                             <div>
                                 <span class="label"><?php echo isEnglish() ? 'Posted Date' : 'प्रकाशित मिति'; ?></span>
                                 <span class="value"><?php echo e($postedLabel); ?></span>
                             </div>
                         </li>
                         <li>
-                            <i class="fas fa-hourglass-end"></i>
+                            <i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i>
                             <div>
                                 <span class="label"><?php echo isEnglish() ? 'Deadline' : 'म्याद'; ?></span>
                                 <span class="value <?php echo $deadlinePassed ? 'text-danger' : 'text-success'; ?>">
@@ -518,28 +518,28 @@ $L = getLangStrings();
                     <h4><?php echo isEnglish() ? 'Share This Job' : 'यो जागिर साझा गर्नुहोस्'; ?></h4>
                     <div class="share-buttons">
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn facebook">
-                            <i class="fab fa-facebook-f"></i>
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
                         </a>
                         <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>&text=<?php echo urlencode(getLangField($job, 'title')); ?>" target="_blank" rel="noopener noreferrer" class="share-btn twitter">
-                            <i class="fab fa-twitter"></i>
+                            <i class="fab fa-twitter" aria-hidden="true"></i>
                         </a>
                         <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn linkedin">
-                            <i class="fab fa-linkedin-in"></i>
+                            <i class="fab fa-linkedin-in" aria-hidden="true"></i>
                         </a>
                         <a href="https://api.whatsapp.com/send?text=<?php echo urlencode(getLangField($job, 'title') . ' - ' . rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn whatsapp">
-                            <i class="fab fa-whatsapp"></i>
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
 
                 <div class="sidebar-card">
                     <div class="sidebar-icon">
-                        <i class="fas fa-headset"></i>
+                        <i class="lucide-icon" data-lucide="headphones" aria-hidden="true"></i>
                     </div>
                     <h4><?php echo isEnglish() ? 'Need Help?' : 'मद्दत चाहिन्छ?'; ?></h4>
                     <p><?php echo isEnglish() ? 'Contact our HR department for any queries.' : 'कुनै प्रश्नको लागि हाम्रो HR विभागलाई सम्पर्क गर्नुहोस्।'; ?></p>
                     <a href="mailto:<?php echo e(getSetting('email', 'info@sahakari.org.np')); ?>" class="btn btn-outline-primary btn-block">
-                        <i class="fas fa-envelope"></i> <?php echo isEnglish() ? 'Contact HR' : 'HR सम्पर्क'; ?>
+                        <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo isEnglish() ? 'Contact HR' : 'HR सम्पर्क'; ?>
                     </a>
                 </div>
             </div>

@@ -63,10 +63,19 @@ if (!function_exists('ensureMemberImportTables')) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
         // Resume parse without re-scanning earlier rows (50k safe)
-        try { $pdo->exec("ALTER TABLE member_import_jobs ADD COLUMN parse_byte_offset INT NOT NULL DEFAULT 0"); } catch (Throwable $e) {}
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($pdo, 'member_import_jobs', 'parse_byte_offset', 'INT NOT NULL DEFAULT 0');
+        } else {
+            try { $pdo->exec("ALTER TABLE member_import_jobs ADD COLUMN parse_byte_offset INT NOT NULL DEFAULT 0"); } catch (Throwable $e) {}
+        }
         // Helpful lookup index for duplicate checks
-        try { $pdo->exec("CREATE INDEX idx_members_sadasyata ON members (sadasyata_number)"); } catch (Throwable $e) {}
-        try { $pdo->exec("CREATE INDEX idx_members_phone ON members (phone)"); } catch (Throwable $e) {}
+        if (function_exists('safeAddIndex')) {
+            safeAddIndex($pdo, 'members', 'idx_members_sadasyata', ['sadasyata_number']);
+            safeAddIndex($pdo, 'members', 'idx_members_phone', ['phone']);
+        } else {
+            try { $pdo->exec("CREATE INDEX idx_members_sadasyata ON members (sadasyata_number)"); } catch (Throwable $e) {}
+            try { $pdo->exec("CREATE INDEX idx_members_phone ON members (phone)"); } catch (Throwable $e) {}
+        }
     }
 }
 

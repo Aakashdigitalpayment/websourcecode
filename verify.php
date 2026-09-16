@@ -11,6 +11,9 @@
  * (नामको पहिलो ३ + सदस्यताको पछिल्लो ४) tracker जस्तै खुल्छ।
  * सुरक्षा: नाम + सदस्यता नं. + मोबाइल मिल्नुपर्छ — गलत व्यक्तिले दुरुपयोग गर्न नसकोस्।
  * पुराना कार्डका लागि Verification Code + CVV path पनि उपलब्ध छ।
+ *
+ * NOT venue program check-in: attendance = member/attend + member/scan
+ * or admin program-registration-desk. Legacy attend.php redirects there.
  * ════════════════════════════════════════════════════════════
  */
 
@@ -47,13 +50,11 @@ $verifyMobile = '';
 $verifyMode = 'name'; // name | legacy
 $logSaved = false;
 $logError = '';
-$programSaved = false;
-$programAlreadyRegistered = false;
 $preregSaved = false;
 $preregAlreadyRegistered = false;
 $preregError = '';
+$attendancePathClosedNotice = '';
 $activePrograms = [];
-$openPreRegPrograms = [];
 $postCsrfError = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -236,12 +237,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log('program prereg insert: ' . $e->getMessage());
             }
         }
+        /* Pre-reg UI is on cooperative-programs.php — redirect so feedback is not silent. */
+        if ($preregSaved || $preregAlreadyRegistered || $preregError !== '') {
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                @session_start();
+            }
+            $q = ['tab' => 'upcoming', 'pid' => $programId];
+            if ($preregSaved) {
+                $q['ok'] = '1';
+            } elseif ($preregAlreadyRegistered) {
+                $q['dup'] = '1';
+            } else {
+                $_SESSION['cp_prereg_error'] = $preregError;
+                $_SESSION['cp_prereg_member'] = $memberIdInput;
+                $_SESSION['cp_prereg_note'] = $note;
+                $q['err'] = '1';
+            }
+            $dest = rtrim(defined('SITE_URL') ? (string) SITE_URL : '', '/') . '/cooperative-programs.php?' . http_build_query($q);
+            if ($programId > 0) {
+                $dest .= '#prog-' . $programId;
+            }
+            header('Location: ' . $dest, true, 303);
+            exit;
+        }
     } elseif (($_POST['action'] ?? '') === 'log_program_attendance') {
-        // Legacy action removed — attendance must go via Member Portal QR (pending→approve) or Staff Verify
-        $error = $_t('यो मार्ग बन्द छ। Member Portal QR वा Admin Registration Desk प्रयोग गर्नुहोस्।', 'This path is closed. Use Member Portal QR or Admin Registration Desk.');
-        $code = trim($_POST['code'] ?? '');
+        // Legacy attendance path closed — still verify card, surface clear notice
+        $attendancePathClosedNotice = $_t('यो मार्ग बन्द छ। Member Portal QR वा Admin Registration Desk प्रयोग गर्नुहोस्।', 'This path is closed. Use Member Portal QR or Admin Registration Desk.');
+        $code = trim((string)($_POST['code'] ?? ''));
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
-        $cvv  = trim($_POST['cvv']  ?? '');
+        $cvv  = trim((string)($_POST['cvv']  ?? ''));
         $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
         $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
         $verifyMobile = function_exists('memberSsotNormalizeMobile')
@@ -294,14 +318,6 @@ if ($result && !empty($result['ok'])) {
     } catch (\Throwable $e) { $activePrograms = []; }
 }
 
-try {
-    $openPreRegPrograms = $pdo->query("SELECT id, title, event_date, event_time, location
-                                       FROM upcoming_programs
-                                       WHERE is_active=1 AND pre_registration_open=1
-                                       ORDER BY COALESCE(event_date, '9999-12-31') ASC, id DESC
-                                       LIMIT 80")->fetchAll(PDO::FETCH_ASSOC) ?: [];
-} catch (\Throwable $e) { $openPreRegPrograms = []; }
-
 /* Active partner list — only if verify successful, to keep guest queries low */
 $partners = [];
 $memberPartnerLogs = [];
@@ -339,301 +355,14 @@ if ($result && !empty($result['ok']) && $pdo) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title><?= htmlspecialchars($pageTitle) ?></title>
+<title><?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?></title>
 <meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। नाम, सदस्यता नं. र मोबाइल राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using name, member ID and mobile.'), ENT_QUOTES, 'UTF-8'); ?>">
 <?php if (function_exists('seo_canonical_url')): ?>
 <link rel="canonical" href="<?= htmlspecialchars(seo_canonical_url(), ENT_QUOTES, 'UTF-8') ?>">
 <?php endif; ?>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
+<?php /* fonts preconnect+load via coopThemeHeadAssets → coopThemeGoogleFonts */ ?>
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('verify'); } ?>
-<style>
-/* ── verify.php layout overrides ── */
-.vp-back-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 0 1.25rem;
-}
-.vp-back-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--primary-color, #1a5f2a); font-size: .82rem; font-weight: 600;
-    text-decoration: none; padding: 6px 14px; border-radius: 999px;
-    background: rgba(var(--primary-rgb, 26,95,42), .07);
-    border: 1px solid rgba(var(--primary-rgb, 26,95,42), .15);
-    transition: background .15s;
-}
-.vp-back-link:hover { background: rgba(var(--primary-rgb, 26,95,42), .13); color: var(--primary-dark, #145021); }
-.vp-logo-wrap { text-align: center; margin-bottom: 1.35rem; }
-.vp-logo-wrap img {
-    max-height: 96px;
-    max-width: min(420px, 100%);
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 10px;
-    display: block;
-    margin: 0 auto .75rem;
-}
-.vp-logo-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto .65rem; background: var(--primary-color, #1a5f2a); color: var(--text-on-primary, #fff); font-size: 1.55rem; display: grid; place-items: center; box-shadow: 0 4px 18px rgba(var(--primary-rgb, 26,95,42), .28); }
-.vp-site-name { font-weight: 700; font-size: 1.05rem; line-height: 1.35; color: var(--primary-color, #1a5f2a); max-width: 28rem; margin: 0 auto; }
-.vp-site-sub  { font-size: .8rem; color: var(--text-muted, #6b7280); margin-top: 4px; }
-.vp-main-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 18px rgba(0,0,0,.09); overflow: hidden; border: 1px solid var(--border-color, #e5e7eb); }
-.vp-card-head { background: var(--primary-color, #1a5f2a); padding: 18px 22px; display: flex; align-items: center; gap: 14px; }
-.vp-card-head-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 1.25rem; color: #fff; flex-shrink: 0; }
-.vp-card-head-text .vp-card-head-title { color: #fff; font-weight: 700; font-size: 1.05rem; }
-.vp-card-head-text .vp-card-head-sub   { color: rgba(255,255,255,.82); font-size: .82rem; margin-top: 2px; }
-.vp-card-body  { padding: 22px 24px; }
-.vp-field      { margin-bottom: 16px; }
-.vp-label      { display: block; font-weight: 600; color: var(--text-primary, #1a2e1f); margin-bottom: 6px; font-size: .92rem; }
-.vp-label .req { color: var(--color-danger, #dc2626); }
-.vp-input {
-    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-color, #d1d5db);
-    border-radius: 10px; font-size: .95rem; font-family: inherit; box-sizing: border-box;
-    transition: border-color .15s, box-shadow .15s; background: var(--bg-card, #fff); color: var(--text-primary, #1a2e1f);
-}
-.vp-input:focus { outline: none; border-color: var(--primary-color, #1a5f2a); box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 26,95,42), .12); }
-.vp-btn {
-    width: 100%; min-height: 46px; padding: 12px; border: none; border-radius: 10px;
-    font-size: .97rem; font-weight: 700; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; gap: 8px; font-family: inherit;
-    background: var(--primary-color, #1a5f2a); color: var(--text-on-primary, #fff);
-    transition: background .18s, transform .12s;
-}
-.vp-btn:hover { background: var(--primary-dark, #145021); transform: translateY(-1px); }
-.vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
-.vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
-
-/* ── Success desk UI polish: Card | Action | Log ── */
-.vp-success-alerts { margin-bottom: 14px; }
-.vp-success-layout {
-    display: grid; gap: 16px; align-items: stretch; width: 100%;
-    animation: vpFadeUp .35s ease both;
-}
-@keyframes vpFadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.vp-success-col { min-width: 0; display: flex; flex-direction: column; }
-.vp-success-layout .vp-id-card,
-.vp-success-layout .vp-desk-card {
-    margin: 0 !important; flex: 1; display: flex; flex-direction: column;
-    border-radius: 18px;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, .07);
-}
-.vp-success-layout .vp-visit-list {
-    max-height: min(460px, 58vh); overflow-y: auto;
-    margin: 0 -4px; padding: 0 4px;
-    scrollbar-width: thin;
-}
-
-.vp-desk-card {
-    background: #fff;
-    border: 1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #e5e7eb);
-    padding: 0; overflow: hidden;
-}
-.vp-desk-head {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 14px 16px 12px;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color,#1a5f2a) 7%, #fff), #fff 85%);
-    border-bottom: 1px solid #f1f5f9;
-}
-.vp-partner-history-card .vp-desk-head { align-items: center; }
-.vp-step {
-    flex-shrink: 0; width: 28px; height: 28px; border-radius: 9px;
-    display: grid; place-items: center;
-    font-size: .82rem; font-weight: 800; color: #fff;
-    background: var(--primary-color, #1a5f2a);
-    box-shadow: 0 4px 10px rgba(var(--primary-rgb,26,95,42), .28);
-}
-.vp-desk-head-text { min-width: 0; flex: 1; }
-.vp-desk-head-text h3 {
-    margin: 0; font-size: .98rem; font-weight: 800; line-height: 1.25;
-    color: var(--primary-color,#1a5f2a);
-    display: flex; align-items: center; gap: 7px;
-}
-.vp-desk-head-text p {
-    margin: 4px 0 0; font-size: .78rem; color: #64748b; line-height: 1.4;
-}
-.vp-desk-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
-.vp-partner-action-card .vp-desk-head { border-top: 3px solid var(--primary-color,#1a5f2a); }
-.vp-partner-history-card .vp-desk-head {
-    border-top: 3px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 55%, #0ea5e9);
-}
-.vp-partner-action-card .vp-field { margin-bottom: 12px; }
-.vp-partner-action-card .vp-label { font-size: .8rem; margin-bottom: 5px; color: #334155; }
-.vp-partner-action-card .vp-input {
-    padding: 10px 12px; font-size: .9rem; border-radius: 11px;
-    border-color: #e2e8f0; background: #f8fafc;
-}
-.vp-partner-action-card .vp-input:focus { background: #fff; }
-.vp-partner-code-hint { font-size: .72rem; color: #94a3b8; margin-top: 5px; }
-.vp-partner-log-btn {
-    margin-top: auto; min-height: 44px; border-radius: 12px;
-    box-shadow: 0 6px 16px rgba(var(--primary-rgb,26,95,42), .22);
-}
-.vp-partner-log-btn:hover { transform: translateY(-1px); }
-
-.vp-visit-head {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    margin: 0 0 10px;
-}
-.vp-visit-count {
-    min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: .8rem; font-weight: 800; color: #fff;
-    background: var(--primary-color,#1a5f2a);
-}
-.vp-visit-row {
-    display: grid; grid-template-columns: 10px minmax(0,1fr); gap: 10px;
-    padding: 10px 11px; margin-bottom: 8px;
-    border: 1px solid #eef2f7; border-radius: 12px; background: #fbfcfd;
-    transition: border-color .15s, background .15s;
-}
-.vp-visit-row:hover { border-color: color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #e2e8f0); background: #fff; }
-.vp-visit-dot {
-    width: 8px; height: 8px; margin-top: 6px; border-radius: 50%;
-}
-.vp-visit-dot.is-taken { background: #16a34a; box-shadow: 0 0 0 3px #dcfce7; }
-.vp-visit-dot.is-skip { background: #94a3b8; box-shadow: 0 0 0 3px #f1f5f9; }
-.vp-visit-org { font-weight: 700; font-size: .88rem; color: #0f172a; }
-.vp-visit-svc { font-size: .8rem; color: #64748b; margin-top: 2px; line-height: 1.35; }
-.vp-visit-meta {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-    margin-top: 7px; font-size: .72rem; color: #94a3b8;
-}
-.vp-visit-badge {
-    font-weight: 700; border-radius: 999px; padding: 2px 8px; font-size: .68rem;
-}
-.vp-visit-badge.yes { background: #dcfce7; color: #166534; }
-.vp-visit-badge.no { background: #f1f5f9; color: #475569; }
-.vp-visit-empty {
-    text-align: center; padding: 28px 14px; color: #94a3b8; font-size: .84rem; line-height: 1.45;
-    border: 1px dashed #e2e8f0; border-radius: 14px; background: #f8fafc;
-}
-.vp-visit-empty i { display: block; font-size: 1.35rem; margin-bottom: 8px; opacity: .7; }
-
-@media (min-width: 1100px) {
-    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) {
-        align-items: flex-start !important;
-        padding: 18px 18px 36px !important;
-    }
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
-    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-        max-width: min(1380px, 98vw) !important;
-        width: 100% !important;
-    }
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name,
-    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
-        max-width: 52rem !important;
-    }
-    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) .vp-logo-wrap {
-        margin-bottom: 1rem;
-    }
-    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) .vp-logo-wrap img {
-        max-height: 72px;
-    }
-    .vp-success-layout.has-partner {
-        grid-template-columns: minmax(280px, 1fr) minmax(300px, 1.05fr) minmax(280px, .95fr);
-        gap: 18px;
-    }
-    .vp-success-layout.has-partner .vp-desk-card,
-    .vp-success-layout.has-partner .vp-id-card { position: sticky; top: 14px; }
-    .vp-success-layout.has-partner .vp-id-main {
-        grid-template-columns: 100px minmax(0, 1fr);
-        gap: 12px; padding: 14px;
-    }
-    .vp-success-layout.has-partner .vp-id-photo-wrap { width: 100px; }
-    .vp-success-layout.has-partner .vp-id-name { font-size: 1.05rem; }
-}
-@media (min-width: 700px) and (max-width: 1099px) {
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
-    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-        max-width: min(980px, 98vw) !important;
-    }
-    .vp-success-layout.has-partner { grid-template-columns: 1fr 1fr; gap: 14px; }
-    .vp-success-col-id { grid-column: 1 / -1; }
-    .vp-success-layout.has-partner .vp-id-card { position: static; }
-}
-@media (max-width: 699px) {
-    .vp-success-layout.has-partner { grid-template-columns: 1fr; }
-    .vp-success-layout.has-partner .vp-desk-card,
-    .vp-success-layout.has-partner .vp-id-card { position: static; }
-}
-
-/* Employee-style member ID card after verify */
-.vp-id-card {
-    background: #fff; border-radius: 18px; overflow: hidden; margin-bottom: 1.1rem;
-    border: 1px solid rgba(var(--primary-rgb,26,95,42),.16);
-    box-shadow: 0 10px 28px rgba(var(--primary-rgb,26,95,42),.12);
-}
-.vp-id-band {
-    background: linear-gradient(135deg, var(--primary-color,#1a5f2a), color-mix(in srgb, var(--primary-color,#1a5f2a) 68%, #0e9b53));
-    color: #fff; padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-}
-.vp-id-band-title { font-size: .76rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; opacity: .96; }
-.vp-id-band-badge {
-    font-size: .7rem; font-weight: 700; background: rgba(255,255,255,.18);
-    border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 4px 10px; white-space: nowrap;
-    backdrop-filter: blur(4px);
-}
-.vp-id-main {
-    display: grid; grid-template-columns: 118px minmax(0,1fr); gap: 14px;
-    padding: 16px; align-items: start;
-}
-.vp-id-photo-wrap {
-    width: 118px; aspect-ratio: 3 / 3.6; border-radius: 12px; overflow: hidden;
-    border: 2px solid rgba(var(--primary-rgb,26,95,42),.18); background: #f1f5f9;
-    display: grid; place-items: center; flex-shrink: 0;
-}
-.vp-id-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.vp-id-photo-fallback { color: #94a3b8; font-size: 2.2rem; }
-.vp-id-info { min-width: 0; }
-.vp-id-name { font-size: 1.15rem; font-weight: 800; color: var(--primary-color,#1a5f2a); line-height: 1.3; margin: 0 0 4px; }
-.vp-id-status {
-    font-size: .8rem; color: #15803d; font-weight: 700; margin-bottom: 10px;
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 999px; padding: 3px 10px;
-}
-.vp-id-grid { display: grid; gap: 0; }
-.vp-id-row {
-    display: grid; grid-template-columns: minmax(5.2rem, 36%) 1fr; gap: 8px;
-    padding: 7px 0; border-bottom: 1px solid #f1f5f9; font-size: .86rem;
-}
-.vp-id-row:last-child { border-bottom: none; }
-.vp-id-label { color: #64748b; font-weight: 600; }
-.vp-id-value { font-weight: 700; color: #0f172a; word-break: break-word; }
-.vp-id-secret {
-    margin-top: 10px; padding: 10px 12px; border-radius: 12px;
-    background: color-mix(in srgb, var(--primary-color,#1a5f2a) 7%, #fff);
-    border: 1px dashed color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #e2e8f0);
-}
-.vp-id-secret .vp-id-row { border-bottom: 0; padding: 0; }
-.vp-id-secret .vp-secret-code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em;
-    color: var(--primary-color,#1a5f2a); font-weight: 800; font-size: 1.05rem;
-}
-.vp-secret-hint { font-size: .72rem; color: #64748b; margin: 8px 0 0; line-height: 1.4; }
-.vp-success-alert {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px;
-    padding: 12px 14px; margin: 0 0 14px; color: #166534; font-size: .9rem; line-height: 1.45;
-}
-.vp-reverify-link { text-align: center; margin-top: 18px; }
-.vp-reverify-link a {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--primary-color,#1a5f2a); font-weight: 700; font-size: .88rem;
-    text-decoration: none; padding: 8px 14px; border-radius: 999px;
-    background: color-mix(in srgb, var(--primary-color,#1a5f2a) 8%, #fff);
-    border: 1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 16%, #e2e8f0);
-}
-.vp-reverify-link a:hover { background: color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #fff); }
-@media (max-width: 480px) {
-    .vp-id-main { grid-template-columns: 96px minmax(0,1fr); gap: 12px; padding: 14px; }
-    .vp-id-photo-wrap { width: 96px; }
-    .vp-id-name { font-size: 1.02rem; }
-    .vp-id-row { grid-template-columns: 1fr; gap: 2px; }
-}
-</style>
+<?php if (function_exists('coopThemeLink')) { coopThemeLink('assets/css/verify-page.css'); } ?>
 </head>
 <body class="auth-portal-page verify-auth-page">
 
@@ -652,12 +381,12 @@ $__pageTitleDisplay = $pageTitle ?? $_t('कार्ड प्रमाणी�
 
     <!-- Back to homepage + lang toggle -->
     <div class="vp-back-bar">
-        <a href="<?php echo SITE_URL; ?>" class="vp-back-link">
-            <i class="fas fa-arrow-left"></i> <?= $_t('गृहपृष्ठ', 'Homepage') ?>
+        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="vp-back-link">
+            <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?= $_t('गृहपृष्ठ', 'Homepage') ?>
         </a>
         <?php if (function_exists('portalLangToggleUrl') && function_exists('portalLangToggleBadge')): ?>
         <a href="<?php echo htmlspecialchars(portalLangToggleUrl(), ENT_QUOTES, 'UTF-8'); ?>" class="vp-back-link notranslate" translate="no" title="<?= htmlspecialchars($_t('भाषा परिवर्तन', 'Switch language'), ENT_QUOTES, 'UTF-8') ?>">
-            <i class="fas fa-language"></i> <?= htmlspecialchars(portalLangToggleBadge()) ?>
+            <i class="lucide-icon" data-lucide="languages" aria-hidden="true"></i> <?= htmlspecialchars(portalLangToggleBadge()) ?>
         </a>
         <?php endif; ?>
     </div>
@@ -665,14 +394,14 @@ $__pageTitleDisplay = $pageTitle ?? $_t('कार्ड प्रमाणी�
     <!-- Logo + site name -->
     <div class="vp-logo-wrap">
         <?php if ($__logoSrc): ?>
-            <img src="<?= htmlspecialchars($__logoSrc) ?>" alt="Logo">
+            <img src="<?= htmlspecialchars($__logoSrc, ENT_QUOTES, 'UTF-8') ?>" alt="Logo">
         <?php else: ?>
-            <div class="vp-logo-icon"><i class="fas fa-id-card"></i></div>
+            <div class="vp-logo-icon"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></div>
         <?php endif; ?>
         <?php if ($__siteName): ?>
-        <div class="vp-site-name"><?= htmlspecialchars($__siteName) ?></div>
+        <div class="vp-site-name"><?= htmlspecialchars($__siteName, ENT_QUOTES, 'UTF-8') ?></div>
         <?php endif; ?>
-        <div class="vp-site-sub"><?= $_t('सदस्य प्रमाणीकरण पोर्टल', 'Member Verification Portal') ?></div>
+        <div class="vp-site-sub"><?= $_t('सदस्य ID कार्ड प्रमाणीकरण (कार्यक्रम स्थल check-in होइन)', 'Member ID card verification (not venue program check-in)') ?></div>
     </div>
 
 <?php
@@ -686,7 +415,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 <div id="vp-ratelimit-card" class="vp-rate-card" role="alert" aria-live="assertive">
     <div class="vp-rate-head">
         <span class="vp-result-icon" style="width:46px;height:46px;font-size:1.5rem;">
-            <i class="fas fa-shield-halved"></i>
+            <i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i>
         </span>
         <div>
             <div class="vp-rate-head-title"><?= $_t('धेरै पटक गलत प्रयास', 'Too Many Failed Attempts') ?></div>
@@ -706,10 +435,10 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         <!-- Auto-unlocked message (hidden until countdown done) -->
         <div id="vp-unlocked-msg" style="display:none;margin-top:18px;">
             <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:14px 18px;color:#16a34a;font-weight:600;margin-bottom:14px;">
-                <i class="fas fa-lock-open me-2"></i><?= $_t('समय सकियो। अब पुनः प्रयास गर्न सक्नुहुन्छ।', 'Time is up. You can try again now.') ?>
+                <i class="lucide-icon me-2" data-lucide="lock-open" aria-hidden="true"></i><?= $_t('समय सकियो। अब पुनः प्रयास गर्न सक्नुहुन्छ।', 'Time is up. You can try again now.') ?>
             </div>
             <a href="verify.php" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--primary-color,#1a5f2a),#0e9b53);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem;">
-                <i class="fas fa-rotate-right"></i> <?= $_t('फेरि प्रयास गर्नुहोस्', 'Try Again') ?>
+                <i class="lucide-icon" data-lucide="rotate-cw" aria-hidden="true"></i> <?= $_t('फेरि प्रयास गर्नुहोस्', 'Try Again') ?>
             </a>
         </div>
     </div>
@@ -746,8 +475,8 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 
 <?php elseif (!empty($__err)): ?>
 <div class="vp-alert-error" role="alert" aria-live="assertive">
-    <i class="fas fa-exclamation-circle" style="font-size:1.2rem;flex-shrink:0;"></i>
-    <span><?= htmlspecialchars($__err) ?></span>
+    <i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true" style="font-size:1.2rem;flex-shrink:0;"></i>
+    <span><?= htmlspecialchars($__err, ENT_QUOTES, 'UTF-8') ?></span>
 </div>
 <?php endif; ?>
 
@@ -788,14 +517,14 @@ $__hasPartnerCol = !empty($partners);
 <div class="vp-success-alerts">
 <?php if (!empty($logSaved)): ?>
 <div class="vp-success-alert" style="margin-bottom:0;">
-    <i class="fas fa-check-circle" style="flex-shrink:0;margin-top:2px;"></i>
+    <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true" style="flex-shrink:0;margin-top:2px;"></i>
     <span><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?></span>
 </div>
 <?php endif; ?>
 <?php if (!empty($logError)): ?>
 <div class="vp-alert-error" role="alert" aria-live="assertive" style="margin-bottom:0;<?= !empty($logSaved) ? 'margin-top:10px;' : '' ?>">
-    <i class="fas fa-exclamation-circle"></i>
-    <span><?= htmlspecialchars($logError) ?></span>
+    <i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i>
+    <span><?= htmlspecialchars($logError, ENT_QUOTES, 'UTF-8') ?></span>
 </div>
 <?php endif; ?>
 </div>
@@ -806,7 +535,7 @@ $__hasPartnerCol = !empty($partners);
 <div class="vp-id-card vp-result-card" role="region" aria-label="<?= htmlspecialchars($_t('सदस्य परिचय पत्र', 'Member ID Card'), ENT_QUOTES, 'UTF-8') ?>">
     <div class="vp-id-band">
         <span class="vp-id-band-title"><span class="vp-step" style="width:22px;height:22px;font-size:.68rem;border-radius:7px;display:inline-grid;place-items:center;margin-right:8px;box-shadow:none;vertical-align:middle;">१</span><?= $_t('सदस्य परिचय पत्र', 'Member ID Card') ?></span>
-        <span class="vp-id-band-badge"><i class="fas fa-shield-halved me-1"></i><?= $_t('प्रमाणित', 'Verified') ?></span>
+        <span class="vp-id-band-badge"><i class="lucide-icon me-1" data-lucide="shield" aria-hidden="true"></i><?= $_t('प्रमाणित', 'Verified') ?></span>
     </div>
     <div class="vp-id-main">
         <div class="vp-id-photo-wrap">
@@ -815,14 +544,14 @@ $__hasPartnerCol = !empty($partners);
                  alt="<?= htmlspecialchars((string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                  class="vp-result-photo"
                  loading="lazy"
-                 onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span class=\'vp-id-photo-fallback\'><i class=\'fas fa-user\'></i></span>');">
+                 onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span class=\'vp-id-photo-fallback\'><i class=\'lucide-icon\' aria-hidden=\'true\' data-lucide=\'user\'></i></span>');">
             <?php else: ?>
-            <span class="vp-id-photo-fallback" aria-hidden="true"><i class="fas fa-user"></i></span>
+            <span class="vp-id-photo-fallback" aria-hidden="true"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></span>
             <?php endif; ?>
         </div>
         <div class="vp-id-info">
             <h2 class="vp-id-name"><?= htmlspecialchars((string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></h2>
-            <div class="vp-id-status"><i class="fas fa-check-circle"></i> <?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
+            <div class="vp-id-status"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> <?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
             <div class="vp-id-grid">
                 <?php foreach ($__idFields as [$lbl, $val]):
                     if (trim((string)$val) === '') continue;
@@ -855,7 +584,7 @@ $__hasPartnerCol = !empty($partners);
     <div class="vp-desk-head">
         <span class="vp-step">२</span>
         <div class="vp-desk-head-text">
-            <h3><i class="fas fa-pen-to-square"></i> <?= $_t('सेवा लग्नुहोस्', 'Log service') ?></h3>
+            <h3><i class="lucide-icon" data-lucide="pen-square" aria-hidden="true"></i> <?= $_t('सेवा लग्नुहोस्', 'Log service') ?></h3>
             <p><?= $_t('डेस्कबाट सेवा/छुट दिएपछि यहाँ सेभ गर्नुहोस्।', 'Save here after the desk provides a service or discount.') ?></p>
         </div>
     </div>
@@ -865,7 +594,7 @@ $__hasPartnerCol = !empty($partners);
         <input type="hidden" name="action" value="log_service">
         <input type="hidden" name="member_id" value="<?= (int)($__m['id'] ?? 0) ?>">
         <input type="hidden" name="member_card_no" value="<?= htmlspecialchars((string)($__c['card_no'] ?? $__m['member_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-        <input type="hidden" name="verify_mode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name') ?>">
+        <input type="hidden" name="verify_mode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name', ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="member_name" value="<?= htmlspecialchars($verifyName !== '' ? $verifyName : (string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="member_id_no" value="<?= htmlspecialchars($verifyMemberId !== '' ? $verifyMemberId : (string)($__m['member_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="member_mobile" value="<?= htmlspecialchars($verifyMobile !== '' ? $verifyMobile : (string)($__m['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
@@ -892,7 +621,7 @@ $__hasPartnerCol = !empty($partners);
                         data-code="<?= htmlspecialchars(strtoupper($codeL), ENT_QUOTES, 'UTF-8') ?>"
                         data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"
                         data-name="<?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>"<?= $sel ?>>
-                    <?= htmlspecialchars($opt) ?>
+                    <?= htmlspecialchars($opt, ENT_QUOTES, 'UTF-8') ?>
                 </option>
                 <?php endforeach; ?>
             </select>
@@ -917,7 +646,7 @@ $__hasPartnerCol = !empty($partners);
             </select>
         </div>
         <button type="submit" class="vp-btn vp-partner-log-btn">
-            <i class="fas fa-save"></i> <?= $_t('सेवा लग सेभ गर्नुहोस्','Save service log') ?>
+            <i class="lucide-icon" data-lucide="save" aria-hidden="true"></i> <?= $_t('सेवा लग सेभ गर्नुहोस्','Save service log') ?>
         </button>
     </form>
     </div>
@@ -929,7 +658,7 @@ $__hasPartnerCol = !empty($partners);
     <div class="vp-desk-head">
         <span class="vp-step">३</span>
         <div class="vp-desk-head-text">
-            <h3><i class="fas fa-clock-rotate-left"></i> <?= $_t('सेवा इतिहास', 'Service history') ?></h3>
+            <h3><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i> <?= $_t('सेवा इतिहास', 'Service history') ?></h3>
             <p id="vpVisitTitleText"><?= $_t('यस सदस्यका साझेदार सेवा लगहरू', "This member's partner service logs") ?></p>
         </div>
         <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
@@ -938,7 +667,7 @@ $__hasPartnerCol = !empty($partners);
     <div class="vp-visit-list" id="vpVisitList">
         <?php if (empty($memberPartnerLogs)): ?>
         <div class="vp-visit-empty" data-empty-all="1">
-            <i class="fas fa-inbox"></i>
+            <i class="lucide-icon" data-lucide="inbox" aria-hidden="true"></i>
             <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। Action बाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save from Action.') ?></span>
         </div>
         <?php else:
@@ -960,7 +689,7 @@ $__hasPartnerCol = !empty($partners);
                             'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
                         ]) ?: $vOrg;
                     }
-                    echo htmlspecialchars($vOrg);
+                    echo htmlspecialchars($vOrg, ENT_QUOTES, 'UTF-8');
                 ?></div>
                 <div class="vp-visit-svc">
                     <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
@@ -969,7 +698,7 @@ $__hasPartnerCol = !empty($partners);
                     <?php endif; ?>
                 </div>
                 <div class="vp-visit-meta">
-                    <time><?= htmlspecialchars($when) ?></time>
+                    <time><?= htmlspecialchars($when, ENT_QUOTES, 'UTF-8') ?></time>
                     <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
                         <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
                     </span>
@@ -978,7 +707,7 @@ $__hasPartnerCol = !empty($partners);
         </div>
         <?php endforeach; endif; ?>
         <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
-            <i class="fas fa-building"></i>
+            <i class="lucide-icon" data-lucide="building" aria-hidden="true"></i>
             <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
         </div>
     </div>
@@ -1065,23 +794,26 @@ $__hasPartnerCol = !empty($partners);
 </div>
 <?php endif; ?>
 
-<?php if (!empty($programSaved)): ?>
-<div class="vp-success-alert">
-    <i class="fas fa-check me-2"></i><?= $_t('उपस्थिति दर्ता भयो।', 'Attendance recorded.') ?>
+<?php if ($attendancePathClosedNotice !== ''): ?>
+<div class="vp-success-alert" style="background:#fff7ed;border-color:#fdba74;color:#9a3412;">
+    <i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i><?= htmlspecialchars($attendancePathClosedNotice, ENT_QUOTES, 'UTF-8') ?>
 </div>
 <?php endif; ?>
 
 <?php if (!empty($activePrograms)): ?>
 <div class="vp-programs-card">
     <h3 class="vp-programs-title">
-        <i class="fas fa-calendar-check"></i> <?= $_t('सक्रिय कार्यक्रमहरू','Active Programs') ?>
+        <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i> <?= $_t('सक्रिय कार्यक्रम (जानकारी मात्र)','Active programs (info only)') ?>
     </h3>
+    <p style="font-size:.82rem;color:#6b7280;margin:0 0 10px;">
+        <?= $_t('यो सूची उपस्थिति दर्ता होइन। स्थल check-in का लागि Member Portal → Scan / Attend प्रयोग गर्नुहोस्।', 'This list is not attendance. For venue check-in use Member Portal → Scan / Attend.') ?>
+    </p>
     <div>
     <?php foreach ($activePrograms as $prog): ?>
         <div class="vp-program-item">
-            <strong><?= htmlspecialchars($prog['title'] ?? '') ?></strong>
+            <strong><?= htmlspecialchars($prog['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></strong>
             <?php if (!empty($prog['program_date'])): ?>
-            <span style="color:#6b7280;font-size:.82rem;margin-left:8px;"><i class="fas fa-calendar-alt"></i> <?= htmlspecialchars($prog['program_date']) ?></span>
+            <span style="color:#6b7280;font-size:.82rem;margin-left:8px;"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?= htmlspecialchars($prog['program_date'], ENT_QUOTES, 'UTF-8') ?></span>
             <?php endif; ?>
         </div>
     <?php endforeach; ?>
@@ -1092,7 +824,7 @@ $__hasPartnerCol = !empty($partners);
 <!-- Re-verify or new search -->
 <div class="vp-reverify-link">
     <a href="verify.php">
-        <i class="fas fa-arrow-left me-1"></i><?= $_t('अर्को कार्ड प्रमाणित गर्नुहोस्','Verify another card') ?>
+        <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?= $_t('अर्को कार्ड प्रमाणित गर्नुहोस्','Verify another card') ?>
     </a>
 </div>
 
@@ -1100,10 +832,10 @@ $__hasPartnerCol = !empty($partners);
 <!-- ── Verification Form ── -->
 <div class="vp-main-card">
     <div class="vp-card-head">
-        <div class="vp-card-head-icon"><i class="fas fa-id-card"></i></div>
+        <div class="vp-card-head-icon"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></div>
         <div class="vp-card-head-text">
-            <div class="vp-card-head-title"><?= htmlspecialchars($__pageTitleDisplay) ?></div>
-            <div class="vp-card-head-sub"><?= $_t('नाम, सदस्यता नं. र मोबाइल राखेर प्रमाणित गर्नुहोस् — गलत व्यक्तिले दुरुपयोग गर्न नसकोस्।', 'Verify with name, member ID and mobile so the wrong person cannot misuse the card.') ?></div>
+            <div class="vp-card-head-title"><?= htmlspecialchars($__pageTitleDisplay, ENT_QUOTES, 'UTF-8') ?></div>
+            <div class="vp-card-head-sub"><?= $_t('नाम, सदस्यता नं. र मोबाइल राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्। स्थल उपस्थिति = Member Portal QR / दर्ता डेस्क।', 'Verify active membership with name, member ID and mobile. Venue attendance = Member Portal QR / Registration Desk.') ?></div>
         </div>
     </div>
     <div class="vp-card-body">
@@ -1114,31 +846,31 @@ $__hasPartnerCol = !empty($partners);
             <div id="vpModeName">
                 <div class="vp-field">
                     <label for="vpMemberName" class="vp-label">
-                        <i class="fas fa-user" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <i class="lucide-icon" data-lucide="user" aria-hidden="true" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('सदस्यको नाम', 'Member Name') ?> <span class="req">*</span>
                     </label>
                     <input type="text" name="member_name" class="vp-input" id="vpMemberName"
-                           value="<?= htmlspecialchars($verifyName ?? '') ?>"
+                           value="<?= htmlspecialchars($verifyName ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            placeholder="<?= $_t('कार्डमा लेखिएको पूरा नाम', 'Full name as on card') ?>"
                            autocomplete="name" required>
                 </div>
                 <div class="vp-field">
                     <label for="vpMemberId" class="vp-label">
-                        <i class="fas fa-hashtag" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <i class="lucide-icon" data-lucide="hash" aria-hidden="true" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('सदस्यता नं. / Member ID', 'Member ID') ?> <span class="req">*</span>
                     </label>
                     <input type="text" name="member_id_no" class="vp-input" id="vpMemberId"
-                           value="<?= htmlspecialchars($verifyMemberId ?? '') ?>"
+                           value="<?= htmlspecialchars($verifyMemberId ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            placeholder="<?= $_t('कार्डमा देखिने सदस्यता नं.', 'Member ID shown on card') ?>"
                            autocomplete="off" spellcheck="false" required>
                 </div>
                 <div class="vp-field">
                     <label for="vpMemberMobile" class="vp-label">
-                        <i class="fas fa-mobile-screen-button" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('मोबाइल नम्बर', 'Mobile number') ?> <span class="req">*</span>
                     </label>
                     <input type="tel" name="member_mobile" class="vp-input" id="vpMemberMobile"
-                           value="<?= htmlspecialchars($verifyMobile ?? '') ?>"
+                           value="<?= htmlspecialchars($verifyMobile ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            placeholder="<?= $_t('दर्ता भएको १० अंकको मोबाइल', 'Registered 10-digit mobile') ?>"
                            inputmode="numeric" autocomplete="tel" maxlength="15" required>
                     <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
@@ -1147,11 +879,11 @@ $__hasPartnerCol = !empty($partners);
                 </div>
                 <div class="vp-field" style="margin-bottom:22px;">
                     <label for="vpCvv" class="vp-label">
-                        <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('CVV (ऐच्छिक)', 'CVV (optional)') ?>
                     </label>
                     <input type="text" name="cvv" maxlength="20" class="vp-input" id="vpCvv"
-                           value="<?= htmlspecialchars($cvv ?? '') ?>"
+                           value="<?= htmlspecialchars($cvv ?? '', ENT_QUOTES, 'UTF-8') ?>"
                            placeholder="<?= $_t('खाली छोड्न सकिन्छ — मिल्दा गोप्य कोड खुल्छ', 'Can leave blank — secret code appears on match') ?>"
                            autocomplete="off" spellcheck="false" style="letter-spacing:1px;">
                     <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
@@ -1161,20 +893,15 @@ $__hasPartnerCol = !empty($partners);
             </div>
 
             <button type="submit" class="vp-btn">
-                <i class="fas fa-shield-halved"></i> <?= $_t('प्रमाणित गर्नुहोस्', 'Verify Now') ?>
+                <i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> <?= $_t('प्रमाणित गर्नुहोस्', 'Verify Now') ?>
             </button>
         </form>
     </div>
 </div>
 
-<style>
-.vp-secret-row { background: color-mix(in srgb, var(--primary-color,#1a5f2a) 8%, #fff); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
-.vp-secret-code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; letter-spacing: .12em; color: var(--primary-dark,#0a4a25); font-size: 1.15rem; }
-.vp-secret-hint { font-size: .78rem; color: #6b7280; margin: 8px 0 0; line-height: 1.45; }
-</style>
 
 <div class="vp-secure">
-    <i class="fas fa-shield-halved" style="margin-right:4px;"></i>
+    <i class="lucide-icon" data-lucide="shield" aria-hidden="true" style="margin-right:4px;"></i>
     <?= $_t('यो पृष्ठ सुरक्षित र निजी छ।', 'This page is secure and private.') ?>
 </div>
 <?php endif; ?>

@@ -1,8 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/config.php';
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $db = getDB();
 
 function memberActivityRows(PDO $db, string $table, string $sql, array $params = []): array {
@@ -269,7 +266,7 @@ echo adminPageHeader('Member Activities Search', 'fa-magnifying-glass-chart', '�
                             </select>
                         </div>
                         <div class="col-lg-2">
-                            <button type="submit" class="btn btn-success w-100"><i class="fas fa-search me-1"></i> खोज्नुहोस्</button>
+                            <button type="submit" class="btn btn-success w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i> खोज्नुहोस्</button>
                         </div>
                         <div class="col-lg-12 text-end">
                             <a href="member-activities.php" class="btn btn-outline-secondary btn-sm">Clear</a>
@@ -334,7 +331,7 @@ echo adminPageHeader('Member Activities Search', 'fa-magnifying-glass-chart', '�
                         </div>
                         <div class="mt-2">
                             <a href="?q=<?php echo urlencode($search); ?>&member=<?php echo (int)$selectedMemberId; ?>&from=<?php echo urlencode($dateFrom); ?>&to=<?php echo urlencode($dateTo); ?>&view=<?php echo urlencode($viewMode); ?>&export=csv" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-file-csv me-1"></i>Export CSV
+                                <i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Export CSV
                             </a>
                         </div>
                     </div>

@@ -3,6 +3,7 @@
  * निर्वाचन — पद र उम्मेदवार व्यवस्थापन
  * (admin/election-information.php को sub-page)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'उम्मेदवार व्यवस्थापन';
 $currentPage = 'election-candidates';
 require_once 'includes/admin-header.php';
@@ -179,9 +180,9 @@ echo adminPageHeader(
     'उम्मेदवार व्यवस्थापन',
     'fa-user-tie',
     htmlspecialchars($cycle['title_np']) . ' — पद र उम्मेदवार थप/सम्पादन',
-    '<a class="btn btn-outline-secondary btn-sm" href="election-information.php?edit=' . $cycleId . '"><i class="fas fa-arrow-left me-1"></i>चक्र फर्कनुहोस्</a> '
-    . '<a class="btn btn-outline-primary btn-sm" href="election-voting-attendance.php?cycle=' . $cycleId . '"><i class="fas fa-person-booth me-1"></i>Voting Attendance</a> '
-    . '<a class="btn btn-outline-success btn-sm" href="election-results.php?cycle=' . $cycleId . '"><i class="fas fa-chart-bar me-1"></i>नतिजा</a>'
+    '<a class="btn btn-outline-secondary btn-sm" href="election-information.php?edit=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>चक्र फर्कनुहोस्</a> '
+    . '<a class="btn btn-outline-primary btn-sm" href="election-voting-attendance.php?cycle=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>Voting Attendance</a> '
+    . '<a class="btn btn-outline-success btn-sm" href="election-results.php?cycle=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="bar-chart-3" aria-hidden="true"></i>नतिजा</a>'
 );
 ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
@@ -205,13 +206,13 @@ if (count($allCycles) > 1):
 <ul class="nav nav-tabs admin-nav-tabs mb-3">
     <li class="nav-item">
         <a class="nav-link <?php echo $panel === 'positions' ? 'active' : ''; ?>" href="?cycle=<?php echo $cycleId; ?>&panel=positions">
-            <i class="fas fa-briefcase me-2"></i>पद व्यवस्थापन
+            <i class="lucide-icon me-2" data-lucide="briefcase" aria-hidden="true"></i>पद व्यवस्थापन
             <span class="badge bg-success ms-1"><?php echo count($positions); ?></span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo $panel === 'candidates' ? 'active' : ''; ?>" href="?cycle=<?php echo $cycleId; ?>&panel=candidates">
-            <i class="fas fa-user-plus me-2"></i>उम्मेदवार व्यवस्थापन
+            <i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>उम्मेदवार व्यवस्थापन
             <span class="badge bg-success ms-1"><?php echo count($cands); ?></span>
         </a>
     </li>
@@ -221,7 +222,7 @@ if (count($allCycles) > 1):
     <?php /* पहिले col-lg-5 + लुकेको col-lg-7 = आधा चौडाइ मात्र देखिन्थ्यो; सक्रिय ट्याब पूर्ण चौडाइ */ ?>
     <div class="col-12 <?php echo $panel === 'positions' ? '' : 'd-none'; ?>">
         <div class="card admin-table-card mb-3">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-briefcase me-2"></i><?php echo $editPos ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="briefcase" aria-hidden="true"></i><?php echo $editPos ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></h6></div>
             <div class="card-body">
                 <form method="post" class="row g-2">
                     <?php echo csrfField(); ?>
@@ -281,7 +282,7 @@ if (count($allCycles) > 1):
                             <label class="form-check-label" for="pact">सक्रिय</label>
                         </div>
                     </div>
-                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-candidates.php?cycle=<?php echo $cycleId; ?>&panel=positions">नयाँ</a></div>
                 </form>
                 <script>
@@ -306,7 +307,7 @@ if (count($allCycles) > 1):
             </div>
         </div>
         <div class="card admin-table-card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-list me-2"></i>पद सूची (<?php echo count($positions); ?>)</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>पद सूची (<?php echo count($positions); ?>)</h6></div>
             <div class="table-responsive">
                 <table class="table table-sm mb-0 align-middle">
                     <thead><tr><th>पद</th><th>सिट</th><th>उम्मेदवार</th><th></th></tr></thead>
@@ -318,12 +319,12 @@ if (count($allCycles) > 1):
                             <td><?php echo (int)$p['seats']; ?></td>
                             <td><?php echo $cnt; ?></td>
                             <td class="text-nowrap">
-                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=positions&edit_pos=<?php echo (int)$p['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=positions&edit_pos=<?php echo (int)$p['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('यो पद, सबै उम्मेदवार र मत मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_position">
                                     <input type="hidden" name="position_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -337,7 +338,7 @@ if (count($allCycles) > 1):
 
     <div class="col-12 <?php echo $panel === 'candidates' ? '' : 'd-none'; ?>">
         <div class="card admin-table-card mb-3">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-user-plus me-2"></i><?php echo $editCand ? 'उम्मेदवार सम्पादन' : 'नयाँ उम्मेदवार थप्नुहोस्'; ?></h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i><?php echo $editCand ? 'उम्मेदवार सम्पादन' : 'नयाँ उम्मेदवार थप्नुहोस्'; ?></h6></div>
             <div class="card-body">
                 <?php if (empty($positions)): ?>
                     <div class="alert alert-warning mb-0">पहिले पद थप्नुहोस्।</div>
@@ -379,7 +380,7 @@ if (count($allCycles) > 1):
                     <div class="col-md-6"><label for="cand_photo" class="form-label small">फोटो</label>
                         <input type="file" class="form-control" name="photo" id="cand_photo" accept="image/*">
                         <?php if (!empty($editCand['photo'])): ?>
-                            <div class="small mt-1"><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($editCand['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($editCand['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></div>
+                            <div class="small mt-1"><img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim($editCand['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($editCand['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></div>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
@@ -394,7 +395,7 @@ if (count($allCycles) > 1):
                     <div class="col-12"><label for="cand_bio_en" class="form-label small">Bio (English)</label>
                         <textarea class="form-control" name="bio_en" id="cand_bio_en" rows="2"><?php echo htmlspecialchars($editCand['bio_en'] ?? ''); ?></textarea>
                     </div>
-                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-candidates.php?cycle=<?php echo $cycleId; ?>&panel=candidates">नयाँ</a></div>
                 </form>
                 <?php endif; ?>
@@ -402,7 +403,7 @@ if (count($allCycles) > 1):
         </div>
 
         <div class="card admin-table-card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-users me-2"></i>उम्मेदवार सूची (<?php echo count($cands); ?>)</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="users" aria-hidden="true"></i>उम्मेदवार सूची (<?php echo count($cands); ?>)</h6></div>
             <div class="table-responsive">
                 <table class="table table-sm mb-0 align-middle">
                     <thead><tr><th>फोटो</th><th>नाम</th><th>पद</th><th>चिन्ह</th><th></th></tr></thead>
@@ -410,17 +411,17 @@ if (count($allCycles) > 1):
                     <?php foreach ($cands as $cd):
                         $pos = $posMap[(int)$cd['position_id']] ?? null; ?>
                         <tr>
-                            <td><?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($cd['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:36px;height:36px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted small">—</span><?php endif; ?></td>
+                            <td><?php if (!empty($cd['photo'])): ?><img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim($cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($cd['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:36px;height:36px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted small">—</span><?php endif; ?></td>
                             <td><?php echo htmlspecialchars($cd['name']); ?> <?php if (empty($cd['is_active'])): ?><span class="badge bg-secondary">निष्क्रिय</span><?php endif; ?></td>
                             <td class="small"><?php echo $pos ? htmlspecialchars($pos['title_np']) : '—'; ?></td>
                             <td><?php echo htmlspecialchars($cd['symbol_no'] ?? ''); ?></td>
                             <td class="text-nowrap">
-                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=candidates&edit_cand=<?php echo (int)$cd['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=candidates&edit_cand=<?php echo (int)$cd['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('उम्मेदवार र सम्बन्धित मतहरू मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_candidate">
                                     <input type="hidden" name="candidate_id" value="<?php echo (int)$cd['id']; ?>">
-                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

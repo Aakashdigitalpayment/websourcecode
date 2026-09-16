@@ -157,7 +157,10 @@ if (!function_exists('renderAdminRequestView')) {
             $active = $i === 0 ? ' is-active' : '';
             $tabBtns  .= '<button type="button" class="arv-tab' . $active . '" data-tab="'
                        . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '">'
-                       . '<i class="fas ' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '"></i> '
+                       . (function_exists('coop_nav_icon_html')
+                            ? coop_nav_icon_html('fas ' . $icon, 'fas fa-circle')
+                            : '<i class="lucide-icon" aria-hidden="true" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide($icon) : 'circle', ENT_QUOTES, 'UTF-8') . '"></i>')
+                       . ' '
                        . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</button>';
             $tabPanes .= '<div class="arv-pane' . $active . '" data-pane="'
                        . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '">' . $html . '</div>';
@@ -180,7 +183,10 @@ if (!function_exists('renderAdminRequestView')) {
         $card = '<div class="arv-card">'
               . '<header class="arv-header">'
               . '<div class="arv-header-main">'
-              . '<div class="arv-avatar"><i class="fas fa-' . htmlspecialchars($avatarIcon, ENT_QUOTES, 'UTF-8') . '"></i></div>'
+              . '<div class="arv-avatar">' . (function_exists('coop_nav_icon_html')
+                    ? coop_nav_icon_html('fas fa-' . ltrim((string)$avatarIcon, 'fa-'), 'fas fa-user')
+                    : '<i class="lucide-icon" aria-hidden="true" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide('fa-' . ltrim((string)$avatarIcon, 'fa-')) : 'user', ENT_QUOTES, 'UTF-8') . '"></i>')
+                . '</div>'
               . '<div>'
               . '<h2 class="arv-title">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . ' ' . $statusBadge . '</h2>'
               . $subtitleHtml
@@ -231,8 +237,14 @@ if (!function_exists('arvDocsGrid')) {
             $url   = (string)($d['url']   ?? '#');
             $label = (string)($d['label'] ?? 'Document');
             $icon  = (string)($d['icon']  ?? 'fa-file');
+            if ($icon !== '' && !preg_match('/^fa[srlb]?\s+/i', $icon)) {
+                $icon = 'fas ' . ltrim($icon, ' ');
+            }
+            $iconHtml = function_exists('coop_nav_icon_html')
+                ? coop_nav_icon_html($icon, 'fas fa-file')
+                : '<i class="lucide-icon" aria-hidden="true" data-lucide="file"></i>';
             $out  .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="arv-doc" target="_blank" rel="noopener noreferrer">'
-                   . '<i class="fas ' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '"></i> '
+                   . $iconHtml . ' '
                    . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
         }
         $out .= '</div>';
@@ -259,13 +271,13 @@ if (!function_exists('arvLogList')) {
             ];
             $info = $statusMap[$status] ?? ['none', '—'];
             [$cls, $label] = $info;
-            $icon = $channel === 'email' ? 'fa-envelope' : 'fa-mobile-screen';
+            $icon = $channel === 'email' ? 'mail' : 'smartphone';
             $chLbl = $channel === 'email' ? 'Email' : 'SMS';
             $title = $chLbl . ': ' . $label;
             if ($to !== '')     $title .= ' → ' . $to;
             if ($reason !== '') $title .= ' (' . $reason . ')';
             return '<span class="arv-chip arv-chip--' . $cls . '" title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '">'
-                 . '<i class="fas ' . $icon . '"></i> ' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
+                 . '<i class="lucide-icon" aria-hidden="true" data-lucide="' . $icon . '"></i> ' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
         };
 
         $out = arvAssetsOnce() . '<div class="arv-log-list">';
@@ -289,14 +301,14 @@ if (!function_exists('arvLogList')) {
                     (string)($h['notify_sms_reason'] ?? ''),
                     (string)($h['notify_sms_to']     ?? ''));
                 $intent = !empty($h['admin_chose_to_notify'])
-                    ? '<span class="arv-chip arv-chip--intent" title="Admin ले notify पठाउने तय गरेका थिए"><i class="fas fa-paper-plane"></i> Notify</span>'
-                    : '<span class="arv-chip arv-chip--intent-off" title="Admin ले notify नचुन्ने तय गरे"><i class="fas fa-bell-slash"></i> No-notify</span>';
+                    ? '<span class="arv-chip arv-chip--intent" title="Admin ले notify पठाउने तय गरेका थिए"><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Notify</span>'
+                    : '<span class="arv-chip arv-chip--intent-off" title="Admin ले notify नचुन्ने तय गरे"><i class="lucide-icon" data-lucide="bell-off" aria-hidden="true"></i> No-notify</span>';
                 $notifyHtml = $intent . ' ' . $emailChip . ' ' . $smsChip;
             } else {
                 $sent = !empty($h['notify_sent']);
                 $notifyHtml = $sent
                     ? '<span class="arv-chip arv-chip--ok"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i> Sent</span>'
-                    : '<span class="arv-chip arv-chip--none"><i class="fas fa-bell-slash"></i> Not sent</span>';
+                    : '<span class="arv-chip arv-chip--none"><i class="lucide-icon" data-lucide="bell-off" aria-hidden="true"></i> Not sent</span>';
             }
 
             $out .= '<div class="arv-log-item">'
@@ -306,7 +318,7 @@ if (!function_exists('arvLogList')) {
                 $out .= '<div class="arv-log-comment">' . nl2br(htmlspecialchars($cmt, ENT_QUOTES, 'UTF-8')) . '</div>';
             }
             $out .= '<div class="arv-log-meta">'
-                  . '<span><i class="fas fa-user-shield"></i> ' . $actor . '</span>'
+                  . '<span><i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i> ' . $actor . '</span>'
                   . '<span class="dot">·</span><span><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> ' . $whenH . '</span>'
                   . '</div>'
                   . '<div class="arv-log-notify">' . $notifyHtml . '</div>'

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Consolidated Report';
 $currentPage = 'program-reports-consolidated';
 require_once 'includes/admin-header.php';
@@ -46,13 +47,13 @@ if ($export && $prog) {
   <?php echo adminPageHeader('Consolidated Program Report', 'fa-chart-bar', 'Multi-location AGM मा unique members एक पटक मात्र गणना।', '<a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">Dashboard</a>'); ?>
   <div class="card admin-table-card mb-3"><div class="card-body">
     <form method="GET" class="row g-2 align-items-end">
-      <div class="col-md-8"><label class="form-label">कार्यक्रम</label>
-        <select name="program_id" class="form-select" required onchange="this.form.submit()">
+      <div class="col-md-8"><label for="prc_program_id" class="form-label">कार्यक्रम</label>
+        <select name="program_id" id="prc_program_id" class="form-select" required onchange="this.form.submit()">
           <option value="">— छान्नुहोस् —</option>
           <?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($p['title']); ?></option><?php endforeach; ?>
         </select>
       </div>
-      <?php if ($prog): ?><div class="col-md-4"><a href="?program_id=<?php echo $programId; ?>&export=csv" class="btn btn-success"><i class="fas fa-download me-1"></i>CSV Export</a></div><?php endif; ?>
+      <?php if ($prog): ?><div class="col-md-4"><a href="?program_id=<?php echo $programId; ?>&export=csv" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>CSV Export</a></div><?php endif; ?>
     </form>
   </div></div>
   <?php if ($prog): ?>

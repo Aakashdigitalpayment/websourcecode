@@ -312,17 +312,8 @@ body[class*="admin-page-"] .main-content .table .btn-group {
   flex-wrap: wrap;
 }
 
-body[class*="admin-page-"] .main-content .admin-empty-state {
-  padding: 2.75rem 1.25rem !important;
-  text-align: center;
-}
-
-body[class*="admin-page-"] .main-content .admin-empty-state i,
-body[class*="admin-page-"] .main-content .admin-empty-state .lucide-icon {
-  font-size: 2rem;
-  opacity: 0.45;
-  margin-bottom: 0.5rem;
-}
+/* admin-empty-state SSOT: admin-shell-polish (base + title/sub) → final-ui-polish (visual).
+   Removed mid-layer duplicate here to stop triple override (padding/opacity fight). */
 
 /* Pagination */
 body[class*="admin-page-"] .main-content .pagination .page-link,

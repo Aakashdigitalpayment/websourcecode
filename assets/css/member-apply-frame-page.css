@@ -1,0 +1,22 @@
+/** Member apply frame — extracted from member/apply-frame.php */
+.mem-apply-frame-card { overflow: hidden; }
+.mem-apply-hint{margin-bottom:14px;font-size:.86rem;line-height:1.5;}
+.mem-apply-hint-sub{opacity:.9;}
+.mem-apply-frame-head{padding:12px 16px;}
+.mem-apply-frame-title{font-size:.92rem;}
+.mem-apply-frame-link{font-size:.78rem;font-weight:700;color:var(--mem-primary);text-decoration:none;white-space:nowrap;}
+.mem-apply-frame-body{padding:0;}
+.mem-public-form-frame {
+    display: block;
+    width: 100%;
+    min-height: min(78vh, 900px);
+    height: 78vh;
+    border: 0;
+    background: color-mix(in srgb, var(--primary-color) 8%, white);
+}
+@media (max-width: 768px) {
+    .mem-public-form-frame {
+        min-height: 70vh;
+        height: 70vh;
+    }
+}

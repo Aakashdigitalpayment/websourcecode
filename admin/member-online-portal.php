@@ -2,6 +2,7 @@
 /**
  * Admin: Member Online Portal — दर्ता अनुमोदन, ID Card, पासवर्ड Reset
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -82,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'generate_id_card' && $memberId) {
         $ok = adminGenerateMemberIdCard($memberId, $adminId);
         if ($ok) {
-            setFlash('success', '🪪 डिजिटल ID Card Generate भयो र member लाई notification पठाइयो!');
+            setFlash('success', 'डिजिटल ID Card Generate भयो र member लाई notification पठाइयो!');
         } else {
             setFlash('error', 'ID Card Generate गर्न सकिएन। Member record वा database schema mismatch हुनसक्छ। यो build मा self-fix logic थपिएको छ—update upload गरेपछि फेरि प्रयास गर्नुहोस्।');
         }
@@ -143,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $memberIdForNotice = (int)$stmt->fetchColumn();
             createMemberNotification(
                 $memberIdForNotice,
-                '❌ पासवर्ड Reset अस्वीकृत भयो',
+                'पासवर्ड Reset अस्वीकृत भयो',
                 'तपाईंको पासवर्ड Reset अनुरोध Admin ले अस्वीकृत गर्नुभयो। थप जानकारीका लागि कार्यालयमा सम्पर्क गर्नुहोस्।',
                 'error', SITE_URL . 'member/login.php'
             );
@@ -334,9 +335,9 @@ try {
 /* Approval status badge helper */
 function approvalBadge($status) {
     $map = [
-        'pending'  => ['bg-warning text-dark', '⏳ अनुमोदन प्रतीक्षामा'],
-        'approved' => ['bg-success',            '✅ स्वीकृत'],
-        'rejected' => ['bg-danger',             '❌ अस्वीकृत'],
+        'pending'  => ['bg-warning text-dark', 'अनुमोदन प्रतीक्षामा'],
+        'approved' => ['bg-success',            'स्वीकृत'],
+        'rejected' => ['bg-danger',             'अस्वीकृत'],
     ];
     [$cls, $lbl] = $map[$status] ?? ['bg-secondary', ucfirst($status)];
     return "<span class='badge $cls portal-badge-xs'>$lbl</span>";
@@ -358,17 +359,17 @@ function memberProgramStars(int $attended, int $eligible): string {
 <div class="container-fluid py-3">
 
 <?php if ($flash = getFlash()): ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 <?php displayFlash(); ?>
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h4 class="mb-0 fw-bold text-success">
-        <i class="fas fa-globe me-2"></i><?php echo $__t('सदस्य अनलाइन पोर्टल', 'Member Online Portal'); ?>
+        <i class="lucide-icon me-2" data-lucide="globe" aria-hidden="true"></i><?php echo $__t('सदस्य अनलाइन पोर्टल', 'Member Online Portal'); ?>
     </h4>
     <?php if ($stats['pending'] > 0): ?>
     <span class="badge bg-danger portal-pending-pulse-badge">
-        <?php echo $stats['pending']; ?> <?php echo $__t('अनुमोदन प्रतीक्षामा', 'awaiting approval'); ?>
+        <?php echo (int)$stats['pending']; ?> <?php echo $__t('अनुमोदन प्रतीक्षामा', 'awaiting approval'); ?>
     </span>
     <?php endif; ?>
 </div>
@@ -402,7 +403,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
 ?>
 
 <div class="d-flex align-items-center gap-2 mb-3">
-    <a href="member-online-portal.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
+    <a href="member-online-portal.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
     <h5 class="mb-0"><?php echo $__t('सदस्य विवरण', 'Member Details'); ?>: <?php echo htmlspecialchars($vmName); ?></h5>
 </div>
 
@@ -411,13 +412,13 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
         <div class="admin-inner-tabstrip-tray">
         <div class="d-flex flex-wrap gap-2 w-100" role="group" aria-label="Member detail tabs">
             <button type="button" class="btn btn-sm btn-success active" id="btnTabMember">
-                <i class="fas fa-id-card me-1"></i><?php echo $__t('सदस्य जानकारी', 'Member Information'); ?>
+                <i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo $__t('सदस्य जानकारी', 'Member Information'); ?>
             </button>
             <button type="button" class="btn btn-sm btn-outline-success" id="btnTabNotif">
-                <i class="fas fa-bell me-1"></i><?php echo $__t('सूचना', 'Notification'); ?>
+                <i class="lucide-icon me-1" data-lucide="bell" aria-hidden="true"></i><?php echo $__t('सूचना', 'Notification'); ?>
             </button>
             <button type="button" class="btn btn-sm btn-outline-success" id="btnTabPartner">
-                <i class="fas fa-handshake me-1"></i><?php echo $__t('साझेदार संस्था', 'Partner Services'); ?>
+                <i class="lucide-icon me-1" data-lucide="handshake" aria-hidden="true"></i><?php echo $__t('साझेदार संस्था', 'Partner Services'); ?>
             </button>
         </div>
         </div>
@@ -471,7 +472,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
             <?php if ($viewCard && (!empty($viewCard['cvv']) || $portalFaceId !== '' || ($viewCard['status'] ?? '') === 'locked')): ?>
             <div class="card-body border-top portal-card-security-wrap">
                 <div class="fw-bold small text-warning-emphasis mb-2">
-                    <i class="fas fa-shield-halved"></i> ID Card विवरण (Admin)
+                    <i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> ID Card विवरण (Admin)
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="text-muted fw-bold small">सदस्यता नं. / Member ID</span>
@@ -488,7 +489,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <div class="small text-muted mt-2">Member ID नै पहिचान हो। Verify: नाम + Member ID + मोबाइल।</div>
                 <?php if (($viewCard['status'] ?? '') === 'locked'): ?>
                 <div class="alert alert-danger py-2 mt-2 mb-0 small">
-                    <i class="fas fa-lock me-1"></i> यो कार्ड LOCK छ।
+                    <i class="lucide-icon me-1" data-lucide="lock" aria-hidden="true"></i> यो कार्ड LOCK छ।
                     <?php if (!empty($viewCard['unlock_requested'])): ?>
                         <span class="fw-bold ms-1">Member ले unlock request पठाएको छ।</span>
                     <?php endif; ?>
@@ -499,7 +500,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <input type="hidden" name="member_sadasyata" value="<?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? ''); ?>">
                     <button type="submit" class="btn btn-sm btn-danger w-100" onclick="return confirm('<?php echo $__t('यो कार्ड unlock गरी active गर्ने?', 'Unlock and activate this card?'); ?>')">
-                        <i class="fas fa-unlock me-1"></i><?php echo $__t('कार्ड अनलक / सक्रिय गर्नुहोस्','Card Unlock / Activate'); ?>
+                        <i class="lucide-icon me-1" data-lucide="lock-open" aria-hidden="true"></i><?php echo $__t('कार्ड अनलक / सक्रिय गर्नुहोस्','Card Unlock / Activate'); ?>
                     </button>
                 </form>
                 <?php endif; ?>
@@ -512,24 +513,24 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <form method="POST">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="approve">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('<?php echo $__t('स्वीकृत गर्ने?', 'Approve this member?'); ?>')">
-                        <i class="fas fa-check me-1"></i><?php echo $__t('स्वीकृत गर्नुहोस्','Approve'); ?>
+                        <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $__t('स्वीकृत गर्नुहोस्','Approve'); ?>
                     </button>
                 </form>
                 <?php endif; ?>
                 <?php if ($as !== 'rejected'): ?>
                 <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                    <i class="fas fa-times me-1"></i><?php echo $__t('अस्वीकृत गर्नुहोस्','Reject'); ?>
+                    <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('अस्वीकृत गर्नुहोस्','Reject'); ?>
                 </button>
                 <?php endif; ?>
                 <form method="POST">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="toggle_active">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <button type="submit" class="btn btn-outline-<?php echo $viewMember['is_active'] ? 'warning' : 'success'; ?> btn-sm w-100"
                             onclick="return confirm('<?php echo $__t('अवस्था बदल्ने?', 'Change status?'); ?>')">
-                        <i class="fas fa-<?php echo $viewMember['is_active'] ? 'ban' : 'check'; ?> me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="<?php echo $viewMember['is_active'] ? 'ban' : 'check'; ?>" aria-hidden="true"></i>
                         <?php echo $viewMember['is_active'] ? $__t('निष्क्रिय गर्नुहोस्','Deactivate') : $__t('सक्रिय गर्नुहोस्','Activate'); ?>
                     </button>
                 </form>
@@ -537,14 +538,14 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <form method="POST">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="generate_id_card">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
-                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" onclick="return confirm('<?php echo $__t('🪪 ID Card Generate गर्ने?', 'Generate ID card?'); ?>')">
-                        <i class="fas fa-id-card me-1"></i><?php echo $__t('ID कार्ड Generate गर्नुहोस्','Generate ID Card'); ?>
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" onclick="return confirm('<?php echo $__t('ID Card Generate गर्ने?', 'Generate ID card?'); ?>')">
+                        <i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo $__t('ID कार्ड Generate गर्नुहोस्','Generate ID Card'); ?>
                     </button>
                 </form>
                 <?php elseif ($viewMember['id_card_generated']): ?>
                 <div class="alert alert-success py-2 mb-0 small text-center">
-                    <i class="fas fa-check-circle me-1"></i>ID Card Generate भइसकेको छ (<?php echo formatNepaliDate($viewMember['id_card_generated_at']); ?>)
+                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>ID Card Generate भइसकेको छ (<?php echo formatNepaliDate($viewMember['id_card_generated_at']); ?>)
                 </div>
                 <?php endif; ?>
             </div>
@@ -554,25 +555,25 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
     <div class="col-md-8 d-none" id="portalPanelRightCol">
         <div class="card border-0 shadow-sm" id="panelNotif">
             <div class="card-header bg-white fw-bold">
-                <i class="fas fa-bell me-2 text-success"></i>Notification पठाउनुहोस्
+                <i class="lucide-icon me-2 text-success" data-lucide="bell" aria-hidden="true"></i>Notification पठाउनुहोस्
             </div>
             <div class="card-body">
                 <form method="POST" action="members.php">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="send_notif" value="1">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <div class="row g-2">
                         <div class="col-md-8"><input type="text" name="notif_title" class="form-control" placeholder="Notification शीर्षक" required maxlength="200"></div>
                         <div class="col-md-4">
                             <select name="notif_type" class="form-select">
-                                <option value="info">📘 सूचना</option>
-                                <option value="success">✅ सफलता</option>
-                                <option value="warning">⚠️ सतर्कता</option>
-                                <option value="error">❌ अस्वीकृति</option>
+                                <option value="info">सूचना</option>
+                                <option value="success">सफलता</option>
+                                <option value="warning">सतर्कता</option>
+                                <option value="error">अस्वीकृति</option>
                             </select>
                         </div>
                         <div class="col-12"><textarea name="notif_message" class="form-control" rows="2" placeholder="सन्देश (ऐच्छिक)"></textarea></div>
-                        <div class="col-12"><button type="submit" class="btn btn-success btn-sm"><i class="fas fa-paper-plane me-1"></i>पठाउनुहोस्</button></div>
+                        <div class="col-12"><button type="submit" class="btn btn-success btn-sm"><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>पठाउनुहोस्</button></div>
                     </div>
                 </form>
             </div>
@@ -580,7 +581,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
 
         <div class="card border-0 shadow-sm mt-3 d-none" id="panelPartner">
             <div class="card-header bg-white fw-bold">
-                <i class="fas fa-handshake me-2 text-info"></i>साझेदार संस्था सेवा इतिहास
+                <i class="lucide-icon me-2 text-info" data-lucide="handshake" aria-hidden="true"></i>साझेदार संस्था सेवा इतिहास
             </div>
             <div class="card-body p-0">
                 <?php if (empty($viewPartnerHistory)): ?>
@@ -728,13 +729,13 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-danger"><i class="fas fa-times-circle me-2"></i><?php echo $__t('दर्ता अस्वीकृत गर्नुहोस्','Reject Registration'); ?></h5>
+                <h5 class="modal-title text-danger"><i class="lucide-icon me-2" data-lucide="circle-x" aria-hidden="true"></i><?php echo $__t('दर्ता अस्वीकृत गर्नुहोस्','Reject Registration'); ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="reject">
-                <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="mop_rejection_reason" class="form-label fw-bold"><?php echo $__t('अस्वीकृतिको कारण','Rejection Reason'); ?></label>
@@ -744,7 +745,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><?php echo $__t('रद्द','Cancel'); ?></button>
                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('<?php echo $__t('पक्कै अस्वीकृत गर्ने?', 'Are you sure to reject?'); ?>')">
-                        <i class="fas fa-times me-1"></i><?php echo $__t('अस्वीकृत गर्नुहोस्','Reject'); ?>
+                        <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('अस्वीकृत गर्नुहोस्','Reject'); ?>
                     </button>
                 </div>
             </form>
@@ -758,13 +759,13 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
 <ul class="nav nav-tabs admin-nav-tabs mb-3">
     <li class="nav-item">
         <a class="nav-link <?php echo $activeTab==='members'?'active':''; ?>" href="?tab=members">
-            <i class="fas fa-users me-1"></i>Members
-            <?php if ($stats['pending']): ?><span class="badge bg-warning text-dark ms-1"><?php echo $stats['pending']; ?></span><?php endif; ?>
+            <i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>Members
+            <?php if ($stats['pending']): ?><span class="badge bg-warning text-dark ms-1"><?php echo (int)$stats['pending']; ?></span><?php endif; ?>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo $activeTab==='resets'?'active':''; ?>" href="?tab=resets">
-            <i class="fas fa-key me-1"></i>पासवर्ड Reset अनुरोधहरू
+            <i class="lucide-icon me-1" data-lucide="key" aria-hidden="true"></i>पासवर्ड Reset अनुरोधहरू
             <?php if (count($pendingResets)): ?><span class="badge bg-danger ms-1"><?php echo count($pendingResets); ?></span><?php endif; ?>
         </a>
     </li>
@@ -774,10 +775,10 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
 
 <!-- Password Reset Requests -->
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white fw-bold"><i class="fas fa-key me-2 text-warning"></i><?php echo $__t('पासवर्ड Reset अनुरोधहरू','Password Reset Requests'); ?></div>
+    <div class="card-header bg-white fw-bold"><i class="lucide-icon me-2 text-warning" data-lucide="key" aria-hidden="true"></i><?php echo $__t('पासवर्ड Reset अनुरोधहरू','Password Reset Requests'); ?></div>
     <div class="card-body p-0">
         <?php if (empty($pendingResets)): ?>
-        <div class="text-center py-5 text-muted"><i class="fas fa-check-circle fa-2x mb-2 d-block text-success opacity-50"></i><?php echo $__t('कुनै pending reset अनुरोध छैन।', 'No pending reset requests.'); ?></div>
+        <div class="text-center py-5 text-muted"><i class="lucide-icon lucide-2x mb-2 d-block text-success opacity-50" data-lucide="circle-check" aria-hidden="true"></i><?php echo $__t('कुनै pending reset अनुरोध छैन।', 'No pending reset requests.'); ?></div>
         <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -790,21 +791,21 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <td class="small"><?php echo htmlspecialchars($rr['phone'] ?? $rr['email'] ?? '—'); ?></td>
                     <td class="small text-muted"><?php echo formatNepaliDate($rr['requested_at']); ?></td>
                     <td>
-                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal<?php echo $rr['id']; ?>">
-                            <i class="fas fa-check me-1"></i>स्वीकृत
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal<?php echo (int)$rr['id']; ?>">
+                            <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत
                         </button>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="action" value="reject_reset">
-                            <input type="hidden" name="request_id" value="<?php echo $rr['id']; ?>">
+                            <input type="hidden" name="request_id" value="<?php echo (int)$rr['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo $__t('Reset अस्वीकृत गर्ने?', 'Reject reset request?'); ?>')">
-                                <i class="fas fa-times"></i>
+                                <i class="lucide-icon" data-lucide="x" aria-hidden="true"></i>
                             </button>
                         </form>
                     </td>
                 </tr>
                 <!-- Reset Approve Modal -->
-                <div class="modal fade" id="resetModal<?php echo $rr['id']; ?>" tabindex="-1">
+                <div class="modal fade" id="resetModal<?php echo (int)$rr['id']; ?>" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header"><h5 class="modal-title"><?php echo $__t('पासवर्ड Reset', 'Password Reset'); ?>: <?php echo htmlspecialchars($rr['member_name']); ?></h5>
@@ -812,7 +813,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                             <form method="POST">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="approve_reset">
-                                <input type="hidden" name="request_id" value="<?php echo $rr['id']; ?>">
+                                <input type="hidden" name="request_id" value="<?php echo (int)$rr['id']; ?>">
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="mop_new_password" class="form-label fw-bold"><?php echo $__t('नयाँ अस्थायी पासवर्ड', 'New Temporary Password'); ?> <span class="text-danger">*</span></label>
@@ -822,7 +823,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><?php echo $__t('रद्द','Cancel'); ?></button>
-                                    <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i><?php echo $__t('Reset स्वीकृत गर्नुहोस्','Approve Reset'); ?></button>
+                                    <button type="submit" class="btn btn-success btn-sm"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $__t('Reset स्वीकृत गर्नुहोस्','Approve Reset'); ?></button>
                                 </div>
                             </form>
                         </div>
@@ -847,11 +848,11 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                    value="<?php echo htmlspecialchars($search); ?>" class="portal-search-input">
             <select name="status" class="form-select form-select-sm portal-status-select">
                 <option value="">सबै अवस्था</option>
-                <option value="pending"  <?php echo $filterStatus==='pending'  ? 'selected' : ''; ?>>⏳ प्रतीक्षामा</option>
-                <option value="approved" <?php echo $filterStatus==='approved' ? 'selected' : ''; ?>>✅ स्वीकृत</option>
-                <option value="rejected" <?php echo $filterStatus==='rejected' ? 'selected' : ''; ?>>❌ अस्वीकृत</option>
+                <option value="pending"  <?php echo $filterStatus==='pending'  ? 'selected' : ''; ?>>प्रतीक्षामा</option>
+                <option value="approved" <?php echo $filterStatus==='approved' ? 'selected' : ''; ?>>स्वीकृत</option>
+                <option value="rejected" <?php echo $filterStatus==='rejected' ? 'selected' : ''; ?>>अस्वीकृत</option>
             </select>
-            <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-search me-1"></i><?php echo $__t('खोज्नुहोस्','Search'); ?></button>
+            <button type="submit" class="btn btn-success btn-sm"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo $__t('खोज्नुहोस्','Search'); ?></button>
             <?php if ($search || $filterStatus): ?><a href="?tab=members" class="btn btn-outline-secondary btn-sm">Clear</a><?php endif; ?>
         </form>
     </div>
@@ -862,7 +863,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
     <div class="card-body p-0">
         <?php if (empty($members)): ?>
         <div class="text-center py-5 text-muted">
-            <i class="fas fa-user-slash fa-2x mb-2 d-block opacity-25"></i>
+            <i class="lucide-icon lucide-2x mb-2 d-block opacity-25" data-lucide="user-x" aria-hidden="true"></i>
             <?php echo $search || $filterStatus ? 'कुनै member फेला परेन।' : 'अहिलेसम्म कुनै Member दर्ता भएको छैन।'; ?>
         </div>
         <?php else: ?>
@@ -924,19 +925,19 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     </td>
                     <td class="small">
                         <?php if ($m['id_card_generated']): ?>
-                        <span class="badge bg-success portal-badge-mini"><i class="fas fa-check me-1"></i>Generate भयो</span>
+                        <span class="badge bg-success portal-badge-mini"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>Generate भयो</span>
                         <?php else: ?>
                         <span class="badge bg-light text-muted border portal-badge-mini">Generate नभएको</span>
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="?view=<?php echo $m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस्" aria-label="विवरण हेर्नुहोस्"><i class="fas fa-eye" aria-hidden="true"></i></a>
+                        <a href="?view=<?php echo (int)$m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस्" aria-label="विवरण हेर्नुहोस्"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
                         <?php if (($m['approval_status'] ?? 'pending') === 'pending'): ?>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="action" value="approve">
-                            <input type="hidden" name="member_id" value="<?php echo $m['id']; ?>">
-                            <button type="submit" class="btn btn-sm btn-success" title="स्वीकृत गर्नुहोस्" onclick="return confirm('स्वीकृत गर्ने?')"><i class="fas fa-check"></i></button>
+                            <input type="hidden" name="member_id" value="<?php echo (int)$m['id']; ?>">
+                            <button type="submit" class="btn btn-sm btn-success" title="स्वीकृत गर्नुहोस्" onclick="return confirm('स्वीकृत गर्ने?')"><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i></button>
                         </form>
                         <?php endif; ?>
                     </td>

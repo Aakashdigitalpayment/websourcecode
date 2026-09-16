@@ -3,10 +3,10 @@
  * Admin: Bulk Member Import (CSV / Excel-friendly)
  * Chunked jobs for 10k–50k members + auto ID cards.
  */
-require_once __DIR__ . '/../includes/config.php';
+$GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN'] = true;
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/member-auth.php';
 require_once __DIR__ . '/../includes/member-import-helpers.php';
-require_once __DIR__ . '/../includes/auth-roles.php';
 
 if (!isAdminLoggedIn()) {
     if (!empty($_GET['ajax']) || !empty($_POST['ajax'])) {
@@ -133,10 +133,10 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     </div>
     <div class="d-flex gap-2 flex-wrap">
         <a href="member-import-sample.php" class="btn btn-outline-success btn-sm">
-            <i class="fas fa-download me-1"></i>Sample CSV
+            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Sample CSV
         </a>
         <a href="members.php" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-1"></i>Members
+            <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>Members
         </a>
     </div>
 </div>
@@ -146,7 +146,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         <?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('import'); } ?>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h2 class="h6 fw-bold mb-3"><i class="fas fa-file-csv me-2 text-success"></i>CSV Upload</h2>
+                <h2 class="h6 fw-bold mb-3"><i class="lucide-icon me-2 text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i>CSV Upload</h2>
 
                 <div class="alert alert-info small py-2">
                     <strong>Required columns:</strong>
@@ -179,7 +179,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success" id="miStartBtn">
-                        <i class="fas fa-upload me-1"></i>Import सुरु गर्नुहोस्
+                        <i class="lucide-icon me-1" data-lucide="upload" aria-hidden="true"></i>Import सुरु गर्नुहोस्
                     </button>
                 </form>
 
@@ -217,7 +217,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-body">
-                <h2 class="h6 fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>कसरी गर्ने?</h2>
+                <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
                     <li>Sample CSV download गर्नुहोस्।</li>
                     <li>Excel मा खोल्नुहोस् → सदस्य भर्नुहोस्।</li>

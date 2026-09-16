@@ -1,0 +1,4 @@
+/** Admin DB setup bootstrap banner — extracted from admin/db-setup.php */
+body{background:#f4f6f8;}
+.bootstrap-banner{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:12px 20px;text-align:center;font-weight:600;}
+.dbs-boot-note{margin-top:8px;font-size:.85rem;font-weight:500;opacity:.95;}

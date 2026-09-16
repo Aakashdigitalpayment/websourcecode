@@ -2,15 +2,10 @@
 /**
  * Superadmin only — login 2FA policy (admin + member).
  */
-define('IS_ADMIN_PAGE', true);
 $pageTitle = 'Security Settings';
 $currentPage = 'security-settings';
 
-require_once __DIR__ . '/../includes/config.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (empty($_SESSION['is_superadmin'])) {
     setFlash('error', 'यो पृष्ठ केवल Superadmin ले प्रयोग गर्न सक्छ।');
     redirect(ADMIN_URL . 'dashboard.php');

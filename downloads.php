@@ -29,7 +29,7 @@ foreach ($downloads as $download) {
         <h1><?php echo $L['downloads']; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $L['downloads']; ?></li>
             </ol>
         </nav>
@@ -41,7 +41,7 @@ foreach ($downloads as $download) {
     <div class="container">
         <div class="section-header section-header-unified text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-download"></i> <?php echo $L['downloads']; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['downloads']; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Download Resources' : 'स्रोत सामग्रीहरू डाउनलोड गर्नुहोस्'; ?></h2>
             <div class="section-divider"></div>
@@ -75,24 +75,26 @@ foreach ($downloads as $download) {
                                 elseif (strpos($item['file_type'] ?? '', 'doc') !== false) $fileIcon = 'fas fa-file-word';
                                 elseif (strpos($item['file_type'] ?? '', 'xls') !== false) $fileIcon = 'fas fa-file-excel';
                                 elseif (strpos($item['file_type'] ?? '', 'image') !== false) $fileIcon = 'fas fa-file-image';
+                                echo function_exists('coop_nav_icon_html')
+                                    ? coop_nav_icon_html($fileIcon, 'fas fa-file')
+                                    : '<i class="lucide-icon" aria-hidden="true" data-lucide="file"></i>';
                                 ?>
-                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($fileIcon), ENT_QUOTES, 'UTF-8'); ?>"></i>
                             </div>
                             <div class="download-info">
                                 <h5><?php echo e(getLangField($item, 'title')); ?></h5>
                                 <span class="file-type"><?php echo strtoupper($item['file_type'] ?? 'PDF'); ?></span>
                                 <span class="download-count">
-                                    <i class="fas fa-download"></i> <?php echo $item['download_count'] ?? 0; ?>
+                                    <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $item['download_count'] ?? 0; ?>
                                 </span>
                             </div>
                             <?php $dlHref = coop_public_download_url($item['file_path'] ?? ''); ?>
                             <?php if ($dlHref !== ''): ?>
                             <a href="<?php echo e($dlHref); ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer">
-                                <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                                <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                             </a>
                             <?php else: ?>
                             <button type="button" class="btn btn-secondary btn-sm" disabled title="<?php echo isEnglish() ? 'File not uploaded yet' : 'फाइल अझै upload भएको छैन'; ?>">
-                                <i class="fas fa-ban"></i> <?php echo isEnglish() ? 'No file' : 'फाइल छैन'; ?>
+                                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> <?php echo isEnglish() ? 'No file' : 'फाइल छैन'; ?>
                             </button>
                             <?php endif; ?>
                         </div>
@@ -107,84 +109,84 @@ foreach ($downloads as $download) {
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'Membership Form' : 'सदस्यता फारम'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'Loan Application Form' : 'ऋण आवेदन फारम'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'Annual Report' : 'वार्षिक प्रतिवेदन'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'Saving Account Form' : 'बचत खाता फारम'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'KYM Form' : 'केवाइएम फारम'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="download-card">
                         <div class="download-icon">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                         </div>
                         <div class="download-info">
                             <h5><?php echo isEnglish() ? 'Bylaws' : 'विनियमावली'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">
-                            <i class="fas fa-download"></i> <?php echo $L['download']; ?>
+                            <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo $L['download']; ?>
                         </button>
                     </div>
                 </div>

@@ -13,14 +13,8 @@ $isEnglish = function_exists('isEnglish') ? isEnglish() : true;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>500 — <?= $isEnglish ? 'Server Error' : 'सर्भर त्रुटि' ?></title>
-<style>
-  body{font-family:sans-serif;background:#f4f5f4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-  .box{text-align:center;padding:3rem 2rem;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.08);max-width:480px;width:90%}
-  .num{font-size:6rem;font-weight:900;color:#e8e8e8;line-height:1}
-  h2{color:#166534;margin:.5rem 0 1rem}
-  p{color:#475569}
-  a{color:#166534;font-weight:600}
-</style>
+<?php $__errCss = (defined('SITE_URL') ? rtrim((string)SITE_URL, '/') . '/' : '/') . 'assets/css/error-500-page.css'; ?>
+<link rel="stylesheet" href="<?php echo htmlspecialchars($__errCss, ENT_QUOTES, 'UTF-8'); ?>">
 </head>
 <body>
 <div class="box">

@@ -198,7 +198,7 @@ try {
         <h1><?php echo $pageTitle; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -212,7 +212,7 @@ try {
         <div class="row justify-content-center">
             <div class="col-lg-7">
                 <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
-                    <div class="form-success-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="check-circle"></i></div>
+                    <div class="form-success-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i></div>
                     <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Account Application Submitted!' : 'खाता खोल्ने आवेदन पेश भयो!'; ?></h3>
                     <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will contact you shortly to complete the process.' : 'हामी प्रक्रिया पूरा गर्न छिट्टै सम्पर्क गर्नेछौं।'; ?></p>
                     <?php if ($accTrackingId): ?>
@@ -230,7 +230,7 @@ try {
                             <i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?>
                         </a>
                         <a href="online-account.php" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?>
+                            <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?>
                         </a>
                     </div>
                 </div>
@@ -240,7 +240,7 @@ try {
 
         <?php if ($error): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-1"></i><?php echo e($error); ?>
+            <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i><?php echo e($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});});</script>
@@ -276,7 +276,7 @@ try {
 
                         <!-- Account Type -->
                         <div class="form-section">
-                            <h5><i class="fas fa-wallet"></i> <?php echo isEnglish() ? 'Account Type' : 'खाता प्रकार'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="wallet" aria-hidden="true"></i> <?php echo isEnglish() ? 'Account Type' : 'खाता प्रकार'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="acc_account_type" class="form-label"><?php echo isEnglish() ? 'Select Account Type' : 'खाता प्रकार छान्नुहोस्'; ?> <span class="text-danger">*</span></label>
@@ -445,7 +445,7 @@ try {
 
                         <!-- Nominee Info -->
                         <div class="form-section">
-                            <h5><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Guarantor Details' : 'धन जमानी विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i> <?php echo isEnglish() ? 'Guarantor Details' : 'धन जमानी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="acc_nominee_name" class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धन जमानीको नाम'; ?></label>
@@ -464,14 +464,14 @@ try {
 
                         <!-- Branch Selection -->
                         <div class="form-section">
-                            <h5><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="acc_branch" class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
                                     <select name="branch" id="acc_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
-                                        <option value="<?php echo $branch['name']; ?>"><?php echo $branch['name']; ?></option>
+                                        <option value="<?php echo e($branch['name']); ?>"><?php echo e($branch['name']); ?></option>
                                         <?php endforeach; ?>
                                         <option value="head_office"><?php echo isEnglish() ? 'Head Office' : 'प्रधान कार्यालय'; ?></option>
                                     </select>
@@ -481,7 +481,7 @@ try {
 
                         <!-- Documents -->
                         <div class="form-section js-hide-if-acc-coop-yes" <?php echo $loggedMember ? 'style="display:none;"' : ''; ?>>
-                            <h5><i class="fas fa-file-upload"></i> <?php echo isEnglish() ? 'Upload Documents' : 'कागजातहरू अपलोड गर्नुहोस्'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="file-up" aria-hidden="true"></i> <?php echo isEnglish() ? 'Upload Documents' : 'कागजातहरू अपलोड गर्नुहोस्'; ?></h5>
                             <div class="small text-muted mb-2">
                                 <?php echo isEnglish()
                                     ? 'Already KYC member? Documents are reused from KYM; re-upload is not required.'
@@ -512,7 +512,7 @@ try {
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-paper-plane me-1"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
+                                <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
                             </button>
                         </div>
                     </form>

@@ -1,7 +1,8 @@
 <?php
 /**
  * Member Portal — कार्यक्रम QR स्क्यान (क्यामेरा)
- * सफल scan पछि attend.php?qr_token=... मा जान्छ — त्यहाँ Check-in थिचेर CSRF POST हुन्छ।
+ * सफल scan पछि member/attend.php?qr_token=... मा जान्छ — त्यहाँ Check-in थिचेर CSRF POST हुन्छ।
+ * Instant कार्यक्रममा approve बिना तुरुन्तै उपस्थित; अन्यथा Admin approve पछि इतिहासमा देखिन्छ।
  */
 require_once __DIR__ . '/_bootstrap.php';
 requireMemberLogin();
@@ -24,124 +25,10 @@ $extraHead = <<<'HTML'
 <!-- iOS Safari camera permission hint -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<style>
-.scan-wrap { margin: 0 auto; }
-.scan-hero {
-  background: linear-gradient(135deg,#ecfdf5,#d1fae5);
-  border: 1px solid #6ee7b7;
-  border-radius: 14px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  font-size: .82rem;
-  color: #065f46;
-  line-height: 1.5;
-}
-#scan-reader {
-    border-radius: 14px;
-    overflow: hidden;
-    border: 2px solid var(--primary-color);
-    background: #0f172a;
-    min-height: 280px;
-    position: relative;
-    box-shadow: 0 8px 32px rgba(0,0,0,.25);
-    width: 100%;
-}
-#scan-reader video {
-    width: 100% !important;
-    border-radius: 12px;
-    display: block;
-}
-/* Scanning laser line animation */
-#scan-reader.scanning::after {
-    content: '';
-    position: absolute;
-    left: 10%; right: 10%;
-    top: 30%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #22c55e, transparent);
-    box-shadow: 0 0 8px #22c55e;
-    animation: scan-laser 1.8s ease-in-out infinite;
-    z-index: 10;
-    pointer-events: none;
-}
-@keyframes scan-laser {
-    0%   { top: 25%; opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 1; }
-    100% { top: 75%; opacity: 0; }
-}
-/* Camera loading state */
-#scan-loading {
-    display: none;
-    text-align: center;
-    padding: 40px 20px;
-    color: #94a3b8;
-    font-size: .88rem;
-}
-#scan-loading i { font-size: 2rem; display: block; margin-bottom: 10px; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.scan-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-.scan-actions button {
-    flex: 1;
-    min-width: 130px;
-    padding: 14px 16px;
-    border-radius: 12px;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: .9rem;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all .25s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.scan-btn-start { background: var(--primary-color,#1a8754); color: #fff; }
-.scan-btn-start:disabled { opacity: .6; cursor: not-allowed; }
-.scan-btn-stop  { background: #f1f5f9; color: #374151; border-color: #cbd5e1; }
-.scan-err {
-  display: none;
-  margin-top: 12px;
-  padding: 12px 14px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  color: #b91c1c;
-  font-size: .85rem;
-  line-height: 1.5;
-}
-.scan-err-retry {
-  display: inline-block;
-  margin-top: 8px;
-  background: var(--primary-color,#1a8754);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 7px 16px;
-  font-size: .82rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-}
-.scan-success {
-  display: none;
-  margin-top: 12px;
-  padding: 12px 14px;
-  background: #f0fdf4;
-  border: 1px solid #86efac;
-  border-radius: 10px;
-  color: #15803d;
-  font-size: .88rem;
-  font-weight: 600;
-}
-.scan-links { margin-top: 18px; text-align: center; font-size: .82rem; }
-.scan-links a { color: var(--primary-color,#1a8754); font-weight: 600; text-decoration: none; }
-.scan-links a:hover { text-decoration: underline; }
-/* ios safari fix */
-video { object-fit: cover; }
-</style>
 HTML;
+$extraHead .= (function_exists('coopThemeLinkHtml')
+    ? coopThemeLinkHtml('assets/css/member-scan-page.css')
+    : '');
 
 require __DIR__ . '/includes/chrome.php';
 ?>
@@ -149,26 +36,26 @@ require __DIR__ . '/includes/chrome.php';
 <div class="mp-main">
 <div class="mp-container mp-container-narrow scan-wrap">
   <h1 class="mem-page-title">
-    <i class="fas fa-qrcode"></i><?php echo $_t('कार्यक्रम QR स्क्यान', 'Program QR Scan'); ?>
+    <i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i><?php echo $_t('कार्यक्रम QR स्क्यान', 'Program QR Scan'); ?>
   </h1>
 
   <div class="scan-hero">
     <strong><?php echo $_t('कसरी?', 'How?'); ?></strong> <?php echo $_t('स्थलमा राखिएको', 'Scan the'); ?> <strong><?php echo $_t('कार्यक्रम QR', 'program QR'); ?></strong> <?php echo $_t('क्यामेराले स्क्यान गर्नुहोस्। पछि खुल्ने पृष्ठमा', 'at the venue with camera. On the next page, press'); ?>
-    <strong><?php echo $_t('Check-in', 'Check-in'); ?></strong> <?php echo $_t('थिच्नुहोस् — Admin स्वीकृतिका लागि अनुरोध जान्छ; approve पछि मात्र', '— a request goes for admin approval; only after approve it appears in'); ?> <strong><?php echo $_t('उपस्थिति इतिहास', 'attendance history'); ?></strong><?php echo $_t('मा देखिन्छ। (Pre-registration उपस्थिति होइन।)', '. (Pre-registration is not attendance.)'); ?>
+    <strong><?php echo $_t('Check-in', 'Check-in'); ?></strong><?php echo $_t('। Instant कार्यक्रममा तुरुन्तै उपस्थित हुन्छ; अन्यथा Admin approve पछि मात्र', '. Instant programs mark present immediately; otherwise only after admin approve it appears in'); ?> <strong><?php echo $_t('उपस्थिति इतिहास', 'attendance history'); ?></strong><?php echo $_t('मा देखिन्छ। (Pre-registration उपस्थिति होइन। verify.php = ID कार्ड जाँच मात्र।)', '. (Pre-registration is not attendance. verify.php = ID card check only.)'); ?>
   </div>
 
-  <div id="scan-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted,#6b7280);font-size:.88rem;"><i class="fas fa-spinner" style="animation:spin 1s linear infinite;display:block;font-size:1.8rem;margin-bottom:8px;"></i><?php echo $_t('क्यामेरा खुल्दैछ…', 'Opening camera…'); ?></div>
+  <div id="scan-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted,#6b7280);font-size:.88rem;"><i class="lucide-icon" data-lucide="loader-2" aria-hidden="true" style="animation:spin 1s linear infinite;display:block;font-size:1.8rem;margin-bottom:8px;"></i><?php echo $_t('क्यामेरा खुल्दैछ…', 'Opening camera…'); ?></div>
   <div id="scan-reader"></div>
   <div id="scan-err" class="scan-err" role="alert"></div>
   <div id="scan-success" class="scan-success"></div>
 
   <div class="scan-actions">
-    <button type="button" class="mem-submit-btn" id="scanStart" style="font-size:1rem;"><i class="fas fa-camera"></i><?php echo $_t('क्यामेरा सुरु गर्नुहोस् — ट्याप गर्नुहोस्', 'Tap to Start Camera'); ?></button>
-    <button type="button" class="scan-btn-stop" id="scanStop" style="display:none;"><i class="fas fa-stop"></i><?php echo $_t('रोक्नुहोस्', 'Stop'); ?></button>
+    <button type="button" class="mem-submit-btn" id="scanStart" style="font-size:1rem;"><i class="lucide-icon" data-lucide="camera" aria-hidden="true"></i><?php echo $_t('क्यामेरा सुरु गर्नुहोस् — ट्याप गर्नुहोस्', 'Tap to Start Camera'); ?></button>
+    <button type="button" class="scan-btn-stop" id="scanStop" style="display:none;"><i class="lucide-icon" data-lucide="square" aria-hidden="true"></i><?php echo $_t('रोक्नुहोस्', 'Stop'); ?></button>
   </div>
 
   <div class="scan-links">
-    <a href="<?= htmlspecialchars($base) ?>member/attend.php"><i class="fas fa-calendar-check me-1"></i><?php echo $_t('उपस्थिति र इतिहास', 'Attendance & History'); ?></a>
+    <a href="<?= htmlspecialchars($base) ?>member/attend.php"><i class="lucide-icon me-1" data-lucide="calendar-check" aria-hidden="true"></i><?php echo $_t('उपस्थिति र इतिहास', 'Attendance & History'); ?></a>
   </div>
 </div>
 </div>
@@ -202,11 +89,11 @@ require __DIR__ . '/includes/chrome.php';
   var isAndroid = /android/i.test(navigator.userAgent);
 
   function showErr(msg, extraHtml) {
-    errEl.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>' +
+    errEl.innerHTML = '<i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true" style="margin-right:6px;"></i>' +
       msg.replace(/\n/g, '<br>') +
       (extraHtml ? '<br>' + extraHtml : '') +
       '<br><button type="button" class="scan-err-retry" style="margin-top:10px;" onclick="retryCamera()">' +
-      '<i class="fas fa-rotate-right" style="margin-right:5px;"></i>' + msgRetry + '</button>';
+      '<i class="lucide-icon" data-lucide="rotate-cw" aria-hidden="true" style="margin-right:5px;"></i>' + msgRetry + '</button>';
     errEl.style.display = 'block';
     successEl.style.display = 'none';
     if (loadEl) loadEl.style.display = 'none';
@@ -216,7 +103,7 @@ require __DIR__ . '/includes/chrome.php';
     btnStop.style.display = 'none';
   }
   function hideErr() { errEl.style.display = 'none'; errEl.innerHTML = ''; }
-  function showSuccess(msg) { successEl.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>' + msg; successEl.style.display = 'block'; }
+  function showSuccess(msg) { successEl.innerHTML = '<i class="lucide-icon" data-lucide="circle-check" aria-hidden="true" style="margin-right:6px;"></i>' + msg; successEl.style.display = 'block'; }
 
   function qrboxSize() {
     var w = Math.min(readerEl.clientWidth || 280, 400);

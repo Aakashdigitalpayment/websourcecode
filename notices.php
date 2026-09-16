@@ -105,7 +105,7 @@ require_once 'includes/header.php';
         <?php endif; ?>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <?php if ($singleNotice): ?>
                 <li class="breadcrumb-item"><a href="notices.php"><?php echo $L['notices']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo e(truncateText((string)$singleNotice['title'], 40)); ?></li>
@@ -123,7 +123,7 @@ require_once 'includes/header.php';
         <?php if (!$singleNotice): ?>
         <div class="section-header section-header-unified text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-bullhorn"></i> <?php echo $L['notices']; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="megaphone" aria-hidden="true"></i> <?php echo $L['notices']; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Latest Notices & Announcements' : 'नवीनतम सूचना तथा घोषणाहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -138,7 +138,7 @@ require_once 'includes/header.php';
                 <div class="notice-detail-card">
                     <div class="notice-header">
                         <span class="notice-date">
-                            <i class="fas fa-calendar-alt"></i>
+                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                             <?php echo formatDate($singleNotice['notice_date'], 'Y-m-d'); ?>
                         </span>
                         <h1><?php echo e($singleNotice['title']); ?></h1>
@@ -165,14 +165,14 @@ require_once 'includes/header.php';
                         </div>
                         <?php endif; ?>
                         <a href="<?php echo e($attUrl); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener noreferrer">
-                            <i class="fas <?php echo $attIsPdf ? 'fa-file-pdf' : ($attIsImg ? 'fa-image' : 'fa-paperclip'); ?>"></i>
+                            <i class="lucide-icon" data-lucide="<?php echo $attIsPdf ? 'file-text' : ($attIsImg ? 'image' : 'paperclip'); ?>" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'View full notice' : 'पूरा सूचना हेर्नुहोस्'; ?>
                         </a>
                     </div>
                     <?php else: ?>
                     <div class="notice-attachment">
                         <p class="text-muted small mb-0">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Attached file is not available.' : 'संलग्न फाइल उपलब्ध छैन।'; ?>
                         </p>
                     </div>
@@ -180,7 +180,7 @@ require_once 'includes/header.php';
                     <?php endif; ?>
                     <div class="notice-footer">
                         <a href="notices.php" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> <?php echo isEnglish() ? 'View all notices' : 'सबै सूचनाहरू हेर्नुहोस्'; ?>
+                            <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo isEnglish() ? 'View all notices' : 'सबै सूचनाहरू हेर्नुहोस्'; ?>
                         </a>
                     </div>
                 </div>
@@ -194,17 +194,17 @@ require_once 'includes/header.php';
                 <div class="col-lg-6 mb-4">
                     <div class="notice-card">
                         <div class="notice-icon">
-                            <i class="fas fa-bullhorn"></i>
+                            <i class="lucide-icon" data-lucide="megaphone" aria-hidden="true"></i>
                         </div>
                         <div class="notice-content">
                             <span class="notice-date">
-                                <i class="fas fa-calendar-alt"></i>
+                                <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                                 <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?>
                             </span>
                             <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo e($notice['title']); ?></a></h5>
                             <p><?php echo e(truncateText(strip_tags((string)($notice['content'] ?? '')), 100)); ?></p>
                             <a href="notices.php?id=<?php echo $notice['id']; ?>" class="read-more">
-                                <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
+                                <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                             </a>
                         </div>
                         <?php if ($notice['attachment']):
@@ -215,7 +215,7 @@ require_once 'includes/header.php';
                         ?>
                         <div class="notice-attachment-icon">
                             <a href="<?php echo e($attUrl); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
-                                <i class="fas fa-paperclip"></i>
+                                <i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i>
                             </a>
                         </div>
                         <?php endif; endif; ?>
@@ -225,7 +225,7 @@ require_once 'includes/header.php';
             <?php else: ?>
                 <div class="col-12">
                     <div class="empty-state text-center py-5">
-                        <i class="fas fa-clipboard-list fa-4x nts-empty-icon mb-3"></i>
+                        <i class="lucide-icon lucide-4x nts-empty-icon mb-3" data-lucide="clipboard-list" aria-hidden="true"></i>
                         <h4><?php echo isEnglish() ? 'No notices yet' : 'कुनै सूचना छैन'; ?></h4>
                         <p class="nts-muted"><?php echo isEnglish() ? 'No notices are available at this time.' : 'हाल कुनै सूचना उपलब्ध छैन।'; ?></p>
                     </div>
@@ -248,7 +248,7 @@ require_once 'includes/header.php';
             <ul class="pagination justify-content-center">
                 <?php if ($page > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page - 1; ?>" aria-label="<?php echo isEnglish() ? 'Previous page' : 'अघिल्लो पृष्ठ'; ?>"><i class="fas fa-chevron-left"></i></a>
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>" aria-label="<?php echo isEnglish() ? 'Previous page' : 'अघिल्लो पृष्ठ'; ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
                 </li>
                 <?php endif; ?>
                 <?php if ($startPage > 1): ?>
@@ -266,7 +266,7 @@ require_once 'includes/header.php';
                 <?php endif; ?>
                 <?php if ($page < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page + 1; ?>" aria-label="<?php echo isEnglish() ? 'Next page' : 'अर्को पृष्ठ'; ?>"><i class="fas fa-chevron-right"></i></a>
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>" aria-label="<?php echo isEnglish() ? 'Next page' : 'अर्को पृष्ठ'; ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
                 </li>
                 <?php endif; ?>
             </ul>

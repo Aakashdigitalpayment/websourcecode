@@ -1,11 +1,12 @@
 <?php
 /**
- * 🔑 Smart Credential Manager (Office Dashboard)
+ * Smart Credential Manager (Office Dashboard)
  * ─────────────────────────────────────────────────────────────
  * सरकारी/आधिकारिक site को URL + username + encrypted password।
  * Click गर्ने बित्तिकै site नयाँ tab मा खुल्छ + credentials copy button।
  * सबै action audit log मा record हुन्छ।
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/includes/admin-header.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/credentials-crypto.php';
@@ -160,15 +161,15 @@ $rows = $db->query(
 <div class="admin-content">
     <div class="page-header cred-page-header">
         <div>
-            <h1 class="cred-page-title">🔑 अफिस Credentials</h1>
+            <h1 class="cred-page-title">अफिस Credentials</h1>
             <p class="cred-page-sub">
                 सरकारी/आधिकारिक sites — एकै ठाउँबाट access।
-                <small class="cred-warn-note">🔒 सबै password AES-256 encrypted।</small>
+                <small class="cred-warn-note">सबै password AES-256 encrypted।</small>
             </p>
         </div>
         <?php if (is_admin_or_above()): ?>
         <button type="button" class="btn-coop" onclick="openCredModal()">
-            <i class="fas fa-plus"></i> नयाँ Credential
+            <i class="lucide-icon" data-lucide="plus" aria-hidden="true"></i> नयाँ Credential
         </button>
         <?php endif; ?>
     </div>
@@ -180,13 +181,13 @@ $rows = $db->query(
     <?php if (!$rows): ?>
         <div class="card border-0 shadow-sm">
             <div class="text-center text-muted py-5 px-3 cred-empty-state">
-                <i class="fas fa-key fa-2x mb-3 d-block opacity-25" aria-hidden="true"></i>
+                <i class="lucide-icon lucide-2x mb-3 d-block opacity-25" data-lucide="key" aria-hidden="true"></i>
                 <div class="fw-semibold text-secondary cred-empty-title mb-2">कुनै credential थपिएको छैन</div>
                 <p class="small mb-0 cred-empty-hint">माथि वा तलको बटनबाट नयाँ credential थप्नुहोस्।</p>
                 <?php if (is_admin_or_above()): ?>
                 <div class="mt-4">
                     <button type="button" class="btn-coop" onclick="openCredModal()">
-                        <i class="fas fa-plus me-1"></i>नयाँ Credential
+                        <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ Credential
                     </button>
                 </div>
                 <?php endif; ?>
@@ -229,7 +230,7 @@ $rows = $db->query(
                           id="pw-<?= (int)$r['id'] ?>">••••••••</code>
                     <button type="button" class="adm-icon-btn adm-icon-btn--view" title="देखाउनुहोस्" aria-label="देखाउनुहोस्"
                             onclick="revealPw(<?= (int)$r['id'] ?>)">
-                        <i class="far fa-eye" id="eye-<?= (int)$r['id'] ?>"></i>
+                        <i class="lucide-icon" data-lucide="eye" id="eye-<?= (int)$r['id'] ?>" aria-hidden="true"></i>
                     </button>
                     <button type="button" class="adm-icon-btn" title="Password copy" aria-label="Password copy"
                             onclick="copyPw(<?= (int)$r['id'] ?>)">
@@ -240,7 +241,7 @@ $rows = $db->query(
                 <a href="<?= e($r['site_url']) ?>" target="_blank" rel="noopener noreferrer"
                    class="btn-coop cred-open-btn"
                    onclick="logAction(<?= (int)$r['id'] ?>, 'open')">
-                    <i class="fas fa-external-link-alt"></i> Site खोल्नुहोस्
+                    <i class="lucide-icon" data-lucide="external-link" aria-hidden="true"></i> Site खोल्नुहोस्
                 </a>
 
                 <?php if (is_admin_or_above()): ?>
@@ -248,14 +249,14 @@ $rows = $db->query(
                     <button type="button" class="adm-icon-btn adm-icon-btn--edit"
                             title="सम्पादन" aria-label="सम्पादन"
                             onclick='editCred(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'>
-                        <i class="fas fa-pen" aria-hidden="true"></i>
+                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i>
                     </button>
                     <form method="post" class="d-inline" onsubmit="return confirm('हटाउने?');">
                         <?= csrfField() ?>
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
                         <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
-                            <i class="fas fa-trash" aria-hidden="true"></i>
+                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                         </button>
                     </form>
                 </div>
@@ -271,7 +272,7 @@ $rows = $db->query(
     <div class="cred-panel-head">
         <h3 class="cred-panel-title" id="credModalTitle">नयाँ Credential</h3>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeCredModal()">
-            <i class="fas fa-times me-1"></i>बन्द गर्नुहोस्
+            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>बन्द गर्नुहोस्
         </button>
     </div>
         <form method="post" id="credForm" class="needs-validation" novalidate>
@@ -362,10 +363,18 @@ function editCred(r) {
 async function revealPw(id) {
     const pwEl  = document.getElementById('pw-' + id);
     const eyeEl = document.getElementById('eye-' + id);
+    const setEye = (name) => {
+        if (!eyeEl) return;
+        eyeEl.className = 'lucide-icon';
+        eyeEl.setAttribute('data-lucide', name);
+        eyeEl.setAttribute('aria-hidden', 'true');
+        eyeEl.innerHTML = '';
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons({ nodes: [eyeEl] });
+    };
     if (pwEl.dataset.shown === '1') {
         pwEl.textContent = '••••••••';
         pwEl.dataset.shown = '0';
-        eyeEl.className = 'far fa-eye';
+        setEye('eye');
         return;
     }
     const res = await fetch('credentials.php', {
@@ -378,7 +387,7 @@ async function revealPw(id) {
         pwEl.textContent = j.password;
         pwEl.dataset.shown = '1';
         pwEl.dataset.pw = j.password;
-        eyeEl.className = 'far fa-eye-slash';
+        setEye('eye-off');
     } else { alert('Error: ' + j.error); }
 }
 

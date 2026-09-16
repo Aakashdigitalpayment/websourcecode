@@ -73,7 +73,7 @@ $L = getLangStrings();
         <h1><?php echo e(getLangField($news, 'title')); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item"><a href="news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo e(truncateText((string)getLangField($news, 'title'), 30)); ?></li>
             </ol>
@@ -91,7 +91,7 @@ $L = getLangStrings();
                     <div class="news-detail-header">
                         <div class="news-meta">
                             <span class="news-date">
-                                <i class="fas fa-calendar-alt"></i>
+                                <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                                 <?php echo date('Y-m-d', strtotime($news['created_at'])); ?>
                             </span>
                         </div>
@@ -122,7 +122,7 @@ $L = getLangStrings();
 
                     <div class="news-navigation">
                         <a href="news.php" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> <?php echo isEnglish() ? 'Back to News' : 'समाचारमा फर्कनुहोस्'; ?>
+                            <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo isEnglish() ? 'Back to News' : 'समाचारमा फर्कनुहोस्'; ?>
                         </a>
                     </div>
                 </article>
@@ -141,7 +141,7 @@ $L = getLangStrings();
                                 <img src="<?php echo safe_media_src($related['image']); ?>" loading="lazy"  alt="<?php echo e(getLangField($related, 'title')); ?>">
                                 <?php else: ?>
                                 <div class="related-placeholder">
-                                    <i class="fas fa-newspaper"></i>
+                                    <i class="lucide-icon" data-lucide="newspaper" aria-hidden="true"></i>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -158,10 +158,10 @@ $L = getLangStrings();
                 <div class="sidebar-widget">
                     <h4 class="widget-title"><?php echo isEnglish() ? 'Quick Links' : 'द्रुत लिंकहरू'; ?></h4>
                     <ul class="quick-links">
-                        <li><a href="notices.php"><i class="fas fa-bullhorn"></i> <?php echo isEnglish() ? 'Notices' : 'सूचनाहरू'; ?></a></li>
-                        <li><a href="downloads.php"><i class="fas fa-download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोडहरू'; ?></a></li>
-                        <li><a href="gallery.php"><i class="fas fa-images"></i> <?php echo isEnglish() ? 'Gallery' : 'ग्यालरी'; ?></a></li>
-                        <li><a href="contact.php"><i class="fas fa-envelope"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क'; ?></a></li>
+                        <li><a href="notices.php"><i class="lucide-icon" data-lucide="megaphone" aria-hidden="true"></i> <?php echo isEnglish() ? 'Notices' : 'सूचनाहरू'; ?></a></li>
+                        <li><a href="downloads.php"><i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोडहरू'; ?></a></li>
+                        <li><a href="gallery.php"><i class="lucide-icon" data-lucide="images" aria-hidden="true"></i> <?php echo isEnglish() ? 'Gallery' : 'ग्यालरी'; ?></a></li>
+                        <li><a href="contact.php"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क'; ?></a></li>
                     </ul>
                 </div>
             </div>

@@ -2,8 +2,7 @@
 /**
  * वर्षको सदस्य Spotlight — Member of the Year Management
  */
-require_once '../includes/config.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
@@ -126,9 +125,9 @@ $flash = getFlash();
     'Member of the Year Spotlight',
     'fa-star',
     'वर्षको उत्कृष्ट सदस्य — Spotlight Records।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($records) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-eye me-1"></i>देखिने: ' . count($recordsLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>लुकेका: ' . count($recordsArch) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($records) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>देखिने: ' . count($recordsLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>लुकेका: ' . count($recordsArch) . '</span>'
 ); ?>
 
 <?php if (!empty($errors)): ?>
@@ -137,20 +136,20 @@ $flash = getFlash();
 <?php if (!empty($flash)) { echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']); } ?>
 
 <div class="alert alert-info mb-3" style="border-left:4px solid #17a2b8;">
-    <i class="fas fa-lightbulb me-2"></i>
+    <i class="lucide-icon me-2" data-lucide="lightbulb" aria-hidden="true"></i>
     <strong>काम गर्ने तरिका:</strong> हरेक वर्ष एउटा नयाँ record थप्नुहोस् — Homepage मा <strong>यो वर्षको</strong> active record मात्र देखिन्छ।
 </div>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#mot-list" id="mot-list-btn" title="देखिने / जम्मा">
-            <i class="fas fa-list me-2"></i>Spotlight Records
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>Spotlight Records
             <span class="badge bg-success ms-1"><?php echo count($records); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#mot-form" id="mot-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="motFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="motFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -164,7 +163,7 @@ $flash = getFlash();
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3" style="flex-wrap:wrap">
                 <div class="input-group input-group-sm" style="max-width:300px">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="नाम, विवरण अनुसार खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -187,12 +186,12 @@ $flash = getFlash();
                         <tbody>
                             <?php if (empty($records)): ?>
                             <tr><td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-trophy fa-3x mb-2 d-block" style="opacity:.15;color:#f59e0b;"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block" data-lucide="trophy" aria-hidden="true" style="opacity:.15;color:#f59e0b;"></i>
                                 अझै कुनै spotlight छैन।
                             </td></tr>
                             <?php elseif (empty($recordsLive)): ?>
                             <tr><td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                 Homepage मा देखिने record छैन। लुकेका हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
@@ -205,7 +204,7 @@ $flash = getFlash();
                                     <?php if ($hasPhoto): ?>
                                     <img src="<?php echo e(safe_media_src($r['photo'] ?? '')); ?>" alt="<?php echo e($r['name'] ?? 'Member'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
-                                    <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
+                                    <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="lucide-icon text-warning" data-lucide="user" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -217,16 +216,16 @@ $flash = getFlash();
                                     <span class="badge <?php echo $isCurrentYear ? 'bg-warning text-dark' : 'bg-secondary'; ?> fs-6 px-3">
                                         <?php echo htmlspecialchars($r['spotlight_year']); ?>
                                     </span>
-                                    <?php if ($isCurrentYear): ?><div><small class="text-warning fw-semibold"><i class="fas fa-star me-1"></i>यो वर्ष</small></div><?php endif; ?>
+                                    <?php if ($isCurrentYear): ?><div><small class="text-warning fw-semibold"><i class="lucide-icon me-1" data-lucide="star" aria-hidden="true"></i>यो वर्ष</small></div><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" style="display:inline">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="toggle">
-                                        <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
                                         <button type="submit" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>" title="Toggle visibility">
-                                            <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
+                                            <i class="lucide-icon me-1" data-lucide="<?php echo $r['is_active'] ? 'eye' : 'eye-off'; ?>" aria-hidden="true"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>
                                     </form>
@@ -235,13 +234,13 @@ $flash = getFlash();
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
-                                        <i class="fas fa-pen"></i> सम्पादन
+                                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i> सम्पादन
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('यो record हटाउने? Photo पनि delete हुन्छ।')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -265,7 +264,7 @@ $flash = getFlash();
                         <tbody>
                             <?php if (empty($recordsArch)): ?>
                             <tr><td colspan="5" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                 लुकेका record छैनन्।
                             </td></tr>
                             <?php endif; ?>
@@ -278,7 +277,7 @@ $flash = getFlash();
                                     <?php if ($hasPhoto): ?>
                                     <img src="<?php echo e(safe_media_src($r['photo'] ?? '')); ?>" alt="<?php echo e($r['name'] ?? 'Member'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
-                                    <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
+                                    <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="lucide-icon text-warning" data-lucide="user" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -290,16 +289,16 @@ $flash = getFlash();
                                     <span class="badge <?php echo $isCurrentYear ? 'bg-warning text-dark' : 'bg-secondary'; ?> fs-6 px-3">
                                         <?php echo htmlspecialchars($r['spotlight_year']); ?>
                                     </span>
-                                    <?php if ($isCurrentYear): ?><div><small class="text-warning fw-semibold"><i class="fas fa-star me-1"></i>यो वर्ष</small></div><?php endif; ?>
+                                    <?php if ($isCurrentYear): ?><div><small class="text-warning fw-semibold"><i class="lucide-icon me-1" data-lucide="star" aria-hidden="true"></i>यो वर्ष</small></div><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" style="display:inline">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="toggle">
-                                        <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
                                         <button type="submit" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>" title="Toggle visibility">
-                                            <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
+                                            <i class="lucide-icon me-1" data-lucide="<?php echo $r['is_active'] ? 'eye' : 'eye-off'; ?>" aria-hidden="true"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>
                                     </form>
@@ -308,13 +307,13 @@ $flash = getFlash();
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
-                                        <i class="fas fa-pen"></i> सम्पादन
+                                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i> सम्पादन
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('यो record हटाउने? Photo पनि delete हुन्छ।')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -333,15 +332,15 @@ $flash = getFlash();
         <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
                 <h5 class="mb-0 fw-bold" id="motFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ Spotlight थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ Spotlight थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelMot">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </button>
             </div>
             <div class="card-body p-4">
                 <form method="POST" enctype="multipart/form-data" id="motForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="motf_action" value="add">
                     <input type="hidden" name="id" id="motf_id" value="">
                     <input type="hidden" name="existing_photo" id="motf_existing_photo" value="">
@@ -402,10 +401,10 @@ $flash = getFlash();
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="motf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="motf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -440,8 +439,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('motf_active').checked      = true;
         document.getElementById('motf_photo_prev').innerHTML = '';
         document.getElementById('motf_photo_note').textContent = '';
-        document.getElementById('motf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('motFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ Spotlight थप्नुहोस्';
+        document.getElementById('motf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('motFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ Spotlight थप्नुहोस्';
         document.getElementById('motFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -474,10 +473,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('motf_photo_note').textContent = r.photo ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ' : '';
             var prev = document.getElementById('motf_photo_prev');
             prev.innerHTML = r.photo
-                ? '<img src="<?php echo SITE_URL; ?>' + r.photo + '" alt="Preview" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">'
+                ? '<img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>' + r.photo + '" alt="Preview" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">'
                 : '';
-            document.getElementById('motf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('motFormTitle').innerHTML = '<i class="fas fa-pen me-2"></i>Spotlight Record सम्पादन';
+            document.getElementById('motf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('motFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pen" aria-hidden="true"></i>Spotlight Record सम्पादन';
             document.getElementById('motFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

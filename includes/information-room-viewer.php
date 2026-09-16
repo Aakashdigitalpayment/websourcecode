@@ -34,7 +34,7 @@ $irIsImage = in_array($irExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
 <div class="ir-viewer-wrap<?php echo $irRestrict ? ' ir-restricted' : ''; ?>" id="irViewerWrap">
     <div class="ir-viewer-toolbar">
         <a href="<?php echo htmlspecialchars($irBackUrl ?? '#', ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i><?php echo $_t('फिर्ता', 'Back'); ?>
+            <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $_t('फिर्ता', 'Back'); ?>
         </a>
         <div class="ir-viewer-meta">
             <span class="badge bg-primary-subtle text-primary border"><?php echo htmlspecialchars($irCat, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -47,11 +47,11 @@ $irIsImage = in_array($irExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
         </div>
         <?php if ($irAllowDl): ?>
         <a href="<?php echo htmlspecialchars($irDlUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-success" download>
-            <i class="fas fa-download me-1"></i><?php echo $_t('डाउनलोड', 'Download'); ?>
+            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i><?php echo $_t('डाउनलोड', 'Download'); ?>
         </a>
         <?php else: ?>
         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning">
-            <i class="fas fa-eye me-1"></i><?php echo $_t('हेर्न मात्र', 'View only'); ?>
+            <i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo $_t('हेर्न मात्र', 'View only'); ?>
         </span>
         <?php endif; ?>
     </div>
@@ -63,7 +63,7 @@ $irIsImage = in_array($irExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
         <?php endif; ?>
         <?php if ($irRestrict): ?>
         <div class="alert alert-warning py-2 px-3 small mb-2">
-            <i class="fas fa-shield-halved me-1"></i>
+            <i class="lucide-icon me-1" data-lucide="shield" aria-hidden="true"></i>
             <?php echo $_t(
                 'यो कागजात हेर्न मात्र हो। डाउनलोड अनुमति छैन। स्क्रिनसट/प्रतिलिपि रोक्न प्रयास गरिएको छ — तर १००% गारेन्टी सम्भव छैन।',
                 'View-only document. Download is disabled. Copy/screenshot deterrence is applied — 100% prevention is not possible on the web.'

@@ -1,0 +1,7 @@
+/** Public embed frame — extracted from includes/header.php */
+    /* Member portal भित्र iframe — mixed/ठूलो हेडर बिना फारम देखिने */
+    body.embed-in-member-portal { overflow: auto !important; padding-top: 0 !important; }
+    body.embed-in-member-portal .pfl-header-wrapper { display: none !important; }
+    body.embed-in-member-portal .page-banner { display: none !important; }
+    body.embed-in-member-portal .main-footer { display: none !important; }
+    

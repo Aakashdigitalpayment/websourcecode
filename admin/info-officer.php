@@ -8,6 +8,7 @@
  * टिम सदस्यहरूमध्ये एक जनालाई सूचना अधिकारी बनाउन सकिन्छ।
  * =====================================================
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'सूचना अधिकारी';
 $currentPage = 'info-officer';
 require_once 'includes/admin-header.php';
@@ -70,7 +71,7 @@ if (!in_array($panel, ['list', 'form'], true)) {
 echo adminPageHeader(
     'सूचना अधिकारी', 'fa-user-shield',
     'RTI अन्तर्गत सूचना दिने अधिकारी',
-    '<a href="team.php" class="btn btn-outline-light btn-sm"><i class="fas fa-users me-1"></i>टिम व्यवस्थापन</a>'
+    '<a href="team.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>टिम व्यवस्थापन</a>'
 );
 if ($success) echo adminAlert('success', $success);
 if ($error) echo adminAlert('error', $error);
@@ -79,13 +80,13 @@ if ($error) echo adminAlert('error', $error);
 
     <ul class="nav admin-nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#info-officer-list-tab" type="button" role="tab">
-                <i class="fas fa-list me-1"></i> सूची
+            <button type="button" class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#info-officer-list-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i> सूची
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#info-officer-form-tab" type="button" role="tab">
-                <i class="fas fa-plus me-1"></i> नयाँ थप्नुहोस्
+            <button type="button" class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#info-officer-form-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i> नयाँ थप्नुहोस्
             </button>
         </li>
     </ul>
@@ -97,7 +98,7 @@ if ($error) echo adminAlert('error', $error);
                 <div class="col-lg-5">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-id-badge me-2"></i>हालको सूचना अधिकारी</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="badge-check" aria-hidden="true"></i>हालको सूचना अधिकारी</h5>
                 </div>
                 <div class="card-body text-center py-4">
                     <?php if ($currentOfficer): ?>
@@ -109,7 +110,7 @@ if ($error) echo adminAlert('error', $error);
                         <?php else: ?>
                             <div class="rounded-circle mb-3 d-inline-flex align-items-center justify-content-center border border-3"
                                  style="width:100px;height:100px;background:#fef2f2;border-color:var(--secondary-color,#c0392b)!important;">
-                                <i class="fas fa-user-shield fa-2x" style="color:var(--secondary-color,#c0392b);"></i>
+                                <i class="lucide-icon lucide-2x" data-lucide="shield-user" aria-hidden="true" style="color:var(--secondary-color,#c0392b);"></i>
                             </div>
                         <?php endif; ?>
                         <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($currentOfficer['name']); ?></h5>
@@ -120,17 +121,17 @@ if ($error) echo adminAlert('error', $error);
                             <?php echo htmlspecialchars($currentOfficer['position_np'] ?: $currentOfficer['position']); ?>
                         </p>
                         <?php if (!empty($currentOfficer['phone'])): ?>
-                            <p class="text-muted small mb-1"><i class="fas fa-phone me-1"></i><?php echo htmlspecialchars($currentOfficer['phone']); ?></p>
+                            <p class="text-muted small mb-1"><i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($currentOfficer['phone']); ?></p>
                         <?php endif; ?>
                         <?php if (!empty($currentOfficer['email'])): ?>
-                            <p class="text-muted small mb-0"><i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars($currentOfficer['email']); ?></p>
+                            <p class="text-muted small mb-0"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars($currentOfficer['email']); ?></p>
                         <?php endif; ?>
                         <span class="badge mt-3 bg-primary">
-                            <i class="fas fa-check-circle me-1"></i>सूचना अधिकारी
+                            <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सूचना अधिकारी
                         </span>
                     <?php else: ?>
                         <div class="text-muted py-4">
-                            <i class="fas fa-user-slash fa-3x mb-3 d-block" style="opacity:.3;"></i>
+                            <i class="lucide-icon lucide-3x mb-3 d-block" data-lucide="user-x" aria-hidden="true" style="opacity:.3;"></i>
                             <p>कुनै सूचना अधिकारी तोकिएको छैन।</p>
                             <p class="small">तलबाट टिम सदस्य चयन गर्नुहोस्।</p>
                         </div>
@@ -141,7 +142,7 @@ if ($error) echo adminAlert('error', $error);
                 <div class="col-lg-7">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-circle-info me-2"></i>सूचनाको हकसम्बन्धी जानकारी (RTI)</h5>
+                            <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>सूचनाको हकसम्बन्धी जानकारी (RTI)</h5>
                         </div>
                         <div class="card-body">
                             <p class="text-muted small mb-0">
@@ -159,7 +160,7 @@ if ($error) echo adminAlert('error', $error);
             <!-- टिम सदस्य चयन गर्नुहोस् -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0"><i class="fas fa-users me-2 text-primary"></i>सूचना अधिकारी चयन गर्नुहोस्</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2 text-primary" data-lucide="users" aria-hidden="true"></i>सूचना अधिकारी चयन गर्नुहोस्</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -179,7 +180,7 @@ if ($error) echo adminAlert('error', $error);
                                 <tr class="<?php echo $isCurrent ? 'admin-assign-row-current' : ''; ?>">
                                     <td class="text-center">
                                         <?php if ($isCurrent): ?>
-                                            <i class="fas fa-check-circle text-success" title="हालको अधिकारी" aria-label="हालको अधिकारी"></i>
+                                            <i class="lucide-icon text-success" data-lucide="circle-check" aria-hidden="true" title="हालको अधिकारी" aria-label="हालको अधिकारी"></i>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -188,7 +189,7 @@ if ($error) echo adminAlert('error', $error);
                                                 <img src="<?php echo htmlspecialchars('../' . $m['photo']); ?>"
                                                      class="gof-row-avatar" alt="">
                                             <?php else: ?>
-                                                <span class="admin-person-fallback" aria-hidden="true"><i class="fas fa-user"></i></span>
+                                                <span class="admin-person-fallback" aria-hidden="true"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></span>
                                             <?php endif; ?>
                                             <div class="admin-person-meta">
                                                 <span class="admin-person-name"><?php echo htmlspecialchars($m['name']); ?></span>
@@ -208,7 +209,7 @@ if ($error) echo adminAlert('error', $error);
                                             <button type="submit" name="set_officer" value="1"
                                                     class="btn btn-sm btn-primary admin-assign-btn"
                                                     onclick="return confirm('<?php echo htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8'); ?> लाई सूचना अधिकारी बनाउने?')">
-                                                <i class="fas fa-user-check" aria-hidden="true"></i><span>तोक्नुहोस्</span>
+                                                <i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><span>तोक्नुहोस्</span>
                                             </button>
                                         </form>
                                         <?php else: ?>
@@ -220,7 +221,7 @@ if ($error) echo adminAlert('error', $error);
                                 <?php if (empty($allMembers)): ?>
                                 <tr>
                                     <td colspan="5" class="text-center text-muted py-4">
-                                        <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                                        <i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="users" aria-hidden="true"></i>
                                         टिम सदस्यहरू भेटिएनन्। पहिले <a href="team.php">टिम व्यवस्थापन</a> मा सदस्य थप्नुहोस्।
                                     </td>
                                 </tr>
@@ -235,7 +236,7 @@ if ($error) echo adminAlert('error', $error);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="member_id" value="0">
                         <button type="submit" name="set_officer" value="1" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-user-slash me-1"></i>सूचना अधिकारी हटाउनुहोस्
+                            <i class="lucide-icon me-1" data-lucide="user-x" aria-hidden="true"></i>सूचना अधिकारी हटाउनुहोस्
                         </button>
                     </form>
                 </div>

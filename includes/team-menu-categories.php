@@ -23,13 +23,17 @@ if (!function_exists('ensureCommitteeTypesExtendedColumns')) {
                 return;
             }
             $alters = [
-                'show_in_navbar' => "ALTER TABLE committee_types ADD COLUMN show_in_navbar TINYINT(1) DEFAULT 0",
-                'icon' => "ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'",
-                'menu_category_id' => 'ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL',
+                'show_in_navbar' => "TINYINT(1) DEFAULT 0",
+                'icon' => "VARCHAR(80) DEFAULT 'fas fa-users-gear'",
+                'menu_category_id' => 'INT NULL DEFAULT NULL',
             ];
-            foreach ($alters as $col => $sql) {
+            foreach ($alters as $col => $def) {
                 if (!in_array($col, $fields, true)) {
-                    $db->exec($sql);
+                    if (function_exists('safeAddColumn')) {
+                        safeAddColumn($db, 'committee_types', $col, $def);
+                    } else {
+                        $db->exec("ALTER TABLE committee_types ADD COLUMN `{$col}` {$def}");
+                    }
                     $fields[] = $col;
                 }
             }
@@ -49,7 +53,11 @@ if (!function_exists('syncTeamMenuCategoryLinks')) {
             $cols = $db->query('SHOW COLUMNS FROM team_staff_groups')->fetchAll(PDO::FETCH_ASSOC);
             $fields = array_column($cols ?: [], 'Field');
             if (!in_array('menu_category_id', $fields, true)) {
-                $db->exec('ALTER TABLE team_staff_groups ADD COLUMN menu_category_id INT NULL DEFAULT NULL');
+                if (function_exists('safeAddColumn')) {
+                    safeAddColumn($db, 'team_staff_groups', 'menu_category_id', 'INT NULL DEFAULT NULL');
+                } else {
+                    $db->exec('ALTER TABLE team_staff_groups ADD COLUMN menu_category_id INT NULL DEFAULT NULL');
+                }
             }
             $mgmtId = (int)$db->query("SELECT id FROM team_menu_categories WHERE source_type='staff' ORDER BY display_order, id LIMIT 1")->fetchColumn();
             if ($mgmtId > 0) {

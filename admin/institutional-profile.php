@@ -14,10 +14,8 @@
  */
 
 /* ─── 1. Config + session + DB ─── */
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-requireAdminLogin();
 
 $db      = getDB();
 $selfUrl = 'institutional-profile.php';
@@ -36,31 +34,35 @@ if (!$tableExists && !function_exists('dbTableExists')) {
 /* ─── 3. Auto-ALTER: Add missing columns (MySQL 5.7 compatible — no IF NOT EXISTS)
          try-catch प्रत्येकमा: column पहिले नै छ भने "Duplicate column" error → caught ─── */
 if ($tableExists) {
-    $alters = [
-        /* Originally missing from CREATE TABLE (old servers) */
-        "ALTER TABLE institutional_profile ADD COLUMN report_date_bs VARCHAR(60) DEFAULT '' COMMENT 'मिति बि.सं.'",
-        "ALTER TABLE institutional_profile ADD COLUMN report_date_ad DATE NULL COMMENT 'मिति A.D.'",
-        "ALTER TABLE institutional_profile ADD COLUMN report_note TEXT DEFAULT NULL COMMENT 'थप टिप्पणी'",
-        "ALTER TABLE institutional_profile ADD COLUMN total_balance_member INT DEFAULT 0 COMMENT 'शेष सदस्य'",
-        "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_fund DECIMAL(15,2) DEFAULT 0",
-        "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_percent DECIMAL(8,2) DEFAULT 0",
-        /* Additional columns needed for full financial profile */
-        "ALTER TABLE institutional_profile ADD COLUMN share_capital_percent DECIMAL(8,2) DEFAULT 0 COMMENT 'शेयर % वृद्धि'",
-        "ALTER TABLE institutional_profile ADD COLUMN reserved_fund DECIMAL(18,2) DEFAULT 0 COMMENT 'जगेडा कोष'",
-        "ALTER TABLE institutional_profile ADD COLUMN reserved_fund_percent DECIMAL(8,2) DEFAULT 0 COMMENT 'जगेडा % वृद्धि'",
-        "ALTER TABLE institutional_profile ADD COLUMN deposit_percent DECIMAL(8,2) DEFAULT 0 COMMENT 'बचत % वृद्धि'",
-        "ALTER TABLE institutional_profile ADD COLUMN loan_percent DECIMAL(8,2) DEFAULT 0 COMMENT 'ऋण % वृद्धि'",
-        "ALTER TABLE institutional_profile ADD COLUMN liquidity_percent DECIMAL(8,2) DEFAULT 0 COMMENT 'तरलता अनुपात'",
-        "ALTER TABLE institutional_profile ADD COLUMN npl_percent DECIMAL(5,2) DEFAULT 0 COMMENT 'NPL %'",
-        "ALTER TABLE institutional_profile ADD COLUMN attachment_path VARCHAR(255) DEFAULT '' COMMENT 'PDF/photo attachment'",
-        "ALTER TABLE institutional_profile ADD COLUMN other_fund DECIMAL(18,2) DEFAULT 0 COMMENT 'अन्य कोष'",
-        "ALTER TABLE institutional_profile ADD COLUMN bank_cash_balance DECIMAL(18,2) DEFAULT 0 COMMENT 'बैंक तथा नगद मौज्दात'",
-        "ALTER TABLE institutional_profile ADD COLUMN fixed_assets DECIMAL(18,2) DEFAULT 0 COMMENT 'स्थिर सम्पत्ति'",
-        "ALTER TABLE institutional_profile ADD COLUMN total_loan_members INT DEFAULT 0 COMMENT 'कुल ऋणी सदस्य'",
-        "ALTER TABLE institutional_profile ADD COLUMN report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12; 0=annual/unset'",
+    $ipCols = [
+        'report_date_bs' => "VARCHAR(60) DEFAULT '' COMMENT 'मिति बि.सं.'",
+        'report_date_ad' => "DATE NULL COMMENT 'मिति A.D.'",
+        'report_note' => "TEXT DEFAULT NULL COMMENT 'थप टिप्पणी'",
+        'total_balance_member' => "INT DEFAULT 0 COMMENT 'शेष सदस्य'",
+        'total_loan_reserve_fund' => 'DECIMAL(15,2) DEFAULT 0',
+        'total_loan_reserve_percent' => 'DECIMAL(8,2) DEFAULT 0',
+        'share_capital_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'शेयर % वृद्धि'",
+        'reserved_fund' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'जगेडा कोष'",
+        'reserved_fund_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'जगेडा % वृद्धि'",
+        'deposit_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'बचत % वृद्धि'",
+        'loan_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'ऋण % वृद्धि'",
+        'liquidity_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'तरलता अनुपात'",
+        'npl_percent' => "DECIMAL(5,2) DEFAULT 0 COMMENT 'NPL %'",
+        'attachment_path' => "VARCHAR(255) DEFAULT '' COMMENT 'PDF/photo attachment'",
+        'other_fund' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'अन्य कोष'",
+        'bank_cash_balance' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'बैंक तथा नगद मौज्दात'",
+        'fixed_assets' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'स्थिर सम्पत्ति'",
+        'total_loan_members' => "INT DEFAULT 0 COMMENT 'कुल ऋणी सदस्य'",
+        'report_month' => "TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12; 0=annual/unset'",
     ];
-    foreach ($alters as $sql) {
-        try { $db->exec($sql); } catch (Exception $e) { /* Column exists or other ignorable error */ }
+    if (function_exists('safeAddColumn')) {
+        foreach ($ipCols as $col => $def) {
+            safeAddColumn($db, 'institutional_profile', $col, $def);
+        }
+    } else {
+        foreach ($ipCols as $col => $def) {
+            try { $db->exec("ALTER TABLE institutional_profile ADD COLUMN `{$col}` {$def}"); } catch (Exception $e) { /* exists */ }
+        }
     }
     /* Allow multiple months per fiscal year (old unique FY key blocks monthly updates) */
     foreach (['uniq_fiscal_year', 'fiscal_year'] as $idx) {
@@ -356,7 +358,7 @@ echo adminPageHeader(
   <div class="ip-search-bar d-flex flex-wrap align-items-center gap-2 px-3 py-3 ip-search-shell">
     <div class="input-group ip-search-group">
       <span class="input-group-text bg-white border-end-0 ip-search-addon">
-        <i class="fas fa-search text-success"></i>
+        <i class="lucide-icon text-success" data-lucide="search" aria-hidden="true"></i>
       </span>
       <input type="text" id="ipSearchFY"
              class="form-control border-start-0 ip-search-input"
@@ -391,7 +393,7 @@ echo adminPageHeader(
     <button type="button" id="ipClearFilter"
             class="btn btn-sm btn-outline-secondary"
             title="Filter हटाउनुहोस्" style="display:none;">
-      <i class="fas fa-times me-1"></i>Clear
+      <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>Clear
     </button>
     <span id="ipCountBadge" class="ms-auto badge ip-count-badge ip-count-default">
       <?php echo $totalRecords; ?> records
@@ -401,12 +403,12 @@ echo adminPageHeader(
   <ul class="nav nav-pills admin-inner-tabstrip flex-wrap gap-2 px-3 py-2 mx-3 mt-2 mb-0" role="tablist" id="ipViewTabs">
     <li class="nav-item" role="presentation">
       <button type="button" class="nav-link py-2 active ip-view-tab-btn" data-ip-view="main" id="ipViewMainBtn" aria-selected="true">
-        <i class="fas fa-id-card me-1"></i>मुख्य जानकारी
+        <i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>मुख्य जानकारी
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button type="button" class="nav-link py-2 ip-view-tab-btn" data-ip-view="finance" id="ipViewFinBtn" aria-selected="false">
-        <i class="fas fa-coins me-1"></i>वित्तीय रकम
+        <i class="lucide-icon me-1" data-lucide="coins" aria-hidden="true"></i>वित्तीय रकम
       </button>
     </li>
   </ul>
@@ -433,11 +435,11 @@ echo adminPageHeader(
         <!-- no-results row: filter mismatch bhaye dekhinccha -->
         <tr id="ipNoResults" class="ip-no-results-row ip-hidden">
           <td colspan="11" class="text-center py-5">
-            <i class="fas fa-search fa-2x text-muted mb-2 d-block"></i>
+            <i class="lucide-icon lucide-2x text-muted mb-2 d-block" data-lucide="search" aria-hidden="true"></i>
             <span class="text-muted">खोजी अनुसार कुनै record भेटिएन।</span>
             <br>
             <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="clearIPFilter()">
-              <i class="fas fa-times me-1"></i>Filter हटाउनुहोस्
+              <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>Filter हटाउनुहोस्
             </button>
           </td>
         </tr>
@@ -457,13 +459,13 @@ echo adminPageHeader(
           <td class="ip-col ip-col-shared">
             <strong class="text-primary d-block"><?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
             <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 mt-1">
-              <i class="fas fa-calendar-week me-1"></i><?php echo htmlspecialchars(ipAdminMonthLabel($rm)); ?>
+              <i class="lucide-icon me-1" data-lucide="calendar-range" aria-hidden="true"></i><?php echo htmlspecialchars(ipAdminMonthLabel($rm)); ?>
             </span>
           </td>
           <td class="ip-col ip-col-main">
             <?php if (!empty($p['report_date_bs'])): ?>
             <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25">
-              <i class="fas fa-calendar-days me-1"></i><?php echo htmlspecialchars($p['report_date_bs']); ?>
+              <i class="lucide-icon me-1" data-lucide="calendar-range" aria-hidden="true"></i><?php echo htmlspecialchars($p['report_date_bs']); ?>
             </span>
             <?php else: ?><span class="text-muted small">—</span><?php endif; ?>
           </td>
@@ -476,19 +478,19 @@ echo adminPageHeader(
           <td class="ip-col ip-col-fin admin-amount">
             <?php echo shortAmt((float)$p['share_capital']); ?>
             <?php if ($p['share_capital_percent']): ?>
-            <br><small class="admin-amount-sub">(<?php echo $p['share_capital_percent']; ?>%)</small>
+            <br><small class="admin-amount-sub">(<?php echo e($p['share_capital_percent']); ?>%)</small>
             <?php endif; ?>
           </td>
           <td class="ip-col ip-col-fin admin-amount">
             <?php echo shortAmt((float)$p['deposit']); ?>
             <?php if ($p['deposit_percent']): ?>
-            <br><small class="admin-amount-sub">(<?php echo $p['deposit_percent']; ?>%)</small>
+            <br><small class="admin-amount-sub">(<?php echo e($p['deposit_percent']); ?>%)</small>
             <?php endif; ?>
           </td>
           <td class="ip-col ip-col-fin admin-amount">
             <?php echo shortAmt((float)$p['loan']); ?>
             <?php if ($p['loan_percent']): ?>
-            <br><small class="admin-amount-sub">(<?php echo $p['loan_percent']; ?>%)</small>
+            <br><small class="admin-amount-sub">(<?php echo e($p['loan_percent']); ?>%)</small>
             <?php endif; ?>
           </td>
           <td class="ip-col ip-col-shared admin-amount"><?php echo shortAmt((float)$p['total_assets']); ?></td>
@@ -531,8 +533,8 @@ if ($editMonth === 0 && $isEdit && !empty($r['report_date_bs']) && preg_match('/
 }
 $formPeriod = htmlspecialchars((string)$v('fiscal_year', 'नयाँ'), ENT_QUOTES) . ' — ' . htmlspecialchars(ipAdminMonthLabel($editMonth), ENT_QUOTES);
 $formTitle = $isEdit
-    ? '<i class="fas fa-pen me-2"></i>' . $formPeriod . ' — सम्पादन'
-    : '<i class="fas fa-plus-circle me-2"></i>नयाँ महिनाको संस्थागत प्रोफाइल';
+    ? '<i class="lucide-icon me-2" data-lucide="pen" aria-hidden="true"></i>' . $formPeriod . ' — सम्पादन'
+    : '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ महिनाको संस्थागत प्रोफाइल';
 
 echo adminPageHeader(
     $isEdit ? 'प्रोफाइल सम्पादन' : 'नयाँ प्रोफाइल',
@@ -546,21 +548,21 @@ echo adminPageHeader(
   <div class="card mb-3 ip-admin-form-card">
     <div class="card-header ip-admin-form-hero">
       <div>
-        <span class="ip-admin-kicker"><i class="fas fa-chart-line"></i> आर्थिक विवरण · महिनागत</span>
+        <span class="ip-admin-kicker"><i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> आर्थिक विवरण · महिनागत</span>
         <h5><?php echo $formTitle; ?></h5>
         <p><?php echo $isEdit
             ? 'सार्वजनिक प्रोफाइलमा देखिने <strong>' . $formPeriod . '</strong> को विवरण यहाँबाट अद्यावधिक गर्नुहोस्।'
             : 'कुन आ.व. र कुन महिनाको तथ्याङ्क हो स्पष्ट छानेर भर्नुहोस् — public मा महिना अनुसार filter हुन्छ।'; ?></p>
       </div>
-      <a href="<?php echo $selfUrl; ?>" class="btn btn-light btn-sm ip-admin-list-link" data-testid="institutional-profile-back-to-list-link">
-        <i class="fas fa-list me-1"></i>सूची
+      <a href="<?php echo htmlspecialchars($selfUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-light btn-sm ip-admin-list-link" data-testid="institutional-profile-back-to-list-link">
+        <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i>सूची
       </a>
     </div>
 
     <form id="profileMainForm" method="POST" action="<?php echo $selfUrl; ?>" class="needs-validation" novalidate enctype="multipart/form-data">
       <input type="hidden" name="action" value="<?php echo $isEdit ? 'edit' : 'add'; ?>">
       <input type="hidden" name="id"     value="<?php echo $isEdit ? (int)$r['id'] : 0; ?>">
-      <input type="hidden" name="csrf_token" value="<?php echo $csrf; ?>">
+      <input type="hidden" name="csrf_token" value="<?php echo e($csrf); ?>">
 
       <div class="card-body">
 
@@ -586,7 +588,7 @@ echo adminPageHeader(
                        value="' . htmlspecialchars((string)$v('report_date_bs')) . '"
                        placeholder="YYYY-MM-DD" autocomplete="off">
                 <span class="input-group-text bg-success text-white border-success ndp-trigger ip-pointer" title="क्यालेन्डर खोल्नुहोस्" data-testid="institutional-profile-report-date-bs-calendar-button">
-                  <i class="fas fa-calendar-alt"></i>
+                  <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                 </span>
               </div>
               <small class="text-muted">BS मिति — महिना खाली छ भने यसबाट auto</small>
@@ -601,7 +603,7 @@ echo adminPageHeader(
             </div>
           </div>
           <div class="alert alert-success border-0 mt-3 mb-0 py-2 px-3 small" id="ipPeriodHint" role="status">
-            <i class="fas fa-circle-info me-1"></i>
+            <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
             सार्वजनिक पेजमा <strong>आ.व. + महिना</strong> लेबलसहित देखिन्छ। अहिलेको र अघिल्लो महिना विशेष रूपमा देखाउँछ।
           </div>
         '); ?>
@@ -729,7 +731,7 @@ echo adminPageHeader(
             </div>
             <div class="col-md-2">
               <label for="fieldNpaPct" class="form-label">NPA %
-                <i class="fas fa-circle-info ms-1 text-muted" data-bs-toggle="tooltip"
+                <i class="lucide-icon ms-1 text-muted" data-lucide="info" aria-hidden="true" data-bs-toggle="tooltip"
                    title="Non-Performing Assets — कम राम्रो (अधिकतम 5%)"></i>
               </label>
               <div class="input-group">
@@ -770,17 +772,17 @@ echo adminPageHeader(
             $_thumb     = $_isImg
                 ? '<img src="' . $_attachUrl . '" style="max-height:120px;max-width:100%;border-radius:8px;border:1px solid #e5e7eb;display:block;margin-bottom:10px;" alt="Preview">'
                 : '<div class="d-flex align-items-center gap-3 p-3 border rounded mb-2" style="background:#fff7ed;">'
-                  . '<i class="fas fa-file-pdf fa-2x" style="color:#dc2626;flex-shrink:0;"></i>'
+                  . '<i class="lucide-icon lucide-2x" data-lucide="file-text" aria-hidden="true" style="color:#dc2626;flex-shrink:0;"></i>'
                   . '<div><div class="fw-semibold text-dark" style="font-size:.85rem;">PDF कागजात</div>'
                   . '<div class="text-muted" style="font-size:.75rem;">' . htmlspecialchars(basename($r['attachment_path'])) . '</div></div></div>';
             $_existAttachPreview = $_thumb
                 . '<div class="d-flex align-items-center gap-2 flex-wrap">'
                 . '<a href="' . $_attachUrl . '" target="_blank" class="btn btn-sm btn-outline-success" rel="noopener noreferrer">'
-                . '<i class="fas fa-eye me-1"></i>हेर्नुहोस् / डाउनलोड</a>'
+                . '<i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>हेर्नुहोस् / डाउनलोड</a>'
                 . '<div class="form-check mb-0 ms-2">'
                 . '<input type="checkbox" class="form-check-input" name="remove_attachment" id="removeAttachment" value="1" data-testid="institutional-profile-remove-attachment-checkbox">'
                 . '<label class="form-check-label small text-danger" for="removeAttachment">'
-                . '<i class="fas fa-trash-can me-1"></i>यो कागजात हटाउने</label></div></div>';
+                . '<i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>यो कागजात हटाउने</label></div></div>';
             $_existAttachHtml = '<input type="hidden" name="existing_attachment_path" value="' . htmlspecialchars($r['attachment_path'], ENT_QUOTES) . '">';
         }
 
@@ -796,12 +798,12 @@ echo adminPageHeader(
                          class="form-control" accept=".pdf,.jpg,.jpeg" data-testid="institutional-profile-attachment-file-input"
                          onchange="(function(i){var w=document.getElementById(\'ipFpWrap\'),n=document.getElementById(\'ipFpName\');if(i.files.length){w.style.display=\'\';n.textContent=i.files[0].name;}else{w.style.display=\'none\';}})(this)">
                   <small class="text-muted d-block mt-1">
-                    <i class="fas fa-circle-info me-1"></i>PDF, JPG वा JPEG — अधिकतम 10MB।
+                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>PDF, JPG वा JPEG — अधिकतम 10MB।
                     नयाँ upload गर्दा पुरानो कागजात replace हुन्छ।
                   </small>
                   <div id="ipFpWrap" class="mt-2" style="display:none;">
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-2 px-3">
-                      <i class="fas fa-check-circle me-1"></i>
+                      <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>
                       <span id="ipFpName"></span>
                     </span>
                   </div>
@@ -838,10 +840,10 @@ echo adminPageHeader(
     <!-- form-footer: main form बाहिर — delete button nested form को bug नआओस् भनेर -->
     <div class="form-footer ip-admin-sticky-footer">
         <button type="submit" form="profileMainForm" class="btn btn-primary px-4" data-testid="institutional-profile-save-button">
-          <i class="fas fa-save me-2"></i><?php echo $isEdit ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?>
+          <i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i><?php echo $isEdit ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?>
         </button>
-        <a href="<?php echo $selfUrl; ?>" class="btn btn-outline-secondary" data-testid="institutional-profile-cancel-link">
-          <i class="fas fa-times me-1"></i>रद्द गर्नुहोस्
+        <a href="<?php echo htmlspecialchars($selfUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary" data-testid="institutional-profile-cancel-link">
+          <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द गर्नुहोस्
         </a>
         <?php if ($isEdit): ?>
         <div class="ms-auto">
@@ -857,7 +859,7 @@ echo adminPageHeader(
 elseif (!$tableExists): ?>
 
 <div class="alert alert-danger">
-  <i class="fas fa-database me-2"></i>
+  <i class="lucide-icon me-2" data-lucide="database" aria-hidden="true"></i>
   <strong>institutional_profile</strong> टेबल फेला परेन।
   <br><small>कृपया <code>database/install.sql</code> चलाउनुहोस् वा database setup गर्नुहोस्।</small>
 </div>

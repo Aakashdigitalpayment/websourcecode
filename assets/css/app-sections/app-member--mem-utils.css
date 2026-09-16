@@ -1,0 +1,130 @@
+/* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
+ * Source bytes=4341 sha256=8de850d43c47f57f
+ * Future PR: thin @import shim; keep app-* frozen until verified.
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ */
+/* ========== mem-utils.css ========== */
+/**
+ * mem-utils.css — Member Portal Shared Utility Classes
+ * Replaces repetitive inline style= attributes across all member portal pages.
+ * Load AFTER member.css, BEFORE coop-clean.css.
+ */
+
+/* ── Page header row ───────────────────────────────────────────────────────── */
+.mp-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.mp-page-head .mem-page-title { margin: 0; }
+
+/* ── Tracker button (top-right of page header) ─────────────────────────────── */
+.mp-tracker-link {
+  font-size: .8rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 30%, #e5e7eb);
+  padding: 5px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mp-tracker-link:hover {
+  background: color-mix(in srgb, var(--primary-color) 6%, white);
+  color: var(--primary-color);
+}
+
+/* ── "View all in Tracker" bottom link ─────────────────────────────────────── */
+.mp-tracker-link-sm {
+  font-size: .82rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 8px;
+}
+.mp-tracker-link-sm:hover { color: var(--primary-dark, var(--primary-color)); }
+
+/* ── mem-alert default margin (removes need for style="margin-bottom:14px") ── */
+.mem-alert { margin-bottom: 14px; }
+
+/* ── Status badge (removes need for style="font-size:.75rem;font-weight:700") ─ */
+.sr-status { font-size: .75rem; font-weight: 700; }
+
+/* ── Status row (flex row for tracking-id + status badge) ──────────────────── */
+.mp-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────────── */
+.mp-empty          { padding: 40px 0; text-align: center; }
+.mp-empty-icon     { font-size: 2rem; color: var(--text-muted, #9ca3af); display: block; margin-bottom: 10px; }
+.mp-empty-title    { font-weight: 600; color: var(--text-primary, #1a2e1f); margin-bottom: 4px; }
+.mp-empty-hint     { font-size: .82rem; color: var(--text-muted, #6b7280); }
+
+/* ── List item title / meta (inside recent-card) ───────────────────────────── */
+.mp-list-title {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a2e1f);
+}
+.mp-list-meta {
+  font-size: .75rem;
+  color: var(--text-muted, #6b7280);
+  margin-top: 3px;
+}
+/* grievance variant: single-line ellipsis title */
+.mp-list-title-ellipsis {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a2e1f);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Section divider (form section header with top border) ─────────────────── */
+.mp-section-divider {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text-primary, #1a2e1f);
+  margin: 16px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* ── File input hint text ───────────────────────────────────────────────────── */
+.mp-file-hint {
+  font-size: .75rem;
+  color: var(--text-muted, #6b7280);
+  margin-top: 4px;
+}
+
+/* ── Label icon helpers ─────────────────────────────────────────────────────── */
+.ico-primary { color: var(--primary-color); margin-right: 4px; }
+.ico-mr      { margin-right: 4px; }
+
+/* ── Flex-fill child (for grievance recent-card left column) ────────────────── */
+.mp-flex-fill { flex: 1; min-width: 0; }
+
+/* ── Anonymous grievance status row (needs flex-shrink:0) ───────────────────── */
+.mp-status-row-end { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+
+/* ── Grievance anonymous checkbox ─────────────────────────────────────────── */
+.grv-anon-wrap  { display: flex; align-items: flex-end; padding-bottom: 14px; }
+.grv-anon-label { display: flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+.grv-anon-check { width: 16px; height: 16px; accent-color: var(--primary-color); }
+
+/* ── Loan EMI hint row ──────────────────────────────────────────────────────── */
+.loan-emi-hint { margin-bottom: 12px; }
+.loan-emi-link { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+.loan-emi-link:hover { text-decoration: underline; }
+

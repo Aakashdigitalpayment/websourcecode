@@ -1,0 +1,15 @@
+/** Admin registration desk — extracted from admin/program-registration-desk.php */
+.desk-page-wrap { padding: 0.25rem 0 1rem; }
+.desk-shell { background: linear-gradient(135deg,#064e3b 0%,#0f766e 100%); padding: 1rem; border-radius: 14px; }
+.desk-card { background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,.15); max-width:920px; margin:0 auto; }
+.desk-header { background:#ecfdf5; border-radius:16px 16px 0 0; padding:1rem 1.25rem; border-bottom:1px solid #d1fae5; }
+.desk-member-id { font-size:1.5rem; font-weight:700; letter-spacing:.02em; }
+.desk-photo { width:120px; height:120px; object-fit:cover; border-radius:12px; border:3px solid #10b981; background:#f3f4f6; }
+.desk-success { background:#ecfdf5; border:2px solid #10b981; border-radius:12px; }
+.desk-duplicate { background:#fef3c7; border:2px solid #f59e0b; border-radius:12px; }
+.desk-preview { background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; padding:1rem; }
+.desk-status { border-radius:10px; padding:.5rem .75rem; font-size:.85rem; }
+.desk-status-open { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
+.desk-status-closed { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+.desk-inline-warn { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:.65rem .85rem; font-size:.85rem; color:#92400e; }
+.desk-kbd { font-size:.72rem; color:#64748b; }

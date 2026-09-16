@@ -37,7 +37,7 @@ $L = getLangStrings();
         <h1><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></li>
             </ol>
         </nav>
@@ -49,7 +49,7 @@ $L = getLangStrings();
     <div class="container">
         <div class="section-header section-header-unified text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-question-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="circle-help" aria-hidden="true"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Frequently Asked Questions' : 'बारम्बार सोधिने प्रश्नहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -63,7 +63,7 @@ $L = getLangStrings();
                     <?php foreach ($faqs as $index => $faq): ?>
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button class="accordion-button <?php echo $index > 0 ? 'collapsed' : ''; ?>" type="button" data-bs-toggle="collapse" data-bs-target="#faq<?php echo $faq['id']; ?>">
+                            <button type="button" class="accordion-button <?php echo $index > 0 ? 'collapsed' : ''; ?>" type="button" data-bs-toggle="collapse" data-bs-target="#faq<?php echo $faq['id']; ?>">
                                 <?php echo e(isEnglish() ? ($faq['question'] ?? $faq['question_np']) : ($faq['question_np'] ?? $faq['question'])); ?>
                             </button>
                         </h2>
@@ -150,7 +150,7 @@ $L = getLangStrings();
                         <?php echo isEnglish() ? 'Didn\'t find what you\'re looking for?' : 'तपाईंले खोजिरहेको भेट्नुभएन?'; ?>
                     </p>
                     <a href="contact.php" class="btn btn-primary">
-                        <i class="fas fa-envelope"></i> <?php echo $L['contact_us']; ?>
+                        <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo $L['contact_us']; ?>
                     </a>
                 </div>
             </div>

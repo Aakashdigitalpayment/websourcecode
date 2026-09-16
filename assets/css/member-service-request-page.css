@@ -1,0 +1,12 @@
+/** Member service request — extracted from member/service-request.php */
+/* service-request.php — page-specific only; base styles from member-portal-v2.css */
+.svc-card { background:#fff;border:2px solid var(--border-color,#e5e7eb);border-radius:12px;padding:13px 15px;cursor:pointer;transition:all .18s;margin-bottom:10px;display:flex;align-items:center;gap:10px; }
+.svc-card:hover,.svc-card.sel { border-color:var(--primary-color);background:color-mix(in srgb,var(--primary-color) 6%,white); }
+.svc-card.sel { box-shadow:0 0 0 3px rgba(var(--primary-rgb,26,95,42),.1); }
+.svc-card-icon { width:36px;height:36px;border-radius:10px;background:color-mix(in srgb,var(--primary-color) 10%,white);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0; }
+.svc-label { font-size:.88rem;font-weight:600;color:var(--text-primary,#1a2e1f); }
+.recent-card { background:color-mix(in srgb,var(--primary-color) 5%,white);border:1px solid var(--border-color,#e5e7eb);border-radius:10px;padding:10px 13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px; }
+.sr-status--pending,.sr-status--confirmed { color:var(--secondary-color,#c0392b); }
+.sr-status--completed { color:var(--primary-color,#1a5f2a); }
+.sr-status--cancelled { color:var(--text-muted,#6b7280); }
+.sr-track { font-size:.72rem;font-family:monospace;letter-spacing:.5px;background:color-mix(in srgb,var(--primary-color) 8%,white);padding:2px 7px;border-radius:5px;color:var(--primary-color); }

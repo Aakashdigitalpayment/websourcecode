@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!defined('TEAM_ADMIN_SECTION')) {
     define('TEAM_ADMIN_SECTION', 'governance');
 }
@@ -46,22 +47,30 @@ try {
         $_db_chk->exec("ALTER TABLE team_members MODIFY COLUMN category VARCHAR(50) NOT NULL DEFAULT 'staff'");
     }
     /* Ensure is_chairman, is_ceo, is_information_officer, is_grievance_officer columns exist */
-    $_cols = $_db_chk->query("SHOW COLUMNS FROM team_members")->fetchAll(PDO::FETCH_ASSOC);
-    $_existing = array_column($_cols, 'Field');
-    if (!in_array('is_chairman', $_existing, true)) {
-        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0");
-    }
-    if (!in_array('is_ceo', $_existing, true)) {
-        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0");
-    }
-    if (!in_array('is_information_officer', $_existing, true)) {
-        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0");
-    }
-    if (!in_array('is_grievance_officer', $_existing, true)) {
-        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0");
-    }
-    if (!in_array('chart_row', $_existing, true)) {
-        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order");
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($_db_chk, 'team_members', 'is_chairman', 'TINYINT(1) DEFAULT 0');
+        safeAddColumn($_db_chk, 'team_members', 'is_ceo', 'TINYINT(1) DEFAULT 0');
+        safeAddColumn($_db_chk, 'team_members', 'is_information_officer', 'TINYINT(1) DEFAULT 0');
+        safeAddColumn($_db_chk, 'team_members', 'is_grievance_officer', 'TINYINT(1) DEFAULT 0');
+        safeAddColumn($_db_chk, 'team_members', 'chart_row', "TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order");
+    } else {
+        $_cols = $_db_chk->query("SHOW COLUMNS FROM team_members")->fetchAll(PDO::FETCH_ASSOC);
+        $_existing = array_column($_cols, 'Field');
+        if (!in_array('is_chairman', $_existing, true)) {
+            $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0");
+        }
+        if (!in_array('is_ceo', $_existing, true)) {
+            $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0");
+        }
+        if (!in_array('is_information_officer', $_existing, true)) {
+            $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0");
+        }
+        if (!in_array('is_grievance_officer', $_existing, true)) {
+            $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0");
+        }
+        if (!in_array('chart_row', $_existing, true)) {
+            $_db_chk->exec("ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order");
+        }
     }
     /* Ensure committee_types table exists (silently) */
     $_db_chk->exec("CREATE TABLE IF NOT EXISTS committee_types (
@@ -197,6 +206,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ensureCommitteeTypesExtendedColumns($db);
                     $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
                     $gIcon = clean_text($_POST['group_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
+                    if (function_exists('coop_canonical_icon_for_storage')) {
+                        $gIcon = coop_canonical_icon_for_storage($gIcon, 'fas fa-users-gear');
+                    }
                     if (($_POST['action'] ?? '') === 'group_add'
                         && function_exists('isBoardCommitteeTypeAlias')
                         && isBoardCommitteeTypeAlias([
@@ -253,6 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mNameNp = clean_text($_POST['menu_name_np'] ?? '');
                 $mNameEn = clean_text($_POST['menu_name_en'] ?? '');
                 $mIcon = clean_text($_POST['menu_icon'] ?? 'fas fa-folder', 80) ?: 'fas fa-folder';
+                if (function_exists('coop_canonical_icon_for_storage')) {
+                    $mIcon = coop_canonical_icon_for_storage($mIcon, 'fas fa-folder');
+                }
                 $mSource = in_array($_POST['menu_source_type'] ?? '', ['staff', 'committees'], true)
                     ? $_POST['menu_source_type'] : 'staff';
                 $mOrder = (int)($_POST['menu_order'] ?? 0);
@@ -560,21 +575,21 @@ $teamHeaderIcon = $teamListSection === 'karmachari' ? 'fa-user-tie' : 'fa-buildi
 $teamHeaderSub = $teamListSection === 'karmachari'
     ? $__t('व्यवस्थापन र कर्मचारी मात्र यहाँ सूचीबद्ध। सञ्चालक समिति वा अन्य समिति: मेनु «सञ्चालक / समिति»। RTI/गुनासो अधिकारी स्विच यहीँ वा «तोकाइ» पृष्ठ।', 'Only management and staff are listed here. For board/other committees use "Directors / Committee". RTI/Grievance officers can be assigned here or from "Assignment" pages.')
     : $__t('सञ्चालक समिति (board) र समिति/उपसमिति (समिति प्रकार) मात्र। कर्मचारी/व्यवस्थापन: मेनु «कर्मचारी / व्यवस्थापन»। RTI/गुनासो अधिकारी यहीँका स्विच वा «तोकाइ» पृष्ठ।', 'Only board committee and committee/subcommittee members are listed here. For staff/management use "Staff / Management". RTI/Grievance officers can be set here or from assignment pages.');
-$teamHeaderActions = '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--total me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($team) . '</span>'
-    . '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--active me-2"><i class="fas fa-check-circle me-1"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($teamLive) . '</span>'
-    . '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--arch me-2"><i class="fas fa-archive me-1"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($teamArch) . '</span>';
+$teamHeaderActions = '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--total me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . $__t('जम्मा', 'Total') . ': ' . count($team) . '</span>'
+    . '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--active me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($teamLive) . '</span>'
+    . '<span class="badge admin-stat-badge tm-stat-badge tm-stat-badge--arch me-2"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($teamArch) . '</span>';
 if ($teamListSection === 'karmachari') {
-    $teamHeaderActions .= '<a href="team.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="fas fa-building-columns me-1"></i>' . $__t('सञ्चालक / समिति', 'Directors / Committee') . '</a>';
+    $teamHeaderActions .= '<a href="team.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="lucide-icon me-1" data-lucide="landmark" aria-hidden="true"></i>' . $__t('सञ्चालक / समिति', 'Directors / Committee') . '</a>';
 } else {
-    $teamHeaderActions .= '<a href="team-karmachari.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="fas fa-user-tie me-1"></i>' . $__t('कर्मचारी / व्यवस्थापन', 'Staff / Management') . '</a>';
+    $teamHeaderActions .= '<a href="team-karmachari.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i>' . $__t('कर्मचारी / व्यवस्थापन', 'Staff / Management') . '</a>';
 }
-$teamHeaderActions .= '<a href="info-officer.php" class="btn btn-sm btn-outline-primary ms-1 mb-1"><i class="fas fa-user-shield me-1"></i>' . $__t('RTI तोकाइ', 'RTI Assignment') . '</a>'
-    . '<a href="grievance-officer.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="fas fa-user-tie me-1"></i>' . $__t('गुनासो तोकाइ', 'Grievance Assignment') . '</a>';
+$teamHeaderActions .= '<a href="info-officer.php" class="btn btn-sm btn-outline-primary ms-1 mb-1"><i class="lucide-icon me-1" data-lucide="shield-user" aria-hidden="true"></i>' . $__t('RTI तोकाइ', 'RTI Assignment') . '</a>'
+    . '<a href="grievance-officer.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i>' . $__t('गुनासो तोकाइ', 'Grievance Assignment') . '</a>';
 echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHeaderActions);
 ?>
 
 <div class="alert alert-light border small mb-3 py-2">
-  <i class="fas fa-sitemap me-1 text-success"></i>
+  <i class="lucide-icon me-1 text-success" data-lucide="network" aria-hidden="true"></i>
   <?php if ($teamListSection === 'karmachari'): ?>
     <strong><?php echo $__t('कहाँ के?', 'Where is what?'); ?></strong>
     <?php echo $__t('यहाँ = website मा देखिने व्यवस्थापन/कर्मचारी। पद =', 'Here = public staff/management. Posts ='); ?>
@@ -595,19 +610,19 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 <ul class="nav nav-tabs admin-nav-tabs mb-0" data-team-section="<?php echo htmlspecialchars($teamListSection, ENT_QUOTES, 'UTF-8'); ?>">
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTeamTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-list" id="team-list-btn" title="<?php echo $__t('सक्रिय / जम्मा', 'Active / Total'); ?>">
-            <i class="fas fa-list me-2"></i><?php echo $__t('सदस्य सूची', 'Member List'); ?>
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('सदस्य सूची', 'Member List'); ?>
             <span class="badge tm-tab-count ms-1"><?php echo count($team); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTeamTab === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-form" id="team-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="teamFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="teamFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
     <?php if ($teamListSection === 'governance' || $teamListSection === 'karmachari'): ?>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTeamTab === 'groups' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-groups" id="team-groups-btn">
-            <i class="fas fa-layer-group me-2"></i><?php echo $teamListSection === 'karmachari'
+            <i class="lucide-icon me-2" data-lucide="layers" aria-hidden="true"></i><?php echo $teamListSection === 'karmachari'
                 ? $__t('वर्ग / समूह', 'Category / Groups')
                 : $__t('समिति समूह', 'Committee Groups'); ?>
             <span class="badge tm-tab-count ms-1"><?php echo $teamListSection === 'karmachari' ? count($allStaffGroups) : count($allCommitteeGroups); ?></span>
@@ -616,7 +631,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <?php endif; ?>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTeamTab === 'menu' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-menu" id="team-menu-btn">
-            <i class="fas fa-sitemap me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
+            <i class="lucide-icon me-2" data-lucide="network" aria-hidden="true"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
             <span class="badge tm-tab-count ms-1"><?php echo count($allMenuCategories); ?></span>
         </button>
     </li>
@@ -631,7 +646,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap tm-search-wrap px-3 py-2 border-bottom d-flex align-items-center gap-3 svc-search-wrap">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text tm-input-addon border-end-0"><i class="fas fa-search tm-search-ico"></i></span>
+                    <span class="input-group-text tm-input-addon border-end-0"><i class="lucide-icon tm-search-ico" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="<?php echo $__t('नाम, विवरण अनुसार खोज्नुहोस्...', 'Search by name or details...'); ?>" autocomplete="off">
                 </div>
                 <small class="search-count"></small>
@@ -657,12 +672,12 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <tbody>
                             <?php if (empty($team)): ?>
                             <tr><td colspan="8" class="text-center py-5 tm-meta-muted">
-                                <i class="fas fa-users fa-3x mb-2 d-block opacity-25 tm-empty-state-ico"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 tm-empty-state-ico" data-lucide="users" aria-hidden="true"></i>
                                 <?php echo $__t('कुनै सदस्य छैन।', 'No members found.'); ?>
                             </td></tr>
                             <?php elseif (empty($teamLive)): ?>
                             <tr><td colspan="8" class="text-center py-5 tm-meta-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 tm-empty-state-ico"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 tm-empty-state-ico" data-lucide="circle-check" aria-hidden="true"></i>
                                 <?php echo $__t('सक्रिय सदस्य छैन। अभिलेख हेर्नुहोस्।', 'No active members. Check archive tab.'); ?>
                             </td></tr>
                             <?php endif; ?>
@@ -672,7 +687,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <?php if (!empty($m['photo'])): ?>
                                     <img src="<?php echo e(safe_media_src($m['photo'] ?? '')); ?>" class="tm-avatar-photo" alt="<?php echo e($m['name'] ?? ''); ?>">
                                     <?php else: ?>
-                                    <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
+                                    <div class="tm-avatar-fallback"><i class="lucide-icon tm-ico-accent" data-lucide="user" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -684,8 +699,8 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <small class="tm-meta-muted"><?php echo htmlspecialchars($m['position_en'] ?? ''); ?></small>
                                 </td>
                                 <td>
-                                    <?php if (!empty($m['phone'])): ?><small><i class="fas fa-phone me-1 tm-ico-accent"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
-                                    <?php if (!empty($m['email'])): ?><small><i class="fas fa-envelope me-1 tm-ico-accent"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
+                                    <?php if (!empty($m['phone'])): ?><small><i class="lucide-icon me-1 tm-ico-accent" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
+                                    <?php if (!empty($m['email'])): ?><small><i class="lucide-icon me-1 tm-ico-accent" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge tm-cat-badge"
@@ -701,9 +716,9 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" class="svc-inline-form">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="toggle">
-                                        <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
                                         <button type="submit" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>" title="<?php echo $__t('स्थिति टगल', 'Toggle status'); ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
@@ -714,13 +729,13 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
                                             aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo addslashes($__t('के तपाईं यो सदस्य मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this member?')); ?>')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -747,7 +762,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <tbody>
                             <?php if (empty($teamArch)): ?>
                             <tr><td colspan="8" class="text-center py-5 tm-meta-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25 tm-empty-state-ico"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 tm-empty-state-ico" data-lucide="folder-open" aria-hidden="true"></i>
                                 <?php echo $__t('अभिलेखमा कुनै सदस्य छैन।', 'No archived members.'); ?>
                             </td></tr>
                             <?php endif; ?>
@@ -757,7 +772,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <?php if (!empty($m['photo'])): ?>
                                     <img src="<?php echo e(safe_media_src($m['photo'] ?? '')); ?>" class="tm-avatar-photo" alt="<?php echo e($m['name'] ?? ''); ?>">
                                     <?php else: ?>
-                                    <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
+                                    <div class="tm-avatar-fallback"><i class="lucide-icon tm-ico-accent" data-lucide="user" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -769,8 +784,8 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <small class="tm-meta-muted"><?php echo htmlspecialchars($m['position_en'] ?? ''); ?></small>
                                 </td>
                                 <td>
-                                    <?php if (!empty($m['phone'])): ?><small><i class="fas fa-phone me-1 tm-ico-accent"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
-                                    <?php if (!empty($m['email'])): ?><small><i class="fas fa-envelope me-1 tm-ico-accent"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
+                                    <?php if (!empty($m['phone'])): ?><small><i class="lucide-icon me-1 tm-ico-accent" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
+                                    <?php if (!empty($m['email'])): ?><small><i class="lucide-icon me-1 tm-ico-accent" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge tm-cat-badge"
@@ -786,9 +801,9 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" class="svc-inline-form">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="toggle">
-                                        <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
                                         <button type="submit" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>" title="<?php echo $__t('स्थिति टगल', 'Toggle status'); ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
@@ -799,13 +814,13 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
                                             aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo addslashes($__t('के तपाईं यो सदस्य मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this member?')); ?>')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$m['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -824,15 +839,15 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="teamFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सदस्य थप्नुहोस्', 'Add New Member'); ?>
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ सदस्य थप्नुहोस्', 'Add New Member'); ?>
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelTeam">
-                    <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to list'); ?>
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to list'); ?>
                 </button>
             </div>
             <div class="card-body p-4">
                 <form method="POST" enctype="multipart/form-data" id="teamForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="tmf_action" value="add">
                     <input type="hidden" name="id" id="tmf_id" value="">
 
@@ -971,7 +986,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <label class="form-check-label fw-semibold tm-form-label" for="tmf_is_ceo"><?php echo $__t('प्रमुख कार्यकारी (CEO)', 'Chief Executive (CEO)'); ?></label>
                             </div>
                             <p class="small tm-meta-muted mb-0 mt-2 tm-note-xs">
-                                <i class="fas fa-link me-1 opacity-75"></i><?php echo $__t('छुट्टै पृष्ठबाट पनि तोक्न मिल्छ —', 'Can also be assigned from dedicated pages -'); ?>
+                                <i class="lucide-icon me-1 opacity-75" data-lucide="link" aria-hidden="true"></i><?php echo $__t('छुट्टै पृष्ठबाट पनि तोक्न मिल्छ —', 'Can also be assigned from dedicated pages -'); ?>
                                 <a href="info-officer.php" class="tm-inline-link">RTI</a>,
                                 <a href="grievance-officer.php" class="tm-inline-link"><?php echo $__t('गुनासो', 'Grievance'); ?></a>.
                             </p>
@@ -991,10 +1006,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="tmf_submit" class="btn tm-btn-submit px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
                         </button>
                         <button type="button" id="tmf_cancel2" class="btn tm-btn-cancel px-4">
-                            <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रद्द', 'Cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -1007,7 +1022,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <div class="tab-pane fade <?php echo $activeTeamTab === 'groups' ? 'show active' : ''; ?>" id="team-groups">
         <div class="card-body">
             <div class="alert alert-info py-2 mb-3 small">
-                <i class="fas fa-info-circle me-1"></i>
+                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                 <?php echo $__t(
                     'यहाँ बनेका समूह सदस्य फारमको “वर्ग / समूह” मा देखिन्छन्। सदस्य map गर्नुस् भने सार्वजनिक टोली मेनुमा त्यो समिति अन्तर्गत देखिन्छ। कार्यकाल (वर्ष) अनुसार इतिहास राख्न',
                     'Groups created here appear in the member form Category/Group field. Map a member to show them under that committee on the public team menu. For tenure/year history use'
@@ -1021,7 +1036,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 </div>
                 <div class="card-body">
                     <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups<?php echo $editGroup ? '&edit_group='.(int)$editGroup['id'] : ''; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="<?php echo $editGroup ? 'group_edit' : 'group_add'; ?>">
                         <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
@@ -1065,14 +1080,14 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
                                         <span class="fa-ip-preview input-group-text" data-fa-preview>
-                                            <i class="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                            <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_gIcon, 'fas fa-circle') : ''; ?>
                                         </span>
                                         <input type="text" name="group_icon" id="grp_icon" class="form-control" data-fa-input
                                                value="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"
                                                placeholder="fas fa-users-gear">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open
                                                 title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                            <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                         </button>
                                     </div>
                                     <small class="fa-ip-hint"><?php echo $__t('सार्वजनिक मेनुमा यो समिति item को icon।', 'This icon appears for the committee item in the public menu.'); ?></small>
@@ -1091,7 +1106,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         </div>
                         <div class="mt-3 d-flex gap-2">
                             <button type="submit" class="btn btn-success px-4">
-                                <i class="fas fa-save me-1"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                                <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                             </button>
                             <?php if ($editGroup): ?>
                             <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
@@ -1103,7 +1118,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 
             <?php if (empty($allCommitteeGroups)): ?>
             <div class="text-center py-4 text-muted">
-                <i class="fas fa-layer-group fa-2x mb-2 d-block opacity-50"></i>
+                <i class="lucide-icon lucide-2x mb-2 d-block opacity-50" data-lucide="layers" aria-hidden="true"></i>
                 <?php echo $__t('कुनै समिति समूह छैन। माथि थप्नुहोस्।', 'No committee groups yet. Add one above.'); ?>
             </div>
             <?php else: ?>
@@ -1126,7 +1141,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 ?>
                     <tr<?php echo $isBoardAliasGroup ? ' class="table-warning"' : ''; ?>>
                         <td>
-                            <i class="<?php echo htmlspecialchars(trim((string)($g['icon'] ?? '')) ?: 'fas fa-users-gear'); ?> me-1 text-success"></i>
+                            <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html(trim((string)($g['icon'] ?? '')), 'fas fa-users-gear', 'me-1 text-success') : ''; ?>
                             <?php echo htmlspecialchars($g['name_np'] ?: $g['name']); ?>
                             <?php if ($isBoardAliasGroup): ?>
                                 <span class="badge bg-warning text-dark ms-1" title="<?php echo $__t('यो सञ्चालक समिति = team_members.category board', 'Maps to fixed board category'); ?>">board</span>
@@ -1148,13 +1163,13 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </span>
                         </td>
                         <td class="text-center">
-                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
-                            <a href="committees.php?tab=tenures&type=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-outline-secondary me-1" title="<?php echo $__t('कार्यकाल', 'Tenures'); ?>"><i class="fas fa-calendar-alt"></i></a>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
+                            <a href="committees.php?tab=tenures&type=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-outline-secondary me-1" title="<?php echo $__t('कार्यकाल', 'Tenures'); ?>"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></a>
                             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो समूह हटाउने?', 'Delete this group?')); ?>')">
-                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <input type="hidden" name="action" value="group_delete">
                                 <input type="hidden" name="group_id" value="<?php echo (int)$g['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -1169,7 +1184,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <div class="tab-pane fade <?php echo $activeTeamTab === 'groups' ? 'show active' : ''; ?>" id="team-groups">
         <div class="card-body">
             <div class="alert alert-info py-2 mb-3 small">
-                <i class="fas fa-info-circle me-1"></i>
+                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                 <?php echo $__t(
                     'यो वर्ग/समूह सदस्य फारमको “वर्ग / समूह” dropdown मा आउँछ। पद मास्टरबाट पद छुट्टै थपिन्छ; यहाँ चाहिँ कर्मचारीलाई कुन टोलीमा राख्ने भन्ने समूह manage हुन्छ।',
                     'These groups appear in the member form Category/Group dropdown. Designations (posts) stay in Post Master; here you manage which staff team bucket a member belongs to.'
@@ -1182,7 +1197,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 </div>
                 <div class="card-body">
                     <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups<?php echo $editGroup ? '&edit_group='.(int)$editGroup['id'] : ''; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="<?php echo $editGroup ? 'group_edit' : 'group_add'; ?>">
                         <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
@@ -1231,7 +1246,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         </div>
                         <div class="mt-3 d-flex gap-2">
                             <button type="submit" class="btn btn-success px-4">
-                                <i class="fas fa-save me-1"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                                <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                             </button>
                             <?php if ($editGroup): ?>
                             <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
@@ -1243,7 +1258,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 
             <?php if (empty($allStaffGroups)): ?>
             <div class="text-center py-4 text-muted">
-                <i class="fas fa-layer-group fa-2x mb-2 d-block opacity-50"></i>
+                <i class="lucide-icon lucide-2x mb-2 d-block opacity-50" data-lucide="layers" aria-hidden="true"></i>
                 <?php echo $__t('कुनै वर्ग छैन। माथि थप्नुहोस्।', 'No categories yet. Add one above.'); ?>
             </div>
             <?php else: ?>
@@ -1271,12 +1286,12 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </span>
                         </td>
                         <td class="text-center">
-                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो वर्ग हटाउने? सदस्य कर्मचारीमा सर्छन्।', 'Delete this category? Members move to Staff.')); ?>')">
-                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <input type="hidden" name="action" value="group_delete">
                                 <input type="hidden" name="group_id" value="<?php echo (int)$g['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -1292,7 +1307,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <div class="tab-pane fade <?php echo $activeTeamTab === 'menu' ? 'show active' : ''; ?>" id="team-menu">
         <div class="card-body">
             <div class="alert alert-info py-2 mb-3 small">
-                <i class="fas fa-info-circle me-1"></i>
+                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                 <?php echo $__t(
                     'यो सार्वजनिक मेनु «मानवीय श्रोत» भित्रका parent श्रेणी हुन् (जस्तै: व्यवस्थापन, समिति/उपसमिति)। यी item होइनन् — यिनका भित्रका item हरू कर्मचारी वर्ग वा समिति समूहबाट आउँछन्।',
                     'These are parent categories inside the public Human Resources menu (e.g. Management, Committees). They are not leaf items — items under them come from staff groups or committee groups.'
@@ -1305,7 +1320,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 </div>
                 <div class="card-body">
                     <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu<?php echo $editMenuCat ? '&edit_menu='.(int)$editMenuCat['id'] : ''; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="<?php echo $editMenuCat ? 'menu_cat_edit' : 'menu_cat_add'; ?>">
                         <?php if ($editMenuCat): ?><input type="hidden" name="menu_cat_id" value="<?php echo (int)$editMenuCat['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
@@ -1333,14 +1348,14 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
                                         <span class="fa-ip-preview input-group-text" data-fa-preview>
-                                            <i class="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                            <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($editMenuCat['icon'] ?? 'fas fa-folder', 'fas fa-circle') : ''; ?>
                                         </span>
                                         <input type="text" name="menu_icon" id="menu_icon_field" class="form-control" data-fa-input
                                                value="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"
                                                placeholder="fas fa-briefcase">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open
                                                 title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                            <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                         </button>
                                     </div>
                                     <small class="fa-ip-hint"><?php echo $__t('दायाँ बटनबाट आइकन छान्नुहोस् वा class टाइप गर्नुहोस्। सार्वजनिक मेनुमा यही icon देखिन्छ।', 'Pick an icon with the button, or type a class. This icon appears in the public menu.'); ?></small>
@@ -1371,7 +1386,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         </div>
                         <div class="mt-3 d-flex gap-2">
                             <button type="submit" class="btn btn-success px-4">
-                                <i class="fas fa-save me-1"></i><?php echo $editMenuCat ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                                <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $editMenuCat ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                             </button>
                             <?php if ($editMenuCat): ?>
                             <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
@@ -1383,7 +1398,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 
             <?php if (empty($allMenuCategories)): ?>
             <div class="text-center py-4 text-muted">
-                <i class="fas fa-sitemap fa-2x mb-2 d-block opacity-50"></i>
+                <i class="lucide-icon lucide-2x mb-2 d-block opacity-50" data-lucide="network" aria-hidden="true"></i>
                 <?php echo $__t('कुनै मेनु श्रेणी छैन।', 'No menu categories yet.'); ?>
             </div>
             <?php else: ?>
@@ -1402,7 +1417,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 <?php foreach ($allMenuCategories as $mc): ?>
                     <tr>
                         <td>
-                            <i class="<?php echo htmlspecialchars($mc['icon'] ?: 'fas fa-folder'); ?> me-1 text-muted"></i>
+                            <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($mc['icon'] ?: ''), 'fas fa-folder', 'me-1 text-muted') : ''; ?>
                             <?php echo htmlspecialchars($mc['name_np'] ?: $mc['name_en']); ?>
                             <?php if (!empty($mc['name_en']) && $mc['name_en'] !== $mc['name_np']): ?>
                             <small class="text-muted d-block"><?php echo htmlspecialchars($mc['name_en']); ?></small>
@@ -1423,12 +1438,12 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </span>
                         </td>
                         <td class="text-center">
-                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu&edit_menu=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu&edit_menu=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो मेनु श्रेणी हटाउने?', 'Delete this menu category?')); ?>')">
-                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <input type="hidden" name="action" value="menu_cat_delete">
                                 <input type="hidden" name="menu_cat_id" value="<?php echo (int)$mc['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -1444,10 +1459,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var teamI18n = {
-        addBtn: <?php echo json_encode('<i class="fas fa-plus-circle me-2"></i>' . $__t('थप्नुहोस्', 'Add')); ?>,
-        editBtn: <?php echo json_encode('<i class="fas fa-save me-2"></i>' . $__t('अपडेट गर्नुहोस्', 'Update')); ?>,
-        addTitle: <?php echo json_encode('<i class="fas fa-plus-circle me-2"></i>' . $__t('नयाँ सदस्य थप्नुहोस्', 'Add New Member')); ?>,
-        editTitle: <?php echo json_encode('<i class="fas fa-user-edit me-2"></i>' . $__t('सदस्य सम्पादन', 'Edit Member')); ?>,
+        addBtn: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>' . $__t('थप्नुहोस्', 'Add')); ?>,
+        editBtn: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>' . $__t('अपडेट गर्नुहोस्', 'Update')); ?>,
+        addTitle: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>' . $__t('नयाँ सदस्य थप्नुहोस्', 'Add New Member')); ?>,
+        editTitle: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="user-pen" aria-hidden="true"></i>' . $__t('सदस्य सम्पादन', 'Edit Member')); ?>,
         addTab: <?php echo json_encode($__t('नयाँ थप्नुहोस्', 'Add New')); ?>,
         editTab: <?php echo json_encode($__t('सम्पादन', 'Edit')); ?>,
         keepPhoto: <?php echo json_encode($__t(' — नयाँ फोटो नचुने भने पुरानै रहन्छ', ' - keep empty to retain current photo')); ?>
@@ -1546,7 +1561,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             var prev = document.getElementById('tmf_photo_prev');
             prev.innerHTML = m.photo
-                ? '<img src="<?php echo SITE_URL; ?>' + m.photo + '" class="tm-photo-preview" alt="Preview">'
+                ? '<img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>' + m.photo + '" class="tm-photo-preview" alt="Preview">'
                 : '';
             document.getElementById('tmf_photo_note').textContent = m.photo ? teamI18n.keepPhoto : '';
             document.getElementById('tmf_submit').innerHTML = teamI18n.editBtn;

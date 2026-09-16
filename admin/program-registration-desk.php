@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'दर्ता डेस्क';
 $currentPage = 'program-registration-desk';
 require_once 'includes/admin-header.php';
@@ -110,22 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     }
 }
 ?>
-<style>
-.desk-page-wrap { padding: 0.25rem 0 1rem; }
-.desk-shell { background: linear-gradient(135deg,#064e3b 0%,#0f766e 100%); padding: 1rem; border-radius: 14px; }
-.desk-card { background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,.15); max-width:920px; margin:0 auto; }
-.desk-header { background:#ecfdf5; border-radius:16px 16px 0 0; padding:1rem 1.25rem; border-bottom:1px solid #d1fae5; }
-.desk-member-id { font-size:1.5rem; font-weight:700; letter-spacing:.02em; }
-.desk-photo { width:120px; height:120px; object-fit:cover; border-radius:12px; border:3px solid #10b981; background:#f3f4f6; }
-.desk-success { background:#ecfdf5; border:2px solid #10b981; border-radius:12px; }
-.desk-duplicate { background:#fef3c7; border:2px solid #f59e0b; border-radius:12px; }
-.desk-preview { background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; padding:1rem; }
-.desk-status { border-radius:10px; padding:.5rem .75rem; font-size:.85rem; }
-.desk-status-open { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
-.desk-status-closed { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
-.desk-inline-warn { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:.65rem .85rem; font-size:.85rem; color:#92400e; }
-.desk-kbd { font-size:.72rem; color:#64748b; }
-</style>
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/admin-program-registration-desk.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/admin-program-registration-desk.css');
+}
+?>
 <div class="container-fluid desk-page-wrap">
 <?php echo adminPageHeader('Registration Desk', 'monitor', 'कार्डको Member ID (सदस्यता नं.) → lookup → Confirm · Staff को एक मात्र उपस्थिति दर्ता ठाउँ',
     '<a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">← Dashboard</a>'); ?>
@@ -133,29 +125,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 <div class="desk-card">
   <div class="desk-header d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div>
-      <strong><?php echo function_exists('icon') ? icon('monitor', 16, 'margin-right:6px;') : '<i class="fas fa-desktop me-1"></i>'; ?> Registration Desk</strong>
+      <strong><?php echo function_exists('icon') ? icon('monitor', 16, 'margin-right:6px;') : '<i class="lucide-icon me-1" data-lucide="monitor" aria-hidden="true"></i>'; ?> Registration Desk</strong>
       <div class="small text-muted">Member ID टाइप → auto lookup → Confirm</div>
     </div>
   </div>
   <div class="p-3 p-md-4">
     <?php if ($saved && $memberPreview): ?>
     <div class="desk-success p-3 mb-3 text-center">
-      <i class="fas fa-check-circle text-success fa-2x"></i>
+      <i class="lucide-icon text-success lucide-2x" data-lucide="circle-check" aria-hidden="true"></i>
       <div class="fw-bold mt-2 fs-5">✓ उपस्थिति दर्ता भयो!</div>
       <div class="mt-1"><?php echo htmlspecialchars($memberPreview['name'] ?? ''); ?></div>
       <div class="small text-muted font-monospace"><?php echo htmlspecialchars(programMemberSadasyataNo($memberPreview)); ?></div>
-      <?php if ($selectedOccurrence): ?><div class="small mt-1"><i class="fas fa-location-dot me-1"></i><?php echo htmlspecialchars($selectedOccurrence['location_name'] ?? ''); ?></div><?php endif; ?>
+      <?php if ($selectedOccurrence): ?><div class="small mt-1"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($selectedOccurrence['location_name'] ?? ''); ?></div><?php endif; ?>
     </div>
     <?php endif; ?>
 
     <?php if ($duplicate && $existingInfo): ?>
     <div class="desk-duplicate p-3 mb-3">
-      <div class="fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> Already Attended</div>
+      <div class="fw-bold"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i> Already Attended</div>
       <div class="mt-1"><?php echo htmlspecialchars($memberPreview['name'] ?? ''); ?> — <?php echo htmlspecialchars(programMemberSadasyataNo($memberPreview ?? [])); ?></div>
       <div class="small mt-2">
-        <div><i class="fas fa-location-dot me-1"></i><?php echo htmlspecialchars(programAttendanceDisplayLocation($existingInfo)); ?></div>
-        <?php if (!empty($existingInfo['attended_at'])): ?><div><i class="fas fa-clock me-1"></i><?php echo htmlspecialchars(date('Y-m-d H:i', strtotime((string)$existingInfo['attended_at']))); ?></div><?php endif; ?>
-        <?php if (!empty($existingInfo['attendance_method'])): ?><div><i class="fas fa-tag me-1"></i><?php echo htmlspecialchars(programAttendanceMethodLabel($existingInfo['attendance_method'])); ?></div><?php endif; ?>
+        <div><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars(programAttendanceDisplayLocation($existingInfo)); ?></div>
+        <?php if (!empty($existingInfo['attended_at'])): ?><div><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i><?php echo htmlspecialchars(date('Y-m-d H:i', strtotime((string)$existingInfo['attended_at']))); ?></div><?php endif; ?>
+        <?php if (!empty($existingInfo['attendance_method'])): ?><div><i class="lucide-icon me-1" data-lucide="tag" aria-hidden="true"></i><?php echo htmlspecialchars(programAttendanceMethodLabel($existingInfo['attendance_method'])); ?></div><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>
@@ -164,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 
     <?php if ($prog): ?>
     <div class="desk-status mb-3 <?php echo !empty($windowStatus['ok']) ? 'desk-status-open' : 'desk-status-closed'; ?>">
-      <i class="fas fa-<?php echo !empty($windowStatus['ok']) ? 'door-open' : 'door-closed'; ?> me-1"></i>
+      <i class="lucide-icon me-1" data-lucide="<?php echo !empty($windowStatus['ok']) ? 'door-open' : 'door-closed'; ?>" aria-hidden="true"></i>
       <?php if (!empty($windowStatus['ok'])): ?>
         उपस्थिति window <strong>खुला</strong> छ — दर्ता गर्न सकिन्छ।
       <?php else: ?>
@@ -175,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 
     <?php if ($programQrUrl !== ''): ?>
     <div class="text-center mb-3 p-2 border rounded bg-light">
-      <div class="small text-muted mb-1"><i class="fas fa-qrcode me-1"></i>सदस्य QR scan (Member Portal)</div>
+      <div class="small text-muted mb-1"><i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>सदस्य QR scan (Member Portal)</div>
       <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=4&amp;data=<?php echo urlencode($programQrUrl); ?>" alt="Program QR" width="120" height="120" class="rounded border bg-white">
       <div class="mt-1"><a href="<?php echo htmlspecialchars($programQrUrl); ?>" class="small" target="_blank" rel="noopener noreferrer">Attendance link</a></div>
     </div>
@@ -185,23 +177,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="confirm">
       <div class="row g-3 mb-3">
-        <div class="col-md-6"><label class="form-label">कार्यक्रम *</label>
+        <div class="col-md-6"><label class="form-label" for="deskProgram">कार्यक्रम *</label>
           <select name="program_id" id="deskProgram" class="form-select" required onchange="location.href='program-registration-desk.php?program_id='+this.value">
             <option value="">— छान्नुहोस् —</option>
             <?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($p['title']); ?></option><?php endforeach; ?>
           </select>
         </div>
         <?php if (!empty($occurrences)): ?>
-        <div class="col-md-6"><label class="form-label">स्थान / Occurrence *</label>
+        <div class="col-md-6"><label class="form-label" for="deskOccurrence">स्थान / Occurrence *</label>
           <select name="occurrence_id" id="deskOccurrence" class="form-select" required>
             <option value="">— छान्नुहोस् —</option>
             <?php foreach ($occurrences as $o): ?><option value="<?php echo (int)$o['id']; ?>" <?php echo $occurrenceId===(int)$o['id']?'selected':''; ?>><?php echo htmlspecialchars($o['location_name']); ?> (<?php echo htmlspecialchars($o['event_date']??''); ?>)</option><?php endforeach; ?>
           </select>
-          <?php if (count($occurrences) === 1): ?><div class="form-text text-success"><i class="fas fa-check me-1"></i>एक मात्र स्थान — स्वतः छानियो</div><?php endif; ?>
+          <?php if (count($occurrences) === 1): ?><div class="form-text text-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>एक मात्र स्थान — स्वतः छानियो</div><?php endif; ?>
         </div>
         <?php endif; ?>
-        <div class="col-md-6"><label class="form-label">Desk</label>
-          <select name="desk_id" class="form-select">
+        <div class="col-md-6"><label class="form-label" for="deskDeskId">Desk</label>
+          <select name="desk_id" id="deskDeskId" class="form-select">
             <option value="0">— Default —</option>
             <?php foreach ($desks as $d): ?><option value="<?php echo (int)$d['id']; ?>" <?php echo $deskId===(int)$d['id']?'selected':''; ?>><?php echo htmlspecialchars($d['desk_label']); ?></option><?php endforeach; ?>
           </select>
@@ -217,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
         <div id="deskDupInfo" class="small text-warning mt-2 d-none"></div>
       </div>
 
-      <label class="form-label desk-member-id">Member ID (कार्ड / सदस्यता नं.) *</label>
+      <label class="form-label desk-member-id" for="deskMemberInput">Member ID (कार्ड / सदस्यता नं.) *</label>
       <input type="text" name="member_id_input" id="deskMemberInput" class="form-control form-control-lg desk-member-id mb-2" placeholder="कार्डमा भएको Member ID — उदा. AKS-2080-0001" autocomplete="off" autocapitalize="characters" autofocus required>
       <div class="desk-kbd mb-3">Member ID टाइप गर्नुहोस् → auto lookup → Confirm · <kbd>Esc</kbd> clear</div>
       <div class="d-flex gap-2">

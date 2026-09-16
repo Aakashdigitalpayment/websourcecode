@@ -1,0 +1,10 @@
+/** Portal fatal error page — extracted from core/init.php */
+            body{margin:0;background:linear-gradient(135deg,#fef2f2,#fee2e2);min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:var(--font-primary,"Inter","Noto Sans Devanagari","Segoe UI",sans-serif);padding:20px}
+            .err-box{max-width:480px;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.1);padding:32px;text-align:center}
+            .err-icon{width:72px;height:72px;background:#fee2e2;color:#b91c1c;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px}
+            h1{color:#1f2937;font-size:1.25rem;margin:0 0 10px}
+            p{color:#6b7280;font-size:.9rem;line-height:1.6;margin:0 0 22px}
+            .err-detail{background:#fef2f2;color:#991b1b;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:.78rem;margin:14px 0;text-align:left;border:1px solid #fecaca;word-break:break-all}
+            .err-btn{display:inline-block;background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:600;font-size:.88rem}
+            .err-btn:hover{opacity:.92}
+        

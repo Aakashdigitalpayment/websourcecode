@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'निर्वाचन जानकारी';
 $currentPage = 'election-information';
 require_once 'includes/admin-header.php';
@@ -269,19 +270,19 @@ echo adminPageHeader(
     'निर्वाचन जानकारी',
     'fa-check-to-slot',
     'चक्र → पद/उम्मेदवार → मतदान समय (वि.सं.) → सदस्य मत → नतिजा। मतदान खुला = समय भित्र + मतदान सक्रिय।',
-    '<a class="btn btn-outline-primary btn-sm" href="' . SITE_URL . 'election-information.php" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>सार्वजनिक पृष्ठ</a>'
+    '<a class="btn btn-outline-primary btn-sm" href="' . SITE_URL . 'election-information.php" target="_blank" rel="noopener noreferrer"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>सार्वजनिक पृष्ठ</a>'
 );
 ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
     <?php if ($navOnCount > 0): ?>
-        <span class="badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-bars me-1"></i>मेनुमा सक्रिय: <?php echo $navOnCount; ?></span>
+        <span class="badge bg-success-subtle text-success border border-success border-opacity-25"><i class="lucide-icon me-1" data-lucide="menu" aria-hidden="true"></i>मेनुमा सक्रिय: <?php echo $navOnCount; ?></span>
     <?php else: ?>
-        <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-eye-slash me-1"></i>मेनुमा लुकेको</span>
+        <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="eye-off" aria-hidden="true"></i>मेनुमा लुकेको</span>
     <?php endif; ?>
     <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 ms-1" data-bs-toggle="collapse" data-bs-target="#electionMenuHelp" aria-expanded="false" aria-controls="electionMenuHelp" title="कसरी मेनुमा देखाउने?">
-        <i class="fas fa-circle-question"></i>
+        <i class="lucide-icon" data-lucide="circle-help" aria-hidden="true"></i>
     </button>
 </div>
 <div class="collapse mb-3" id="electionMenuHelp">
@@ -293,13 +294,13 @@ echo adminPageHeader(
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <a class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" href="?<?php echo http_build_query(array_merge($_GET, ['panel' => 'list'])); ?>">
-            <i class="fas fa-list me-2"></i>सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सूची
             <span class="badge bg-success ms-1"><?php echo count($filtered); ?></span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" href="?<?php echo http_build_query(array_merge($_GET, ['panel' => 'form'])); ?>">
-            <i class="fas fa-plus-circle me-2"></i><?php echo $editRow ? 'चक्र सम्पादन' : 'नयाँ चक्र थप्नुहोस्'; ?>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $editRow ? 'चक्र सम्पादन' : 'नयाँ चक्र थप्नुहोस्'; ?>
         </a>
     </li>
 </ul>
@@ -321,7 +322,7 @@ echo adminPageHeader(
                     ];
                     foreach ($tabs as $tk => $tinfo):
                         $qs = $_GET; $qs['tab'] = $tk; ?>
-                        <li class="nav-item"><a class="nav-link py-1 px-2 <?php echo $tab===$tk ? 'active' : ''; ?>" href="?<?php echo http_build_query($qs); ?>"><i class="fas <?php echo $tinfo[1]; ?> me-1"></i><?php echo $tinfo[0]; ?> <span class="badge bg-light text-dark ms-1"><?php echo (int)$counts[$tk]; ?></span></a></li>
+                        <li class="nav-item"><a class="nav-link py-1 px-2 <?php echo $tab===$tk ? 'active' : ''; ?>" href="?<?php echo http_build_query($qs); ?>"><?php echo coop_nav_icon_html('fas ' . $tinfo[1], 'fas fa-circle', 'me-1'); ?><?php echo $tinfo[0]; ?> <span class="badge bg-light text-dark ms-1"><?php echo (int)$counts[$tk]; ?></span></a></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
@@ -332,8 +333,8 @@ echo adminPageHeader(
                     <div class="col-6"><input type="text" class="form-control form-control-sm nepali-datepicker" name="from" value="<?php echo htmlspecialchars($qFrom); ?>" title="मिति देखि" placeholder="YYYY-MM-DD" autocomplete="off"></div>
                     <div class="col-6"><input type="text" class="form-control form-control-sm nepali-datepicker" name="to" value="<?php echo htmlspecialchars($qTo); ?>" title="मिति सम्म" placeholder="YYYY-MM-DD" autocomplete="off"></div>
                     <div class="col-12 d-flex gap-1">
-                        <button type="submit" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-filter me-1"></i>फिल्टर</button>
-                        <a class="btn btn-sm btn-outline-secondary" href="election-information.php" title="रिसेट"><i class="fas fa-undo"></i></a>
+                        <button type="submit" class="btn btn-sm btn-primary flex-grow-1"><i class="lucide-icon me-1" data-lucide="filter" aria-hidden="true"></i>फिल्टर</button>
+                        <a class="btn btn-sm btn-outline-secondary" href="election-information.php" title="रिसेट"><i class="lucide-icon" data-lucide="undo-2" aria-hidden="true"></i></a>
                     </div>
                 </form>
             </div>
@@ -356,9 +357,9 @@ echo adminPageHeader(
                                 <?php if (!empty($c['show_in_navbar'])): ?><span class="badge bg-primary">मेनु</span><?php endif; ?>
                             </td>
                             <td class="text-nowrap">
-                                <a class="adm-icon-btn adm-icon-btn--edit" href="election-information.php?edit=<?php echo (int)$c['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
-                                <a class="btn btn-sm btn-outline-secondary" href="election-information.php?milestones=<?php echo (int)$c['id']; ?>" title="तालिका"><i class="fas fa-list-ol"></i></a>
-                                <a class="btn btn-sm btn-outline-success" href="election-candidates.php?cycle=<?php echo (int)$c['id']; ?>" title="उम्मेदवार"><i class="fas fa-user-tie"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="election-information.php?edit=<?php echo (int)$c['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
+                                <a class="btn btn-sm btn-outline-secondary" href="election-information.php?milestones=<?php echo (int)$c['id']; ?>" title="तालिका"><i class="lucide-icon" data-lucide="list-ordered" aria-hidden="true"></i></a>
+                                <a class="btn btn-sm btn-outline-success" href="election-candidates.php?cycle=<?php echo (int)$c['id']; ?>" title="उम्मेदवार"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -398,14 +399,14 @@ echo adminPageHeader(
                         <label for="ec_date_from" class="form-label small">मिति देखि <span class="text-muted">(वि.सं.)</span></label>
                         <div class="input-group">
                             <input type="text" class="form-control nepali-datepicker" name="date_from" id="ec_date_from" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($editRow['date_from'] ?? ''); ?>">
-                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <label for="ec_date_to" class="form-label small">मिति सम्म <span class="text-muted">(वि.सं.)</span></label>
                         <div class="input-group">
                             <input type="text" class="form-control nepali-datepicker" name="date_to" id="ec_date_to" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($editRow['date_to'] ?? ''); ?>">
-                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                         </div>
                     </div>
                     <div class="col-12">
@@ -432,12 +433,12 @@ echo adminPageHeader(
                             <label class="form-check-label" for="navc">सूचना मेनुमा देखाउनुहोस्</label>
                         </div>
                     </div>
-                    <div class="col-12"><hr class="my-2"><h6 class="small text-muted mb-2"><i class="fas fa-clock me-1"></i>मतदान समय (नेपाल समय) — सञ्चालक/लेखा समिति निर्वाचन</h6></div>
+                    <div class="col-12"><hr class="my-2"><h6 class="small text-muted mb-2"><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i>मतदान समय (नेपाल समय) — सञ्चालक/लेखा समिति निर्वाचन</h6></div>
                     <div class="col-md-5">
                         <label for="ec_vote_start_date" class="form-label small">मतदान सुरु मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
                             <input type="text" class="form-control nepali-datepicker" name="vote_start_date" id="ec_vote_start_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteStartDateVal); ?>">
-                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                         </div>
                         <select class="form-select form-select-sm" name="vote_start_time" id="ec_vote_start_time" aria-label="मतदान सुरु समय">
                             <option value="">समय छान्नुहोस्</option>
@@ -450,7 +451,7 @@ echo adminPageHeader(
                         <label for="ec_vote_end_date" class="form-label small">मतदान समाप्ति मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
                             <input type="text" class="form-control nepali-datepicker" name="vote_end_date" id="ec_vote_end_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteEndDateVal); ?>">
-                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                         </div>
                         <select class="form-select form-select-sm" name="vote_end_time" id="ec_vote_end_time" aria-label="मतदान समाप्ति समय">
                             <option value="">समय छान्नुहोस्</option>
@@ -468,15 +469,15 @@ echo adminPageHeader(
                     </div>
                     <?php if ($editRow): ?>
                     <div class="col-12">
-                        <a href="election-candidates.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-tie me-1"></i>उम्मेदवार/पद व्यवस्थापन</a>
-                        <a href="election-voting-attendance.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-warning btn-sm"><i class="fas fa-person-booth me-1"></i>Voting Attendance</a>
-                        <a href="election-results.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-success btn-sm"><i class="fas fa-chart-bar me-1"></i>नतिजा हेर्नुहोस्</a>
+                        <a href="election-candidates.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-primary btn-sm"><i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i>उम्मेदवार/पद व्यवस्थापन</a>
+                        <a href="election-voting-attendance.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-warning btn-sm"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>Voting Attendance</a>
+                        <a href="election-results.php?cycle=<?php echo (int)$editRow['id']; ?>" class="btn btn-outline-success btn-sm"><i class="lucide-icon me-1" data-lucide="bar-chart-3" aria-hidden="true"></i>नतिजा हेर्नुहोस्</a>
                     </div>
                     <?php endif; ?>
                     <div class="col-12 d-flex flex-wrap gap-2 mt-2">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत गर्नुहोस्</button>
+                        <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>बचत गर्नुहोस्</button>
                         <?php if ($editRow): ?>
-                            <a href="election-information.php?milestones=<?php echo (int)$editRow['id']; ?>" class="btn btn-success"><i class="fas fa-list-ol me-1"></i>कार्यतालिका व्यवस्थापन</a>
+                            <a href="election-information.php?milestones=<?php echo (int)$editRow['id']; ?>" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="list-ordered" aria-hidden="true"></i>कार्यतालिका व्यवस्थापन</a>
                         <?php endif; ?>
                         <a href="election-information.php?panel=form" class="btn btn-outline-secondary">नयाँ फारम</a>
                     </div>
@@ -486,7 +487,7 @@ echo adminPageHeader(
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="action" value="delete_cycle">
                         <input type="hidden" name="cycle_id" value="<?php echo (int)$editRow['id']; ?>">
-                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>चक्र मेटाउनुहोस्</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>चक्र मेटाउनुहोस्</button>
                     </form>
                 <?php endif; ?>
             </div>
@@ -508,7 +509,7 @@ echo adminPageHeader(
     ?>
     <div class="card admin-table-card mt-4">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h6 class="mb-0"><i class="fas fa-list-ol me-2"></i>कार्यतालिका — <?php echo htmlspecialchars($cycleLabel); ?></h6>
+            <h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="list-ordered" aria-hidden="true"></i>कार्यतालिका — <?php echo htmlspecialchars($cycleLabel); ?></h6>
             <a href="election-information.php?edit=<?php echo $milestonesFor; ?>" class="btn btn-sm btn-outline-primary">चक्र फर्कनुहोस्</a>
         </div>
         <div class="card-body border-bottom">
@@ -516,13 +517,13 @@ echo adminPageHeader(
             <form method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="save_milestone">
-                <input type="hidden" name="cycle_id" value="<?php echo $milestonesFor; ?>">
+                <input type="hidden" name="cycle_id" value="<?php echo (int)$milestonesFor; ?>">
                 <input type="hidden" name="milestone_id" value="0">
                 <div class="col-md-3">
                     <label for="em_event_new" class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control nepali-datepicker" name="m_event_date" id="em_event_new" autocomplete="off" placeholder="YYYY-MM-DD">
-                        <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="fas fa-calendar-alt"></i></span>
+                        <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                     </div>
                 </div>
                 <div class="col-md-2"><label for="em_title_np_new" class="form-label small">शीर्षक (NP) *</label><input class="form-control" name="m_title_np" id="em_title_np_new" required></div>
@@ -532,7 +533,7 @@ echo adminPageHeader(
                 <div class="col-md-6"><label for="em_detail_np_new" class="form-label small">विवरण (NP)</label><textarea class="form-control" name="m_detail_np" id="em_detail_np_new" rows="2"></textarea></div>
                 <div class="col-md-6"><label for="em_detail_en_new" class="form-label small">Detail (EN)</label><textarea class="form-control" name="m_detail_en" id="em_detail_en_new" rows="2"></textarea></div>
                 <div class="col-md-8"><label for="em_attachment_new" class="form-label small">PDF / फाइल</label><input type="file" class="form-control" name="m_attachment" id="em_attachment_new" accept=".pdf,.doc,.docx,image/*"></div>
-                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100 mt-4"><i class="fas fa-plus me-1"></i>थप्नुहोस्</button></div>
+                <div class="col-md-4"><button type="submit" class="btn btn-primary w-100 mt-4"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>थप्नुहोस्</button></div>
             </form>
         </div>
         <div class="table-responsive">
@@ -560,7 +561,7 @@ echo adminPageHeader(
                             <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#em-<?php echo (int)$mr['id']; ?>">सम्पादन</button>
                             <form method="post" class="d-inline" onsubmit="return confirm('मेटाउने?');"><?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_milestone">
-                                <input type="hidden" name="cycle_id" value="<?php echo $milestonesFor; ?>">
+                                <input type="hidden" name="cycle_id" value="<?php echo (int)$milestonesFor; ?>">
                                 <input type="hidden" name="milestone_id" value="<?php echo (int)$mr['id']; ?>">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">मेटाउनुहोस्</button>
                             </form>
@@ -571,13 +572,13 @@ echo adminPageHeader(
                             <form method="post" enctype="multipart/form-data" class="row g-2 p-2">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="save_milestone">
-                                <input type="hidden" name="cycle_id" value="<?php echo $milestonesFor; ?>">
+                                <input type="hidden" name="cycle_id" value="<?php echo (int)$milestonesFor; ?>">
                                 <input type="hidden" name="milestone_id" value="<?php echo (int)$mr['id']; ?>">
                                 <div class="col-md-3">
                                     <label for="em_ev_<?php echo (int)$mr['id']; ?>" class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
                                     <div class="input-group input-group-sm">
                                         <input type="text" class="form-control nepali-datepicker" name="m_event_date" id="em_ev_<?php echo (int)$mr['id']; ?>" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($mr['event_date'] ?? ''); ?>">
-                                        <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                                     </div>
                                 </div>
                                 <div class="col-md-3"><label for="em_title_np_<?php echo (int)$mr['id']; ?>" class="form-label small">शीर्षक NP</label><input class="form-control" name="m_title_np" id="em_title_np_<?php echo (int)$mr['id']; ?>" required value="<?php echo htmlspecialchars($mr['title_np'] ?? ''); ?>"></div>

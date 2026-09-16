@@ -64,7 +64,7 @@ if (!function_exists('ensureWelfareClaimTypes')) {
                 slug VARCHAR(60) NOT NULL,
                 name_np VARCHAR(160) NOT NULL,
                 name_en VARCHAR(160) DEFAULT '',
-                icon VARCHAR(80) NOT NULL DEFAULT 'fa-gift',
+                icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-gift',
                 color VARCHAR(40) NOT NULL DEFAULT '#ff9800',
                 form_profile VARCHAR(40) NOT NULL DEFAULT 'other',
                 display_order INT NOT NULL DEFAULT 0,
@@ -77,10 +77,14 @@ if (!function_exists('ensureWelfareClaimTypes')) {
                 INDEX idx_wct_order (display_order)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            try {
-                $db->exec('ALTER TABLE welfare_claim_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
-            } catch (Throwable $e) {
-                /* already present */
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'welfare_claim_types', 'requires_document', 'TINYINT(1) NOT NULL DEFAULT 0');
+            } else {
+                try {
+                    $db->exec('ALTER TABLE welfare_claim_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
+                } catch (Throwable $e) {
+                    /* already present */
+                }
             }
 
             /* Allow custom slugs on existing claims table */

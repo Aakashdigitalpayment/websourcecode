@@ -1,0 +1,23 @@
+/** Admin settings color tools — extracted from admin/settings.php */
+/* ── Color Picker Row ── */
+.stg-color-row { transition: background .15s; border-radius: 8px; padding: 6px; margin-left: -6px; }
+.stg-color-row:hover { background: #f8fafc; }
+
+/* ── Hex input ── */
+.stg-hex-input:focus { border-color: var(--primary-color, #1a5f2a); box-shadow: 0 0 0 2px rgba(26,95,42,.12); }
+
+/* ── Device buttons ── */
+.stg-device-btn { background: #f3f4f6; color: #6b7280; border: 1.5px solid #e5e7eb; }
+.stg-device-btn.active { background: var(--primary-color, #1a5f2a); color: #fff; border-color: var(--primary-color, #1a5f2a); }
+
+/* ── Preset btn focus ring ── */
+.stg-preset-btn:focus-visible { outline: 2px solid var(--primary-color, #1a5f2a); outline-offset: 2px; }
+
+/* ── Mobile preview frame ── */
+#stgPreviewFrame { transition: all .3s ease; }
+
+/* ── Responsive: stack on small screens ── */
+@media (max-width: 767px) {
+    #stg-color-card .d-flex.flex-lg-row { flex-direction: column !important; }
+    .stg-clr-inputs { flex: 0 0 auto !important; max-width: 100% !important; border-right: none !important; border-bottom: 1px solid #eee; }
+}

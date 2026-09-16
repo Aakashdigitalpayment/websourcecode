@@ -26,7 +26,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
         <h1><?php echo isEnglish() ? 'Service Center Network' : 'सेवा केन्द्र नेटवर्क'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Service Centers' : 'सेवा केन्द्रहरू'; ?></li>
             </ol>
         </nav>
@@ -38,7 +38,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Our Service Centers' : 'हाम्रा सेवा कार्यालयहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -70,7 +70,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                     <div class="service-center-card<?php echo $isMain ? ' main-branch' : ''; ?>">
                         <div class="center-icon-ring">
                             <div class="center-icon">
-                                <i class="fas <?php echo $isMain ? 'fa-landmark' : 'fa-building'; ?>" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="<?php echo $isMain ? 'landmark' : 'building-2'; ?>" aria-hidden="true"></i>
                             </div>
                         </div>
                         <div class="center-body">
@@ -81,28 +81,28 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                             <span class="center-role-badge"><?php echo $isMain ? $scRoleMain : $scRoleCenter; ?></span>
                             <ul class="center-info">
                                 <?php if ($address !== ''): ?>
-                                <li><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <?php echo htmlspecialchars($address, ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo htmlspecialchars($address, ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
                                 <?php if ($phone !== ''): ?>
-                                <li><i class="fas fa-phone" aria-hidden="true"></i> <?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
                                 <?php if ($email !== ''): ?>
-                                <li><i class="fas fa-envelope" aria-hidden="true"></i> <?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
                                 <?php if ($hours !== ''): ?>
-                                <li><i class="fas fa-clock" aria-hidden="true"></i> <?php echo htmlspecialchars($hours, ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo htmlspecialchars($hours, ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
                             </ul>
                             <?php if ($phone !== '' || $email !== '' || $mapUrl !== ''): ?>
                             <div class="center-contact">
                                 <?php if ($phone !== ''): ?>
-                                <a href="tel:<?php echo htmlspecialchars($phoneHref, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-phone" aria-hidden="true"></i></a>
+                                <a href="tel:<?php echo htmlspecialchars($phoneHref, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($phone, ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a>
                                 <?php endif; ?>
                                 <?php if ($email !== ''): ?>
-                                <a href="mailto:<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+                                <a href="mailto:<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></a>
                                 <?php endif; ?>
                                 <?php if ($mapUrl !== ''): ?>
-                                <a href="<?php echo htmlspecialchars($mapUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></a>
+                                <a href="<?php echo htmlspecialchars($mapUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></a>
                                 <?php endif; ?>
                             </div>
                             <?php endif; ?>
@@ -117,7 +117,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
             $sampleCenters = [
                 [
                     'main' => true,
-                    'icon' => 'fa-landmark',
+                    'icon' => 'landmark',
                     'name' => isEnglish() ? 'Main Service Center' : 'मुख्य सेवा कार्यालय',
                     'address' => isEnglish() ? 'Kathmandu, Nepal' : 'काठमाडौं, नेपाल',
                     'phone' => (string)getSetting('phone', ''),
@@ -126,7 +126,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 ],
                 [
                     'main' => false,
-                    'icon' => 'fa-building',
+                    'icon' => 'building-2',
                     'name' => isEnglish() ? 'Lalitpur Service Center' : 'ललितपुर सेवा कार्यालय',
                     'address' => isEnglish() ? 'Pulchowk, Lalitpur' : 'पुल्चोक, ललितपुर',
                     'phone' => '9827157000',
@@ -135,7 +135,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 ],
                 [
                     'main' => false,
-                    'icon' => 'fa-building',
+                    'icon' => 'building-2',
                     'name' => isEnglish() ? 'Bhaktapur Service Center' : 'भक्तपुर सेवा कार्यालय',
                     'address' => isEnglish() ? 'Dudhpati, Bhaktapur' : 'दुधपाटी, भक्तपुर',
                     'phone' => '9827157000',
@@ -144,7 +144,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 ],
                 [
                     'main' => false,
-                    'icon' => 'fa-building',
+                    'icon' => 'building-2',
                     'name' => isEnglish() ? 'Pokhara Service Center' : 'पोखरा सेवा कार्यालय',
                     'address' => isEnglish() ? 'Lakeside, Pokhara' : 'लेकसाइड, पोखरा',
                     'phone' => '061-523456',
@@ -153,7 +153,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 ],
                 [
                     'main' => false,
-                    'icon' => 'fa-building',
+                    'icon' => 'building-2',
                     'name' => isEnglish() ? 'Chitwan Service Center' : 'चितवन सेवा कार्यालय',
                     'address' => isEnglish() ? 'Narayangarh, Chitwan' : 'नारायणगढ, चितवन',
                     'phone' => '056-520123',
@@ -162,7 +162,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 ],
                 [
                     'main' => false,
-                    'icon' => 'fa-building',
+                    'icon' => 'building-2',
                     'name' => isEnglish() ? 'Butwal Service Center' : 'बुटवल सेवा कार्यालय',
                     'address' => isEnglish() ? 'Traffic Chowk, Butwal' : 'ट्राफिक चोक, बुटवल',
                     'phone' => '071-540123',
@@ -179,30 +179,30 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                     <div class="service-center-card<?php echo !empty($sample['main']) ? ' main-branch' : ''; ?>">
                         <div class="center-icon-ring">
                             <div class="center-icon">
-                                <i class="fas <?php echo htmlspecialchars($sample['icon'], ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="<?php echo htmlspecialchars($sample['icon'], ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i>
                             </div>
                         </div>
                         <div class="center-body">
                             <h4><?php echo htmlspecialchars($sample['name'], ENT_QUOTES, 'UTF-8'); ?></h4>
                             <span class="center-role-badge"><?php echo !empty($sample['main']) ? $scRoleMain : $scRoleCenter; ?></span>
                             <ul class="center-info">
-                                <li><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['address'], ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['address'], ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php if ($sample['phone'] !== ''): ?>
-                                <li><i class="fas fa-phone" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
                                 <?php if ($sample['email'] !== ''): ?>
-                                <li><i class="fas fa-envelope" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php endif; ?>
-                                <li><i class="fas fa-clock" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['hours'], ENT_QUOTES, 'UTF-8'); ?></li>
+                                <li><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo htmlspecialchars($sample['hours'], ENT_QUOTES, 'UTF-8'); ?></li>
                             </ul>
                             <div class="center-contact">
                                 <?php if ($sample['phone'] !== ''): ?>
-                                <a href="tel:<?php echo htmlspecialchars((string)$phoneHref, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-phone" aria-hidden="true"></i></a>
+                                <a href="tel:<?php echo htmlspecialchars((string)$phoneHref, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($sample['phone'], ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a>
                                 <?php endif; ?>
                                 <?php if ($sample['email'] !== ''): ?>
-                                <a href="mailto:<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+                                <a href="mailto:<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($sample['email'], ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></a>
                                 <?php endif; ?>
-                                <span class="center-contact-disabled" title="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></span>
+                                <span class="center-contact-disabled" title="<?php echo htmlspecialchars($scMapLabel, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></span>
                             </div>
                         </div>
                     </div>
@@ -217,7 +217,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
                 <?php echo isEnglish() ? 'Can\'t find a branch near you? Contact us for assistance.' : 'तपाईंको नजिक सेवा कार्यालय फेला पार्न सक्नुहुन्न? सहयोगको लागि हामीलाई सम्पर्क गर्नुहोस्।'; ?>
             </p>
             <a href="contact.php" class="btn btn-primary">
-                <i class="fas fa-phone"></i> <?php echo $L['contact_us']; ?>
+                <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo $L['contact_us']; ?>
             </a>
         </div>
     </div>

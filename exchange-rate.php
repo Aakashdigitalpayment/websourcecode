@@ -30,7 +30,7 @@ $isCached    = ($source === 'nrb_cached');
         <h1><?php echo $L['exchange_rate']; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $L['exchange_rate']; ?></li>
             </ol>
         </nav>
@@ -44,7 +44,7 @@ $isCached    = ($source === 'nrb_cached');
                 <div class="tool-card">
                     <div class="tool-header">
                         <div class="tool-icon">
-                            <i class="fas fa-exchange-alt"></i>
+                            <i class="lucide-icon" data-lucide="arrow-left-right" aria-hidden="true"></i>
                         </div>
                         <h3><?php echo isEnglish() ? 'Foreign Exchange Rate' : 'विदेशी विनिमय दर'; ?></h3>
                         <p><?php echo isEnglish() ? 'Nepal Rastra Bank — Official Daily Exchange Rates' : 'नेपाल राष्ट्र बैंक — आधिकारिक दैनिक विनिमय दर'; ?></p>
@@ -54,17 +54,17 @@ $isCached    = ($source === 'nrb_cached');
                     <div class="text-center mb-3">
                         <?php if ($isLive): ?>
                         <span class="badge bg-success px-3 py-2">
-                            <i class="fas fa-circle-dot me-1" class="icon-pulse"></i>
+                            <i class="lucide-icon me-1" data-lucide="circle-dot" aria-hidden="true" class="icon-pulse"></i>
                             <?php echo isEnglish() ? 'Live — NRB Official Data' : 'Live — NRB आधिकारिक तथ्याङ्क'; ?>
                         </span>
                         <?php elseif ($isCached): ?>
                         <span class="badge bg-info text-dark px-3 py-2">
-                            <i class="fas fa-database me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="database" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Cached — NRB Data' : 'Cached — NRB तथ्याङ्क'; ?>
                         </span>
                         <?php else: ?>
                         <span class="badge bg-warning text-dark px-3 py-2">
-                            <i class="fas fa-exclamation-circle me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Using fallback rates (NRB unreachable)' : 'Fallback दरहरू (NRB उपलब्ध छैन)'; ?>
                         </span>
                         <?php endif; ?>
@@ -85,7 +85,7 @@ $isCached    = ($source === 'nrb_cached');
                                 <tbody>
                                     <?php if (empty($rates)): ?>
                                     <tr><td colspan="4" class="text-center py-4 text-muted">
-                                        <i class="fas fa-wifi-slash fa-2x mb-2 d-block"></i>
+                                        <i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="wifi-off" aria-hidden="true"></i>
                                         <?php echo isEnglish() ? 'Unable to load exchange rates.' : 'विनिमय दर लोड गर्न सकिएन।'; ?>
                                     </td></tr>
                                     <?php endif; ?>
@@ -104,13 +104,13 @@ $isCached    = ($source === 'nrb_cached');
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-light text-dark border"><?php echo $r['unit']; ?></span>
+                                            <span class="badge bg-light text-dark border"><?php echo e($r['unit']); ?></span>
                                         </td>
                                         <td class="text-end">
-                                            <span class="fw-semibold exr-buy">रु. <?php echo $r['buy']; ?></span>
+                                            <span class="fw-semibold exr-buy">रु. <?php echo e($r['buy']); ?></span>
                                         </td>
                                         <td class="text-end pe-3">
-                                            <span class="fw-semibold text-danger">रु. <?php echo $r['sell']; ?></span>
+                                            <span class="fw-semibold text-danger">रु. <?php echo e($r['sell']); ?></span>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -121,7 +121,7 @@ $isCached    = ($source === 'nrb_cached');
                         <!-- Update info -->
                         <div class="rate-note mt-4 p-3 exr-rate-note">
                             <div class="d-flex align-items-start gap-2">
-                                <i class="fas fa-info-circle text-success mt-1"></i>
+                                <i class="lucide-icon text-success mt-1" data-lucide="info" aria-hidden="true"></i>
                                 <div>
                                     <p class="mb-1 fw-semibold text-success">
                                         <?php echo isEnglish() ? 'Published Date: ' : 'प्रकाशन मिति: '; ?>
@@ -133,7 +133,7 @@ $isCached    = ($source === 'nrb_cached');
                                         <?php endif; ?>
                                     </p>
                                     <p class="mb-1 text-muted small">
-                                        <i class="fas fa-university me-1"></i>
+                                        <i class="lucide-icon me-1" data-lucide="university" aria-hidden="true"></i>
                                         <?php echo isEnglish()
                                             ? 'Source: Nepal Rastra Bank (nrb.org.np) Official Forex API — auto-refreshed every 6 hours.'
                                             : 'स्रोत: नेपाल राष्ट्र बैंक (nrb.org.np) को आधिकारिक Forex API — हरेक ६ घण्टामा स्वत: अद्यावधिक।'; ?>

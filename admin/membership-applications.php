@@ -3,6 +3,7 @@
  * Admin: सदस्यता अनुरोध — नयाँ व्यक्ति (Member ID बिना)
  * Approve गर्दा admin ले Member ID हाल्छ → members SSOT stub
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'सदस्यता अनुरोध';
 $currentPage = 'membership-apps';
 require_once 'includes/admin-header.php';
@@ -129,7 +130,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
     $sl = $statusLabel[$viewApp['status'] ?? ''] ?? ($viewApp['status'] ?? '');
 ?>
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-    <a href="membership-applications.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>सूची</a>
+    <a href="membership-applications.php" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूची</a>
     <h4 class="mb-0 fw-bold text-success">सदस्यता अनुरोध</h4>
     <code><?php echo htmlspecialchars((string)$viewApp['tracking_id']); ?></code>
     <span class="badge bg-<?php echo $sc; ?>"><?php echo htmlspecialchars($sl); ?></span>
@@ -165,7 +166,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
         <?php if (($viewApp['status'] ?? '') === 'pending'): ?>
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-white fw-bold text-success py-2">
-                <i class="fas fa-check me-1"></i>स्वीकृत + Member ID दिनुहोस्
+                <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत + Member ID दिनुहोस्
             </div>
             <div class="card-body">
                 <p class="small text-muted">सहकारीको वास्तविक सदस्यता नं. हाल्नुहोस्। यसले <code>members</code> stub बनाउँछ (पासवर्ड बिना)। त्यसपछि व्यक्तिले Online KYM भर्न सक्छ।</p>
@@ -184,7 +185,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
                     </div>
                     <button type="submit" class="btn btn-success btn-sm"
                             onclick="return confirm('Member ID दिएर members stub बनाउने?');">
-                        <i class="fas fa-user-check me-1"></i>Approve + Create Member
+                        <i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i>Approve + Create Member
                     </button>
                 </form>
             </div>
@@ -217,7 +218,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
 <?php else: /* list */ ?>
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-    <h4 class="mb-0 fw-bold text-success"><i class="fas fa-user-plus me-2"></i>सदस्यता अनुरोध</h4>
+    <h4 class="mb-0 fw-bold text-success"><i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>सदस्यता अनुरोध</h4>
     <div class="d-flex gap-2 small">
         <a href="?status=pending" class="badge text-decoration-none <?php echo $statusFilter === 'pending' ? 'bg-warning text-dark' : 'bg-light text-dark border'; ?>">पेन्डिङ <?php echo (int)$pendingCount; ?></a>
         <a href="?status=approved" class="badge text-decoration-none <?php echo $statusFilter === 'approved' ? 'bg-success' : 'bg-light text-dark border'; ?>">स्वीकृत <?php echo (int)$approvedCount; ?></a>
@@ -236,7 +237,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
                        placeholder="नाम, मोबाइल, tracking, Member ID...">
             </div>
             <div class="col-md-4">
-                <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-search me-1"></i>खोज</button>
+                <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
             </div>
         </form>
     </div>

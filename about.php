@@ -82,7 +82,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <h1 class="page-title-modern"><?php echo htmlspecialchars(is_array($page) ? ($page['title_np'] ?? 'हाम्रो बारेमा') : 'हाम्रो बारेमा', ENT_QUOTES, 'UTF-8'); ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-modern">
-                    <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
                     <li class="breadcrumb-item active"><?php echo $L['about'] ?? 'हाम्रो बारेमा'; ?></li>
                 </ol>
             </nav>
@@ -97,7 +97,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="<?php echo $hasAboutVisual ? 'col-lg-7' : 'col-lg-10 col-xl-9'; ?> mb-2" data-aos="fade-right">
                 <div class="about-content-box">
                     <div style="margin-bottom:4px;">
-                        <span class="section-tag"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></span>
+                        <span class="section-tag"><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></span>
                     </div>
                     <h2><?php echo isEnglish() ? 'Our Introduction' : 'हाम्रो परिचय'; ?></h2>
                     <div class="about-divider"></div>
@@ -124,7 +124,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="col-lg-5 mb-2" data-aos="fade-left">
                 <div class="about-image-box about-image-box-side">
                     <div class="about-side-badge">
-                        <i class="fas fa-seedling me-1"></i><?php echo isEnglish() ? 'Journey of Trust' : 'विश्वासको यात्रा'; ?>
+                        <i class="lucide-icon me-1" data-lucide="sprout" aria-hidden="true"></i><?php echo isEnglish() ? 'Journey of Trust' : 'विश्वासको यात्रा'; ?>
                     </div>
                     <img src="<?php echo e(safe_versioned_media_src($aboutVisual)); ?>"
                          alt="<?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?>"
@@ -172,7 +172,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php echo getSetting('established_year', '२०७५'); ?>
                     </div>
                     <div class="history-badge">
-                        <i class="fas fa-history"></i>
+                        <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>
                     </div>
                 </div>
 
@@ -180,7 +180,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                 <!-- Photo छैन भने modern decorative box देखाउनुहोस् — icon नहटाइएकोले icon-only -->
                 <div class="history-image-box history-icon-only">
                     <div class="history-badge">
-                        <i class="fas fa-history"></i>
+                        <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>
                     </div>
                     <div class="history-year-badge">
                         <?php echo getSetting('established_year', '२०७५'); ?>
@@ -190,7 +190,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <!-- Admin ले about-settings.php बाट photo upload गर्न सक्छ -->
                         <div class="history-icon-ring"></div>
                         <div class="history-empty-photo">
-                            <i class="fas fa-camera fa-2x mb-2 d-block history-empty-photo-icon"></i>
+                            <i class="lucide-icon lucide-2x mb-2 d-block history-empty-photo-icon" data-lucide="camera" aria-hidden="true"></i>
                             <small class="history-empty-photo-note"><?php echo isEnglish() ? 'Photo not available - please upload a photo.' : 'फोटो उपलब्ध छैन — कृपया फोटो थप्नुहोस्'; ?></small>
                         </div>
                     </div>
@@ -200,7 +200,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="col-lg-7" data-aos="fade-left">
                 <div class="history-content-v2">
                     <div style="margin-bottom:4px;">
-                        <span class="section-tag"><i class="fas fa-history"></i> <?php echo isEnglish() ? 'Our Journey' : 'हाम्रो यात्रा'; ?></span>
+                        <span class="section-tag"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i> <?php echo isEnglish() ? 'Our Journey' : 'हाम्रो यात्रा'; ?></span>
                     </div>
                     <h2><?php echo isEnglish() ? 'Our History' : 'हाम्रो इतिहास'; ?></h2>
                     <div class="history-divider"></div>
@@ -258,7 +258,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                 <div class="vision-card-v2 mission">
                     <div class="vision-card-glow"></div>
                     <div class="vision-icon-v2">
-                        <i class="fas fa-bullseye"></i>
+                        <i class="lucide-icon" data-lucide="target" aria-hidden="true"></i>
                     </div>
                     <div class="vision-card-content coop-prose">
                         <h4><?php echo htmlspecialchars(isEnglish() ? $missionTitleEn : $missionTitleNp, ENT_QUOTES, 'UTF-8'); ?></h4>
@@ -341,7 +341,7 @@ $ceoMessage = $ceoMessageSetting;
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-quote-left"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="quote" aria-hidden="true"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Messages from Leadership' : 'नेतृत्वबाट सन्देश'; ?></h2>
             <div class="section-divider"></div>
@@ -357,7 +357,7 @@ $ceoMessage = $ceoMessageSetting;
                         <img src="<?php echo e(safe_versioned_media_src($chairmanPhoto)); ?>" alt="<?php echo e($chairmanName); ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
-                            <i class="fas fa-user-tie"></i>
+                            <i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -366,7 +366,7 @@ $ceoMessage = $ceoMessageSetting;
                 </div>
                 <div class="col-lg-9 col-md-8">
                     <div class="message-content-full">
-                        <i class="fas fa-quote-left quote-icon-large"></i>
+                        <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
                         <div class="message-text-full coop-prose">
                             <?php echo coop_render_cms_prose($chairmanMessage); ?>
                         </div>
@@ -385,7 +385,7 @@ $ceoMessage = $ceoMessageSetting;
                         <img src="<?php echo e(safe_versioned_media_src($ceoPhoto)); ?>" alt="<?php echo e($ceoName); ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
-                            <i class="fas fa-user-tie"></i>
+                            <i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -394,7 +394,7 @@ $ceoMessage = $ceoMessageSetting;
                 </div>
                 <div class="col-lg-9 col-md-8">
                     <div class="message-content-full">
-                        <i class="fas fa-quote-left quote-icon-large"></i>
+                        <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
                         <div class="message-text-full coop-prose">
                             <?php echo coop_render_cms_prose($ceoMessage); ?>
                         </div>
@@ -412,7 +412,7 @@ $ceoMessage = $ceoMessageSetting;
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-heart"></i> <?php echo isEnglish() ? 'Values' : 'मूल्यहरू'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i> <?php echo isEnglish() ? 'Values' : 'मूल्यहरू'; ?></span>
             </div>
             <h2><?php echo htmlspecialchars(isEnglish() ? $valuesTitleEn : $valuesTitleNp, ENT_QUOTES, 'UTF-8'); ?></h2>
         </div>
@@ -460,7 +460,7 @@ $ceoMessage = $ceoMessageSetting;
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-users-cog"></i> <?php echo isEnglish() ? 'Board' : 'समिति'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i> <?php echo isEnglish() ? 'Board' : 'समिति'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Board of Directors' : 'सञ्चालक समिति'; ?></h2>
             <div class="section-divider"></div>
@@ -486,28 +486,28 @@ $ceoMessage = $ceoMessageSetting;
         <div class="row">
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-users"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_members', '५०००'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Members' : 'सदस्यहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-award"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="award" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('years_experience', '२०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Years Experience' : 'वर्षको अनुभव'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-handshake"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="handshake" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_services', '१०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-smile"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="smile" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('satisfaction_rate', '९९'); ?>%</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Satisfied Customers' : 'सन्तुष्ट ग्राहक'; ?></div>
                 </div>

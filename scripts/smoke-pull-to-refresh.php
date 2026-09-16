@@ -14,10 +14,10 @@ function bad(string $m): void { global $fail; $fail++; echo "FAIL $m\n"; }
 $js = (string) file_get_contents($root . '/assets/js/pull-to-refresh.js');
 $hdr = (string) file_get_contents($root . '/includes/header.php');
 
-if (strpos($js, 'v1.4') !== false) {
-    ok('pull-to-refresh.js is v1.4');
+if (strpos($js, 'v1.5') !== false) {
+    ok('pull-to-refresh.js is v1.5');
 } else {
-    bad('expected v1.4 banner');
+    bad('expected v1.5 banner');
 }
 
 if (preg_match('/\bvar armed\b|\barmed\s*=/', $js)) {
@@ -47,8 +47,8 @@ if (preg_match('/touchmove[\s\S]{0,200}if \(!armed/', $js)
     bad('touchmove may still run unarmed');
 }
 
-if (strpos($hdr, 'pull-to-refresh.js?v=1.4') !== false) {
-    ok('header cache-busts PTR to v=1.4');
+if (strpos($hdr, 'pull-to-refresh.js?v=1.5') !== false) {
+    ok('header cache-busts PTR to v=1.5');
 } else {
     bad('header still on old PTR ?v=');
 }

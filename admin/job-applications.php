@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -293,39 +294,39 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     adminStatLink('?status=rejected',    'danger',    'अस्वीकृत',      $stats['rejected']    ?? 0)
 ); ?>
 <?php if ($flash = getFlash()): ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <div class="container-fluid py-4">
     <!-- ── Stat Mini Row ── -->
     <div class="stat-mini-row no-print">
         <a href="job-applications.php" class="stat-mini <?php echo !$statusFilter&&!$careerId?'active-filter':''; ?>">
-            <div class="sm-icon ic-total"><i class="fas fa-file-alt"></i></div>
+            <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['total'] ?? 0; ?></div>
             <div class="sm-lbl">जम्मा</div>
         </a>
         <a href="?bucket=all&amp;status=pending" class="stat-mini <?php echo $statusFilter==='pending'?'active-filter':''; ?>">
-            <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
+            <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['pending'] ?? 0; ?></div>
             <div class="sm-lbl">पेन्डिङ</div>
         </a>
         <a href="?bucket=all&amp;status=shortlisted" class="stat-mini <?php echo $statusFilter==='shortlisted'?'active-filter':''; ?>">
-            <div class="sm-icon ic-process"><i class="fas fa-list-check"></i></div>
+            <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="list-checks" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['shortlisted'] ?? 0; ?></div>
             <div class="sm-lbl">छनोट</div>
         </a>
         <a href="?bucket=all&amp;status=interviewed" class="stat-mini <?php echo $statusFilter==='interviewed'?'active-filter':''; ?>">
-            <div class="sm-icon job-icon-interview-bg"><i class="fas fa-comments job-icon-interview-fg"></i></div>
+            <div class="sm-icon job-icon-interview-bg"><i class="lucide-icon job-icon-interview-fg" data-lucide="messages-square" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['interviewed'] ?? 0; ?></div>
             <div class="sm-lbl">अन्तर्वार्ता</div>
         </a>
         <a href="?bucket=all&amp;status=selected" class="stat-mini <?php echo $statusFilter==='selected'?'active-filter':''; ?>">
-            <div class="sm-icon ic-approved"><i class="fas fa-user-check"></i></div>
+            <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['selected'] ?? 0; ?></div>
             <div class="sm-lbl">चयन</div>
         </a>
         <a href="?bucket=all&amp;status=rejected" class="stat-mini <?php echo $statusFilter==='rejected'?'active-filter':''; ?>">
-            <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
+            <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $stats['rejected'] ?? 0; ?></div>
             <div class="sm-lbl">अस्वीकृत</div>
         </a>
@@ -338,7 +339,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
 
     /* Tab 1: Overview — personal + role + cover letter */
     $overviewHtml  = '<div class="row g-3">';
-    $overviewHtml .= '<div class="col-md-6"><div class="arv-section"><h3 class="arv-section-title"><i class="fas fa-user"></i> व्यक्तिगत जानकारी</h3>';
+    $overviewHtml .= '<div class="col-md-6"><div class="arv-section"><h3 class="arv-section-title"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> व्यक्तिगत जानकारी</h3>';
     $overviewHtml .= arvKvTable([
         'पूरा नाम'   => htmlspecialchars($viewApplication['full_name'] ?? ''),
         'इमेल'        => $viewApplication['email']
@@ -353,7 +354,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     ]);
     $overviewHtml .= '</div></div>';
 
-    $overviewHtml .= '<div class="col-md-6"><div class="arv-section"><h3 class="arv-section-title"><i class="fas fa-graduation-cap"></i> शिक्षा र अनुभव</h3>';
+    $overviewHtml .= '<div class="col-md-6"><div class="arv-section"><h3 class="arv-section-title"><i class="lucide-icon" data-lucide="graduation-cap" aria-hidden="true"></i> शिक्षा र अनुभव</h3>';
     $overviewHtml .= arvKvTable([
         'शिक्षा'                => htmlspecialchars((string)($viewApplication['education']         ?? '')),
         'अनुभव'                 => htmlspecialchars((string)($viewApplication['experience']        ?? '')),
@@ -364,7 +365,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     $overviewHtml .= '</div></div></div>';
 
     if (!empty($viewApplication['cover_letter'])) {
-        $overviewHtml .= '<div class="arv-section"><h3 class="arv-section-title"><i class="fas fa-envelope-open-text"></i> आवेदन पत्र / Cover Letter</h3>';
+        $overviewHtml .= '<div class="arv-section"><h3 class="arv-section-title"><i class="lucide-icon" data-lucide="mail-open" aria-hidden="true"></i> आवेदन पत्र / Cover Letter</h3>';
         $overviewHtml .= '<div class="arv-text-block">' . nl2br(htmlspecialchars((string)$viewApplication['cover_letter'])) . '</div></div>';
     }
 
@@ -382,17 +383,17 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     /* Sidebar: applied position + status update form */
     ob_start(); ?>
     <div class="arv-action-card">
-        <h4 class="arv-action-title"><i class="fas fa-briefcase"></i> आवेदित पद</h4>
+        <h4 class="arv-action-title"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i> आवेदित पद</h4>
         <div class="arv-meta-list">
             <div><b><?php echo htmlspecialchars((string)($viewApplication['job_title'] ?? 'N/A')); ?></b></div>
-            <div><i class="fas fa-building"></i> <?php echo htmlspecialchars((string)($viewApplication['department'] ?? 'General')); ?></div>
+            <div><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo htmlspecialchars((string)($viewApplication['department'] ?? 'General')); ?></div>
             <?php if (!empty($viewApplication['deadline'])): ?>
-            <div><i class="fas fa-calendar"></i> म्याद: <?php echo htmlspecialchars((string)$viewApplication['deadline']); ?></div>
+            <div><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> म्याद: <?php echo htmlspecialchars((string)$viewApplication['deadline']); ?></div>
             <?php endif; ?>
         </div>
     </div>
     <div class="arv-action-card">
-        <h4 class="arv-action-title"><i class="fas fa-pen-to-square"></i> स्थिति अपडेट</h4>
+        <h4 class="arv-action-title"><i class="lucide-icon" data-lucide="pen-square" aria-hidden="true"></i> स्थिति अपडेट</h4>
         <form method="POST">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="update_status">
@@ -400,11 +401,11 @@ if ($viewApplication && !empty($viewApplication['id'])) {
             <div class="mb-3">
                 <label for="job_status" class="form-label">स्थिति</label>
                 <select name="status" id="job_status" class="form-select form-select-sm">
-                    <option value="pending"     <?php echo $viewApplication['status']==='pending'    ?'selected':''; ?>>⏳ पेन्डिङ</option>
-                    <option value="shortlisted" <?php echo $viewApplication['status']==='shortlisted'?'selected':''; ?>>📋 छनोट</option>
-                    <option value="interviewed" <?php echo $viewApplication['status']==='interviewed'?'selected':''; ?>>💬 अन्तर्वार्ता</option>
-                    <option value="selected"    <?php echo $viewApplication['status']==='selected'   ?'selected':''; ?>>✅ चयन</option>
-                    <option value="rejected"    <?php echo $viewApplication['status']==='rejected'   ?'selected':''; ?>>❌ अस्वीकृत</option>
+                    <option value="pending"     <?php echo $viewApplication['status']==='pending'    ?'selected':''; ?>>पेन्डिङ</option>
+                    <option value="shortlisted" <?php echo $viewApplication['status']==='shortlisted'?'selected':''; ?>>छनोट</option>
+                    <option value="interviewed" <?php echo $viewApplication['status']==='interviewed'?'selected':''; ?>>अन्तर्वार्ता</option>
+                    <option value="selected"    <?php echo $viewApplication['status']==='selected'   ?'selected':''; ?>>चयन</option>
+                    <option value="rejected"    <?php echo $viewApplication['status']==='rejected'   ?'selected':''; ?>>अस्वीकृत</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -419,19 +420,19 @@ if ($viewApplication && !empty($viewApplication['id'])) {
             <div class="arv-notify-row mb-3">
                 <label class="arv-notify-toggle">
                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                 </label>
                 <div class="arv-notify-channels">
                     <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>">
-                        <i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?>
+                        <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?>
                     </span>
                     <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>">
-                        <i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?>
+                        <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?>
                     </span>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-sm w-100">
-                <i class="fas fa-save"></i> अपडेट गर्नुहोस्
+                <i class="lucide-icon" data-lucide="save" aria-hidden="true"></i> अपडेट गर्नुहोस्
             </button>
         </form>
     </div>
@@ -457,7 +458,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     echo renderAdminRequestView([
         'title'      => $viewApplication['full_name'] ?? '—',
         'subtitle'   => 'पद: <b>' . htmlspecialchars((string)($viewApplication['job_title'] ?? 'N/A')) . '</b>'
-                      . ' · <i class="fas fa-clock"></i> ' . formatNepaliDate($viewApplication['created_at']),
+                      . ' · <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> ' . formatNepaliDate($viewApplication['created_at']),
         'status'     => (string)($viewApplication['status'] ?? ''),
         'statusMap'  => $jobStatusMap,
         'backUrl'    => $jobBack,
@@ -486,15 +487,15 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     ?>
     <div class="job-bucket-bar no-print">
         <a href="<?php echo htmlspecialchars($jobBucketUrl('active')); ?>" class="job-bucket job-bucket--active <?php echo $bucket==='active'?'is-on':''; ?>">
-            <i class="fas fa-bolt"></i> सक्रिय आवेदन
+            <i class="lucide-icon" data-lucide="zap" aria-hidden="true"></i> सक्रिय आवेदन
             <span class="job-bucket-count"><?php echo (int)$bucketCounts['active']; ?></span>
         </a>
         <a href="<?php echo htmlspecialchars($jobBucketUrl('done')); ?>" class="job-bucket job-bucket--done <?php echo $bucket==='done'?'is-on':''; ?>">
-            <i class="fas fa-check-double"></i> टुङ्गिएका
+            <i class="lucide-icon" data-lucide="check-check" aria-hidden="true"></i> टुङ्गिएका
             <span class="job-bucket-count"><?php echo (int)$bucketCounts['done']; ?></span>
         </a>
         <a href="<?php echo htmlspecialchars($jobBucketUrl('all')); ?>" class="job-bucket job-bucket--all <?php echo $bucket==='all'?'is-on':''; ?>">
-            <i class="fas fa-list"></i> सबै
+            <i class="lucide-icon" data-lucide="list" aria-hidden="true"></i> सबै
             <span class="job-bucket-count"><?php echo (int)$bucketCounts['all']; ?></span>
         </a>
     </div>
@@ -507,7 +508,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                 <select name="career_id" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                     <option value="">सबै पदहरू</option>
                     <?php foreach ($careers as $career): ?>
-                    <option value="<?php echo $career['id']; ?>" <?php echo $careerId==$career['id']?'selected':''; ?>><?php echo htmlspecialchars($career['title']); ?></option>
+                    <option value="<?php echo (int)$career['id']; ?>" <?php echo $careerId==$career['id']?'selected':''; ?>><?php echo htmlspecialchars($career['title']); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -515,24 +516,24 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                 <label>स्थिति</label>
                 <select name="status" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                     <option value="">सबै स्थिति</option>
-                    <option value="pending" <?php echo $statusFilter==='pending'?'selected':''; ?>>⏳ पेन्डिङ</option>
-                    <option value="shortlisted" <?php echo $statusFilter==='shortlisted'?'selected':''; ?>>📋 छनोट</option>
-                    <option value="interviewed" <?php echo $statusFilter==='interviewed'?'selected':''; ?>>💬 अन्तर्वार्ता</option>
-                    <option value="selected" <?php echo $statusFilter==='selected'?'selected':''; ?>>✅ चयन</option>
-                    <option value="rejected" <?php echo $statusFilter==='rejected'?'selected':''; ?>>❌ अस्वीकृत</option>
+                    <option value="pending" <?php echo $statusFilter==='pending'?'selected':''; ?>>पेन्डिङ</option>
+                    <option value="shortlisted" <?php echo $statusFilter==='shortlisted'?'selected':''; ?>>छनोट</option>
+                    <option value="interviewed" <?php echo $statusFilter==='interviewed'?'selected':''; ?>>अन्तर्वार्ता</option>
+                    <option value="selected" <?php echo $statusFilter==='selected'?'selected':''; ?>>चयन</option>
+                    <option value="rejected" <?php echo $statusFilter==='rejected'?'selected':''; ?>>अस्वीकृत</option>
                 </select>
             </div>
             <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
             <div class="col-md-3 col-12">
                 <label>खोज्नुहोस्</label>
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($jobSearch); ?>" placeholder="नाम, फोन, इमेल...">
                 </div>
             </div>
             <div class="col-md-2 col-6">
-                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-                <?php if ($careerId||$statusFilter||$jobSearch !== ''||$dateFrom||$dateTo): ?><a href="<?php echo htmlspecialchars($jobBucketUrl($bucket)); ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
+                <?php if ($careerId||$statusFilter||$jobSearch !== ''||$dateFrom||$dateTo): ?><a href="<?php echo htmlspecialchars($jobBucketUrl($bucket)); ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>हटाउनुहोस्</a><?php endif; ?>
             </div>
         </form>
         <?php
@@ -550,7 +551,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     ?>
     <div class="card border-0 shadow-sm app-rounded-card">
         <div class="tbl-header-bar no-print">
-            <h6><i class="fas fa-briefcase me-2 text-primary"></i>रोजगार आवेदन सूची <small class="text-muted ms-2 fw-normal">— <?php echo htmlspecialchars($bucketLabel); ?></small></h6>
+            <h6><i class="lucide-icon me-2 text-primary" data-lucide="briefcase" aria-hidden="true"></i>रोजगार आवेदन सूची <small class="text-muted ms-2 fw-normal">— <?php echo htmlspecialchars($bucketLabel); ?></small></h6>
             <span class="result-count-badge"><?php echo count($applications); ?> आवेदन</span>
         </div>
         <div class="table-responsive admin-table-card">
@@ -585,13 +586,13 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <a href="mailto:<?php echo $app['email']; ?>" title="Email">
-                                            <i class="fas fa-envelope"></i>
+                                        <a href="mailto:<?php echo e($app['email']); ?>" title="Email">
+                                            <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i>
                                         </a>
-                                        <a href="tel:<?php echo $app['phone']; ?>" title="Phone" class="ms-2">
-                                            <i class="fas fa-phone"></i>
+                                        <a href="tel:<?php echo e($app['phone']); ?>" title="Phone" class="ms-2">
+                                            <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i>
                                         </a>
-                                        <br><small><?php echo $app['phone']; ?></small>
+                                        <br><small><?php echo e($app['phone']); ?></small>
                                     </td>
                                     <td><?php echo formatNepaliDate($app['created_at']); ?></td>
                                     <td>
@@ -607,24 +608,24 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                                         $rowStatusClass = $rowStatusMap[$rowStatus] ?? 'secondary';
                                         ?>
                                         <span class="badge bg-<?php echo $rowStatusClass; ?>">
-                                            <?php echo ucfirst($app['status']); ?>
+                                            <?php echo e(ucfirst((string) ($app['status'] ?? ''))); ?>
                                         </span>
                                     </td>
                                     <td>
                                         <div class="adm-action-icons">
-                                            <a href="?view=<?php echo $app['id']; ?><?php echo $careerId ? '&career_id=' . $careerId : ''; ?>"
+                                            <a href="?view=<?php echo (int)$app['id']; ?><?php echo $careerId ? '&career_id=' . (int)$careerId : ''; ?>"
                                                class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस्" aria-label="View">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                             </a>
-                                            <a href="?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                                            <a href="?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                                             <?php echo adminPrintFormIcon('job', (int)$app['id']); ?>
                                             <form method="POST" class="adm-icon-form"
                                                   onsubmit="return confirm('के तपाईं पक्का हुनुहुन्छ? यो कार्य फिर्ता हुँदैन।')">
                                                 <?php echo csrfField(); ?>
                                                 <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?php echo $app['id']; ?>">
+                                                <input type="hidden" name="id" value="<?php echo (int)$app['id']; ?>">
                                                 <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेट्नुहोस्" aria-label="Delete">
-                                                    <i class="fas fa-trash-can"></i>
+                                                    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
@@ -634,7 +635,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                                 <?php if (empty($applications)): ?>
                                 <tr>
                                     <td colspan="6" class="text-center py-4">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3 d-block"></i>
+                                        <i class="lucide-icon lucide-3x text-muted mb-3 d-block" data-lucide="inbox" aria-hidden="true"></i>
                                         कुनै आवेदन छैन
                                     </td>
                                 </tr>

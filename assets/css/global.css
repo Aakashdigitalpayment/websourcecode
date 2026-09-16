@@ -11,15 +11,20 @@
    4. Utility Classes (spacing, text, alignment, display)
    5. Accessibility & Motion (focus states, reduced-motion, transitions)
    
-   Load Order in HTML:
-   ──────────────────
-   <link rel="stylesheet" href="/assets/vendor/bootstrap.min.css">
-   <link rel="stylesheet" href="/assets/css/global.css">
-   <link rel="stylesheet" href="/assets/css/app-admin.css">  <!-- admin specific overrides -->
-   <link rel="stylesheet" href="/assets/css/app-member.css"> <!-- member specific overrides -->
-   <link rel="stylesheet" href="/assets/css/app-public.css">  <!-- public specific overrides -->
-   
-   This reduces redundancy from 54KB to ~15KB (70% reduction).
+   Actual load order (includes/theme-assets.php coopThemeHeadAssets):
+   ──────────────────────────────────────────────────────────────────
+   vendor (Bootstrap on public/admin) → panel base app-{public|admin|member}.css
+   → global.css → forms-tables.css → (admin mid patches) → ui-ux-enhancements
+   → global-theme.php (DB brand) → {panel}-late-bundle.css LAST
+
+   Do not hand-edit *-late-bundle.css. Rebuild:
+   python3 scripts/build-css-late-bundles.py
+
+   Where to change what (live-safe):
+   - Brand colour → Admin settings → global-theme.php (--primary-color)
+   - Shared tokens → this file
+   - Visual polish / screenshot fixes → polish sources in late bundles
+   - Do not rewrite app-public.css / app-admin.css / app-member.css for polish
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* ───────────────────────────────────────────────────────────────────────────────
@@ -40,6 +45,14 @@
   --warning:              #ffc107;
   --danger:               #dc3545;
   --info:                 var(--secondary);
+
+  /* Aliases used by panel-uniform / app-core / alerts. --color-info is cyan
+     on purpose — --info aliases secondary (red) and must not be reused here.
+     global-theme.php overrides these after this sheet. */
+  --color-success:        var(--success);
+  --color-warning:        var(--warning);
+  --color-danger:         var(--danger);
+  --color-info:           #0891b2;
 
   /* ━━━ NEUTRALS & SURFACES ━━━ */
   --bg-page:              #f8faf9;
@@ -87,8 +100,10 @@
   /* ━━━ TYPOGRAPHY ━━━ */
   --font-primary:         'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-heading:         'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --font-nepali:          'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --font-english:         'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono:            ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
-  
+
   --text-xs:              0.75rem;   /* 12px */
   --text-sm:              0.8125rem; /* 13px */
   --text-base:            0.875rem;  /* 14px */
@@ -99,6 +114,21 @@
   --text-3xl:             1.5rem;    /* 24px */
   --text-4xl:             1.75rem;   /* 28px */
   --text-5xl:             2rem;      /* 32px */
+
+  /* Alias bridges — global-theme / polish / admin-ui may use either name */
+  --font-size-xs:         var(--text-xs);
+  --font-size-sm:         var(--text-sm);
+  --font-size-base:       var(--text-base);
+  --font-size-md:         var(--text-lg);
+  --font-size-lg:         var(--text-xl);
+  --font-size-xl:         var(--text-2xl);
+  --font-size-2xl:        var(--text-3xl);
+  --font-size-3xl:        var(--text-4xl);
+  --fs-xs:                var(--text-xs);
+  --fs-sm:                var(--text-sm);
+  --fs-base:              var(--text-base);
+  --fs-md:                var(--text-lg);
+  --fs-lg:                var(--text-xl);
 
   /* ━━━ LINE HEIGHT ━━━ */
   --line-tight:           1.25;
@@ -111,6 +141,25 @@
   --transition-fast:      0.15s ease;
   --transition-base:      0.25s ease;
   --transition-slow:      0.35s ease;
+
+  /* ━━━ SHELL TOKENS (SSOT) ━━━
+     Public/member polish only alias --pub-* / --mem-* to these.
+     Admin keeps --admin-radius 10px / --admin-bottom-nav-h 68px — do not merge.
+     Brand fill still comes from global-theme.php (--primary-color). */
+  --shell-font-body:      var(--font-primary);
+  --shell-font-head:      var(--font-heading);
+  --shell-radius:         12px;
+  --shell-radius-sm:      9px;
+  --shell-border:         #d7e0db;
+  --shell-border-focus:   var(--primary-color, var(--primary));
+  --shell-surface:        var(--bg-card);
+  --shell-surface-soft:   #f6f9f7;
+  --shell-text:           #0f1a15;
+  --shell-muted:          #5b6b62;
+  --shell-bottom-nav-h:   64px;
+  --shell-focus-ring:     0 0 0 3px color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent);
+  --shell-shadow:         0 4px 18px rgba(15, 31, 23, 0.06);
+  --shell-shadow-hover:   0 10px 28px rgba(15, 31, 23, 0.10);
 }
 
 /* Respect system dark mode preference (optional future enhancement) */
@@ -569,7 +618,6 @@ button:disabled,
 .d-inline-block { display: inline-block !important; }
 .d-flex { display: flex !important; }
 .d-grid { display: grid !important; }
-.d-none { display: none !important; }
 
 /* Flex */
 .flex-row { flex-direction: row; }
@@ -729,6 +777,88 @@ input:focus-visible {
   .table td {
     padding: var(--space-2);
   }
+}
+
+/* Shared helpers from includes/panel-uniform.php (all panels; admin has no app-core) */
+.coop-alert {
+  color: var(--text-on-primary, #fff);
+  padding: 12px 16px;
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  box-shadow: var(--shadow-sm, 0 1px 4px rgba(var(--primary-rgb, 26, 95, 42), 0.12));
+  font-family: var(--font-primary);
+  position: relative;
+}
+.coop-alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.coop-alert-body { flex: 1; }
+.coop-alert-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: 0.7;
+  margin-left: auto;
+  color: inherit;
+}
+.coop-alert-close:hover { opacity: 1; }
+.coop-alert--success { background: var(--color-success, var(--success)); }
+.coop-alert--danger,
+.coop-alert--error { background: var(--color-danger, var(--danger)); }
+.coop-alert--warning { background: var(--color-warning, var(--warning)); }
+.coop-alert--info { background: var(--color-info, #0891b2); }
+
+.coop-empty-icon {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  margin: 0 auto 0.5rem;
+  opacity: 0.25;
+}
+.coop-page-header-icon {
+  color: var(--primary-color, var(--primary));
+}
+.coop-info-table {
+  font-family: var(--font-primary);
+}
+.coop-info-th {
+  width: 38%;
+  font-weight: 600;
+  color: var(--text-muted, #6b7280);
+  padding: 8px 12px;
+  font-size: 0.84rem;
+}
+.coop-info-td {
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  word-break: break-word;
+}
+
+nav.coop-breadcrumb {
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+nav.coop-breadcrumb a {
+  color: var(--primary-color, var(--primary));
+  text-decoration: none;
+}
+nav.coop-breadcrumb .coop-breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+nav.coop-breadcrumb .coop-breadcrumb-sep {
+  margin: 0 6px;
+  color: var(--border-color);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

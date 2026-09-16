@@ -8,6 +8,7 @@
  * टिम सदस्यहरूमध्ये एक जनालाई गुनासो अधिकारी बनाउन सकिन्छ।
  * =====================================================
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'गुनासो अधिकारी';
 $currentPage = 'grievance-officer';
 require_once 'includes/admin-header.php';
@@ -65,7 +66,7 @@ try {
 echo adminPageHeader(
     'गुनासो अधिकारी', 'fa-user-tie',
     'उजुरी तथा गुनासो सुन्ने अधिकारी',
-    '<a href="team.php" class="btn btn-outline-light btn-sm"><i class="fas fa-users me-1"></i>टिम व्यवस्थापन</a>'
+    '<a href="team.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>टिम व्यवस्थापन</a>'
 );
 if ($success) echo adminAlert('success', $success);
 if ($error) echo adminAlert('error', $error);
@@ -78,7 +79,7 @@ if ($error) echo adminAlert('error', $error);
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header gof-card-header">
-                    <h5 class="mb-0"><i class="fas fa-id-badge me-2"></i>हालको गुनासो अधिकारी</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="badge-check" aria-hidden="true"></i>हालको गुनासो अधिकारी</h5>
                 </div>
                 <div class="card-body text-center py-4">
                     <?php if ($currentOfficer): ?>
@@ -88,7 +89,7 @@ if ($error) echo adminAlert('error', $error);
                                  alt="Photo">
                         <?php else: ?>
                             <div class="rounded-circle mb-3 d-inline-flex align-items-center justify-content-center border border-3 gof-avatar-fallback">
-                                <i class="fas fa-user-tie fa-2x gof-accent-icon"></i>
+                                <i class="lucide-icon lucide-2x gof-accent-icon" data-lucide="briefcase" aria-hidden="true"></i>
                             </div>
                         <?php endif; ?>
                         <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($currentOfficer['name']); ?></h5>
@@ -99,17 +100,17 @@ if ($error) echo adminAlert('error', $error);
                             <?php echo htmlspecialchars($currentOfficer['position_np'] ?: $currentOfficer['position']); ?>
                         </p>
                         <?php if (!empty($currentOfficer['phone'])): ?>
-                            <p class="text-muted small mb-1"><i class="fas fa-phone me-1"></i><?php echo htmlspecialchars($currentOfficer['phone']); ?></p>
+                            <p class="text-muted small mb-1"><i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($currentOfficer['phone']); ?></p>
                         <?php endif; ?>
                         <?php if (!empty($currentOfficer['email'])): ?>
-                            <p class="text-muted small mb-0"><i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars($currentOfficer['email']); ?></p>
+                            <p class="text-muted small mb-0"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars($currentOfficer['email']); ?></p>
                         <?php endif; ?>
                         <span class="badge mt-3 gof-badge-violet">
-                            <i class="fas fa-check-circle me-1"></i>गुनासो अधिकारी
+                            <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>गुनासो अधिकारी
                         </span>
                     <?php else: ?>
                         <div class="text-muted py-4">
-                            <i class="fas fa-user-slash fa-3x mb-3 d-block gof-empty-state-icon"></i>
+                            <i class="lucide-icon lucide-3x mb-3 d-block gof-empty-state-icon" data-lucide="user-x" aria-hidden="true"></i>
                             <p>कुनै गुनासो अधिकारी तोकिएको छैन।</p>
                             <p class="small">तलबाट टिम सदस्य चयन गर्नुहोस्।</p>
                         </div>
@@ -122,7 +123,7 @@ if ($error) echo adminAlert('error', $error);
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0"><i class="fas fa-users me-2 text-primary"></i>गुनासो अधिकारी चयन गर्नुहोस्</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2 text-primary" data-lucide="users" aria-hidden="true"></i>गुनासो अधिकारी चयन गर्नुहोस्</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -142,7 +143,7 @@ if ($error) echo adminAlert('error', $error);
                                 <tr class="<?php echo $isCurrent ? 'admin-assign-row-current' : ''; ?>">
                                     <td class="text-center">
                                         <?php if ($isCurrent): ?>
-                                            <i class="fas fa-check-circle text-success" title="हालको अधिकारी" aria-label="हालको अधिकारी"></i>
+                                            <i class="lucide-icon text-success" data-lucide="circle-check" aria-hidden="true" title="हालको अधिकारी" aria-label="हालको अधिकारी"></i>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -151,7 +152,7 @@ if ($error) echo adminAlert('error', $error);
                                                 <img src="<?php echo htmlspecialchars('../' . $m['photo']); ?>"
                                                      class="gof-row-avatar" alt="">
                                             <?php else: ?>
-                                                <span class="admin-person-fallback" aria-hidden="true"><i class="fas fa-user"></i></span>
+                                                <span class="admin-person-fallback" aria-hidden="true"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></span>
                                             <?php endif; ?>
                                             <div class="admin-person-meta">
                                                 <span class="admin-person-name"><?php echo htmlspecialchars($m['name']); ?></span>
@@ -171,7 +172,7 @@ if ($error) echo adminAlert('error', $error);
                                             <button type="submit" name="set_officer" value="1"
                                                     class="btn btn-sm gof-btn-violet admin-assign-btn"
                                                     onclick="return confirm('<?php echo htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8'); ?> लाई गुनासो अधिकारी बनाउने?')">
-                                                <i class="fas fa-user-check" aria-hidden="true"></i><span>तोक्नुहोस्</span>
+                                                <i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><span>तोक्नुहोस्</span>
                                             </button>
                                         </form>
                                         <?php else: ?>
@@ -183,7 +184,7 @@ if ($error) echo adminAlert('error', $error);
                                 <?php if (empty($allMembers)): ?>
                                 <tr>
                                     <td colspan="5" class="text-center text-muted py-4">
-                                        <i class="fas fa-users fa-2x mb-2 d-block"></i>
+                                        <i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="users" aria-hidden="true"></i>
                                         टिम सदस्यहरू भेटिएनन्। पहिले <a href="team.php">टिम व्यवस्थापन</a> मा सदस्य थप्नुहोस्।
                                     </td>
                                 </tr>
@@ -198,7 +199,7 @@ if ($error) echo adminAlert('error', $error);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="member_id" value="0">
                         <button type="submit" name="set_officer" value="1" class="btn btn-sm btn-outline-danger">
-                            <i class="fas fa-user-slash me-1"></i>गुनासो अधिकारी हटाउनुहोस्
+                            <i class="lucide-icon me-1" data-lucide="user-x" aria-hidden="true"></i>गुनासो अधिकारी हटाउनुहोस्
                         </button>
                     </form>
                 </div>
@@ -210,7 +211,7 @@ if ($error) echo adminAlert('error', $error);
     <!-- जानकारी बक्स -->
     <div class="card border-0 shadow-sm mt-4">
         <div class="card-body">
-            <h6 class="fw-bold mb-2"><i class="fas fa-info-circle text-warning me-2"></i>गुनासो अधिकारीबारे</h6>
+            <h6 class="fw-bold mb-2"><i class="lucide-icon text-warning me-2" data-lucide="info" aria-hidden="true"></i>गुनासो अधिकारीबारे</h6>
             <p class="text-muted small mb-0">
                 गुनासो सुन्ने ऐन अन्तर्गत हरेक निकायले गुनासो अधिकारी तोक्नु पर्छ।
                 यहाँ तोकिएको व्यक्ति <strong>गुनासो अधिकारी</strong> को रूपमा website मा देखाइनेछ।

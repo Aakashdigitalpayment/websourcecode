@@ -1,0 +1,39 @@
+/** Admin site-license blocked — extracted from admin/site-license-blocked.php */
+        /* Match shared theme font stack */
+        body, .slb-shell, .slb-card-main, .slb-card-head, .slb-card-body,
+        .slb-card-head h1, .slb-dates-box, .slb-pill, .slb-steps,
+        .slb-vendor-note, .slb-btn-logout, .slb-amt-locked,
+        .form-label, .form-control, .form-select, .btn, .alert {
+            font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+        }
+        .slb-card-head h1 {
+            font-family: var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+        }
+        /* Dates box — consistent card styling */
+        .slb-dates-box {
+            background: var(--bg-soft, #f8faf8);
+            border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1e7d4);
+            border-radius: var(--admin-radius, 10px);
+            padding: 14px 18px;
+            margin: 16px auto;
+            max-width: 380px;
+            text-align: left;
+            font-size: 0.93rem;
+            line-height: 1.6;
+        }
+        .slb-dates-box .lbl {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        .slb-dates-box code {
+            background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+            color: var(--primary-color, #1a5f2a);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.88rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }

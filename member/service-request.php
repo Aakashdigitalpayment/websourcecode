@@ -29,13 +29,13 @@ $rBranch    = trim((string)($kycRow['branch'] ?? ''));
 
 /* Service type options with target table/purpose */
 $serviceTypes = [
-    'appointment'       => ['label' => $_t('📅 भेटघाट — सेवा कार्यालय भ्रमण / भेट माग्ने','📅 Appointment — Service office visit request'),      'table' => 'appointments', 'purpose' => 'other'],
-    'loan_inquiry'      => ['label' => $_t('💰 ऋण जानकारी — कर्जा सम्बन्धी सोधपुछ','💰 Loan Inquiry — Ask about loans'), 'table' => 'appointments', 'purpose' => 'loan_inquiry'],
-    'account_info'      => ['label' => $_t('🏦 खाता जानकारी — बचत खाता सम्बन्धी','🏦 Account Info — Savings account related'),   'table' => 'appointments', 'purpose' => 'account_inquiry'],
-    'welfare_inquiry'   => ['label' => $_t('❤️ कल्याण सोधपुछ — सुविधा जानकारी','❤️ Welfare Inquiry — Benefit information'),    'table' => 'appointments', 'purpose' => 'other'],
-    'document_request'  => ['label' => $_t('📄 कागजात माग — NOC, Statement आदि','📄 Document Request — NOC, Statement etc.'),   'table' => 'appointments', 'purpose' => 'other'],
-    'grievance'         => ['label' => $_t('📣 गुनासो — समस्या दर्ता गर्ने','📣 Grievance — Register a problem'),         'table' => 'grievances',   'purpose' => 'other'],
-    'general'           => ['label' => $_t('💬 सामान्य सोधपुछ','💬 General Inquiry'),                       'table' => 'appointments', 'purpose' => 'other'],
+    'appointment'       => ['label' => $_t('भेटघाट — सेवा कार्यालय भ्रमण / भेट माग्ने','Appointment — Service office visit request'),      'table' => 'appointments', 'purpose' => 'other'],
+    'loan_inquiry'      => ['label' => $_t('ऋण जानकारी — कर्जा सम्बन्धी सोधपुछ','Loan Inquiry — Ask about loans'), 'table' => 'appointments', 'purpose' => 'loan_inquiry'],
+    'account_info'      => ['label' => $_t('खाता जानकारी — बचत खाता सम्बन्धी','Account Info — Savings account related'),   'table' => 'appointments', 'purpose' => 'account_inquiry'],
+    'welfare_inquiry'   => ['label' => $_t('कल्याण सोधपुछ — सुविधा जानकारी','Welfare Inquiry — Benefit information'),    'table' => 'appointments', 'purpose' => 'other'],
+    'document_request'  => ['label' => $_t('कागजात माग — NOC, Statement आदि','Document Request — NOC, Statement etc.'),   'table' => 'appointments', 'purpose' => 'other'],
+    'grievance'         => ['label' => $_t('गुनासो — समस्या दर्ता गर्ने','Grievance — Register a problem'),         'table' => 'grievances',   'purpose' => 'other'],
+    'general'           => ['label' => $_t('सामान्य सोधपुछ','General Inquiry'),                       'table' => 'appointments', 'purpose' => 'other'],
 ];
 
 $successMsg = '';
@@ -67,8 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             $svc       = $serviceTypes[$svcType];
             $svcLabel = $serviceTypes[$svcType]['label'] ?? $svcType;
             $corePurpose = $svc['purpose'] ?: 'other';
-            $detailPrefix = preg_replace('/^[^\s]+\s*/u', '', $svcLabel);
-            $detailText = trim($detailPrefix . ($message ? ("\n\n" . $message) : ''));
+            $detailText = trim($svcLabel . ($message ? ("\n\n" . $message) : ''));
 
             try {
                 if ($svc['table'] === 'grievances') {
@@ -81,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                         'phone' => $rPhone,
                         'email' => $rEmail,
                         'category' => 'service',
-                        'subject' => $detailPrefix,
+                        'subject' => $svcLabel,
                         'description' => $detailText,
                     ], []);
                 } elseif ($prefDate === '' || $prefTime === '') {
@@ -179,56 +178,45 @@ $statusColors = [
     'processing' => 'sr-status--processing'
 ];
 
-$extraHead = <<<'HTML'
-<style>
-/* service-request.php — page-specific only; base styles from member-portal-v2.css */
-.svc-card { background:#fff;border:2px solid var(--border-color,#e5e7eb);border-radius:12px;padding:13px 15px;cursor:pointer;transition:all .18s;margin-bottom:10px;display:flex;align-items:center;gap:10px; }
-.svc-card:hover,.svc-card.sel { border-color:var(--primary-color);background:color-mix(in srgb,var(--primary-color) 6%,white); }
-.svc-card.sel { box-shadow:0 0 0 3px rgba(var(--primary-rgb,26,95,42),.1); }
-.svc-card-icon { width:36px;height:36px;border-radius:10px;background:color-mix(in srgb,var(--primary-color) 10%,white);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0; }
-.svc-label { font-size:.88rem;font-weight:600;color:var(--text-primary,#1a2e1f); }
-.recent-card { background:color-mix(in srgb,var(--primary-color) 5%,white);border:1px solid var(--border-color,#e5e7eb);border-radius:10px;padding:10px 13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px; }
-.sr-status--pending,.sr-status--confirmed { color:var(--secondary-color,#c0392b); }
-.sr-status--completed { color:var(--primary-color,#1a5f2a); }
-.sr-status--cancelled { color:var(--text-muted,#6b7280); }
-.sr-track { font-size:.72rem;font-family:monospace;letter-spacing:.5px;background:color-mix(in srgb,var(--primary-color) 8%,white);padding:2px 7px;border-radius:5px;color:var(--primary-color); }
-</style>
-HTML;
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-service-request-page.css')
+        : '');
+require __DIR__ . '/includes/chrome.php';
 ?>
-<?php require __DIR__ . '/includes/chrome.php'; ?>
 
 <div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
     <h1 class="mem-page-title">
-      <i class="fas fa-concierge-bell"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?>
+      <i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?>
     </h1>
     <a href="tracker.php" class="mp-tracker-link">
-      <i class="fas fa-magnifying-glass-chart"></i> <?php echo $_t('Tracker', 'Tracker'); ?>
+      <i class="lucide-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> <?php echo $_t('Tracker', 'Tracker'); ?>
     </a>
   </div>
 
   <?php if ($errorMsg): ?>
   <div class="mem-alert mem-alert-error">
-    <i class="fas fa-circle-xmark"></i><div><?= htmlspecialchars($errorMsg) ?></div>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i><div><?= htmlspecialchars($errorMsg) ?></div>
   </div>
   <?php endif; ?>
 
   <!-- ── Tabs ── -->
   <div class="wf-tabs">
     <button type="button" class="wf-tab <?= $srActiveTab==='new'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-new')" id="srTabNew">
-      <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ अनुरोध', 'New Request'); ?>
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $_t('नयाँ अनुरोध', 'New Request'); ?>
     </button>
     <button type="button" class="wf-tab <?= $srActiveTab==='history'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-history')" id="srTabHistory">
-      <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा अनुरोधहरू', 'My Requests'); ?> (<?= count($recentReqs) ?>)
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा अनुरोधहरू', 'My Requests'); ?> (<?= count($recentReqs) ?>)
     </button>
   </div>
 
   <!-- ── Tab: New Request ── -->
   <div class="wf-pane <?= $srActiveTab==='new'?'active':'' ?>" id="sr-pane-new">
     <div class="mem-autofill-banner">
-      <i class="fas fa-wand-magic-sparkles"></i>
+      <i class="lucide-icon" data-lucide="sparkles" aria-hidden="true"></i>
       <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार, सन्देश, र (भेट/सेवाका लागि) मिति–समय भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>. Add service type, message, and (for visit/services) date–time.'); ?></div>
     </div>
 
@@ -237,7 +225,7 @@ HTML;
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -262,7 +250,7 @@ HTML;
 
       <div class="mem-form-row mem-form-row-2" id="msrScheduleFields">
         <div class="mem-form-group">
-          <label class="mem-form-label" for="msr_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
+          <label class="mem-form-label" for="msr_preferred_date"><i class="lucide-icon ico-primary" data-lucide="calendar" aria-hidden="true"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
           <?php
           echo function_exists('coop_date_input_html')
               ? coop_date_input_html([
@@ -278,7 +266,7 @@ HTML;
           ?>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label" for="msr_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
+          <label class="mem-form-label" for="msr_preferred_time"><i class="lucide-icon ico-primary" data-lucide="clock" aria-hidden="true"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
           <?php $preferredTimeValue = trim((string)($_POST['preferred_time'] ?? '')); $preferredTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
           <select name="preferred_time" class="mem-form-control" id="msr_preferred_time">
             <option value="">— <?php echo $_t('समय छान्नुहोस्', 'Select time'); ?> —</option>
@@ -300,7 +288,7 @@ HTML;
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label" for="msr_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <label class="mem-form-label" for="msr_branch"><i class="lucide-icon ico-primary" data-lucide="building" aria-hidden="true"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
         <input type="text" name="branch" class="mem-form-control" value="<?= htmlspecialchars($rBranch) ?>" placeholder="<?php echo $_t('जस्तै: प्रधान कार्यालय', 'e.g., Head Office'); ?>" id="msr_branch">
       </div>
 
@@ -310,7 +298,7 @@ HTML;
       </div>
 
       <button type="submit" class="mem-submit-btn">
-        <i class="fas fa-paper-plane"></i> <?php echo $_t('अनुरोध पठाउनुहोस्', 'Submit Request'); ?>
+        <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $_t('अनुरोध पठाउनुहोस्', 'Submit Request'); ?>
       </button>
     </form>
   </div><!-- /sr-pane-new -->
@@ -319,14 +307,14 @@ HTML;
   <div class="wf-pane <?= $srActiveTab==='history'?'active':'' ?>" id="sr-pane-history">
     <?php if ($successMsg): ?>
     <div class="mem-alert mem-alert-success">
-      <i class="fas fa-circle-check"></i>
+      <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i>
       <div><?= $successMsg ?></div>
     </div>
     <?php endif; ?>
 
     <?php if (empty($recentReqs)): ?>
     <div class="mp-empty">
-      <i class="fas fa-inbox mp-empty-icon"></i>
+      <i class="lucide-icon mp-empty-icon" data-lucide="inbox" aria-hidden="true"></i>
       <div class="mp-empty-title"><?php echo $_t('कुनै अनुरोध छैन', 'No requests found'); ?></div>
       <div class="mp-empty-hint"><?php echo $_t('"नयाँ अनुरोध" tab बाट सेवा लिनुहोस्।', 'Use "New Request" tab to submit.'); ?></div>
     </div>
@@ -348,7 +336,7 @@ HTML;
     </div>
     <?php endforeach; ?>
     <a href="tracker.php?filter=appointment" class="mp-tracker-link-sm">
-      <i class="fas fa-magnifying-glass-chart ico-mr"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
+      <i class="lucide-icon ico-mr" data-lucide="chart-no-axes-combined" aria-hidden="true"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
     </a>
     <?php endif; ?>
   </div><!-- /sr-pane-history -->

@@ -15,21 +15,25 @@ if (!function_exists('coopAlert')) {
      */
     function coopAlert(string $type, string $message, bool $dismissible = true): string {
         $map = [
-            'success' => ['bg' => 'var(--color-success)',  'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>'],
-            'error'   => ['bg' => 'var(--color-danger)',   'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'],
-            'danger'  => ['bg' => 'var(--color-danger)',   'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'],
-            'warning' => ['bg' => 'var(--color-warning)',  'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'],
-            'info'    => ['bg' => 'var(--color-info)',     'icon' => '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'],
+            'success' => 'circle-check',
+            'error'   => 'circle-x',
+            'danger'  => 'circle-x',
+            'warning' => 'triangle-alert',
+            'info'    => 'info',
         ];
-        $m   = $map[$type] ?? $map['info'];
+        $lucide = $map[$type] ?? $map['info'];
+        $typeKey = preg_replace('/[^a-z]/', '', strtolower($type)) ?: 'info';
+        if ($typeKey === 'error') {
+            $typeKey = 'danger';
+        }
         $msg = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
         $btn = $dismissible
             ? '<button type="button" class="coop-alert-close" onclick="this.parentElement.remove()" aria-label="Close">×</button>'
             : '';
         return <<<HTML
-<div class="coop-alert" style="background:{$m['bg']};color:var(--text-on-primary,white);padding:12px 16px;border-radius:var(--radius-md,10px);display:flex;align-items:center;gap:10px;margin:12px 0;box-shadow:var(--shadow-sm,0 1px 4px rgba(var(--primary-rgb,26,95,42),.12));font-family:var(--font-primary);">
-    <span class="coop-alert-icon" style="display:flex;align-items:center;justify-content:center;">{$m['icon']}</span>
-    <span style="flex:1;">{$msg}</span>
+<div class="coop-alert coop-alert--{$typeKey}">
+    <span class="coop-alert-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="{$lucide}"></i></span>
+    <span class="coop-alert-body">{$msg}</span>
     {$btn}
 </div>
 HTML;
@@ -93,17 +97,17 @@ if (!function_exists('coopBreadcrumb')) {
      * @param array $items [['label' => 'Home', 'url' => '/'], ['label' => 'Current']]
      */
     function coopBreadcrumb(array $items): string {
-        $html = '<nav class="coop-breadcrumb" style="font-family:var(--font-primary);font-size:.85rem;color:var(--text-muted);margin-bottom:14px;">';
+        $html = '<nav class="coop-breadcrumb" aria-label="Breadcrumb">';
         $last = count($items) - 1;
         foreach ($items as $i => $it) {
             $label = htmlspecialchars($it['label'] ?? '', ENT_QUOTES);
             if ($i === $last || empty($it['url'])) {
-                $html .= "<span style='color:var(--text-primary);font-weight:500;'>{$label}</span>";
+                $html .= "<span class=\"coop-breadcrumb-current\">{$label}</span>";
             } else {
                 $url = htmlspecialchars($it['url'], ENT_QUOTES);
-                $html .= "<a href='{$url}' style='color:var(--primary-color);text-decoration:none;'>{$label}</a>";
+                $html .= "<a href='{$url}'>{$label}</a>";
             }
-            if ($i !== $last) $html .= ' <span style="margin:0 6px;color:var(--border-color);">›</span> ';
+            if ($i !== $last) $html .= ' <span class="coop-breadcrumb-sep">›</span> ';
         }
         $html .= '</nav>';
         return $html;
@@ -177,7 +181,7 @@ if (!function_exists('coopEmptyRow')) {
         return <<<HTML
 <tr>
   <td colspan="{$cols}" class="text-center text-muted py-4">
-    <i class="fas fa-inbox fa-2x d-block mb-2 opacity-25"></i>
+    <i class="lucide-icon coop-empty-icon" aria-hidden="true" data-lucide="inbox"></i>
     {$msg}
   </td>
 </tr>
@@ -243,12 +247,31 @@ if (!function_exists('coopPageHeader')) {
         string $btnIcon  = 'fa-plus',
         string $btnClass = 'btn-primary'
     ): string {
-        $iconHtml = $icon
-            ? '<i class="fas ' . htmlspecialchars($icon, ENT_QUOTES) . ' me-2" style="color:var(--primary-color);"></i>'
-            : '';
+        $iconHtml = '';
+        if ($icon !== '') {
+            $raw = trim($icon);
+            if (preg_match('/^fa[srlb]?\s+/i', $raw)) {
+                $fa = $raw;
+            } elseif (str_starts_with($raw, 'fa-')) {
+                $fa = 'fas ' . $raw;
+            } else {
+                $fa = 'fas fa-' . ltrim($raw, '-');
+            }
+            if (function_exists('coop_nav_icon_html')) {
+                $iconHtml = coop_nav_icon_html($fa, 'fas fa-circle', 'me-2 coop-page-header-icon');
+            } else {
+                $iconHtml = '<i class="lucide-icon me-2 coop-page-header-icon" aria-hidden="true" data-lucide="circle"></i>';
+            }
+        }
         $btnHtml = ($btnLabel && $btnUrl)
             ? '<a href="' . htmlspecialchars($btnUrl, ENT_QUOTES) . '" class="btn btn-sm ' . htmlspecialchars($btnClass, ENT_QUOTES) . '">'
-              . '<i class="fas ' . htmlspecialchars($btnIcon, ENT_QUOTES) . ' me-1"></i>'
+              . (function_exists('coop_nav_icon_html')
+                  ? coop_nav_icon_html(
+                      (str_starts_with(trim($btnIcon), 'fa-') ? ('fas ' . trim($btnIcon)) : ('fas fa-' . ltrim($btnIcon, '-'))),
+                      'fas fa-plus',
+                      'me-1'
+                  )
+                  : ('<i class="lucide-icon me-1" aria-hidden="true" data-lucide="plus"></i>'))
               . htmlspecialchars($btnLabel, ENT_QUOTES, 'UTF-8')
               . '</a>'
             : '';
@@ -279,22 +302,35 @@ if (!function_exists('coopInfoCard')) {
      * @param string $class   Extra CSS class on wrapper
      */
     function coopInfoCard(string $title, string $icon, array $rows, string $class = ''): string {
-        $iconHtml = $icon
-            ? '<i class="fas ' . htmlspecialchars($icon, ENT_QUOTES) . ' me-2" style="color:var(--primary-color);"></i>'
-            : '';
+        $iconHtml = '';
+        if ($icon !== '') {
+            $raw = trim($icon);
+            if (preg_match('/^fa[srlb]?\s+/i', $raw)) {
+                $fa = $raw;
+            } elseif (str_starts_with($raw, 'fa-')) {
+                $fa = 'fas ' . $raw;
+            } else {
+                $fa = 'fas fa-' . ltrim($raw, '-');
+            }
+            if (function_exists('coop_nav_icon_html')) {
+                $iconHtml = coop_nav_icon_html($fa, 'fas fa-circle', 'me-2 coop-page-header-icon');
+            } else {
+                $iconHtml = '<i class="lucide-icon me-2 coop-page-header-icon" aria-hidden="true" data-lucide="circle"></i>';
+            }
+        }
         $t     = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
         $extra = $class ? ' ' . htmlspecialchars($class, ENT_QUOTES) : '';
         $rows_html = '';
         foreach ($rows as $k => $v) {
             $key = htmlspecialchars((string)$k, ENT_QUOTES, 'UTF-8');
             $val = $v !== null && $v !== '' ? htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8') : '<span class="text-muted">—</span>';
-            $rows_html .= "<tr><th style='width:38%;font-weight:600;color:var(--text-muted,#6b7280);padding:8px 12px;font-size:.84rem;'>{$key}</th>"
-                        . "<td style='padding:8px 12px;font-size:.88rem;word-break:break-word;'>{$val}</td></tr>";
+            $rows_html .= "<tr><th class=\"coop-info-th\">{$key}</th>"
+                        . "<td class=\"coop-info-td\">{$val}</td></tr>";
         }
         return <<<HTML
 <div class="form-card{$extra}">
     <div class="form-card-title">{$iconHtml}{$t}</div>
-    <table class="table table-sm mb-0" style="font-family:var(--font-primary);">
+    <table class="table table-sm mb-0 coop-info-table">
         <tbody>{$rows_html}</tbody>
     </table>
 </div>

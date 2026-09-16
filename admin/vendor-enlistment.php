@@ -3,6 +3,7 @@
  * Admin Vendor Enlistment Management
  * भेन्डर सूचीकरण आवेदन व्यवस्थापन
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'भेन्डर सूचीकरण';
 $currentPage = 'vendor-enlistment';
 require_once 'includes/admin-header.php';
@@ -145,8 +146,8 @@ $businessLabels = [
     'भेन्डर सूचीकरण',
     'fa-store',
     'वेबसाइटबाट आएका भेन्डर दर्ता आवेदनहरूको व्यवस्थापन।',
-    '<span class="badge admin-stat-badge bg-warning-subtle text-warning border border-warning border-opacity-25 me-2"><i class="fas fa-clock me-1"></i>पेन्डिङ: ' . $counts['pending'] . '</span>'
-    . '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . $counts['all'] . '</span>'
+    '<span class="badge admin-stat-badge bg-warning-subtle text-warning border border-warning border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i>पेन्डिङ: ' . $counts['pending'] . '</span>'
+    . '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . $counts['all'] . '</span>'
 ); ?>
 <?php $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['message']); ?>
 <?php if ($error) echo adminAlert('danger', $error); ?>
@@ -155,16 +156,16 @@ $businessLabels = [
 <!-- ══ Detail View ══ -->
 <div class="card admin-table-card mb-3 arv-legacy-detail">
     <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <span class="fw-semibold"><i class="fas fa-store me-2"></i><?php echo htmlspecialchars($detail['company_name']); ?></span>
+        <span class="fw-semibold"><i class="lucide-icon me-2" data-lucide="store" aria-hidden="true"></i><?php echo htmlspecialchars($detail['company_name']); ?></span>
         <a href="vendor-enlistment.php?tab=<?php echo $tab; ?>" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+            <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
         </a>
     </div>
     <div class="card-body">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-store"></i>भेन्डर जानकारी</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i>भेन्डर जानकारी</div>
                     <table class="table table-sm adm-detail-table mb-0">
                         <tr><th>कम्पनी/फर्म</th><td><?php echo htmlspecialchars($detail['company_name']); ?></td></tr>
                         <tr><th>मालिक/प्रोप्राइटर</th><td><?php echo htmlspecialchars($detail['owner_name'] ?? '—'); ?></td></tr>
@@ -195,54 +196,54 @@ $businessLabels = [
                 <div class="d-flex gap-2 flex-wrap">
                     <?php if ($detail['status'] !== 'approved'): ?>
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="status">
-                        <input type="hidden" name="id" value="<?php echo $detail['id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
                         <input type="hidden" name="status" value="approved">
                         <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check me-1"></i>स्वीकृत गर्नुहोस् (+ Partner)
+                            <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत गर्नुहोस् (+ Partner)
                         </button>
                     </form>
                     <?php else: ?>
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="promote_partner">
                         <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
                         <input type="hidden" name="return_view" value="<?php echo (int)$detail['id']; ?>">
                         <button type="submit" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-handshake me-1"></i>साझेदार सुविधामा थप्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="handshake" aria-hidden="true"></i>साझेदार सुविधामा थप्नुहोस्
                         </button>
                     </form>
-                    <a class="btn btn-outline-primary btn-sm" href="partner-facilities.php"><i class="fas fa-list me-1"></i>Partner list</a>
+                    <a class="btn btn-outline-primary btn-sm" href="partner-facilities.php"><i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i>Partner list</a>
                     <?php endif; ?>
                     <?php if ($detail['status'] !== 'rejected'): ?>
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="status">
-                        <input type="hidden" name="id" value="<?php echo $detail['id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
                         <input type="hidden" name="status" value="rejected">
                         <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fas fa-times me-1"></i>अस्वीकृत गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>अस्वीकृत गर्नुहोस्
                         </button>
                     </form>
                     <?php endif; ?>
                     <?php if ($detail['status'] !== 'pending'): ?>
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="status">
-                        <input type="hidden" name="id" value="<?php echo $detail['id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
                         <input type="hidden" name="status" value="pending">
                         <button type="submit" class="btn btn-warning btn-sm text-dark">
-                            <i class="fas fa-undo me-1"></i>विचाराधीनमा राख्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="undo-2" aria-hidden="true"></i>विचाराधीनमा राख्नुहोस्
                         </button>
                     </form>
                     <?php endif; ?>
                     <form method="POST" onsubmit="return confirm('के तपाईं पक्का हुनुहुन्छ?')">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="id" value="<?php echo $detail['id']; ?>">
+                        <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
                         <button type="submit" class="btn btn-outline-danger btn-sm">
-                            <i class="fas fa-trash me-1"></i>मेटाउनुहोस्
+                            <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>मेटाउनुहोस्
                         </button>
                     </form>
                 </div>
@@ -257,23 +258,23 @@ $businessLabels = [
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="?tab=all" class="stat-mini <?php echo $tab==='all'?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-store"></i></div>
-        <div class="sm-val"><?php echo $counts['all']; ?></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['all']; ?></div>
         <div class="sm-lbl">जम्मा भेन्डर</div>
     </a>
     <a href="?tab=pending" class="stat-mini <?php echo $tab==='pending'?'active-filter':''; ?>">
-        <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
-        <div class="sm-val"><?php echo $counts['pending']; ?></div>
+        <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['pending']; ?></div>
         <div class="sm-lbl">विचाराधीन</div>
     </a>
     <a href="?tab=approved" class="stat-mini <?php echo $tab==='approved'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
-        <div class="sm-val"><?php echo $counts['approved']; ?></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['approved']; ?></div>
         <div class="sm-lbl">स्वीकृत</div>
     </a>
     <a href="?tab=rejected" class="stat-mini <?php echo $tab==='rejected'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
-        <div class="sm-val"><?php echo $counts['rejected']; ?></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$counts['rejected']; ?></div>
         <div class="sm-lbl">अस्वीकृत</div>
     </a>
 </div>
@@ -281,11 +282,11 @@ $businessLabels = [
 <!-- ── Vendor Table ── -->
 <div class="card border-0 shadow-sm app-rounded-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-store me-2 ven-title-icon"></i>भेन्डर सूची — <?php echo $tab==='all'?'सबै':(ucfirst($tab)); ?></h6>
+        <h6><i class="lucide-icon me-2 ven-title-icon" data-lucide="store" aria-hidden="true"></i>भेन्डर सूची — <?php echo $tab==='all'?'सबै':(ucfirst($tab)); ?></h6>
         <div class="d-flex gap-2 align-items-center">
             <div class="admin-search-wrap d-flex align-items-center gap-2">
                 <div class="input-group input-group-sm ven-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -308,7 +309,7 @@ $businessLabels = [
             </thead>
             <tbody>
             <?php if (empty($vendors)): ?>
-            <tr class="no-results-row"><td colspan="7"><i class="fas fa-store fa-2x d-block mb-2"></i>कुनै भेन्डर आवेदन छैन।</td></tr>
+            <tr class="no-results-row"><td colspan="7"><i class="lucide-icon lucide-2x d-block mb-2" data-lucide="store" aria-hidden="true"></i>कुनै भेन्डर आवेदन छैन।</td></tr>
             <?php endif; foreach ($vendors as $v):
                 $vStatus = $v['status'] ?? 'pending';
                 $initLetter = mb_strtoupper(mb_substr($v['company_name'] ?? 'V', 0, 1));
@@ -328,7 +329,7 @@ $businessLabels = [
                     <?php if ($v['district'] ?? ''): ?><div class="cell-sub"><?php echo htmlspecialchars($v['district']); ?></div><?php endif; ?>
                 </td>
                 <td>
-                    <?php if ($v['phone']): ?><div class="cell-main"><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($v['phone']); ?></div><?php endif; ?>
+                    <?php if ($v['phone']): ?><div class="cell-main"><i class="lucide-icon text-muted me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($v['phone']); ?></div><?php endif; ?>
                     <?php if ($v['email']): ?><div class="cell-sub"><?php echo htmlspecialchars($v['email']); ?></div><?php endif; ?>
                 </td>
                 <td><span class="badge bg-info-subtle text-info border border-info border-opacity-25 fw-normal"><?php echo $businessLabels[$v['business_type']] ?? htmlspecialchars($v['business_type'] ?? '—'); ?></span></td>
@@ -340,28 +341,28 @@ $businessLabels = [
                 </td>
                 <td class="no-print">
                     <div class="adm-action-icons">
-                        <a href="?view=<?php echo $v['id']; ?>&tab=<?php echo $tab; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <a href="?view=<?php echo (int)$v['id']; ?>&tab=<?php echo $tab; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
                         <?php if ($v['status'] === 'pending'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('भेन्डर स्वीकृत गर्नुहुन्छ?')">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <input type="hidden" name="action" value="status">
-                            <input type="hidden" name="id" value="<?php echo $v['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
                             <input type="hidden" name="status" value="approved">
-                            <button type="submit" class="btn-qapprove"><i class="fas fa-check me-1"></i>स्वीकृत</button>
+                            <button type="submit" class="btn-qapprove"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत</button>
                         </form>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('भेन्डर अस्वीकृत गर्नुहुन्छ?')">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <input type="hidden" name="action" value="status">
-                            <input type="hidden" name="id" value="<?php echo $v['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
                             <input type="hidden" name="status" value="rejected">
-                            <button type="submit" class="btn-qreject"><i class="fas fa-times me-1"></i>अस्वीकृत</button>
+                            <button type="submit" class="btn-qreject"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>अस्वीकृत</button>
                         </form>
                         <?php endif; ?>
                         <form method="POST" class="adm-icon-form" onsubmit="return confirm('के तपाईं पक्का हुनुहुन्छ?')">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<?php echo $v['id']; ?>">
-                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="Delete"><i class="fas fa-trash-can"></i></button>
+                            <input type="hidden" name="id" value="<?php echo (int)$v['id']; ?>">
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                         </form>
                     </div>
                 </td>

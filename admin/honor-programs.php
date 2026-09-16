@@ -2,6 +2,7 @@
 /**
  * Admin — सम्मान आवेदन कार्यक्रम (Honor Programs)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'सम्मान आवेदन कार्यक्रम';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -292,16 +293,16 @@ function honorAdminTimePart(?string $mysqlDt, string $fallback = '00:00'): strin
         <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्। सक्रिय भए पनि खुल्ने मिति अगाडि भए public मा “चाँडै खुल्ने” देखिन्छ; आवेदन त्यसपछि मात्र।', 'Create programs with open/close dates. Even when Active, before opens_at the public shows “coming soon”; apply only after open.'); ?></p>
     </div>
     <div class="d-flex flex-wrap gap-2">
-        <a href="honor-applications.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-inbox me-1"></i><?php echo $__t('आवेदनहरू', 'Applications'); ?></a>
+        <a href="honor-applications.php" class="btn btn-outline-primary btn-sm"><i class="lucide-icon me-1" data-lucide="inbox" aria-hidden="true"></i><?php echo $__t('आवेदनहरू', 'Applications'); ?></a>
         <a href="honor-programs.php?action=categories" class="btn btn-outline-success btn-sm <?php echo $action === 'categories' ? 'active' : ''; ?>">
-            <i class="fas fa-tags me-1"></i><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?>
+            <i class="lucide-icon me-1" data-lucide="tags" aria-hidden="true"></i><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?>
         </a>
         <?php if ($action === 'list'): ?>
-        <a href="honor-programs.php?action=add" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i><?php echo $__t('नयाँ कार्यक्रम', 'New Program'); ?></a>
+        <a href="honor-programs.php?action=add" class="btn btn-primary btn-sm"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo $__t('नयाँ कार्यक्रम', 'New Program'); ?></a>
         <?php elseif ($action !== 'categories'): ?>
-        <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूची', 'List'); ?></a>
+        <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूची', 'List'); ?></a>
         <?php else: ?>
-        <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('कार्यक्रम सूची', 'Program list'); ?></a>
+        <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('कार्यक्रम सूची', 'Program list'); ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -374,7 +375,7 @@ $catForm = $editCategory ?: [
                         </div>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
+                        <button type="submit" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
                         <?php if (!empty($catForm['id'])): ?>
                         <a href="honor-programs.php?action=categories" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
                         <?php endif; ?>
@@ -424,18 +425,18 @@ $catForm = $editCategory ?: [
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center text-nowrap">
-                                    <a href="honor-programs.php?action=categories&edit_cat=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="honor-programs.php?action=categories&edit_cat=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_category">
                                         <input type="hidden" name="category_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="fas fa-power-off"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="lucide-icon" data-lucide="power-off" aria-hidden="true"></i></button>
                                     </form>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने? प्रयोगमा भए निष्क्रिय हुन्छ।', 'Delete? If in use it will be deactivated.'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete_category">
                                         <input type="hidden" name="category_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -511,7 +512,7 @@ $selectedCats = $editCatIds;
                     <input type="text" name="opens_at_bs" id="hp_opens_bs" class="form-control nepali-datepicker" required
                            placeholder="YYYY-MM-DD" autocomplete="off"
                            value="<?php echo htmlspecialchars($opensBsVal); ?>">
-                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                    <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                 </div>
             </div>
             <div class="col-md-3">
@@ -525,7 +526,7 @@ $selectedCats = $editCatIds;
                     <input type="text" name="closes_at_bs" id="hp_closes_bs" class="form-control nepali-datepicker" required
                            placeholder="YYYY-MM-DD" autocomplete="off"
                            value="<?php echo htmlspecialchars($closesBsVal); ?>">
-                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                    <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                 </div>
             </div>
             <div class="col-md-3">
@@ -542,7 +543,7 @@ $selectedCats = $editCatIds;
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
                     <label id="hp_categories_label" class="form-label mb-0"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
                     <a href="honor-programs.php?action=categories" class="btn btn-sm btn-outline-success">
-                        <i class="fas fa-plus me-1"></i><?php echo $__t('कोटि थप्नुहोस् / व्यवस्थापन', 'Add / manage categories'); ?>
+                        <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo $__t('कोटि थप्नुहोस् / व्यवस्थापन', 'Add / manage categories'); ?>
                     </a>
                 </div>
                 <div class="border rounded p-3 bg-light" role="group" aria-labelledby="hp_categories_label">
@@ -577,7 +578,7 @@ $selectedCats = $editCatIds;
                 <textarea name="instructions_en" id="hp_instructions_en" class="form-control" rows="4"><?php echo htmlspecialchars((string)$form['instructions_en']); ?></textarea>
             </div>
             <div class="col-12">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित गर्नुहोस्', 'Save'); ?></button>
+                <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $__t('सुरक्षित गर्नुहोस्', 'Save'); ?></button>
                 <a href="honor-programs.php" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
             </div>
         </form>
@@ -636,19 +637,19 @@ $selectedCats = $editCatIds;
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <a href="honor-programs.php?action=edit&id=<?php echo (int)$p['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                            <a href="honor-programs.php?action=edit&id=<?php echo (int)$p['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                             <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="toggle_active">
                                 <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="fas fa-power-off"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="lucide-icon" data-lucide="power-off" aria-hidden="true"></i></button>
                             </form>
                             <?php if ((int)$p['app_count'] === 0): ?>
                             <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने निश्चित?', 'Delete permanently?'); ?>');">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_program">
                                 <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                             <?php endif; ?>
                         </td>

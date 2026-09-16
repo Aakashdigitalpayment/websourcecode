@@ -8,15 +8,7 @@
  * ═══════════════════════════════════════════════════════════
  */
 define('SECURE_ACCESS', true);
-require_once __DIR__ . '/../includes/config.php';
-
-/* ── Auth check ── */
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (empty($_SESSION['admin_id']) && empty($_SESSION['admin_logged_in'])) {
-    http_response_code(403);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Access denied. Please login first.</p>';
-    exit;
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 $db   = getDB();
 $type = trim($_GET['type'] ?? '');
@@ -38,6 +30,14 @@ $siteRegNo   = getSetting('registration_number', '');
 $siteLogo    = getSetting('site_logo', getSetting('logo', ''));
 if ($siteLogo) $siteLogo = rtrim(SITE_URL, '/') . '/' . ltrim($siteLogo, '/');
 $today = function_exists('formatNepaliDate') ? formatNepaliDate(date('Y-m-d')) : date('Y-m-d');
+$pfPrimary = function_exists('coopThemeColorHex') ? coopThemeColorHex() : trim((string) getSetting('primary_color', '#1a5f2a'));
+if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $pfPrimary)) {
+    $pfPrimary = '#1a5f2a';
+}
+$pfPrimaryDark = trim((string) getSetting('primary_dark', ''));
+if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $pfPrimaryDark)) {
+    $pfPrimaryDark = '#0d3d1a';
+}
 
 /* ── Helpers ── */
 function pf_e($v): string  { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
@@ -800,7 +800,7 @@ case 'job':
     break;
 }
 
-/* ── Not found ── */
+/* ── Not found (goto landing — if(false) prevents fall-through) ── */
 if (false) { NOT_FOUND:
     http_response_code(404);
     echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Record not found (id='.$id.').</p>';
@@ -839,238 +839,17 @@ $checklist = $checklists[$type] ?? [];
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?php echo pf_e($formTitle); ?> — <?php echo pf_e($trackId); ?></title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap">
+<?php if (function_exists('coopThemeGoogleFonts')) { coopThemeGoogleFonts(); } ?>
 <link rel="stylesheet" href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/assets/vendor/fontawesome/css/all.min.css', ENT_QUOTES, 'UTF-8'); ?>">
 
-<style>
-/* ═══ RESET & BASE ═══ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-    --c-primary:   #1a5f2a;
-    --c-dark:      #0d3d1a;
-    --c-border:    #c5dace;
-    --c-section:   #edf6f0;
-    --c-muted:     #6b7280;
-    --c-text:      #111827;
-    --c-zebra:     #f8fcfa;
-    --c-warn-bg:   #fffbeb;
-    --c-warn-text: #78350f;
+<style id="pf-brand-vars">:root{--pf-primary:<?php echo pf_e($pfPrimary); ?>;--pf-primary-dark:<?php echo pf_e($pfPrimaryDark); ?>;}</style>
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/admin-print-form-page.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/admin-print-form-page.css');
 }
-
-body {
-    font-family: 'Noto Sans Devanagari','Inter',sans-serif;
-    font-size: 13px;
-    color: var(--c-text);
-    background: #dce8df;
-    line-height: 1.55;
-}
-
-/* ── Screen wrapper ── */
-.pf-wrap {
-    max-width: 860px;
-    margin: 24px auto 40px;
-    background: #fff;
-    border: 1px solid var(--c-border);
-    box-shadow: 0 6px 32px rgba(0,0,0,.14);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-/* ── Top action bar (screen only) ── */
-.pf-topbar {
-    background: #1e293b;
-    color: #f1f5f9;
-    padding: 10px 20px;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-}
-.pf-topbar-id { font-size: 11.5px; opacity: .75; font-family: monospace; }
-.pf-btn-row  { display: flex; gap: 8px; }
-.pf-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
-    cursor: pointer; border: none; text-decoration: none; font-family: inherit; transition: opacity .15s;
-}
-.pf-btn:hover { opacity: .85; }
-.pf-btn-green { background: var(--c-primary); color: #fff; }
-.pf-btn-ghost { background: transparent; color: #f1f5f9; border: 1px solid #475569; }
-
-/* ── Body ── */
-.pf-body { padding: 26px 30px 30px; }
-
-/* ── Org header ── */
-.pf-org-header {
-    display: grid;
-    grid-template-columns: 76px 1fr 92px;
-    align-items: center;
-    gap: 14px;
-    border-bottom: 3px solid var(--c-primary);
-    padding-bottom: 14px;
-    margin-bottom: 16px;
-}
-.pf-logo-box {
-    width: 76px; height: 76px;
-    border: 1.5px solid var(--c-border); border-radius: 8px;
-    background: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden;
-}
-.pf-logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.pf-logo-icon { font-size: 30px; color: var(--c-primary); opacity: .65; }
-.pf-org-name { font-size: 16.5px; font-weight: 800; color: var(--c-primary); line-height: 1.25; }
-.pf-org-meta { font-size: 11px; color: var(--c-muted); margin-top: 3px; }
-.pf-org-meta span { display: inline-block; margin-right: 10px; }
-.pf-photo-box {
-    width: 92px; height: 112px;
-    border: 1.5px solid var(--c-border); border-radius: 4px;
-    background: #f9fafb; display: flex; align-items: center; justify-content: center;
-    font-size: 10px; color: var(--c-muted); text-align: center; overflow: hidden;
-}
-.pf-photo-box img { width: 100%; height: 100%; object-fit: cover; }
-
-/* ── Title banner ── */
-.pf-banner {
-    background: var(--c-primary);
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 5px;
-    margin-bottom: 18px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-}
-.pf-banner-title    { font-size: 14px; font-weight: 800; line-height: 1.3; }
-.pf-banner-subtitle { font-size: 11px; opacity: .85; margin-top: 2px; }
-.pf-pills           { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
-.pf-pill {
-    background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
-    border-radius: 999px; padding: 3px 11px; font-size: 11px; font-weight: 600; white-space: nowrap;
-}
-.pf-pill-status { background: rgba(255,255,255,.92); color: var(--c-dark); }
-
-/* ── Sections ── */
-.pf-section { margin-bottom: 15px; border: 1px solid var(--c-border); border-radius: 4px; overflow: hidden; }
-.pf-section-head {
-    background: var(--c-section);
-    border-left: 4px solid var(--c-primary);
-    padding: 7px 12px;
-    font-size: 11.5px; font-weight: 700; color: var(--c-primary);
-    text-transform: uppercase; letter-spacing: .35px;
-}
-.pf-tbl { width: 100%; border-collapse: collapse; }
-.pf-tbl th, .pf-tbl td { padding: 6px 11px; border-bottom: 1px solid var(--c-border); vertical-align: top; }
-.pf-tbl tr:last-child th, .pf-tbl tr:last-child td { border-bottom: none; }
-.pf-tbl tr:nth-child(even) td { background: var(--c-zebra); }
-.pf-tbl th { width: 32%; background: #f3f9f5; font-weight: 600; color: #374151; }
-.pf-tbl .lnp { display: block; font-size: 12px; font-weight: 700; color: #1f2937; }
-.pf-tbl .len { display: block; font-size: 10.5px; color: var(--c-muted); }
-.pf-tbl td.empty { color: #9ca3af; font-style: italic; font-size: 12px; }
-
-/* Family / money / docs */
-.pf-subtbl { width: 100%; border-collapse: collapse; font-size: 12px; }
-.pf-subtbl th, .pf-subtbl td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; }
-.pf-subtbl thead th { background: #f3f9f5; font-weight: 700; color: #374151; font-size: 11px; }
-.pf-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-.pf-money-grid > div { border-right: 1px solid var(--c-border); }
-.pf-money-grid > div:last-child { border-right: none; }
-.pf-docs-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    padding: 12px;
-}
-.pf-doc-card {
-    border: 1px solid var(--c-border); border-radius: 4px; overflow: hidden;
-    background: #f9fafb; text-align: center;
-}
-.pf-doc-card img {
-    width: 100%; height: 140px; object-fit: contain; background: #fff;
-    border-bottom: 1px solid var(--c-border); display: block;
-}
-.pf-doc-card .pf-doc-label { padding: 6px 8px; font-size: 11px; font-weight: 600; }
-.pf-doc-card .pf-doc-en { display: block; font-size: 10px; color: var(--c-muted); font-weight: 400; }
-.pf-doc-file { padding: 18px 10px; font-size: 12px; }
-.pf-doc-file a { color: var(--c-primary); font-weight: 700; text-decoration: none; }
-
-/* ── Declaration ── */
-.pf-decl {
-    border: 1px solid #fde68a; border-radius: 5px;
-    background: var(--c-warn-bg); padding: 12px 15px;
-    margin: 18px 0 16px; font-size: 12px;
-}
-.pf-decl-title { font-weight: 700; color: #92400e; margin-bottom: 6px; font-size: 12.5px; }
-.pf-decl p { color: var(--c-warn-text); line-height: 1.65; }
-.pf-sig-row {
-    display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap;
-}
-.pf-sig-box { flex: 1; min-width: 140px; }
-.pf-sig-line { border-bottom: 1.5px solid #374151; height: 38px; margin-bottom: 4px; }
-.pf-sig-img { max-height: 56px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto 6px; }
-.pf-sig-label { font-size: 10.5px; color: var(--c-muted); }
-
-/* ── Office section ── */
-.pf-office { border: 2px solid var(--c-primary); border-radius: 5px; overflow: hidden; margin-top: 6px; }
-.pf-office-head {
-    background: var(--c-primary); color: #fff;
-    padding: 8px 15px; font-size: 12.5px; font-weight: 700;
-    display: flex; align-items: center; justify-content: space-between;
-}
-.pf-office-body { padding: 14px 15px 12px; }
-.pf-officers { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 14px; }
-.pf-officer-role {
-    font-weight: 700; font-size: 11.5px; color: var(--c-primary);
-    text-transform: uppercase; letter-spacing: .3px; margin-bottom: 10px;
-}
-.pf-officer-field { margin-bottom: 9px; }
-.pf-field-line { border-bottom: 1px solid #9ca3af; height: 30px; margin-bottom: 3px; }
-.pf-field-label { font-size: 10.5px; color: var(--c-muted); }
-
-/* Checklist */
-.pf-checklist-head { font-size: 11.5px; font-weight: 700; color: #374151; margin-bottom: 7px; border-top: 1px solid #e5e7eb; padding-top: 10px; }
-.pf-check-row { display: flex; flex-wrap: wrap; gap: 10px 20px; }
-.pf-check-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
-.pf-checkbox { width: 14px; height: 14px; border: 1.5px solid var(--c-primary); border-radius: 2px; flex-shrink: 0; display: inline-block; }
-.pf-seal {
-    width: 108px; height: 76px;
-    border: 1.5px dashed #9ca3af; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10.5px; color: #9ca3af; text-align: center; padding: 6px;
-    float: right; margin-top: -38px;
-}
-
-/* ── Footer ── */
-.pf-foot {
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 8px;
-    margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--c-border);
-}
-.pf-foot-text { font-size: 10.5px; color: var(--c-muted); }
-.pf-track-stamp {
-    font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--c-primary);
-    font-family: monospace; border: 1px dashed var(--c-primary); padding: 3px 10px; border-radius: 4px;
-}
-
-/* ═══ PRINT ═══ */
-@media print {
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body { background: #fff !important; }
-    .pf-topbar { display: none !important; }
-    .pf-wrap {
-        max-width: 100% !important; margin: 0 !important;
-        box-shadow: none !important; border: none !important; border-radius: 0 !important;
-    }
-    .pf-body { padding: 12px 16px 18px !important; }
-    .pf-section, .pf-office, .pf-decl, .pf-doc-card { page-break-inside: avoid; }
-    .pf-docs-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    .pf-money-grid { grid-template-columns: 1fr 1fr !important; }
-    @page { size: A4; margin: 13mm 11mm 15mm 11mm; }
-}
-
-/* ═══ MOBILE ═══ */
-@media (max-width: 620px) {
-    .pf-body { padding: 14px; }
-    .pf-org-header { grid-template-columns: 60px 1fr; }
-    .pf-photo-box { display: none; }
-    .pf-officers { grid-template-columns: 1fr; }
-    .pf-docs-grid { grid-template-columns: 1fr 1fr; }
-    .pf-money-grid { grid-template-columns: 1fr; }
-}
-</style>
+?>
 </head>
 <body>
 
@@ -1078,13 +857,13 @@ body {
 
     <!-- ── Top action bar ── -->
     <div class="pf-topbar">
-        <span class="pf-topbar-id"><i class="fas fa-file-alt" style="margin-right:5px;"></i><?php echo pf_e($trackId); ?> &mdash; <?php echo pf_e($formTitle); ?></span>
+        <span class="pf-topbar-id"><i class="lucide-icon" data-lucide="file-text" aria-hidden="true" style="margin-right:5px;"></i><?php echo pf_e($trackId); ?> &mdash; <?php echo pf_e($formTitle); ?></span>
         <div class="pf-btn-row">
             <button type="button" onclick="history.back()" class="pf-btn pf-btn-ghost">
-                <i class="fas fa-arrow-left"></i> फिर्ता
+                <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> फिर्ता
             </button>
             <button type="button" onclick="window.print()" class="pf-btn pf-btn-green">
-                <i class="fas fa-print"></i> Print / PDF डाउनलोड
+                <i class="lucide-icon" data-lucide="printer" aria-hidden="true"></i> Print / PDF डाउनलोड
             </button>
         </div>
     </div>
@@ -1096,17 +875,17 @@ body {
             <div class="pf-logo-box">
                 <?php if ($siteLogo): ?>
                 <img src="<?php echo pf_e($siteLogo); ?>" alt="Logo"
-                     onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'fas fa-landmark pf-logo-icon\'></i>'">
+                     onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\'lucide-icon pf-logo-icon\' data-lucide=\'landmark\' aria-hidden=\'true\'></i>';if(window.lucide&&lucide.createIcons)lucide.createIcons();">
                 <?php else: ?>
-                <i class="fas fa-landmark pf-logo-icon"></i>
+                <i class="lucide-icon pf-logo-icon" data-lucide="landmark" aria-hidden="true"></i>
                 <?php endif; ?>
             </div>
             <div>
                 <div class="pf-org-name"><?php echo pf_e($siteName); ?></div>
                 <div class="pf-org-meta">
-                    <?php if ($siteAddress): ?><span><i class="fas fa-location-dot"></i> <?php echo pf_e($siteAddress); ?></span><?php endif; ?>
-                    <?php if ($sitePhone): ?><span><i class="fas fa-phone"></i> <?php echo pf_e($sitePhone); ?></span><?php endif; ?>
-                    <?php if ($siteEmail): ?><span><i class="fas fa-envelope"></i> <?php echo pf_e($siteEmail); ?></span><?php endif; ?>
+                    <?php if ($siteAddress): ?><span><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo pf_e($siteAddress); ?></span><?php endif; ?>
+                    <?php if ($sitePhone): ?><span><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo pf_e($sitePhone); ?></span><?php endif; ?>
+                    <?php if ($siteEmail): ?><span><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo pf_e($siteEmail); ?></span><?php endif; ?>
                     <?php if ($siteRegNo): ?><span>दर्ता नं.: <?php echo pf_e($siteRegNo); ?></span><?php endif; ?>
                 </div>
             </div>
@@ -1116,7 +895,7 @@ body {
                 <?php elseif ($type === 'kyc' || $type === 'account'): ?>
                 <span>फोटो<br>Photo<br><small>(Passport Size)</small></span>
                 <?php else: ?>
-                <span style="font-size:22px;opacity:.3;"><i class="fas fa-building-user"></i></span>
+                <span style="font-size:22px;opacity:.3;"><i class="lucide-icon" data-lucide="building-2" aria-hidden="true"></i></span>
                 <?php endif; ?>
             </div>
         </div>
@@ -1223,7 +1002,7 @@ body {
                     </a>
                     <?php else: ?>
                     <div class="pf-doc-file">
-                        <i class="fas fa-file-alt" style="font-size:22px;opacity:.55;display:block;margin-bottom:6px;"></i>
+                        <i class="lucide-icon" data-lucide="file-text" aria-hidden="true" style="font-size:22px;opacity:.55;display:block;margin-bottom:6px;"></i>
                         <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener noreferrer">खोल्नुहोस् / Open</a>
                     </div>
                     <?php endif; ?>
@@ -1260,7 +1039,7 @@ body {
 
         <!-- ── Declaration ── -->
         <div class="pf-decl">
-            <div class="pf-decl-title"><i class="fas fa-pen-nib" style="margin-right:6px;"></i>आवेदकको घोषणा / Applicant's Declaration</div>
+            <div class="pf-decl-title"><i class="lucide-icon" data-lucide="pen" aria-hidden="true" style="margin-right:6px;"></i>आवेदकको घोषणा / Applicant's Declaration</div>
             <p>मैले माथि भरेको सम्पूर्ण जानकारी सत्य, सही र पूर्ण छ भनी म घोषणा गर्दछु। यो आवेदन डिजिटल माध्यम मार्फत पेश गरिएको हो एवं सहकारी ऐन, नियमावली तथा संस्थाका सम्पूर्ण नियम र शर्तहरू मैले स्वीकार गरेको छु। कुनै पनि जानकारी गलत भएमा संस्थाले कारवाही गर्ने अधिकार राख्छ।<br>
             <small>I hereby declare that all information provided above is true, correct and complete. This application was submitted through digital medium and I accept all applicable rules, regulations and terms of the cooperative act and institution. I understand that any false information may result in rejection or legal action by the institution.</small></p>
             <div class="pf-sig-row">
@@ -1298,28 +1077,28 @@ body {
         <!-- ── For Office Use Only ── -->
         <div class="pf-office">
             <div class="pf-office-head">
-                <span><i class="fas fa-building-columns" style="margin-right:8px;"></i>कार्यालय प्रयोगको लागि मात्र / For Office Use Only</span>
+                <span><i class="lucide-icon" data-lucide="landmark" aria-hidden="true" style="margin-right:8px;"></i>कार्यालय प्रयोगको लागि मात्र / For Office Use Only</span>
                 <span style="font-size:11px;opacity:.75;">Print Date: <?php echo $today; ?></span>
             </div>
             <div class="pf-office-body">
                 <div class="pf-officers">
 
                     <div>
-                        <div class="pf-officer-role"><i class="fas fa-clipboard-check" style="margin-right:5px;"></i>जाँच गर्ने / Verified By</div>
+                        <div class="pf-officer-role"><i class="lucide-icon" data-lucide="clipboard-check" aria-hidden="true" style="margin-right:5px;"></i>जाँच गर्ने / Verified By</div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">नाम / Name</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">पद / Designation</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">दस्तखत / Signature &amp; मिति / Date</div></div>
                     </div>
 
                     <div>
-                        <div class="pf-officer-role"><i class="fas fa-user-check" style="margin-right:5px;"></i>समीक्षा गर्ने / Reviewed By</div>
+                        <div class="pf-officer-role"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true" style="margin-right:5px;"></i>समीक्षा गर्ने / Reviewed By</div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">नाम / Name</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">पद / Designation</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">दस्तखत / Signature &amp; मिति / Date</div></div>
                     </div>
 
                     <div>
-                        <div class="pf-officer-role"><i class="fas fa-stamp" style="margin-right:5px;"></i>स्वीकृत गर्ने / Approved By</div>
+                        <div class="pf-officer-role"><i class="lucide-icon" data-lucide="stamp" aria-hidden="true" style="margin-right:5px;"></i>स्वीकृत गर्ने / Approved By</div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">नाम / Name</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">पद / Designation</div></div>
                         <div class="pf-officer-field"><div class="pf-field-line"></div><div class="pf-field-label">दस्तखत / Signature &amp; मिति / Date</div></div>

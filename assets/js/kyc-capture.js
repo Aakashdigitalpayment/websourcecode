@@ -1,14 +1,22 @@
 if (window._kycCaptureInited) { window._kycCaptureSkipped = true; } else {
 window._kycCaptureInited = true;
 /* ===========================================================
-   KYC Capture v10.9
+   KYC Capture v10.11
    - Live camera (getUserMedia) सहित pan/zoom/rotate crop
    - Signature pad (canvas, finger/pen)
    - Fingerprint photo capture with line-density quality check
    - Outputs base64 (PNG/JPEG) into hidden inputs
+   - v10.11: modal/status icons Lucide (FA chrome removed)
    =========================================================== */
 (function () {
   'use strict';
+
+  function kycLucideRefresh(root) {
+    if (!(window.lucide && typeof window.lucide.createIcons === 'function')) return;
+    var scope = root || document;
+    var nodes = scope.querySelectorAll ? scope.querySelectorAll('[data-lucide]') : [];
+    if (nodes && nodes.length) window.lucide.createIcons({ nodes: nodes });
+  }
 
   /* ------------------------------------------------------------------
      1. CAMERA + CROP CONTROLLER
@@ -34,8 +42,8 @@ window._kycCaptureInited = true;
       const html = `
         <div class="kyc-modal" id="kycCamModal">
           <div class="kyc-modal-header">
-            <div class="kyc-modal-title"><i class="fas fa-camera"></i><span id="kycCamTitle">क्यामेरा</span></div>
-            <button type="button" class="kyc-modal-close" id="kycCamClose"><i class="fas fa-times"></i></button>
+            <div class="kyc-modal-title"><i class="lucide-icon" aria-hidden="true" data-lucide="camera"></i><span id="kycCamTitle">क्यामेरा</span></div>
+            <button type="button" class="kyc-modal-close" id="kycCamClose"><i class="lucide-icon" aria-hidden="true" data-lucide="x"></i></button>
           </div>
           <div class="kyc-modal-body" id="kycCamBody">
             <video class="kyc-cam-video" id="kycCamVideo" autoplay playsinline muted></video>
@@ -45,24 +53,24 @@ window._kycCaptureInited = true;
           <div class="kyc-modal-footer" id="kycCamFooter">
             <!-- camera mode: shutter -->
             <div class="kyc-shutter-row" id="kycShutterRow">
-              <button type="button" class="kyc-flip-btn" id="kycFlipCam" title="क्यामेरा फेर्नुहोस्"><i class="fas fa-rotate"></i></button>
-              <button type="button" class="kyc-modal-btn shutter" id="kycShutter"><i class="fas fa-camera"></i></button>
-              <button type="button" class="kyc-flip-btn" id="kycPickGallery" title="Gallery"><i class="fas fa-images"></i></button>
+              <button type="button" class="kyc-flip-btn" id="kycFlipCam" title="क्यामेरा फेर्नुहोस्"><i class="lucide-icon" aria-hidden="true" data-lucide="refresh-cw"></i></button>
+              <button type="button" class="kyc-modal-btn shutter" id="kycShutter"><i class="lucide-icon" aria-hidden="true" data-lucide="camera"></i></button>
+              <button type="button" class="kyc-flip-btn" id="kycPickGallery" title="Gallery"><i class="lucide-icon" aria-hidden="true" data-lucide="images"></i></button>
             </div>
             <!-- crop mode: zoom + rotate + confirm -->
             <div id="kycCropControls" style="display:none;">
               <div class="kyc-zoom-row">
-                <label><i class="fas fa-search-plus"></i> Zoom</label>
+                <label><i class="lucide-icon" aria-hidden="true" data-lucide="zoom-in"></i> Zoom</label>
                 <input type="range" id="kycZoom" min="0.5" max="4" step="0.05" value="1">
               </div>
               <div class="kyc-rotate-row">
-                <button type="button" class="kyc-flip-btn" id="kycRotL" title="Left"><i class="fas fa-rotate-left"></i></button>
-                <button type="button" class="kyc-flip-btn" id="kycRotR" title="Right"><i class="fas fa-rotate-right"></i></button>
-                <button type="button" class="kyc-flip-btn" id="kycReset" title="Reset"><i class="fas fa-undo"></i></button>
+                <button type="button" class="kyc-flip-btn" id="kycRotL" title="Left"><i class="lucide-icon" aria-hidden="true" data-lucide="rotate-ccw"></i></button>
+                <button type="button" class="kyc-flip-btn" id="kycRotR" title="Right"><i class="lucide-icon" aria-hidden="true" data-lucide="rotate-cw"></i></button>
+                <button type="button" class="kyc-flip-btn" id="kycReset" title="Reset"><i class="lucide-icon" aria-hidden="true" data-lucide="undo-2"></i></button>
               </div>
               <div class="kyc-modal-btns">
-                <button type="button" class="kyc-modal-btn cancel" id="kycRetake"><i class="fas fa-redo me-1"></i>फेरि खिच्नुहोस्</button>
-                <button type="button" class="kyc-modal-btn confirm" id="kycConfirm"><i class="fas fa-check me-1"></i>स्वीकार</button>
+                <button type="button" class="kyc-modal-btn cancel" id="kycRetake"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="redo-2"></i>फेरि खिच्नुहोस्</button>
+                <button type="button" class="kyc-modal-btn confirm" id="kycConfirm"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="check"></i>स्वीकार</button>
               </div>
             </div>
           </div>
@@ -72,6 +80,7 @@ window._kycCaptureInited = true;
       const div = document.createElement('div');
       div.innerHTML = html;
       document.body.appendChild(div.firstElementChild);
+      kycLucideRefresh(document.getElementById('kycCamModal'));
 
       this.modalEl = document.getElementById('kycCamModal');
       this.video = document.getElementById('kycCamVideo');
@@ -99,6 +108,7 @@ window._kycCaptureInited = true;
       this.init();
       document.getElementById('kycCamTitle').textContent = field.options.title || 'क्यामेरा';
       this.modalEl.classList.add('active');
+      kycLucideRefresh(this.modalEl);
       this.startCamera();
     },
 
@@ -123,14 +133,15 @@ window._kycCaptureInited = true;
         if (hint) {
           hint.innerHTML = '<div style="text-align:center;padding:12px;">'
             + '<p style="margin:0 0 10px;font-size:.9rem;color:#dc3545;">'
-            + '<i class="fas fa-exclamation-triangle me-1"></i>'
+            + '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="triangle-alert"></i>'
             + 'क्यामेरा खोल्न सकिएन।'
             + '</p>'
             + '<button type="button" id="kycFallbackGalleryBtn" class="kyc-cap-btn primary" style="margin:0 auto;display:inline-flex;">'
-            + '<i class="fas fa-images me-1"></i> Gallery बाट छान्नुहोस्'
+            + '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="images"></i> Gallery बाट छान्नुहोस्'
             + '</button>'
             + '</div>';
           hint.style.display = '';
+          kycLucideRefresh(hint);
           const fallbackBtn = document.getElementById('kycFallbackGalleryBtn');
           if (fallbackBtn) {
             fallbackBtn.addEventListener('click', function () {
@@ -359,15 +370,16 @@ window._kycCaptureInited = true;
       el.innerHTML = `
         <div class="kyc-cap-preview">
           <img src="${dataUrl}" alt="preview">
-          <div class="kyc-cap-status"><i class="fas fa-check-circle"></i> ${field.options.label || 'क्याप्चर भयो'}</div>
+          <div class="kyc-cap-status"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> ${field.options.label || 'क्याप्चर भयो'}</div>
           <div class="kyc-cap-actions">
-            <button type="button" class="kyc-cap-btn" data-act="recap"><i class="fas fa-redo"></i> फेरि</button>
-            <button type="button" class="kyc-cap-btn danger" data-act="clear"><i class="fas fa-trash"></i> हटाउनुहोस्</button>
+            <button type="button" class="kyc-cap-btn" data-act="recap"><i class="lucide-icon" aria-hidden="true" data-lucide="redo-2"></i> फेरि</button>
+            <button type="button" class="kyc-cap-btn danger" data-act="clear"><i class="lucide-icon" aria-hidden="true" data-lucide="trash-2"></i> हटाउनुहोस्</button>
           </div>
           <div class="kyc-cap-extra"></div>
         </div>
       `;
       field.fieldEl.classList.add('has-image');
+      kycLucideRefresh(el);
       el.querySelector('[data-act=recap]').addEventListener('click', () => CamCrop.open(field));
       el.querySelector('[data-act=clear]').addEventListener('click', () => {
         field.hidden.value = '';
@@ -419,15 +431,16 @@ window._kycCaptureInited = true;
     const opts = field.options;
     field.preview.innerHTML = `
       <div class="kyc-cap-empty">
-        <i class="fas fa-camera"></i>
+        <i class="lucide-icon" aria-hidden="true" data-lucide="camera"></i>
         <div class="kyc-cap-empty-title">${opts.label || 'क्याप्चर'} खिच्नुहोस्</div>
         <div class="kyc-cap-empty-sub">मोबाइलमा क्यामेरा खुल्छ — Zoom र Crop गरेर मात्र अपलोड हुन्छ</div>
         <div class="kyc-cap-actions">
-          <button type="button" class="kyc-cap-btn primary"><i class="fas fa-camera"></i> क्यामेरा</button>
-          <button type="button" class="kyc-cap-btn" data-gallery="1"><i class="fas fa-images"></i> Gallery</button>
+          <button type="button" class="kyc-cap-btn primary"><i class="lucide-icon" aria-hidden="true" data-lucide="camera"></i> क्यामेरा</button>
+          <button type="button" class="kyc-cap-btn" data-gallery="1"><i class="lucide-icon" aria-hidden="true" data-lucide="images"></i> Gallery</button>
         </div>
       </div>
     `;
+    kycLucideRefresh(field.preview);
     field.preview.querySelector('.kyc-cap-btn.primary').addEventListener('click', () => CamCrop.open(field));
     field.preview.querySelector('[data-gallery]').addEventListener('click', () => {
       CamCrop.targetField = field;
@@ -484,10 +497,10 @@ window._kycCaptureInited = true;
       tabs.className = 'kyc-sig-tabs';
       tabs.innerHTML = `
         <button type="button" class="kyc-sig-tab active" data-tab="draw">
-          <i class="fas fa-pen-fancy"></i> हात लेख्नुहोस्
+          <i class="lucide-icon" aria-hidden="true" data-lucide="pen-line"></i> हात लेख्नुहोस्
         </button>
         <button type="button" class="kyc-sig-tab" data-tab="upload">
-          <i class="fas fa-upload"></i> फाइल अपलोड
+          <i class="lucide-icon" aria-hidden="true" data-lucide="upload"></i> फाइल अपलोड
         </button>`;
 
       // ── Draw panel ────────────────────────────────────────────────
@@ -501,9 +514,9 @@ window._kycCaptureInited = true;
       toolbar.className = 'kyc-sig-toolbar';
       toolbar.innerHTML = `
         <div class="kyc-sig-tools">
-          <button type="button" class="kyc-sig-tool active" data-w="2"><i class="fas fa-pen-fancy"></i> पातलो</button>
-          <button type="button" class="kyc-sig-tool" data-w="4"><i class="fas fa-pen"></i> बाक्लो</button>
-          <button type="button" class="kyc-sig-tool" data-clear="1"><i class="fas fa-eraser"></i> मेट्नुहोस्</button>
+          <button type="button" class="kyc-sig-tool active" data-w="2"><i class="lucide-icon" aria-hidden="true" data-lucide="pen-line"></i> पातलो</button>
+          <button type="button" class="kyc-sig-tool" data-w="4"><i class="lucide-icon" aria-hidden="true" data-lucide="pen"></i> बाक्लो</button>
+          <button type="button" class="kyc-sig-tool" data-clear="1"><i class="lucide-icon" aria-hidden="true" data-lucide="eraser"></i> मेट्नुहोस्</button>
         </div>
         <div class="kyc-sig-stat">तल हस्ताक्षर गर्नुहोस्</div>
       `;
@@ -521,8 +534,7 @@ window._kycCaptureInited = true;
       uploadFileInput.style.cssText = 'display:none';
       const uploadLabel = document.createElement('label');
       uploadLabel.className = 'kyc-sig-upload-label';
-      uploadLabel.innerHTML = `<i class="fas fa-cloud-upload-alt"></i><br>PNG/JPG हस्ताक्षर छान्नुहोस्<br><span style="font-size:.75rem;opacity:.65;">सेतो पृष्ठभूमिमा कालो हस्ताक्षर राम्रो हुन्छ।</span>`;
-      uploadLabel.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed #b9dbc6;border-radius:10px;padding:28px 20px;cursor:pointer;font-size:.88rem;color:#4a5a4f;text-align:center;';
+      uploadLabel.innerHTML = `<i class="lucide-icon" aria-hidden="true" data-lucide="cloud-upload"></i><br>PNG/JPG हस्ताक्षर छान्नुहोस्<br><span style="font-size:.75rem;opacity:.65;">सेतो पृष्ठभूमिमा कालो हस्ताक्षर राम्रो हुन्छ।</span>`;
       uploadLabel.appendChild(uploadFileInput);
       const uploadPreview = document.createElement('div');
       uploadPreview.className = 'kyc-sig-upload-preview';
@@ -540,6 +552,7 @@ window._kycCaptureInited = true;
       wrap.appendChild(drawPanel);
       wrap.appendChild(uploadPanel);
       wrap.appendChild(hidden);
+      kycLucideRefresh(wrap);
 
       // ── Canvas resize / draw logic ───────────────────────────────
       const ctx = canvas.getContext('2d');
@@ -616,7 +629,7 @@ window._kycCaptureInited = true;
           const dataUrl = ev.target.result;
           hidden.value = dataUrl;
           uploadPreview.innerHTML = `<img src="${dataUrl}" alt="हस्ताक्षर preview" style="max-width:100%;max-height:140px;border:1px solid #ddd;border-radius:8px;margin-top:8px;">
-            <button type="button" class="kyc-sig-tool" style="margin-top:6px;" id="sigUploadClear_${Math.random().toString(36).slice(2)}"><i class="fas fa-trash me-1"></i>हटाउनुहोस्</button>`;
+            <button type="button" class="kyc-sig-tool" style="margin-top:6px;" id="sigUploadClear_${Math.random().toString(36).slice(2)}"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="trash-2"></i>हटाउनुहोस्</button>`;
           uploadPreview.style.display = '';
           uploadLabel.style.display = 'none';
           uploadStat.textContent = '✓ हस्ताक्षर अपलोड भयो';
@@ -711,7 +724,8 @@ window._kycCaptureInited = true;
 
       const extra = field.preview.querySelector('.kyc-cap-extra');
       if (extra) {
-        extra.innerHTML = `<span class="kyc-fp-quality ${cls}"><i class="fas fa-fingerprint"></i> ${label}</span>`;
+        extra.innerHTML = `<span class="kyc-fp-quality ${cls}"><i class="lucide-icon" aria-hidden="true" data-lucide="fingerprint"></i> ${label}</span>`;
+        kycLucideRefresh(extra);
       }
       // If bad, mark hidden empty so server-side validation can re-prompt? — keep value but show warning
       field.fieldEl.dataset.fpQuality = cls;
@@ -777,7 +791,8 @@ window._kycCaptureInited = true;
 
       const extra = field.preview.querySelector('.kyc-cap-extra');
       if (extra) {
-        extra.innerHTML = `<span class="kyc-fp-quality ${cls}"><i class="fas fa-user-check"></i> फोटो गुणस्तर स्कोर: ${score}/100 — ${label}</span>`;
+        extra.innerHTML = `<span class="kyc-fp-quality ${cls}"><i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i> फोटो गुणस्तर स्कोर: ${score}/100 — ${label}</span>`;
+        kycLucideRefresh(extra);
       }
     };
     img.src = dataUrl;
@@ -821,9 +836,11 @@ window._kycCaptureInited = true;
       const extra = field.preview.querySelector('.kyc-cap-extra');
       if (extra) {
         if (textLikely) {
-          extra.innerHTML = '<span class="kyc-fp-quality good"><i class="fas fa-check-circle"></i> डकुमेन्ट स्पष्ट देखियो</span>';
+          extra.innerHTML = '<span class="kyc-fp-quality good"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> डकुमेन्ट स्पष्ट देखियो</span>';
+          kycLucideRefresh(extra);
         } else {
-          extra.innerHTML = '<span class="kyc-fp-quality bad"><i class="fas fa-triangle-exclamation"></i> यो फोटो कागजात जस्तो देखिएन। फेरि खिच्नुहोस्।</span>';
+          extra.innerHTML = '<span class="kyc-fp-quality bad"><i class="lucide-icon" aria-hidden="true" data-lucide="triangle-alert"></i> यो फोटो कागजात जस्तो देखिएन। फेरि खिच्नुहोस्।</span>';
+          kycLucideRefresh(extra);
         }
       }
 

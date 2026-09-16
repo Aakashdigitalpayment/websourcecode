@@ -11,9 +11,7 @@
  * Database table: satisfaction_links
  */
 
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
-requireAdminLogin();
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 $db = getDB();
 
@@ -57,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $titleEn  = clean_text($_POST['title_en'] ?? '');
         $url      = clean_text($_POST['url'] ?? '');
         $icon     = clean_text($_POST['icon'] ?? 'fas fa-link');
+        if (function_exists('coop_canonical_icon_for_storage')) {
+            $icon = coop_canonical_icon_for_storage($icon, 'fas fa-link');
+        }
         $order    = (int)($_POST['display_order'] ?? 0);
 
         if ($title && $url) {
@@ -76,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $titleEn  = clean_text($_POST['title_en'] ?? '');
         $url      = clean_text($_POST['url'] ?? '');
         $icon     = clean_text($_POST['icon'] ?? 'fas fa-link');
+        if (function_exists('coop_canonical_icon_for_storage')) {
+            $icon = coop_canonical_icon_for_storage($icon, 'fas fa-link');
+        }
         $isActive = (int)($_POST['is_active'] ?? 0);
         $order    = (int)($_POST['display_order'] ?? 0);
 
@@ -144,18 +148,18 @@ require_once 'includes/admin-ui.php';
     echo adminPageHeader('सन्तुष्टि / प्रतिक्रिया','fa-smile','Top header मा «सदस्य सन्तुष्टि» (honor जस्तै)। १ link = direct, धेरै = dropdown। Mobile मा मात्र सानो floating fallback।');
     if ($flash = getFlash()):
     ?>
-    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
     <ul class="nav admin-nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#satisfaction-list-tab" type="button" role="tab">
-                <i class="fas fa-list me-1"></i> सूची
+            <button type="button" class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#satisfaction-list-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i> सूची
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#satisfaction-form-tab" type="button" role="tab">
-                <i class="fas fa-plus me-1"></i> नयाँ थप्नुहोस्
+            <button type="button" class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#satisfaction-form-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i> नयाँ थप्नुहोस्
             </button>
         </li>
     </ul>
@@ -167,15 +171,15 @@ require_once 'includes/admin-ui.php';
                 <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <div class="widget-status-icon <?php echo $widgetEnabled ? 'is-active' : 'is-inactive'; ?>">
-                            <i class="fas fa-smile"></i>
+                            <i class="lucide-icon" data-lucide="smile" aria-hidden="true"></i>
                         </div>
                         <div>
                             <h6 class="mb-0 fw-bold">
                                 Status:
                                 <?php if ($widgetEnabled): ?>
-                                    <span class="badge bg-success ms-1"><i class="fas fa-check-circle me-1"></i>Active — Header मा देखिँदैछ</span>
+                                    <span class="badge bg-success ms-1"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>Active — Header मा देखिँदैछ</span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary ms-1"><i class="fas fa-times-circle me-1"></i>Inactive</span>
+                                    <span class="badge bg-secondary ms-1"><i class="lucide-icon me-1" data-lucide="circle-x" aria-hidden="true"></i>Inactive</span>
                                 <?php endif; ?>
                             </h6>
                             <small class="text-muted">
@@ -187,15 +191,15 @@ require_once 'includes/admin-ui.php';
                     </div>
                     <form method="POST" action="" class="mb-0">
                         <input type="hidden" name="action" value="toggle_widget">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <?php if ($widgetEnabled): ?>
                             <button type="submit" class="btn btn-outline-danger">
-                                <i class="fas fa-toggle-on fa-flip-horizontal me-2"></i>Widget Disable गर्नुहोस्
+                                <i class="lucide-icon me-2" data-lucide="flip-horizontal" aria-hidden="true"></i>Widget Disable गर्नुहोस्
                             </button>
                         <?php else: ?>
                             <input type="hidden" name="widget_enabled" value="1">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-toggle-on me-2"></i>Widget Enable गर्नुहोस्
+                                <i class="lucide-icon me-2" data-lucide="toggle-right" aria-hidden="true"></i>Widget Enable गर्नुहोस्
                             </button>
                         <?php endif; ?>
                     </form>
@@ -204,13 +208,13 @@ require_once 'includes/admin-ui.php';
 
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between">
-                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Links सूची</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>Links सूची</h5>
                     <span class="badge bg-primary"><?php echo count($links); ?> links</span>
                 </div>
                 <div class="card-body p-0">
                     <?php if (empty($links)): ?>
                     <div class="text-center py-4 text-muted">
-                        <i class="fas fa-link fa-2x mb-2 d-block"></i>
+                        <i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="link" aria-hidden="true"></i>
                         अझै कुनै link थपिएको छैन।
                         <br><small>नयाँ थप्नुहोस् tab बाट थप्नुहोस्।</small>
                     </div>
@@ -231,7 +235,7 @@ require_once 'includes/admin-ui.php';
                                 <?php foreach ($links as $link): ?>
                                 <tr>
                                     <td class="text-center">
-                                        <i class="satisfaction-link-icon <?php echo htmlspecialchars($link['icon'] ?? 'fas fa-link'); ?>"></i>
+                                        <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($link['icon'] ?? 'fas fa-link'), 'fas fa-link', 'satisfaction-link-icon') : ''; ?>
                                     </td>
                                     <td>
                                         <strong><?php echo htmlspecialchars($link['title']); ?></strong>
@@ -255,17 +259,17 @@ require_once 'includes/admin-ui.php';
                                     </td>
                                     <td><?php echo (int)$link['display_order']; ?></td>
                                     <td>
-                                        <a href="?edit=<?php echo $link['id']; ?>&panel=form"
+                                        <a href="?edit=<?php echo (int)$link['id']; ?>&panel=form"
                                            class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                         </a>
                                         <form method="POST" action="" class="d-inline"
                                               onsubmit="return confirm('यो link हटाउनुहोस्?');">
                                             <input type="hidden" name="action" value="delete_link">
-                                            <input type="hidden" name="id" value="<?php echo $link['id']; ?>">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                            <input type="hidden" name="id" value="<?php echo (int)$link['id']; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                             <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
-                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </td>
@@ -279,7 +283,7 @@ require_once 'includes/admin-ui.php';
             </div>
 
             <div class="alert alert-info mt-3">
-                <i class="fas fa-info-circle me-2"></i>
+                <i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>
                 <strong>Preview:</strong> Desktop मा सम्मान आवेदन जस्तै top utility bar मा देखिन्छ।
                 एउटा link भए direct लिंक; दुई वा बढी भए dropdown। नयाँ/अपडेट भएको link मा «नयाँ» badge।
                 Mobile मा (quick-links लुकेको) दायाँतिर सानो floating fallback रहन्छ।
@@ -290,16 +294,16 @@ require_once 'includes/admin-ui.php';
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="fas fa-<?php echo $editLink ? 'edit' : 'plus-circle'; ?> me-2"></i>
+                        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="<?php echo $editLink ? 'pencil' : 'circle-plus'; ?>"></i>
                         <?php echo $editLink ? 'Link सम्पादन गर्नुहोस्' : 'नयाँ Link थप्नुहोस्'; ?>
                     </h5>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="<?php echo $editLink ? 'update_link' : 'add_link'; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <?php if ($editLink): ?>
-                            <input type="hidden" name="id" value="<?php echo $editLink['id']; ?>">
+                            <input type="hidden" name="id" value="<?php echo (int)$editLink['id']; ?>">
                         <?php endif; ?>
 
                         <!-- Nepali Title (अनिवार्य) -->
@@ -331,18 +335,18 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Icon -->
                         <div class="mb-3">
-                            <label for="iconInput" class="form-label">Icon <small class="text-muted">(FontAwesome class)</small></label>
+                            <label for="iconInput" class="form-label">Icon <small class="text-muted">(FA class stored; preview Lucide)</small></label>
                             <div class="input-group">
-                                <span class="input-group-text" id="iconPreview">
-                                    <i class="<?php echo htmlspecialchars($editLink['icon'] ?? 'fas fa-link'); ?>" id="previewIcon"></i>
+                                <span class="input-group-text" id="iconPreview" data-fa-preview>
+                                    <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($editLink['icon'] ?? 'fas fa-link', 'fas fa-link', '') : '<i class="lucide-icon" id="previewIcon" aria-hidden="true" data-lucide="link"></i>'; ?>
                                 </span>
-                                <input type="text" name="icon" class="form-control" id="iconInput"
+                                <input type="text" name="icon" class="form-control" id="iconInput" data-fa-input
                                        placeholder="fas fa-smile"
-                                       value="<?php echo htmlspecialchars($editLink['icon'] ?? 'fas fa-link'); ?>"
-                                       oninput="document.getElementById('previewIcon').className=this.value">
+                                       value="<?php echo htmlspecialchars($editLink['icon'] ?? 'fas fa-link'); ?>">
                             </div>
                             <small class="text-muted">
-                                सामान्य icons: <code>fas fa-smile</code>, <code>fas fa-star</code>,
+                                DB मा FA class नै सुरक्षित हुन्छ; सार्वजनिक/admin render Lucide मार्फत। सामान्य:
+                                <code>fas fa-smile</code>, <code>fas fa-star</code>,
                                 <code>fas fa-poll</code>, <code>fas fa-heart</code>
                             </small>
                         </div>
@@ -367,7 +371,7 @@ require_once 'includes/admin-ui.php';
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>
                                 <?php echo $editLink ? 'Update गर्नुहोस्' : 'थप्नुहोस्'; ?>
                             </button>
                             <?php if ($editLink): ?>

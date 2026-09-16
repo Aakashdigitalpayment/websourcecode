@@ -39,7 +39,7 @@ try {
         <h1><?php echo isEnglish() ? 'News & Activities' : 'समाचार तथा क्रियाकलापहरू'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></li>
             </ol>
         </nav>
@@ -70,8 +70,8 @@ try {
                     <div class="news-content">
                         <h4><?php echo e(getLangField($item, 'title')); ?></h4>
                         <p><?php echo e(truncateText(strip_tags((string)getLangField($item, 'content')), 120)); ?></p>
-                        <a href="news-detail.php?id=<?php echo $item['id']; ?>" class="read-more">
-                            <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
+                        <a href="news-detail.php?id=<?php echo (int)$item['id']; ?>" class="read-more">
+                            <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ try {
                 <?php if ($page > 1): ?>
                 <li class="page-item">
                     <a class="page-link" href="?page=<?php echo $page - 1; ?>">
-                        <i class="fas fa-chevron-left"></i>
+                        <i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -121,8 +121,8 @@ try {
                     <div class="news-content py-4">
                         <h4><?php echo isEnglish() ? 'No news published yet' : 'अहिलेसम्म समाचार प्रकाशित छैन'; ?></h4>
                         <p><?php echo isEnglish() ? 'Please check back later for latest updates and activities.' : 'नयाँ अपडेट तथा गतिविधिका लागि केही समयपछि पुनः हेर्नुहोस्।'; ?></p>
-                        <a href="<?php echo SITE_URL; ?>notices.php" class="read-more">
-                            <?php echo isEnglish() ? 'View Notices' : 'सूचनाहरू हेर्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php" class="read-more">
+                            <?php echo isEnglish() ? 'View Notices' : 'सूचनाहरू हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
