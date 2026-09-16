@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-public.css — do not edit app-* for polish.
- * Source bytes=35943 sha256=665e2a0cf07ddafe
+ * Source bytes=36213 sha256=312a3795a053e00f
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -642,6 +642,12 @@ body.header-v2 .pfl-nav-area .nav-menu .dropdown li a i {
     color: var(--primary-color);
     width: 16px;
     text-align: center;
+}
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a .lucide-icon,
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a svg.lucide-icon,
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a i svg {
+    color: var(--primary-color);
+    stroke: var(--primary-color);
 }
 
 .pfl-mobile-toggle {

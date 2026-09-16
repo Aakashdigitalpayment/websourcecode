@@ -65,8 +65,8 @@
     {
       "from_sheet": "app-public.css",
       "section": "header-v2.css",
-      "bytes": 35943,
-      "sha256": "665e2a0cf07ddafe",
+      "bytes": 36213,
+      "sha256": "312a3795a053e00f",
       "shadow": "assets/css/app-sections/app-public--header-v2.css"
     },
     {
