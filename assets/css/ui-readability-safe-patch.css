@@ -135,7 +135,7 @@ textarea:focus-visible,
   .stat-card.bg-success
 ) :is(
   h1, h2, h3, h4, h5, h6,
-  p, span, li, label, small, div,
+  p, span, li, label, small,
   .hero-title-modern, .hero-subtitle-modern,
   .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
   .tracker-hero-title, .tracker-hero-sub,
@@ -145,6 +145,10 @@ textarea:focus-visible,
   color: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
 }
+
+/* Do NOT paint bare `div` with -webkit-text-fill-color — it inherits into
+   solid CTA buttons (.btn-light / .ir-cta-btn) and makes label white-on-white.
+   Headings/copy above still get fill; buttons keep their own color. */
 
 :is(
   .page-banner,

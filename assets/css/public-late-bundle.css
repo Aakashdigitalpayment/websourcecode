@@ -3512,7 +3512,7 @@ textarea:focus-visible,
   .stat-card.bg-success
 ) :is(
   h1, h2, h3, h4, h5, h6,
-  p, span, li, label, small, div,
+  p, span, li, label, small,
   .hero-title-modern, .hero-subtitle-modern,
   .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
   .tracker-hero-title, .tracker-hero-sub,
@@ -3522,6 +3522,10 @@ textarea:focus-visible,
   color: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
 }
+
+/* Do NOT paint bare `div` with -webkit-text-fill-color — it inherits into
+   solid CTA buttons (.btn-light / .ir-cta-btn) and makes label white-on-white.
+   Headings/copy above still get fill; buttons keep their own color. */
 
 :is(
   .page-banner,
@@ -6053,9 +6057,14 @@ body:has(.card > .card-top) .card-top {
   opacity: 0.9 !important;
 }
 
-/* ── PUBLIC: CTA band — KYC button readable on white ───────────── */
-
-.cta-section .cta-content .btn-light {
+/* ── PUBLIC: CTA band — solid buttons readable on white ───────────
+   Root: ui-readability paints .cta-section divs with
+   -webkit-text-fill-color: text-on-primary; that inherits into
+   .btn / .ir-cta-btn → white-on-white. btn-light-only fix missed
+   interest-rates .ir-cta-btn. */
+.cta-section .cta-content .btn-light,
+.cta-section .cta-content .ir-cta-btn,
+.cta-section .cta-content a.btn:not(.btn-outline-light):not(.btn-outline-primary):not(.btn-primary):not(.btn-success) {
   color: var(--primary-color, #1a5f2a) !important;
   -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
   background: #fff !important;
@@ -6065,15 +6074,24 @@ body:has(.card > .card-top) .card-top {
 
 .cta-section .cta-content .btn-light .lucide-icon,
 .cta-section .cta-content .btn-light i,
-.cta-section .cta-content .btn-light svg {
+.cta-section .cta-content .btn-light svg,
+.cta-section .cta-content .ir-cta-btn .lucide-icon,
+.cta-section .cta-content .ir-cta-btn i,
+.cta-section .cta-content .ir-cta-btn svg,
+.cta-section .cta-content a.btn:not(.btn-outline-light) .lucide-icon,
+.cta-section .cta-content a.btn:not(.btn-outline-light) i,
+.cta-section .cta-content a.btn:not(.btn-outline-light) svg {
   color: var(--primary-color, #1a5f2a) !important;
   -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
   background: transparent !important;
   border: 0 !important;
-  stroke: currentColor;
+  stroke: currentColor !important;
+  fill: none !important;
 }
 
-.cta-section .cta-content .btn-light:hover {
+.cta-section .cta-content .btn-light:hover,
+.cta-section .cta-content .ir-cta-btn:hover,
+.cta-section .cta-content a.btn:not(.btn-outline-light):not(.btn-outline-primary):not(.btn-primary):not(.btn-success):hover {
   background: #f0fdf4 !important;
   color: var(--primary-dark, #145021) !important;
   -webkit-text-fill-color: var(--primary-dark, #145021) !important;
@@ -6081,14 +6099,27 @@ body:has(.card > .card-top) .card-top {
 
 .cta-section .cta-content .btn-light:hover .lucide-icon,
 .cta-section .cta-content .btn-light:hover i,
-.cta-section .cta-content .btn-light:hover svg {
+.cta-section .cta-content .btn-light:hover svg,
+.cta-section .cta-content .ir-cta-btn:hover .lucide-icon,
+.cta-section .cta-content .ir-cta-btn:hover i,
+.cta-section .cta-content .ir-cta-btn:hover svg {
   color: var(--primary-dark, #145021) !important;
   -webkit-text-fill-color: var(--primary-dark, #145021) !important;
 }
 
 .cta-section .cta-content .btn-outline-light {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: transparent !important;
   border-width: 2px !important;
   font-weight: 600 !important;
+}
+.cta-section .cta-content .btn-outline-light .lucide-icon,
+.cta-section .cta-content .btn-outline-light i,
+.cta-section .cta-content .btn-outline-light svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
 }
 
 /* ── PUBLIC: Quick-help FAB icon contrast ──────────────────────── */
@@ -6097,8 +6128,13 @@ body:has(.card > .card-top) .card-top {
 .qh-fab i,
 .qh-fab .fas,
 .qh-fab .fa-bolt,
-.qh-fab .fa-times {
+.qh-fab .fa-times,
+.qh-fab .lucide-icon,
+.qh-fab svg,
+.qh-fab svg.lucide {
   color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
   -webkit-text-fill-color: #fff !important;
 }
 
@@ -9310,16 +9346,135 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .pfl-drop a:hover svg {
   opacity: 1 !important;
 }
 
-/* Mobile floating quick-help menu items */
+/* Mobile floating quick-help menu items — text idle tint only.
+   Colored .qh-ic wells keep white glyphs (see icon contrast block below). */
 html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item,
 html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu a.qh-item {
   color: var(--coop-nav-idle-text, var(--primary-ink, var(--primary-color))) !important;
 }
 
-html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic i,
-html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic .lucide-icon,
-html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic svg {
+html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic:not(.help):not(.chat):not(.ai):not(.links):not(.wa):not(.qh-loan):not(.qh-account):not(.qh-contact):not(.qh-track):not(.qh-branch):not(.qh-login):not(.qh-weblogin) i,
+html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic:not(.help):not(.chat):not(.ai):not(.links):not(.wa):not(.qh-loan):not(.qh-account):not(.qh-contact):not(.qh-track):not(.qh-branch):not(.qh-login):not(.qh-weblogin) .lucide-icon,
+html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic:not(.help):not(.chat):not(.ai):not(.links):not(.wa):not(.qh-loan):not(.qh-account):not(.qh-contact):not(.qh-track):not(.qh-branch):not(.qh-login):not(.qh-weblogin) svg {
   color: var(--coop-nav-idle-icon, var(--primary-ink, var(--primary-color))) !important;
   stroke: var(--coop-nav-idle-icon, var(--primary-ink, var(--primary-color))) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Icon contrast fixes (Lucide + light footer + colored wells)
+   Root: (1) footer-top is light (#f4f6f5) but global-theme still forces
+   text-on-footer white on * — Lucide stroke becomes invisible.
+   (2) nav-idle polish painted ALL .qh-ic glyphs primary — green-on-green
+   for .qh-ic.help / .ai wells. (3) qh-fab open/close only targeted `i`,
+   so Lucide SVGs both stayed visible.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Footer contact + social — primary ink on light footer-top */
+.main-footer .footer-contact li {
+  align-items: center !important;
+}
+.main-footer .footer-contact .lucide-icon,
+.main-footer .footer-contact svg,
+.main-footer .footer-contact svg.lucide,
+.main-footer .footer-contact i,
+.main-footer .footer-social .lucide-icon,
+.main-footer .footer-social svg,
+.main-footer .footer-social svg.lucide,
+.main-footer .footer-social i,
+.main-footer .footer-social a .lucide-icon,
+.main-footer .footer-social a svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  overflow: visible !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  flex-shrink: 0 !important;
+  stroke-width: 2 !important;
+}
+
+.main-footer .footer-social a:hover .lucide-icon,
+.main-footer .footer-social a:hover svg,
+.main-footer .footer-social a:hover i {
+  color: #fff !important;
+  stroke: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Dark mode footer is dark again — restore light glyphs */
+body.dark-mode .main-footer .footer-contact .lucide-icon,
+body.dark-mode .main-footer .footer-contact svg,
+body.dark-mode .main-footer .footer-contact svg.lucide,
+body.dark-mode .main-footer .footer-contact i,
+body.dark-mode .main-footer .footer-social .lucide-icon,
+body.dark-mode .main-footer .footer-social svg,
+body.dark-mode .main-footer .footer-social svg.lucide,
+body.dark-mode .main-footer .footer-social i,
+body.dark-mode .main-footer .footer-social a .lucide-icon,
+body.dark-mode .main-footer .footer-social a svg {
+  color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Footer-bottom stays dark — keep light glyphs */
+.main-footer .footer-bottom .lucide-icon,
+.main-footer .footer-bottom svg,
+.main-footer .footer-bottom svg.lucide,
+.main-footer .footer-bottom i {
+  color: rgba(255, 255, 255, 0.92) !important;
+  stroke: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* Quick-help colored wells — ALWAYS white glyph (overrides nav-idle primary tint) */
+html body .qh-menu .qh-item .qh-ic .lucide-icon,
+html body .qh-menu .qh-item .qh-ic svg,
+html body .qh-menu .qh-item .qh-ic svg.lucide,
+html body .qh-menu .qh-item .qh-ic i,
+html body .qh-menu .qh-item .qh-ic .fab {
+  color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+html body .qh-menu .qh-item .qh-ic.wa .fab {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+/* Quick-help FAB — Lucide SVG open/close toggle (not only `i`) */
+.qh-fab .qh-i-close,
+.qh-fab .lucide-icon.qh-i-close,
+.qh-fab svg.qh-i-close {
+  display: none !important;
+}
+.qh-fab .qh-i-open,
+.qh-fab .lucide-icon.qh-i-open,
+.qh-fab svg.qh-i-open {
+  display: inline-flex !important;
+  color: #fff !important;
+  stroke: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.qh-launcher.open .qh-fab .qh-i-open,
+.qh-launcher.open .qh-fab .lucide-icon.qh-i-open,
+.qh-launcher.open .qh-fab svg.qh-i-open {
+  display: none !important;
+}
+.qh-launcher.open .qh-fab .qh-i-close,
+.qh-launcher.open .qh-fab .lucide-icon.qh-i-close,
+.qh-launcher.open .qh-fab svg.qh-i-close {
+  display: inline-flex !important;
+  color: #fff !important;
+  stroke: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 /* ===== END final-ui-polish.css ===== */

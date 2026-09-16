@@ -1291,7 +1291,7 @@ if ($__uiTestMode):
     </button>
     <button type="button" class="qh-item" role="menuitem"
       onclick="var t=document.getElementById('chatbotToggle');if(t)t.click();document.getElementById('qhLauncher').classList.remove('open');">
-      <span class="qh-ic help"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i></span>
+      <span class="qh-ic help"><i class="lucide-icon" aria-hidden="true" data-lucide="help-circle"></i></span>
       <span>सहायता / FAQ</span>
     </button>
     <?php if (!empty($aiChatEnabled)): ?>

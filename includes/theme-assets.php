@@ -201,6 +201,8 @@ if (!function_exists('coopThemeCssUrl')) {
             "user-round-clock": ["user-round", "clock"],
             "user-round-tie": ["user-round", "briefcase"],
             "circle-question": ["circle-help", "help-circle"],
+            "help-circle": ["circle-help", "info"],
+            "circle-help": ["help-circle", "info"],
             "circle-info": ["info"],
             "circle-check": ["check-circle", "circle-check-big"],
             "check-circle": ["circle-check", "circle-check-big"],
