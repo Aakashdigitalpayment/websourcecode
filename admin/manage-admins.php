@@ -199,6 +199,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect('manage-admins.php');
     }
+
+    /* ── ६. Reset 2FA (device change / QR mismatch → re-scan on next login) ── */
+    if ($action === 'reset_2fa') {
+        $targetId = (int) ($_POST['target_id'] ?? 0);
+        if ($targetId < 1) {
+            setFlash('error', 'अमान्य admin ID।');
+        } elseif (!$isSuperAdmin) {
+            setFlash('error', '2FA reset केवल Superadmin ले गर्न सक्छ।');
+        } else {
+            try {
+                $cols = [];
+                if (function_exists('safeColumnExists')) {
+                    foreach (['twofa_enabled', 'twofa_secret', 'twofa_backup_codes', 'twofa_enabled_at'] as $c) {
+                        if (safeColumnExists('admin_users', $c)) {
+                            $cols[] = $c;
+                        }
+                    }
+                } else {
+                    $cols = ['twofa_enabled', 'twofa_secret', 'twofa_backup_codes', 'twofa_enabled_at'];
+                }
+                if (!$cols) {
+                    setFlash('error', '2FA columns उपलब्ध छैनन्।');
+                } else {
+                    $sets = [];
+                    $params = [];
+                    foreach ($cols as $c) {
+                        if ($c === 'twofa_enabled') {
+                            $sets[] = 'twofa_enabled = 0';
+                        } else {
+                            $sets[] = $c . ' = NULL';
+                        }
+                    }
+                    $params[] = $targetId;
+                    $db->prepare('UPDATE admin_users SET ' . implode(', ', $sets) . ' WHERE id = ?')
+                       ->execute($params);
+                    if (function_exists('logActivity')) {
+                        logActivity('admin_2fa_reset', 'admin_users', $targetId, '2FA QR reset by superadmin');
+                    }
+                    setFlash('success', '2FA reset भयो। अर्को login मा नयाँ QR scan गर्नुपर्छ।');
+                }
+            } catch (Throwable $e) {
+                error_log('[manage-admins] 2fa reset: ' . $e->getMessage());
+                setFlash('error', '2FA reset असफल भयो।');
+            }
+        }
+        redirect('manage-admins.php');
+    }
 }
 
 /* ── Admin list (फाइल-सुपरएडमिन सूचीबाट लुकाउने) ── */
@@ -427,6 +474,24 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                 title="Password Reset">
                                             <i class="lucide-icon me-1" data-lucide="key" aria-hidden="true"></i>Reset
                                         </button>
+
+                                        <!-- 2FA QR Reset (device change / mismatch) -->
+                                        <?php
+                                        $twofaOn = !empty($adm['twofa_enabled']) && trim((string) ($adm['twofa_secret'] ?? '')) !== '';
+                                        if ($twofaOn):
+                                        ?>
+                                        <form method="POST" class="d-inline"
+                                              onsubmit="return confirm('«<?php echo htmlspecialchars($adm['full_name'] ?? $adm['username'], ENT_QUOTES, 'UTF-8'); ?>» को 2FA QR reset गर्ने?\n\nअर्को login मा नयाँ QR scan गर्नुपर्छ।')">
+                                            <input type="hidden" name="action" value="reset_2fa">
+                                            <input type="hidden" name="target_id" value="<?php echo (int) $adm['id']; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="2FA QR Reset">
+                                                <i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>2FA
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
 
                                         <!-- Toggle Active/Inactive -->
                                         <?php if (!$isMe): ?>

@@ -206,7 +206,10 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.5')", 'theme version 2.5 auto-contrast');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.6')", 'theme version 2.6 bright-bar contrast');
+assertContains('assets/css/global-theme.php', '$__ensureWhiteOnBar', 'bright brand bars darkened for white glyphs');
+assertContains('admin/manage-admins.php', "action === 'reset_2fa'", 'superadmin can reset admin 2FA QR');
+assertContains('admin/manage-admins.php', 'twofa_enabled = 0', '2FA reset clears enabled flag');
 assertContains('assets/css/global-theme.php', '--text-on-topbar:', 'topbar has WCAG text token');
 assertContains('assets/css/global-theme.php', '--icon-on-primary:', 'icon-on-primary token present');
 assertContains('assets/css/global-theme.php', "getSetting('topbar_color'", 'topbar_color drives --topbar-bg');

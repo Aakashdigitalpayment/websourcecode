@@ -8450,6 +8450,24 @@ html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-
   background: var(--footer-color, var(--primary-color, #1a5f2a)) !important;
   color: var(--text-on-footer, #fff) !important;
 }
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom a,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .copyright,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .developer,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .developer a,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .footer-policy-links a,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom p,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom span {
+  color: var(--text-on-footer, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-footer, #fff) !important;
+  opacity: 1 !important;
+}
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom a:hover,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .developer a:hover,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom .footer-policy-links a:hover {
+  color: var(--text-on-footer, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-footer, #fff) !important;
+  text-decoration: underline;
+}
 
 /* Footer contact + social — primary ink on light footer-top */
 .main-footer .footer-contact li {
@@ -8506,7 +8524,7 @@ body.dark-mode .main-footer .footer-social a svg {
   -webkit-text-fill-color: #fff !important;
 }
 
-/* Footer-bottom stays dark brand — WCAG text-on-footer glyphs */
+/* Footer-bottom stays brand bar — WCAG text-on-footer glyphs (solid, no muddy fade) */
 .main-footer .footer-bottom .lucide-icon,
 .main-footer .footer-bottom svg,
 .main-footer .footer-bottom svg.lucide,
@@ -8514,6 +8532,8 @@ body.dark-mode .main-footer .footer-social a svg {
   color: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
   stroke: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
   -webkit-text-fill-color: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
+  fill: none !important;
+  opacity: 1 !important;
 }
 
 /* Quick-help colored wells — ALWAYS white glyph (overrides nav-idle primary tint) */
