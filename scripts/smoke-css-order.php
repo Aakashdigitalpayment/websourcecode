@@ -307,7 +307,10 @@ assertContains('includes/header.php', 'if (!empty($extraHead))', 'public header 
 assertContains('institutional-profile.php', "coopThemeLinkHtml('assets/css/institutional-profile.css')", 'institutional profile loads extracted CSS');
 assertContains('assets/css/institutional-profile.css', '.ip-filter-wrap', 'institutional profile CSS extracted');
 assertContains('includes/institutional-profile-helpers.php', 'function coopIpWelfareReliefByType', 'IP helpers expose welfare SSOT aggregator');
+assertContains('includes/institutional-profile-helpers.php', 'COALESCE(paid_at, reviewed_at, created_at)', 'welfare cutoff uses effective claim date');
+assertContains('includes/institutional-profile-helpers.php', "return '';", 'undated IP profile skips today welfare fallback');
 assertContains('institutional-profile.php', 'coopIpWelfareReliefByType', 'monthly IP pulls welfare types from member-welfare SSOT');
+assertContains('assets/css/institutional-profile.css', '.ip-share-btn:focus-visible', 'IP share CTA has focus-visible');
 assertContains('institutional-profile.php', 'data-ip-poster', 'monthly IP share poster payload');
 assertContains('institutional-profile.php', 'id="ipPosterModal"', 'monthly IP share poster modal');
 assertContains('assets/css/institutional-profile.css', '.ip-relief-table', 'IP welfare relief table styles');

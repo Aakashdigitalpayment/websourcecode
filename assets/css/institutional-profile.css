@@ -323,6 +323,10 @@
   background: var(--primary-dark, #144a21);
   border-color: var(--primary-dark, #144a21);
 }
+.ip-share-btn:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a);
+  outline-offset: 2px;
+}
 
 .ip-poster-modal {
   position: fixed;

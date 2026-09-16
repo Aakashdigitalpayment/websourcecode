@@ -208,7 +208,7 @@ if (!function_exists('coopIpProfileUptoAdDate')) {
                 }
             }
         }
-        return date('Y-m-d');
+        return '';
     }
 }
 
@@ -260,31 +260,48 @@ if (!function_exists('coopIpWelfareReliefByType')) {
 
         $agg = [];
         if ($claimsOk) {
-            try {
-                $sql = "SELECT claim_type AS slug,
-                               COUNT(*) AS cnt,
-                               SUM(CASE
-                                     WHEN COALESCE(approved_amount, 0) > 0 THEN approved_amount
-                                     ELSE COALESCE(claim_amount, 0)
-                                   END) AS amt
-                        FROM member_welfare_claims
-                        WHERE DATE(created_at) <= ?
-                          AND status IN ('approved','paid','completed')
-                        GROUP BY claim_type";
-                $st = $db->prepare($sql);
-                $st->execute([$uptoAd]);
-                foreach ($st->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
-                    $slug = (string) ($row['slug'] ?? '');
-                    if ($slug === '') {
-                        continue;
+            /* Prefer effective date (paid/reviewed) so historical months are not overstated */
+            $sqlVariants = [
+                "SELECT claim_type AS slug,
+                        COUNT(*) AS cnt,
+                        SUM(CASE
+                              WHEN COALESCE(approved_amount, 0) > 0 THEN approved_amount
+                              ELSE COALESCE(claim_amount, 0)
+                            END) AS amt
+                 FROM member_welfare_claims
+                 WHERE DATE(COALESCE(paid_at, reviewed_at, created_at)) <= ?
+                   AND status IN ('approved','paid','completed')
+                 GROUP BY claim_type",
+                "SELECT claim_type AS slug,
+                        COUNT(*) AS cnt,
+                        SUM(CASE
+                              WHEN COALESCE(approved_amount, 0) > 0 THEN approved_amount
+                              ELSE COALESCE(claim_amount, 0)
+                            END) AS amt
+                 FROM member_welfare_claims
+                 WHERE DATE(created_at) <= ?
+                   AND status IN ('approved','paid','completed')
+                 GROUP BY claim_type",
+            ];
+            foreach ($sqlVariants as $sql) {
+                try {
+                    $st = $db->prepare($sql);
+                    $st->execute([$uptoAd]);
+                    foreach ($st->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
+                        $slug = (string) ($row['slug'] ?? '');
+                        if ($slug === '') {
+                            continue;
+                        }
+                        $agg[$slug] = [
+                            'count' => (int) ($row['cnt'] ?? 0),
+                            'amount' => (float) ($row['amt'] ?? 0),
+                        ];
                     }
-                    $agg[$slug] = [
-                        'count' => (int) ($row['cnt'] ?? 0),
-                        'amount' => (float) ($row['amt'] ?? 0),
-                    ];
+                    break;
+                } catch (Throwable $e) {
+                    $agg = [];
+                    /* try next variant */
                 }
-            } catch (Throwable $e) {
-                /* soft fail — still list types */
             }
         }
 
