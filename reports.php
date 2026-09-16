@@ -221,7 +221,12 @@ function render_report_actions(array $report): void {
             . ' title="' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($viewLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>';
-        echo '<a href="' . $safe . '" download class="report-action-btn report-action-download"'
+        $dlName = preg_replace('/[^\p{L}\p{N}\-_ .]+/u', '-', $title) ?: 'report';
+        $dlName = trim((string) $dlName, '-. ');
+        if ($dlName === '') {
+            $dlName = 'report';
+        }
+        echo '<a href="' . $safe . '" download="' . htmlspecialchars($dlName, ENT_QUOTES, 'UTF-8') . '" class="report-action-btn report-action-download"'
             . ' title="' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($dlLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i></a>';
@@ -609,10 +614,10 @@ function render_report_actions(array $report): void {
 <script>
 (function () {
   var labels = {
-    wa: <?php echo json_encode(isEnglish() ? 'WhatsApp' : 'WhatsApp'); ?>,
-    fb: <?php echo json_encode(isEnglish() ? 'Facebook' : 'Facebook'); ?>,
-    copy: <?php echo json_encode(isEnglish() ? 'Copy details' : 'विवरण कपी गर्नुहोस्'); ?>,
-    copied: <?php echo json_encode(isEnglish() ? 'Report details copied.' : 'प्रतिवेदन विवरण कपी भयो।'); ?>
+    wa: <?php echo json_encode(isEnglish() ? 'WhatsApp' : 'WhatsApp', JSON_UNESCAPED_UNICODE); ?>,
+    fb: <?php echo json_encode(isEnglish() ? 'Facebook' : 'Facebook', JSON_UNESCAPED_UNICODE); ?>,
+    copy: <?php echo json_encode(isEnglish() ? 'Copy details' : 'विवरण कपी गर्नुहोस्', JSON_UNESCAPED_UNICODE); ?>,
+    copied: <?php echo json_encode(isEnglish() ? 'Report details copied.' : 'प्रतिवेदन विवरण कपी भयो।', JSON_UNESCAPED_UNICODE); ?>
   };
 
   var openMenu = null;
@@ -624,20 +629,47 @@ function render_report_actions(array $report): void {
     }
   }
 
+  function buildShareBody(title, text, url) {
+    var body = String(text || title || '').trim();
+    var page = String(url || '').trim();
+    if (page && body.indexOf(page) === -1) {
+      body = body ? (body + '\n' + page) : page;
+    }
+    return body;
+  }
+
   function copyText(full) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(full).then(function () {
+      navigator.clipboard.writeText(full).then(function () {
         window.alert(labels.copied);
       }).catch(function () {
         window.prompt(labels.copy, full);
       });
+      return;
     }
     window.prompt(labels.copy, full);
   }
 
+  function placeMenu(menu, anchor) {
+    document.body.appendChild(menu);
+    openMenu = menu;
+    var rect = anchor.getBoundingClientRect();
+    var pad = 8;
+    var mw = menu.offsetWidth || 184;
+    var mh = menu.offsetHeight || 140;
+    var left = rect.left + (rect.width / 2) - (mw / 2);
+    left = Math.max(pad, Math.min(left, window.innerWidth - mw - pad));
+    var top = rect.bottom + 6;
+    if (top + mh > window.innerHeight - pad) {
+      top = Math.max(pad, rect.top - mh - 6);
+    }
+    menu.style.left = Math.round(left) + 'px';
+    menu.style.top = Math.round(top) + 'px';
+  }
+
   function showFallbackMenu(btn, title, text, url) {
     closeMenu();
-    var full = (text || title || '') + (url ? '\n' + url : '');
+    var full = buildShareBody(title, text, url);
     var menu = document.createElement('div');
     menu.className = 'report-share-menu';
     menu.setAttribute('role', 'menu');
@@ -648,13 +680,16 @@ function render_report_actions(array $report): void {
     wa.rel = 'noopener noreferrer';
     wa.setAttribute('role', 'menuitem');
     wa.textContent = labels.wa;
+    wa.addEventListener('click', closeMenu);
 
     var fb = document.createElement('a');
-    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href);
+    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href)
+      + '&quote=' + encodeURIComponent(String(text || title || '').slice(0, 240));
     fb.target = '_blank';
     fb.rel = 'noopener noreferrer';
     fb.setAttribute('role', 'menuitem');
     fb.textContent = labels.fb;
+    fb.addEventListener('click', closeMenu);
 
     var cp = document.createElement('button');
     cp.type = 'button';
@@ -668,36 +703,47 @@ function render_report_actions(array $report): void {
     menu.appendChild(wa);
     menu.appendChild(fb);
     menu.appendChild(cp);
-    btn.parentNode.appendChild(menu);
-    openMenu = menu;
+    placeMenu(menu, btn);
   }
 
-  document.addEventListener('click', function (ev) {
-    var btn = ev.target && ev.target.closest ? ev.target.closest('.report-action-share') : null;
-    if (!btn) {
-      if (!ev.target.closest || !ev.target.closest('.report-share-menu')) {
-        closeMenu();
-      }
-      return;
-    }
-    ev.preventDefault();
-    ev.stopPropagation();
+  function doShare(btn) {
     var title = btn.getAttribute('data-share-title') || document.title;
     var text = btn.getAttribute('data-share-text') || title;
     var url = btn.getAttribute('data-share-url') || location.href;
-    if (navigator.share) {
-      navigator.share({ title: title, text: text, url: url }).catch(function () {});
+    if (typeof navigator.share === 'function') {
+      navigator.share({ title: title, text: text, url: url }).catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        showFallbackMenu(btn, title, text, url);
+      });
       return;
     }
-    if (openMenu && btn.parentNode.contains(openMenu)) {
+    if (openMenu) {
       closeMenu();
       return;
     }
     showFallbackMenu(btn, title, text, url);
+  }
+
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    var btn = t.closest('.report-action-share');
+    if (btn) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      doShare(btn);
+      return;
+    }
+    if (!t.closest('.report-share-menu')) {
+      closeMenu();
+    }
   });
 
   document.addEventListener('keydown', function (ev) {
     if (ev.key === 'Escape') closeMenu();
   });
+
+  window.addEventListener('scroll', closeMenu, { passive: true });
+  window.addEventListener('resize', closeMenu);
 })();
 </script>
