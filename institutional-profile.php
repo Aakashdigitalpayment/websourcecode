@@ -13,7 +13,7 @@ if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
     require_once __DIR__ . '/includes/nepali-bs-convert.php';
 }
 
-$pmaUnlock = coopMemberAccessHandleUnlockPost();
+$pmaUnlock = coopMemberAccessProcessUnlockRequest();
 if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
     $retPath = (string) ($pmaUnlock['return'] ?? '');
     if ($retPath === '') {
@@ -401,7 +401,7 @@ if ($ipChartSeries['count'] >= 2):
         </div>
     </div>
 
-    <div class="ip-month-grid" data-testid="institutional-profile-month-wise-grid">
+    <div class="ip-month-grid" data-coop-pma-refresh="ip" data-testid="institutional-profile-month-wise-grid">
         <?php foreach ($profiles as $idx => $p): ?>
         <?php
             $rowNo = $idx + 1;
@@ -853,6 +853,10 @@ if ($ipChartSeries['count'] >= 2):
         });
     }
     applyIpFilters();
+
+    document.addEventListener('coop:pma-unlocked', function () {
+        try { applyIpFilters(); } catch (e) { /* ignore */ }
+    });
 
     (function focusSharedIpProfile() {
         try {

@@ -118,6 +118,11 @@ assertFileContains('assets/uploads/institutional_profile/.htaccess', 'Require al
 assertFileContains('includes/public-member-access.php', 'COOP_PMA_MAX_FAILS', 'member unlock rate limit');
 assertFileContains('includes/public-member-access.php', 'UPPER(TRIM(sadasyata_number))', 'unlock uses SSOT normalize match');
 assertFileContains('includes/public-member-access.php', 'coopMemberAccessSafeReturnPath', 'unlock return path allowlist');
+assertFileContains('includes/public-member-access.php', 'coopMemberAccessWantsAjax', 'AJAX unlock detection');
+assertFileContains('includes/public-member-access.php', 'coop_pma_ajax', 'AJAX unlock flag');
+assertFileContains('includes/public-member-access.php', 'data-coop-pma-ajax', 'unlock form marks AJAX');
+assertFileContains('reports.php', 'data-coop-pma-refresh', 'reports soft-refresh region');
+assertFileContains('institutional-profile.php', 'data-coop-pma-refresh', 'IP soft-refresh region');
 assertFileContains('admin/reports.php', 'report-file.php', 'admin reports view via proxy');
 assertFileContains('admin/institutional-profile.php', 'institutional-profile-file.php', 'admin IP attachment via proxy');
 assertFileContains('includes/member-import-helpers.php', "'soft'", 'CBS import KYM soft-fill only');
