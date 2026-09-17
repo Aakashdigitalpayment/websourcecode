@@ -412,7 +412,7 @@ if ($ipChartSeries['count'] >= 2):
             $_ipDocUrl = '';
             $_ipDocExt = '';
             if (!empty($p['attachment_path']) && $canOpenIp) {
-                if ($isMemberOnly && $pid > 0 && function_exists('coopMemberAccessFileUrl')) {
+                if ($pid > 0 && function_exists('coopMemberAccessFileUrl')) {
                     $_ipDocUrl = htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $pid, false), ENT_QUOTES, 'UTF-8');
                 } else {
                     $_ipDocUrl = htmlspecialchars(SITE_URL . ltrim((string)$p['attachment_path'], '/'), ENT_QUOTES, 'UTF-8');
@@ -429,8 +429,11 @@ if ($ipChartSeries['count'] >= 2):
             $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === $pid);
             $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '') . ($isMemberOnly && !$canOpenIp ? ' is-member-locked' : '');
             $defaultShow = ($isCur || $isPrev) ? '1' : '0';
+            $ipDeepLink = rtrim((string) SITE_URL, '/') . '/institutional-profile.php' . ($pid > 0 ? ('?id=' . $pid) : '');
         ?>
         <article class="<?php echo $tileCls; ?>"
+                 id="ip-profile-<?php echo $pid; ?>"
+                 data-ip-id="<?php echo $pid; ?>"
                  data-fy="<?php echo htmlspecialchars($_fy, ENT_QUOTES, 'UTF-8'); ?>"
                  data-month="<?php echo (int)$rm; ?>"
                  data-default-show="<?php echo $defaultShow; ?>"
@@ -567,7 +570,9 @@ if ($ipChartSeries['count'] >= 2):
                 }, $welfareRows),
                 'welfareTotalCount' => $welfareCountSum,
                 'welfareTotalAmount' => coopIpFormatAmtFull($welfareAmtSum, $isEn),
-                'pageUrl' => rtrim((string) SITE_URL, '/') . '/institutional-profile.php',
+                'pageUrl' => $ipDeepLink,
+                'memberOnly' => $isMemberOnly,
+                'fileUrl' => (!$isMemberOnly && $_ipDocUrl !== '') ? html_entity_decode($_ipDocUrl, ENT_QUOTES, 'UTF-8') : '',
             ];
             $posterJson = htmlspecialchars((string) json_encode($posterPayload, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
             ?>
@@ -770,6 +775,8 @@ if ($ipChartSeries['count'] >= 2):
         if (userFiltered) {
             viewMode = 'filtered';
         }
+        var shareId = '';
+        try { shareId = new URLSearchParams(window.location.search).get('id') || ''; } catch (e) {}
         var visible = 0;
 
         cards.forEach(function (card) {
@@ -782,6 +789,9 @@ if ($ipChartSeries['count'] >= 2):
             var show = fyOk && monthOk && qOk;
             if (viewMode === 'recent2' && !userFiltered) {
                 show = card.getAttribute('data-default-show') === '1';
+            }
+            if (shareId && String(card.getAttribute('data-ip-id') || '') === String(shareId)) {
+                show = true;
             }
             card.classList.toggle('is-hidden', !show);
             if (show) visible++;
@@ -834,6 +844,25 @@ if ($ipChartSeries['count'] >= 2):
         });
     }
     applyIpFilters();
+
+    (function focusSharedIpProfile() {
+        try {
+            var sid = new URLSearchParams(window.location.search).get('id');
+            if (!sid) return;
+            var card = document.getElementById('ip-profile-' + sid)
+                || document.querySelector('.ip-month-tile[data-ip-id="' + sid + '"]');
+            if (!card) return;
+            card.classList.add('is-share-target');
+            card.classList.remove('is-hidden');
+            if (typeof card.scrollIntoView === 'function') {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            var input = card.querySelector('#coop_pma_sadasyata, input[name="sadasyata_number"]');
+            if (input && typeof input.focus === 'function') {
+                window.setTimeout(function () { input.focus(); }, 400);
+            }
+        } catch (e) { /* ignore */ }
+    })();
 
     function ipOpenDoc(url, ext) {
         var modal  = document.getElementById('ipDocModal');
@@ -966,6 +995,14 @@ if ($ipChartSeries['count'] >= 2):
     lines.push(d.site || '');
     lines.push(fyLine(d));
     if (d.dateBs) lines.push(<?php echo json_encode($isEn ? 'As of ' : 'मिति ', JSON_UNESCAPED_UNICODE); ?> + d.dateBs);
+    if (d.memberOnly) {
+      lines.push('');
+      lines.push(<?php echo json_encode($isEn
+        ? 'Members only — open the link and enter membership number to view details.'
+        : 'सदस्य मात्र — लिंक खोलेर सदस्यता नम्बर हालेपछि विवरण हेर्न सकिन्छ।', JSON_UNESCAPED_UNICODE); ?>);
+      if (d.pageUrl) lines.push('\n' + d.pageUrl);
+      return lines.filter(Boolean).join('\n');
+    }
     lines.push('');
     lines.push(<?php echo json_encode($isEn ? 'Financial details' : 'वित्तीय विवरण', JSON_UNESCAPED_UNICODE); ?>);
     (d.finance || []).forEach(function (r) {
@@ -981,6 +1018,10 @@ if ($ipChartSeries['count'] >= 2):
         lines.push('- ' + r.label + ': ' + r.count + ' | ' + r.amount);
       });
       lines.push(totalLabel + ': ' + (d.welfareTotalCount || 0) + ' | ' + (d.welfareTotalAmount || ''));
+    }
+    if (d.fileUrl) {
+      lines.push('');
+      lines.push(<?php echo json_encode($isEn ? 'File: ' : 'फाइल: ', JSON_UNESCAPED_UNICODE); ?> + d.fileUrl);
     }
     if (d.pageUrl) lines.push('\n' + d.pageUrl);
     return lines.filter(Boolean).join('\n');
@@ -1060,8 +1101,11 @@ if ($ipChartSeries['count'] >= 2):
     wa.textContent = labels.wa;
     wa.addEventListener('click', closeMenu);
 
+    var fbTarget = (current && current.memberOnly)
+      ? (url || location.href)
+      : ((current && current.fileUrl) ? current.fileUrl : (url || location.href));
     var fb = document.createElement('a');
-    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href)
+    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(fbTarget)
       + '&quote=' + encodeURIComponent(String(text || title || '').slice(0, 240));
     fb.target = '_blank';
     fb.rel = 'noopener noreferrer';

@@ -618,3 +618,8 @@
 .ip-featured-locked svg { width: 1rem; height: 1rem; }
 .coop-pma-unlock.ip-pma-unlock .coop-pma-unlock-row { margin-top: 0.15rem; }
 .coop-pma-error { margin-bottom: 0.5rem; font-size: 0.85rem; color: #b02a37; }
+
+.ip-month-tile.is-share-target {
+  outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 50%, transparent);
+  outline-offset: 3px;
+}

@@ -415,7 +415,10 @@ assertContains('reports.php', 'report-action-share', 'reports share action prese
 assertContains('reports.php', 'data-share-text', 'share includes report details payload');
 assertContains('reports.php', 'public-member-access.php', 'reports loads member access helper');
 assertContains('reports.php', 'report-file.php', 'member reports use file proxy');
-assertContains('reports.php', 'report-action-lock', 'locked reports show lock action');
+assertContains('reports.php', 'data-share-fb-url', 'reports Facebook uses dedicated file/page URL');
+assertContains('reports.php', 'focusSharedReport', 'shared report deep-link focuses card');
+assertContains('institutional-profile.php', 'memberOnly', 'IP share marks member-only payloads');
+assertContains('institutional-profile.php', 'focusSharedIpProfile', 'shared IP deep-link focuses tile');
 assertContains('report-file.php', 'coopMemberAccessCanOpen', 'report proxy gates member access');
 assertContains('institutional-profile.php', 'public-member-access.php', 'IP loads member access helper');
 assertContains('institutional-profile.php', 'is-member-locked', 'IP locked tile class');

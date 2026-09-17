@@ -238,3 +238,9 @@
   color: #b02a37;
 }
 
+.report-card.is-share-target {
+  outline: 2px solid color-mix(in srgb, var(--primary-color, #0d6efd) 55%, transparent);
+  outline-offset: 3px;
+  border-radius: 0.65rem;
+}
+
