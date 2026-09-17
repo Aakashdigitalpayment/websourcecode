@@ -198,16 +198,31 @@
   .hero-overlay-modern {
     background:
       linear-gradient(
-        180deg,
-        rgba(5, 8, 12, 0.2) 0%,
-        rgba(5, 8, 12, 0.35) 42%,
-        rgba(5, 8, 12, 0.62) 100%
+        100deg,
+        var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+        var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+        transparent 72%
       ),
       linear-gradient(
-        165deg,
-        rgba(var(--primary-rgb, 26, 95, 42), 0.14) 0%,
-        rgba(0, 0, 0, 0.12) 100%
+        180deg,
+        transparent 55%,
+        rgba(0, 0, 0, 0.28) 100%
+      ),
+      linear-gradient(
+        135deg,
+        var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+        transparent 55%
       ) !important;
+  }
+  .hero-title-modern,
+  .slider-content h1,
+  .slider-content .hero-title-modern {
+    color: var(--text-on-hero, #fff) !important;
+  }
+  .hero-subtitle-modern,
+  .slider-content p,
+  .slider-content .hero-subtitle-modern {
+    color: color-mix(in srgb, var(--text-on-hero, #fff) 92%, transparent) !important;
   }
   .hero-content-modern,
   .slider-content.hero-content-modern {

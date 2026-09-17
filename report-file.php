@@ -25,19 +25,18 @@ if ($id < 1) {
     exit;
 }
 
+$row = false;
+$hasAccessCol = true;
 try {
     $st = $db->prepare('SELECT id, title, title_np, file_path, access_level, is_active FROM reports WHERE id = ? LIMIT 1');
     $st->execute([$id]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
 } catch (Throwable $e) {
-    /* Older DB without access_level — fall back */
+    $hasAccessCol = false;
     try {
         $st = $db->prepare('SELECT id, title, title_np, file_path, is_active FROM reports WHERE id = ? LIMIT 1');
         $st->execute([$id]);
         $row = $st->fetch(PDO::FETCH_ASSOC);
-        if (is_array($row)) {
-            $row['access_level'] = 'none';
-        }
     } catch (Throwable $e2) {
         $row = false;
     }
@@ -48,6 +47,17 @@ if (!$row) {
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Report not found.';
     exit;
+}
+
+/* Fail closed when access_level column missing — never treat as public by default */
+if (!$hasAccessCol && !array_key_exists('access_level', $row)) {
+    if (!coopMemberAccessIsAdmin()) {
+        http_response_code(503);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Access configuration unavailable. Please try again shortly.';
+        exit;
+    }
+    $row['access_level'] = 'none';
 }
 
 if ((int) ($row['is_active'] ?? 0) !== 1 && !coopMemberAccessIsAdmin()) {

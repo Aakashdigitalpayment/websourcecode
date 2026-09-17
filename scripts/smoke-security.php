@@ -110,8 +110,17 @@ assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', '
 assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
 assertFileContains('reports.php', 'public-member-access.php', 'reports member gate helper');
 assertFileContains('report-file.php', 'Access denied.', 'report proxy denies locked access');
+assertFileContains('report-file.php', 'Access configuration unavailable', 'report proxy fail-closed without access_level');
 assertFileContains('institutional-profile-file.php', 'Access denied.', 'IP proxy denies locked access');
+assertFileContains('institutional-profile-file.php', 'Access configuration unavailable', 'IP proxy fail-closed without access_level');
+assertFileContains('assets/uploads/reports/.htaccess', 'Require all denied', 'reports uploads deny direct HTTP');
+assertFileContains('assets/uploads/institutional_profile/.htaccess', 'Require all denied', 'IP uploads deny direct HTTP');
 assertFileContains('includes/public-member-access.php', 'COOP_PMA_MAX_FAILS', 'member unlock rate limit');
+assertFileContains('includes/public-member-access.php', 'UPPER(TRIM(sadasyata_number))', 'unlock uses SSOT normalize match');
+assertFileContains('includes/public-member-access.php', 'coopMemberAccessSafeReturnPath', 'unlock return path allowlist');
+assertFileContains('admin/reports.php', 'report-file.php', 'admin reports view via proxy');
+assertFileContains('admin/institutional-profile.php', 'institutional-profile-file.php', 'admin IP attachment via proxy');
+assertFileContains('includes/member-import-helpers.php', "'soft'", 'CBS import KYM soft-fill only');
 assertFileContains('admin/reports.php', "name=\"access_level\"", 'admin reports access_level');
 assertFileContains('admin/institutional-profile.php', "'access_level'", 'admin IP persists access_level');
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');

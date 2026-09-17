@@ -776,7 +776,13 @@ echo adminPageHeader(
         $_existAttachHtml = '<input type="hidden" name="existing_attachment_path" value="">';
         $_existAttachPreview = '';
         if ($isEdit && !empty($r['attachment_path'])) {
-            $_attachUrl = htmlspecialchars(SITE_URL . ltrim($r['attachment_path'], '/'), ENT_QUOTES, 'UTF-8');
+            $_ipId = (int) ($r['id'] ?? 0);
+            if (!function_exists('coopMemberAccessFileUrl')) {
+                require_once dirname(__DIR__) . '/includes/public-member-access.php';
+            }
+            $_attachUrl = ($_ipId > 0 && function_exists('coopMemberAccessFileUrl'))
+                ? htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $_ipId, false), ENT_QUOTES, 'UTF-8')
+                : htmlspecialchars(rtrim((string) SITE_URL, '/') . '/' . ltrim((string) $r['attachment_path'], '/'), ENT_QUOTES, 'UTF-8');
             $_attachExt = strtolower(pathinfo($r['attachment_path'], PATHINFO_EXTENSION));
             $_isImg     = in_array($_attachExt, ['jpg','jpeg','png','gif','webp']);
             $_thumb     = $_isImg

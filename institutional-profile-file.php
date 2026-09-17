@@ -25,6 +25,8 @@ if ($id < 1) {
     exit;
 }
 
+$row = false;
+$hasAccessCol = true;
 try {
     $st = $db->prepare(
         'SELECT id, fiscal_year, attachment_path, access_level, is_active
@@ -33,6 +35,7 @@ try {
     $st->execute([$id]);
     $row = $st->fetch(PDO::FETCH_ASSOC);
 } catch (Throwable $e) {
+    $hasAccessCol = false;
     try {
         $st = $db->prepare(
             'SELECT id, fiscal_year, attachment_path, is_active
@@ -40,9 +43,6 @@ try {
         );
         $st->execute([$id]);
         $row = $st->fetch(PDO::FETCH_ASSOC);
-        if (is_array($row)) {
-            $row['access_level'] = 'none';
-        }
     } catch (Throwable $e2) {
         $row = false;
     }
@@ -53,6 +53,16 @@ if (!$row) {
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Document not found.';
     exit;
+}
+
+if (!$hasAccessCol && !array_key_exists('access_level', $row)) {
+    if (!coopMemberAccessIsAdmin()) {
+        http_response_code(503);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Access configuration unavailable. Please try again shortly.';
+        exit;
+    }
+    $row['access_level'] = 'none';
 }
 
 if ((int) ($row['is_active'] ?? 0) !== 1 && !coopMemberAccessIsAdmin()) {
