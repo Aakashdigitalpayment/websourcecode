@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.8');
+define('THEME_VERSION', '2.9');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);
@@ -646,33 +646,34 @@ table.table-primary thead th,
 .hero-content-modern .hero-title-modern,
 .hero-text-wrapper h1                  {
     color: var(--text-on-hero) !important;
+    /* Line-level glow only — no frosted panel over faces */
     text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.45),
-        0 2px 14px rgba(0, 0, 0, 0.35) !important;
+        0 1px 0 rgba(0, 0, 0, 0.55),
+        0 0 10px rgba(0, 0, 0, 0.45),
+        0 2px 18px rgba(0, 0, 0, 0.4) !important;
 }
 .hero-subtitle-modern,
 .slider-content .hero-subtitle-modern,
 .hero-content-modern .hero-subtitle-modern,
 .hero-text-wrapper p                   {
-    color: color-mix(in srgb, var(--text-on-hero) 92%, transparent) !important;
+    color: color-mix(in srgb, var(--text-on-hero) 94%, transparent) !important;
     text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.4),
-        0 2px 10px rgba(0, 0, 0, 0.28) !important;
+        0 1px 0 rgba(0, 0, 0, 0.5),
+        0 0 8px rgba(0, 0, 0, 0.4),
+        0 2px 14px rgba(0, 0, 0, 0.35) !important;
 }
 .hero-text-wrapper, .hero-content-modern {
     color: var(--text-on-hero) !important;
 }
+/* No glass card / backdrop blur — photo stays sharp; readability via scrim + text-shadow */
 .hero-text-wrapper {
-    padding: 1.1rem 1.35rem 1.2rem !important;
-    border-radius: 1rem !important;
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, #000 38%, transparent),
-        color-mix(in srgb, #000 12%, transparent)
-    ) !important;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    padding: 0.15rem 0.25rem 0.25rem !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 .hero-btn-modern                       {
     background: var(--secondary-color, var(--accent-color)) !important;
@@ -993,11 +994,11 @@ footer .footer-bottom,
 /* Hero modern classes — highest-priority */
 .hero-title-modern                              {
     color: var(--text-on-hero) !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,.45), 0 2px 12px rgba(0,0,0,.32) !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,.55), 0 0 10px rgba(0,0,0,.45), 0 2px 18px rgba(0,0,0,.4) !important;
 }
 .hero-subtitle-modern                           {
-    color: color-mix(in srgb, var(--text-on-hero) 92%, transparent) !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.28) !important;
+    color: color-mix(in srgb, var(--text-on-hero) 94%, transparent) !important;
+    text-shadow: 0 1px 0 rgba(0,0,0,.5), 0 0 8px rgba(0,0,0,.4), 0 2px 14px rgba(0,0,0,.35) !important;
 }
 .hero-text-wrapper, .hero-content-modern,
 .hero-text-block                                {
