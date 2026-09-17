@@ -150,14 +150,15 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
 
                 <div class="alert alert-info small py-2">
                     <strong>अनिवार्य (compulsory):</strong>
-                    <code>member_id</code>, <code>full_name</code>, <code>mobile</code>
-                    <span class="text-muted">(alias: <code>sadasyata_number</code>, <code>name</code>, <code>phone</code>/<code>contact</code>)</span><br>
+                    <code>member_id</code>, <code>full_name</code>
+                    <span class="text-muted">(alias: <code>sadasyata_number</code>, <code>name</code>)</span><br>
                     <strong>Optional</strong> (खाली = OK / re-import मा पुरानो जोगिन्छ):
+                    <code>mobile</code>/<code>phone</code>/<code>contact</code>,
                     <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
                     <code>gender</code>
                     <div class="mt-1"><strong>full_name = English नाम</strong> (जस्तै <code>Ram Prasad Sharma</code>) —
                         CVV नामको पहिलो ३ अक्षरबाट बन्छ।</div>
-                    <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम/मोबाइल replace; खाली email/address/dob/gender ले पुरानो मेटाउँदैन।
+                    <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम replace; खाली mobile/email/address/dob/gender ले पुरानो मेटाउँदैन।
                         KYM stub/shared soft-sync। बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>
@@ -173,7 +174,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                         <label class="form-label small fw-semibold">उही Member ID भएमा</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="mode" id="miModeUpdate" value="update" checked>
-                            <label class="form-check-label" for="miModeUpdate"><strong>Update / Replace</strong> (सिफारिस) — compulsory replace, खाली optional जोगिने</label>
+                            <label class="form-check-label" for="miModeUpdate"><strong>Update / Replace</strong> (सिफारिस) — नाम replace; खाली optional जोगिने</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="mode" id="miModeSkip" value="skip">
@@ -203,7 +204,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <div id="miDoneBox" class="alert alert-success mt-3 d-none small">
                         <strong>Import सकियो!</strong>
                         <div class="mt-1">Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>
-                            (उदा. mobile …5678 + ID …0123 → <code>56780123</code>)। Bulk SMS पठाइँदैन।
+                            (उदा. mobile …5678 + ID …0123 → <code>56780123</code>)। Mobile खाली भए <code>0000</code> + ID का पछिल्ला ४। Bulk SMS पठाइँदैन।
                         </div>
                         <div class="mt-2 d-flex flex-wrap gap-2">
                             <a href="#" id="miErrorsLink" class="btn btn-sm btn-outline-danger d-none">Error/Skip CSV</a>
@@ -222,7 +223,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
                     <li>Sample CSV download → Excel मा खोल्नुहोस्।</li>
-                    <li><strong>member_id + full_name + mobile</strong> अनिवार्य; अरू खाली छोड्न मिल्छ।</li>
+                    <li><strong>member_id + full_name</strong> अनिवार्य; <strong>mobile optional</strong> — अरू खाली छोड्न मिल्छ।</li>
                     <li><strong>File → Save As → CSV UTF-8</strong>।</li>
                     <li>Upload → Update/Replace (default) → Start।</li>
                     <li>उही Member ID फेरि आउँदा पुरानो members row update हुन्छ।</li>
