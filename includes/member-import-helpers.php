@@ -255,23 +255,68 @@ if (!function_exists('memberImportCreateJob')) {
         }
 
         $dir = memberImportUploadDir();
+        if (!is_dir($dir) || !is_writable($dir)) {
+            @mkdir($dir, 0755, true);
+            if (!is_dir($dir) || !is_writable($dir)) {
+                return ['ok' => false, 'error' => 'Upload फोल्डर लेख्न मिल्दैन (member-imports)। सर्भर permission जाँच गर्नुहोस्।'];
+            }
+        }
         $safeName = 'job_' . date('Ymd_His') . '_' . bin2hex(random_bytes(4)) . '.csv';
         $dest = $dir . $safeName;
         if (!move_uploaded_file((string)$file['tmp_name'], $dest)) {
             return ['ok' => false, 'error' => 'सर्भरमा फाइल सुरक्षित गर्न सकिएन।'];
         }
 
-        $st = $pdo->prepare(
-            "INSERT INTO member_import_jobs (admin_id, filename, stored_path, status, mode)
-             VALUES (?, ?, ?, 'uploaded', ?)"
-        );
-        $st->execute([
-            $adminId > 0 ? $adminId : null,
-            mb_substr((string)($file['name'] ?? $safeName), 0, 250),
-            $dest,
-            $mode,
-        ]);
-        return ['ok' => true, 'job_id' => (int)$pdo->lastInsertId()];
+        /* Strip UTF-8 BOM at file start so first header parses cleanly */
+        try {
+            $raw = file_get_contents($dest);
+            if (is_string($raw) && strncmp($raw, "\xEF\xBB\xBF", 3) === 0) {
+                file_put_contents($dest, substr($raw, 3));
+            }
+        } catch (Throwable $eBom) { /* non-fatal */ }
+
+        try {
+            $st = $pdo->prepare(
+                "INSERT INTO member_import_jobs (admin_id, filename, stored_path, status, mode)
+                 VALUES (?, ?, ?, 'uploaded', ?)"
+            );
+            $st->execute([
+                $adminId > 0 ? $adminId : null,
+                mb_substr((string)($file['name'] ?? $safeName), 0, 250),
+                $dest,
+                $mode,
+            ]);
+        } catch (Throwable $eIns) {
+            @unlink($dest);
+            error_log('[member-import] create job: ' . $eIns->getMessage());
+            return ['ok' => false, 'error' => 'Import job बनाउन सकिएन। DB table/permission जाँच गर्नुहोस्।'];
+        }
+
+        $jobId = (int)$pdo->lastInsertId();
+        /* Some hosts return 0 after DDL in ensure* — resolve via LAST_INSERT_ID / filename */
+        if ($jobId <= 0) {
+            try {
+                $jobId = (int)$pdo->query('SELECT LAST_INSERT_ID()')->fetchColumn();
+            } catch (Throwable $e) {
+                $jobId = 0;
+            }
+        }
+        if ($jobId <= 0) {
+            try {
+                $stFind = $pdo->prepare(
+                    "SELECT id FROM member_import_jobs WHERE stored_path=? ORDER BY id DESC LIMIT 1"
+                );
+                $stFind->execute([$dest]);
+                $jobId = (int)$stFind->fetchColumn();
+            } catch (Throwable $e) {
+                $jobId = 0;
+            }
+        }
+        if ($jobId <= 0) {
+            @unlink($dest);
+            return ['ok' => false, 'error' => 'Upload भयो तर job id प्राप्त भएन। फेरि प्रयास गर्नुहोस्।'];
+        }
+        return ['ok' => true, 'job_id' => $jobId];
     }
 }
 
@@ -509,11 +554,21 @@ if (!function_exists('_memberImportParseChunk')) {
             $byteOffset = (int)ftell($fh);
         }
 
-        $ins = $pdo->prepare(
-            "INSERT INTO member_import_rows
-                (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-        );
+        $insWithNp = true;
+        try {
+            $ins = $pdo->prepare(
+                "INSERT INTO member_import_rows
+                    (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            );
+        } catch (Throwable $ePrep) {
+            $insWithNp = false;
+            $ins = $pdo->prepare(
+                "INSERT INTO member_import_rows
+                    (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            );
+        }
 
         $chunk = 0;
         $parsedAdd = 0;
@@ -574,22 +629,68 @@ if (!function_exists('_memberImportParseChunk')) {
                 $dob = (string)$dobNorm;
             }
 
-            $ins->execute([
-                $jobId,
-                $rowNum,
-                mb_substr($sid, 0, 50),
-                mb_substr($name, 0, 255),
-                mb_substr($nameNp, 0, 255),
-                mb_substr($mobile, 0, 20),
-                mb_substr($email, 0, 255),
-                $address,
-                mb_substr($dob, 0, 20),
-                mb_substr($gender, 0, 20),
-                mb_substr($branch, 0, 100),
-                mb_substr($remarks, 0, 500),
-                $status,
-                mb_substr($message, 0, 500),
-            ]);
+            try {
+                if ($insWithNp) {
+                    $ins->execute([
+                        $jobId,
+                        $rowNum,
+                        mb_substr($sid, 0, 50),
+                        mb_substr($name, 0, 255),
+                        mb_substr($nameNp, 0, 255),
+                        mb_substr($mobile, 0, 20),
+                        mb_substr($email, 0, 255),
+                        $address,
+                        mb_substr($dob, 0, 20),
+                        mb_substr($gender, 0, 20),
+                        mb_substr($branch, 0, 100),
+                        mb_substr($remarks, 0, 500),
+                        $status,
+                        mb_substr($message, 0, 500),
+                    ]);
+                } else {
+                    $ins->execute([
+                        $jobId,
+                        $rowNum,
+                        mb_substr($sid, 0, 50),
+                        mb_substr($name, 0, 255),
+                        mb_substr($mobile, 0, 20),
+                        mb_substr($email, 0, 255),
+                        $address,
+                        mb_substr($dob, 0, 20),
+                        mb_substr($gender, 0, 20),
+                        mb_substr($branch, 0, 100),
+                        mb_substr($remarks, 0, 500),
+                        $status,
+                        mb_substr($message, 0, 500),
+                    ]);
+                }
+            } catch (Throwable $eRow) {
+                if ($insWithNp && (stripos($eRow->getMessage(), 'name_np') !== false || stripos($eRow->getMessage(), 'Unknown column') !== false)) {
+                    $insWithNp = false;
+                    $ins = $pdo->prepare(
+                        "INSERT INTO member_import_rows
+                            (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
+                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                    );
+                    $ins->execute([
+                        $jobId,
+                        $rowNum,
+                        mb_substr($sid, 0, 50),
+                        mb_substr($name, 0, 255),
+                        mb_substr($mobile, 0, 20),
+                        mb_substr($email, 0, 255),
+                        $address,
+                        mb_substr($dob, 0, 20),
+                        mb_substr($gender, 0, 20),
+                        mb_substr($branch, 0, 100),
+                        mb_substr($remarks, 0, 500),
+                        $status,
+                        mb_substr($message, 0, 500),
+                    ]);
+                } else {
+                    throw $eRow;
+                }
+            }
             $parsedAdd++;
             $byteOffset = (int)ftell($fh);
         }

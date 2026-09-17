@@ -42,7 +42,14 @@ if ($ajaxAction !== '') {
         exit;
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!function_exists('has_role') || !has_role('admin')) {
+        /* Same gate as page view: any logged-in admin staff who can open Members */
+        if (!isAdminLoggedIn()) {
+            header('Content-Type: application/json; charset=UTF-8');
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'Login required']);
+            exit;
+        }
+        if (function_exists('has_role') && !has_role('staff')) {
             header('Content-Type: application/json; charset=UTF-8');
             http_response_code(403);
             echo json_encode(['ok' => false, 'error' => 'Permission denied']);
@@ -50,7 +57,7 @@ if ($ajaxAction !== '') {
         }
         if (!function_exists('verifyCSRFToken') || !verifyCSRFToken($_POST['csrf_token'] ?? '')) {
             header('Content-Type: application/json; charset=UTF-8');
-            echo json_encode(['ok' => false, 'error' => 'CSRF invalid']);
+            echo json_encode(['ok' => false, 'error' => 'CSRF invalid — पेज refresh गरेर फेरि प्रयास गर्नुहोस्।']);
             exit;
         }
     }
@@ -287,6 +294,29 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     var running = false;
     var jobId = <?php echo (int)$resumeJobId; ?>;
 
+    function parseJsonResponse(r) {
+        return r.text().then(function (text) {
+            var data = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch (e) {
+                var snippet = (text || '').replace(/\s+/g, ' ').slice(0, 160);
+                throw new Error('Server JSON होइन (HTTP ' + r.status + ')' + (snippet ? ': ' + snippet : ''));
+            }
+            if (!r.ok && (!data || data.ok === undefined)) {
+                throw new Error('HTTP ' + r.status);
+            }
+            return data;
+        });
+    }
+
+    function showError(msg) {
+        errBox.textContent = msg || 'Error';
+        errBox.classList.remove('d-none');
+        startBtn.disabled = false;
+        bar.classList.remove('progress-bar-animated');
+    }
+
     function setProgress(p) {
         if (!p) return;
         var pct = Math.max(0, Math.min(100, parseInt(p.percent || 0, 10)));
@@ -316,14 +346,11 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         fd.append('job_id', String(jobId));
         if (csrfInput) fd.append('csrf_token', csrfInput.value);
         fetch('member-import.php', { method: 'POST', body: fd, credentials: 'same-origin' })
-            .then(function (r) { return r.json(); })
+            .then(parseJsonResponse)
             .then(function (data) {
                 if (!data || !data.ok) {
                     running = false;
-                    errBox.textContent = (data && data.error) ? data.error : 'Import error';
-                    errBox.classList.remove('d-none');
-                    bar.classList.remove('progress-bar-animated');
-                    startBtn.disabled = false;
+                    showError((data && data.error) ? data.error : 'Import error');
                     return;
                 }
                 setProgress(data.progress || {});
@@ -336,8 +363,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     bar.classList.remove('progress-bar-animated');
                     startBtn.disabled = false;
                     if (data.progress && data.progress.status === 'failed') {
-                        errBox.textContent = data.progress.error_message || data.error || 'Import failed';
-                        errBox.classList.remove('d-none');
+                        showError(data.progress.error_message || data.error || 'Import failed');
                     } else {
                         doneBox.classList.remove('d-none');
                     }
@@ -345,16 +371,18 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 }
                 setTimeout(tick, 80);
             })
-            .catch(function () {
+            .catch(function (err) {
                 running = false;
-                errBox.textContent = 'Network/server error — Resume बाट फेरि प्रयास गर्नुहोस्।';
-                errBox.classList.remove('d-none');
-                startBtn.disabled = false;
-                bar.classList.remove('progress-bar-animated');
+                showError((err && err.message) ? err.message : 'Network/server error — Resume बाट फेरि प्रयास गर्नुहोस्।');
             });
     }
 
     function startJob(id) {
+        id = parseInt(id, 10) || 0;
+        if (id <= 0) {
+            showError('Upload पछि job id आएन। फेरि प्रयास गर्नुहोस्।');
+            return;
+        }
         jobId = id;
         running = true;
         wrap.classList.remove('d-none');
@@ -362,6 +390,9 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         errBox.classList.add('d-none');
         bar.classList.add('progress-bar-animated');
         startBtn.disabled = true;
+        phaseEl.textContent = 'CSV parse गर्दै…';
+        pctEl.textContent = '1%';
+        bar.style.width = '1%';
         tick();
     }
 
@@ -370,26 +401,33 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
             e.preventDefault();
             var fileInput = document.getElementById('miFile');
             if (!fileInput.files || !fileInput.files[0]) return;
+            var name = (fileInput.files[0].name || '').toLowerCase();
+            if (name && !name.endsWith('.csv')) {
+                wrap.classList.remove('d-none');
+                showError('CSV UTF-8 फाइल चाहिन्छ (.csv)। Excel → Save As → CSV UTF-8।');
+                return;
+            }
             var fd = new FormData(form);
             fd.append('ajax', 'upload');
             startBtn.disabled = true;
             wrap.classList.remove('d-none');
+            doneBox.classList.add('d-none');
+            errBox.classList.add('d-none');
+            bar.classList.add('progress-bar-animated');
             phaseEl.textContent = 'Upload गर्दै…';
+            pctEl.textContent = '0%';
+            bar.style.width = '0%';
             fetch('member-import.php', { method: 'POST', body: fd, credentials: 'same-origin' })
-                .then(function (r) { return r.json(); })
+                .then(parseJsonResponse)
                 .then(function (data) {
                     if (!data || !data.ok) {
-                        errBox.textContent = (data && data.error) ? data.error : 'Upload failed';
-                        errBox.classList.remove('d-none');
-                        startBtn.disabled = false;
+                        showError((data && data.error) ? data.error : 'Upload failed');
                         return;
                     }
                     startJob(data.job_id);
                 })
-                .catch(function () {
-                    errBox.textContent = 'Upload network error';
-                    errBox.classList.remove('d-none');
-                    startBtn.disabled = false;
+                .catch(function (err) {
+                    showError((err && err.message) ? ('Upload: ' + err.message) : 'Upload network error');
                 });
         });
     }

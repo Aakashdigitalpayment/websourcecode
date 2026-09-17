@@ -855,6 +855,9 @@ assertFileContains('admin/member-import-sample.php', 'admin-page-boot.php', 'mem
 assertFileContains('admin/member-import-sample.php', "'member_id'", 'sample leads with member_id SSOT column');
 assertFileContains('includes/member-import-helpers.php', "string \$mode = 'update'", 'import createJob default update');
 assertFileContains('includes/member-import-helpers.php', 'memberImportIsValidContact', 'import validates optional contact when present');
+assertFileContains('includes/member-import-helpers.php', 'LAST_INSERT_ID', 'import resolves job id after insert');
+assertFileContains('admin/member-import.php', 'parseJsonResponse', 'import UI handles non-JSON errors');
+assertFileContains('admin/member-import.php', 'job id आएन', 'import UI guards missing job_id');
 assertFileContains('includes/member-import-helpers.php', "foreach (['sadasyata_number', 'full_name'] as \$req)", 'import CSV requires only member_id + name');
 assertFileContains('includes/member-import-helpers.php', "phone=COALESCE(NULLIF(?, ''), phone)", 'import keeps old phone when CSV mobile empty');
 assertFileContains('admin/member-import.php', 'mobile optional', 'admin import UI marks mobile optional');
