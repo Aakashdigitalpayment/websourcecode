@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once __DIR__ . '/includes/public-member-access.php';
 
-$pmaUnlock = coopMemberAccessHandleUnlockPost();
+$pmaUnlock = coopMemberAccessProcessUnlockRequest();
 if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
     $retPath = (string) ($pmaUnlock['return'] ?? '');
     if ($retPath === '') {
@@ -435,7 +435,7 @@ function render_report_actions(array $report): void {
 </section>
 
 <!-- Reports Content -->
-<section class="section-padding">
+<section class="section-padding" data-coop-pma-refresh="reports">
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">

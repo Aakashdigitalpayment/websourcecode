@@ -329,6 +329,58 @@ function coopMemberAccessHandleUnlockPost(): array
 }
 
 /**
+ * True when unlock should respond with JSON (no full-page POST round-trip).
+ */
+function coopMemberAccessWantsAjax(): bool
+{
+    if (!empty($_POST['coop_pma_ajax'])) {
+        return true;
+    }
+    $xrw = (string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '');
+    if (strcasecmp($xrw, 'XMLHttpRequest') === 0) {
+        return true;
+    }
+    $accept = (string) ($_SERVER['HTTP_ACCEPT'] ?? '');
+    return str_contains($accept, 'application/json');
+}
+
+/**
+ * Exit with JSON unlock result (AJAX).
+ *
+ * @param array{handled?:bool,ok?:bool,error?:string,return?:string} $pmaUnlock
+ */
+function coopMemberAccessJsonRespond(array $pmaUnlock): void
+{
+    $ok = !empty($pmaUnlock['ok']);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('X-Content-Type-Options: nosniff');
+    http_response_code($ok ? 200 : 422);
+    echo json_encode([
+        'ok' => $ok,
+        'unlocked' => $ok,
+        'error' => (string) ($pmaUnlock['error'] ?? ''),
+        'return' => (string) ($pmaUnlock['return'] ?? ''),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+/**
+ * Process unlock POST and either JSON-exit (AJAX) or return result for classic POST.
+ * On classic success, caller should redirect.
+ *
+ * @return array{handled:bool,ok:bool,error:string,return?:string}
+ */
+function coopMemberAccessProcessUnlockRequest(): array
+{
+    $pmaUnlock = coopMemberAccessHandleUnlockPost();
+    if (!empty($pmaUnlock['handled']) && coopMemberAccessWantsAjax()) {
+        coopMemberAccessJsonRespond($pmaUnlock);
+    }
+    return $pmaUnlock;
+}
+
+/**
  * Absolute filesystem path under uploads, or empty.
  */
 function coopMemberAccessResolveAbsolutePath(?string $storedPath): string
@@ -448,7 +500,7 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
     $ret = htmlspecialchars($safeRet !== '' ? $safeRet : '/reports.php', ENT_QUOTES, 'UTF-8');
     $cls = trim('coop-pma-unlock ' . $extraClass);
 
-    return '<form method="post" class="' . htmlspecialchars($cls, ENT_QUOTES, 'UTF-8') . '" data-testid="coop-pma-unlock-form">'
+    return '<form method="post" class="' . htmlspecialchars($cls, ENT_QUOTES, 'UTF-8') . '" data-testid="coop-pma-unlock-form" data-coop-pma-ajax="1">'
         . $csrf
         . '<input type="hidden" name="coop_pma_action" value="unlock">'
         . '<input type="hidden" name="coop_pma_return" value="' . $ret . '">'
@@ -457,6 +509,7 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
         . '<strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</strong>'
         . '</div>'
         . '<p class="coop-pma-unlock-hint">' . htmlspecialchars($hint, ENT_QUOTES, 'UTF-8') . '</p>'
+        . '<div class="coop-pma-error" role="alert" hidden data-coop-pma-error></div>'
         . '<label class="coop-pma-unlock-label" for="' . htmlspecialchars($inputId, ENT_QUOTES, 'UTF-8') . '">'
         . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label>'
         . '<div class="coop-pma-unlock-row">'
@@ -465,5 +518,86 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
         . 'placeholder="' . htmlspecialchars($en ? 'e.g. 1234' : 'उदा. १२३४', ENT_QUOTES, 'UTF-8') . '">'
         . '<button type="submit" class="btn btn-primary coop-pma-unlock-btn">' . htmlspecialchars($btn, ENT_QUOTES, 'UTF-8') . '</button>'
         . '</div>'
-        . '</form>';
+        . '</form>'
+        . coopMemberAccessUnlockClientScriptOnce();
+}
+
+/**
+ * One-time AJAX unlock script (no full page reload on check).
+ */
+function coopMemberAccessUnlockClientScriptOnce(): string
+{
+    static $done = false;
+    if ($done) {
+        return '';
+    }
+    $done = true;
+    $busyLabel = (function_exists('isEnglish') && isEnglish()) ? 'Checking…' : 'जाँच हुँदै…';
+    $failGeneric = (function_exists('isEnglish') && isEnglish())
+        ? 'Verification failed. Please try again.'
+        : 'प्रमाणीकरण असफल। फेरि प्रयास गर्नुहोस्।';
+
+    return '<script>(function(){'
+        . 'if(window.__coopPmaAjaxBound)return;window.__coopPmaAjaxBound=1;'
+        . 'var BUSY=' . json_encode($busyLabel, JSON_UNESCAPED_UNICODE) . ';'
+        . 'var FAIL=' . json_encode($failGeneric, JSON_UNESCAPED_UNICODE) . ';'
+        . 'function showErr(form,msg){'
+        . 'var box=form.querySelector("[data-coop-pma-error]");'
+        . 'if(!box){box=document.createElement("div");box.className="coop-pma-error";box.setAttribute("role","alert");box.setAttribute("data-coop-pma-error","");'
+        . 'var hint=form.querySelector(".coop-pma-unlock-hint");'
+        . 'if(hint&&hint.parentNode)hint.parentNode.insertBefore(box,hint.nextSibling);else form.insertBefore(box,form.firstChild);}'
+        . 'box.hidden=false;box.textContent=msg||FAIL;}'
+        . 'function hideErr(form){var box=form.querySelector("[data-coop-pma-error]");if(box){box.hidden=true;box.textContent="";}}'
+        . 'function refreshIcons(root){try{if(window.lucide&&typeof window.lucide.createIcons==="function")window.lucide.createIcons({nodes:root?root.querySelectorAll("[data-lucide]"):undefined});}catch(e){}}'
+        . 'function softRefresh(){'
+        . 'var targets=document.querySelectorAll("[data-coop-pma-refresh]");'
+        . 'if(!targets.length){location.reload();return;}'
+        . 'var url=window.location.href;'
+        . 'fetch(url,{credentials:"same-origin",headers:{"Accept":"text/html","X-Requested-With":"XMLHttpRequest"}})'
+        . '.then(function(r){return r.text();})'
+        . '.then(function(html){'
+        . 'var doc=new DOMParser().parseFromString(html,"text/html");'
+        . 'var ok=false;'
+        . 'targets.forEach(function(el){'
+        . 'var key=el.getAttribute("data-coop-pma-refresh")||"";'
+        . 'var sel=key?("[data-coop-pma-refresh=\\""+key+"\\"]"):"[data-coop-pma-refresh]";'
+        . 'var neu=doc.querySelector(sel);'
+        . 'if(neu){el.replaceWith(neu);ok=true;refreshIcons(neu);}'
+        . '});'
+        . 'if(!ok)location.reload();'
+        . 'else{try{document.dispatchEvent(new CustomEvent("coop:pma-unlocked"));}catch(e2){}}'
+        . '})'
+        . '.catch(function(){location.reload();});'
+        . '}'
+        . 'document.addEventListener("submit",function(ev){'
+        . 'var form=ev.target&&ev.target.closest?ev.target.closest("form.coop-pma-unlock[data-coop-pma-ajax]"):null;'
+        . 'if(!form)return;'
+        . 'if(typeof FormData==="undefined"||typeof fetch==="undefined")return;'
+        . 'ev.preventDefault();'
+        . 'hideErr(form);'
+        . 'var btn=form.querySelector(".coop-pma-unlock-btn");'
+        . 'var prev=btn?btn.textContent:"";'
+        . 'if(btn){btn.disabled=true;btn.textContent=BUSY;}'
+        . 'form.classList.add("is-busy");'
+        . 'var fd=new FormData(form);'
+        . 'fd.set("coop_pma_ajax","1");'
+        . 'fetch((window.location.href||"").split("#")[0],{'
+        . 'method:"POST",body:fd,credentials:"same-origin",'
+        . 'headers:{"X-Requested-With":"XMLHttpRequest","Accept":"application/json"}'
+        . '}).then(function(r){return r.json().then(function(j){return{status:r.status,j:j};}).catch(function(){return{status:r.status,j:null};});})'
+        . '.then(function(res){'
+        . 'var j=res.j||{};'
+        . 'if(j.ok||j.unlocked){softRefresh();return;}'
+        . 'showErr(form,(j&&j.error)||FAIL);'
+        . 'if(btn){btn.disabled=false;btn.textContent=prev;}'
+        . 'form.classList.remove("is-busy");'
+        . 'var inp=form.querySelector("input[name=sadasyata_number]");'
+        . 'if(inp&&inp.focus)inp.focus();'
+        . '}).catch(function(){'
+        . 'showErr(form,FAIL);'
+        . 'if(btn){btn.disabled=false;btn.textContent=prev;}'
+        . 'form.classList.remove("is-busy");'
+        . '});'
+        . '},true);'
+        . '})();</script>';
 }
