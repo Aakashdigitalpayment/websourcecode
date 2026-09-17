@@ -1006,7 +1006,11 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(26, 95, 42, 0.55) 0%, rgba(0, 0, 0, 0.3) 100%);
+    /* Fallback before theme vars — light brand + left scrim (photo stays clear) */
+    background:
+        linear-gradient(100deg, rgba(5, 8, 12, 0.55) 0%, rgba(5, 8, 12, 0.2) 42%, transparent 72%),
+        linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.28) 100%),
+        linear-gradient(135deg, rgba(26, 95, 42, 0.16) 0%, rgba(0, 0, 0, 0.08) 100%);
     z-index: 1;
 }
 
@@ -16648,13 +16652,14 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .hero-bg-modern::before {
     content: '';
     position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0,0,0,.32), rgba(0,0,0,.10));
+    background: linear-gradient(105deg, rgba(0,0,0,.16), rgba(0,0,0,.05) 55%, transparent 100%);
     z-index: 1;
 }
 .hero-overlay-modern {
-    background: linear-gradient(135deg,
-        rgba(var(--primary-rgb,26,95,42), .68),
-        rgba(var(--primary-rgb,26,95,42), .28));
+    background:
+        linear-gradient(100deg, rgba(5,8,12,.55) 0%, rgba(5,8,12,.2) 42%, transparent 72%),
+        linear-gradient(180deg, transparent 55%, rgba(0,0,0,.26) 100%),
+        linear-gradient(135deg, rgba(var(--primary-rgb,26,95,42), .16), rgba(var(--primary-rgb,26,95,42), .06));
     z-index: 2;
 }
 .hero-content-modern {
@@ -16666,6 +16671,12 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     max-width: 600px;
     display: flex; flex-direction: column; align-items: flex-start;
     animation: heroTextSlide .9s ease-out both;
+    padding: 1.1rem 1.35rem 1.2rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(0,0,0,.36), rgba(0,0,0,.1));
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,.16);
 }
 @keyframes heroTextSlide {
     from { opacity: 0; transform: translateY(28px); }
@@ -16674,25 +16685,25 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .hero-title-modern {
     font-size: clamp(1.6rem, 4vw, 2.5rem) !important;
     font-weight: 900 !important;
-    color: #fff !important;
+    color: var(--text-on-hero, #fff) !important;
     margin-bottom: .9rem;
-    text-shadow: 0 3px 10px rgba(0,0,0,.28);
+    text-shadow: 0 1px 2px rgba(0,0,0,.45), 0 2px 12px rgba(0,0,0,.3);
     line-height: 1.4 !important;
 }
 .hero-subtitle-modern {
     font-size: clamp(.95rem, 2vw, 1.2rem) !important;
     font-weight: 500 !important;
-    color: rgba(255,255,255,.9) !important;
+    color: color-mix(in srgb, var(--text-on-hero, #fff) 92%, transparent) !important;
     margin-bottom: 1.8rem;
-    text-shadow: 0 2px 6px rgba(0,0,0,.24);
+    text-shadow: 0 1px 2px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.25);
     line-height: 1.7 !important;
 }
 .hero-actions-modern {
     animation: heroTextSlide .9s ease-out .25s both;
 }
 .hero-btn-modern {
-    background: var(--primary-color);
-    color: var(--text-on-primary, #fff);
+    background: var(--secondary-color, var(--primary-color));
+    color: var(--text-on-secondary, #fff);
     padding: .85rem 2rem;
     font-size: 1rem;
     font-weight: 700;
@@ -16701,7 +16712,7 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     display: inline-flex; align-items: center; gap: .5rem;
     position: relative; overflow: hidden;
     transition: all .28s cubic-bezier(.4,0,.2,1);
-    box-shadow: 0 6px 20px rgba(var(--primary-rgb,26,95,42), .32);
+    box-shadow: 0 6px 20px rgba(var(--secondary-rgb,192,57,43), .32);
     border: none;
 }
 .hero-btn-modern::before {
@@ -16712,10 +16723,10 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 }
 .hero-btn-modern:hover::before { left: 100%; }
 .hero-btn-modern:hover {
-    background: var(--primary-dark);
-    color: var(--text-on-primary, #fff);
+    background: var(--secondary-dark, var(--primary-dark));
+    color: var(--text-on-secondary, #fff);
     transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(var(--primary-rgb,26,95,42), .4);
+    box-shadow: 0 10px 28px rgba(var(--secondary-rgb,192,57,43), .4);
     text-decoration: none;
 }
 .hero-btn-modern .btn-icon { transition: transform .28s ease; }
