@@ -831,10 +831,15 @@ assertFileContains('admin/print-form.php', 'admin-page-boot.php', 'print-form th
 assertFileContains('admin/members.php', 'admin-page-boot.php', 'members thin boot');
 assertFileContains('admin/member-import.php', 'ADMIN_PAGE_BOOT_SKIP_LOGIN', 'member-import keeps AJAX 401 path');
 assertFileContains('admin/member-import.php', 'admin-page-boot.php', 'member-import thin boot');
+assertFileContains('admin/member-import.php', 'value="update" checked', 'member import defaults to update/replace');
 assertFileContains('admin/program-attendance.php', 'admin-page-boot.php', 'program-attendance export thin boot');
 assertFileContains('admin/site-license-blocked.php', 'admin-page-boot.php', 'license-blocked thin boot');
 assertFileContains('admin/kyc-import-sample.php', 'admin-page-boot.php', 'kyc-import-sample thin boot');
 assertFileContains('admin/member-import-sample.php', 'admin-page-boot.php', 'member-import-sample thin boot');
+assertFileContains('admin/member-import-sample.php', "'member_id'", 'sample leads with member_id SSOT column');
+assertFileContains('includes/member-import-helpers.php', "string \$mode = 'update'", 'import createJob default update');
+assertFileContains('includes/member-import-helpers.php', 'memberImportIsValidContact', 'import validates compulsory contact');
+assertFileContains('includes/member-import-helpers.php', 'Updated by Member ID', 're-import replaces by Member ID');
 assertFileContains('tracker-id-card.php', "htmlspecialchars(\$siteUrl, ENT_QUOTES, 'UTF-8')", 'tracker id-card siteUrl escaped');
 assertFileContains('admin/includes/admin-page-boot.php', 'ADMIN_PAGE_BOOT_SKIP_LOGIN', 'thin boot supports login skip for AJAX');
 
