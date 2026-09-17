@@ -5203,6 +5203,12 @@ textarea:focus-visible,
   content: none !important;
 }
 
+/* History column is left-aligned (badge + title) — keep divider flush left, not centered */
+.history-content-v2 .history-divider {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
 /* About intro card — center badge / title / body (divider already centered) */
 .about-content-box {
   text-align: center !important;
