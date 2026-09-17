@@ -1,5 +1,29 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
+require_once __DIR__ . '/includes/public-member-access.php';
+
+$pmaUnlock = coopMemberAccessHandleUnlockPost();
+if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
+    $ret = rtrim((string) SITE_URL, '/') . '/reports.php';
+    $qs = [];
+    if (!empty($_GET['type'])) {
+        $qs['type'] = (string) $_GET['type'];
+    }
+    if (!empty($_GET['year'])) {
+        $qs['year'] = (string) $_GET['year'];
+    }
+    if (!empty($_GET['id']) && (int) $_GET['id'] > 0) {
+        $qs['id'] = (int) $_GET['id'];
+    }
+    if ($qs) {
+        $ret .= '?' . http_build_query($qs);
+    }
+    header('Location: ' . $ret);
+    exit;
+}
+$pmaUnlockError = !empty($pmaUnlock['handled']) ? (string) ($pmaUnlock['error'] ?? '') : '';
+$pmaUnlocked = coopMemberAccessUnlocked();
+
 $pageTitle = isEnglish() ? 'Reports' : 'प्रतिवेदनहरू';
 $pageDescription = isEnglish()
     ? 'Monthly and annual reports published for members and the public.'
@@ -163,15 +187,35 @@ function coop_public_report_file_url(?string $path): string {
 
 /**
  * Icon-only View / Download / Share row (compact; share includes report details).
+ * Member-only rows gate actions until unlocked; files served via report-file.php.
  */
 function render_report_actions(array $report): void {
-    global $nepaliMonths, $quarters;
+    global $nepaliMonths, $quarters, $pmaUnlocked, $pmaUnlockError;
 
-    $fileUrl = coop_public_download_url((string) ($report['file_path'] ?? ''));
+    $reportId = (int) ($report['id'] ?? 0);
+    $accessLevel = function_exists('coopAccessLevelNormalize')
+        ? coopAccessLevelNormalize((string) ($report['access_level'] ?? 'none'))
+        : 'none';
+    $isMemberOnly = ($accessLevel === 'member');
+    $canOpen = !$isMemberOnly || !empty($pmaUnlocked);
+
     $title = trim((string) (function_exists('getLangField') ? getLangField($report, 'title') : ($report['title'] ?? '')));
     if ($title === '') {
         $title = isEnglish() ? 'Report' : 'प्रतिवेदन';
     }
+
+    $hasFile = trim((string) ($report['file_path'] ?? '')) !== '';
+    $fileUrl = '';
+    $dlUrl = '';
+    if ($hasFile && $canOpen && $reportId > 0 && function_exists('coopMemberAccessFileUrl')) {
+        /* Always proxy — stable URL for View/Download/Facebook; member gate enforced server-side */
+        $fileUrl = coopMemberAccessFileUrl('report-file.php', $reportId, false);
+        $dlUrl = coopMemberAccessFileUrl('report-file.php', $reportId, true);
+    } elseif ($hasFile && $canOpen) {
+        $fileUrl = coop_public_download_url((string) ($report['file_path'] ?? ''));
+        $dlUrl = $fileUrl;
+    }
+
     $typeLabel = getTypeLabel((string) ($report['report_type'] ?? 'other'));
     $year = trim((string) ($report['report_year'] ?? ''));
     $metaParts = [$typeLabel];
@@ -201,22 +245,59 @@ function render_report_actions(array $report): void {
     if ($year !== '' && preg_match('/^\d{4}\/\d{2}$/', $year)) {
         $sharePage .= '&year=' . rawurlencode($year);
     }
+    if ($reportId > 0) {
+        $sharePage .= '&id=' . $reportId;
+    }
+
+    /* Facebook destination: public → open the file; member-only → deep link (recipient must unlock) */
+    $fbUrl = $sharePage;
+    if (!$isMemberOnly && $fileUrl !== '') {
+        $fbUrl = $fileUrl;
+    }
 
     $shareText = $title . "\n" . $metaLine . "\n" . $siteName;
-    if ($fileUrl !== '') {
+    if ($isMemberOnly) {
+        $shareText .= "\n" . (isEnglish()
+            ? 'Members only — open the link and enter membership number to view/download.'
+            : 'सदस्य मात्र — लिंक खोलेर सदस्यता नम्बर हालेपछि हेर्न/डाउनलोड गर्न सकिन्छ।');
+        $shareText .= "\n" . $sharePage;
+    } elseif ($fileUrl !== '') {
         $shareText .= "\n" . (isEnglish() ? 'File: ' : 'फाइल: ') . $fileUrl;
+        if ($sharePage !== $fileUrl) {
+            $shareText .= "\n" . (isEnglish() ? 'Page: ' : 'पेज: ') . $sharePage;
+        }
     }
 
     $viewLabel = isEnglish() ? 'View' : 'हेर्नुहोस्';
     $dlLabel = isEnglish() ? 'Download' : 'डाउनलोड';
     $shareLabel = isEnglish() ? 'Share' : 'सेयर';
+    $lockLabel = isEnglish() ? 'Members only — unlock' : 'सदस्य मात्र — अनलक';
 
-    echo '<div class="report-actions report-actions-icons" role="group" aria-label="'
+    echo '<div class="report-actions report-actions-icons" role="group" '
+        . 'data-report-id="' . $reportId . '" id="report-' . $reportId . '" aria-label="'
         . htmlspecialchars(isEnglish() ? 'Report actions' : 'प्रतिवेदन कार्यहरू', ENT_QUOTES, 'UTF-8')
         . '">';
 
+    if ($isMemberOnly && !$canOpen) {
+        echo '<button type="button" class="report-action-btn report-action-lock" '
+            . 'data-pma-toggle="1" '
+            . 'title="' . htmlspecialchars($lockLabel, ENT_QUOTES, 'UTF-8') . '" '
+            . 'aria-label="' . htmlspecialchars($lockLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i></button>';
+        echo '<span class="report-member-badge">' . htmlspecialchars(isEnglish() ? 'Members' : 'सदस्य', ENT_QUOTES, 'UTF-8') . '</span>';
+        echo '</div>';
+        echo '<div class="report-pma-panel" hidden>';
+        if (!empty($pmaUnlockError)) {
+            echo '<div class="coop-pma-error" role="alert">' . htmlspecialchars((string) $pmaUnlockError, ENT_QUOTES, 'UTF-8') . '</div>';
+        }
+        echo coopMemberAccessUnlockFormHtml('/reports.php');
+        echo '</div>';
+        return;
+    }
+
     if ($fileUrl !== '') {
         $safe = htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8');
+        $safeDl = htmlspecialchars($dlUrl !== '' ? $dlUrl : $fileUrl, ENT_QUOTES, 'UTF-8');
         echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="report-action-btn report-action-view"'
             . ' title="' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($viewLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
@@ -226,7 +307,7 @@ function render_report_actions(array $report): void {
         if ($dlName === '') {
             $dlName = 'report';
         }
-        echo '<a href="' . $safe . '" download="' . htmlspecialchars($dlName, ENT_QUOTES, 'UTF-8') . '" class="report-action-btn report-action-download"'
+        echo '<a href="' . $safeDl . '" download="' . htmlspecialchars($dlName, ENT_QUOTES, 'UTF-8') . '" class="report-action-btn report-action-download"'
             . ' title="' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($dlLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i></a>';
@@ -241,8 +322,16 @@ function render_report_actions(array $report): void {
         . ' aria-label="' . htmlspecialchars($shareLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '"'
         . ' data-share-title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '"'
         . ' data-share-text="' . htmlspecialchars($shareText, ENT_QUOTES, 'UTF-8') . '"'
-        . ' data-share-url="' . htmlspecialchars($sharePage, ENT_QUOTES, 'UTF-8') . '">'
+        . ' data-share-url="' . htmlspecialchars($sharePage, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-share-fb-url="' . htmlspecialchars($fbUrl, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-share-member="' . ($isMemberOnly ? '1' : '0') . '">'
         . '<i class="lucide-icon" data-lucide="share-2" aria-hidden="true"></i></button>';
+
+    if ($isMemberOnly) {
+        echo '<span class="report-member-badge report-member-badge-open" title="'
+            . htmlspecialchars(isEnglish() ? 'Unlocked for members' : 'सदस्यका लागि अनलक', ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="lucide-icon" data-lucide="unlock" aria-hidden="true"></i></span>';
+    }
 
     echo '</div>';
 }
@@ -682,8 +771,9 @@ function render_report_actions(array $report): void {
     wa.textContent = labels.wa;
     wa.addEventListener('click', closeMenu);
 
+    var fbTarget = (btn && btn.getAttribute('data-share-fb-url')) || url || location.href;
     var fb = document.createElement('a');
-    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href)
+    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(fbTarget)
       + '&quote=' + encodeURIComponent(String(text || title || '').slice(0, 240));
     fb.target = '_blank';
     fb.rel = 'noopener noreferrer';
@@ -727,6 +817,19 @@ function render_report_actions(array $report): void {
   document.addEventListener('click', function (ev) {
     var t = ev.target;
     if (!t || !t.closest) return;
+    var lockBtn = t.closest('[data-pma-toggle]');
+    if (lockBtn) {
+      ev.preventDefault();
+      var card = lockBtn.closest('.report-card') || lockBtn.parentElement;
+      var panel = card ? card.querySelector('.report-pma-panel') : null;
+      if (panel) {
+        var open = panel.hasAttribute('hidden');
+        if (open) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+        lockBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      return;
+    }
     var btn = t.closest('.report-action-share');
     if (btn) {
       ev.preventDefault();
@@ -745,5 +848,34 @@ function render_report_actions(array $report): void {
 
   window.addEventListener('scroll', closeMenu, { passive: true });
   window.addEventListener('resize', closeMenu);
+
+  function focusSharedReport() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var rid = params.get('id');
+      if (!rid) return;
+      var el = document.getElementById('report-' + rid)
+        || document.querySelector('[data-report-id="' + rid + '"]');
+      if (!el) return;
+      var card = el.closest('.report-card') || el;
+      card.classList.add('is-share-target');
+      if (typeof card.scrollIntoView === 'function') {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      var panel = card.querySelector('.report-pma-panel');
+      if (panel) {
+        panel.removeAttribute('hidden');
+        var input = panel.querySelector('#coop_pma_sadasyata, input[name="sadasyata_number"]');
+        if (input && typeof input.focus === 'function') {
+          window.setTimeout(function () { input.focus(); }, 350);
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', focusSharedReport);
+  } else {
+    focusSharedReport();
+  }
 })();
 </script>
