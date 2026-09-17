@@ -3475,7 +3475,7 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
 
 .contact-icon i {
     font-size: 18px;
-    color: var(--secondary-color);
+    color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400));
 }
 
 .contact-details h6 {
@@ -10734,12 +10734,12 @@ input[readonly].nepali-datepicker:hover,
     text-decoration: none;
 }
 .contact-details p a:hover {
-    color: color-mix(in srgb, var(--secondary-color, #f4b400) 72%, #fff);
+    color: color-mix(in srgb, var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) 72%, #fff);
     text-decoration: underline;
 }
 
 .contact-icon i {
-    color: var(--secondary-color, var(--accent-color, #f4b400));
+    color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400));
 }
 
 /* Contact box भित्रको value text black नदेखियोस् — force readable white */

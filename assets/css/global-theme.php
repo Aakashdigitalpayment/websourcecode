@@ -173,6 +173,43 @@ $__brandInk = function (string $hex, string $darker) use ($__textOn): string {
 $_pInk = $__brandInk($_p, $_pDark);
 $_sInk = $__brandInk($_s, $_sDark);
 
+/*
+ * Contact green-panel icons: keep Admin secondary hue, but lighten until
+ * WCAG ≥ 3:1 vs primary / primary-dark (raw #c0392b on #1a5f2a ≈ 1.4).
+ */
+$__contrastRatio = static function (string $fg, string $bg): float {
+    $lumOf = static function (string $hex): float {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) !== 6) {
+            return 0.0;
+        }
+        $toLinear = static fn($c) => ($c <= 0.03928) ? ($c / 12.92) : pow(($c + 0.055) / 1.055, 2.4);
+        $r = $toLinear(hexdec(substr($hex, 0, 2)) / 255);
+        $g = $toLinear(hexdec(substr($hex, 2, 2)) / 255);
+        $b = $toLinear(hexdec(substr($hex, 4, 2)) / 255);
+        return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+    };
+    $L1 = $lumOf($fg);
+    $L2 = $lumOf($bg);
+    $hi = max($L1, $L2);
+    $lo = min($L1, $L2);
+    return ($hi + 0.05) / ($lo + 0.05);
+};
+$__lightenForContrast = function (string $fg, string $bgA, string $bgB, float $minRatio = 3.0) use ($__mixHex, $__contrastRatio): string {
+    $worst = min($__contrastRatio($fg, $bgA), $__contrastRatio($fg, $bgB));
+    if ($worst >= $minRatio) {
+        return $fg;
+    }
+    for ($ratioFg = 0.95; $ratioFg >= 0.15; $ratioFg -= 0.05) {
+        $cand = $__mixHex($fg, '#ffffff', $ratioFg);
+        if (min($__contrastRatio($cand, $bgA), $__contrastRatio($cand, $bgB)) >= $minRatio) {
+            return $cand;
+        }
+    }
+    return $__mixHex($fg, '#ffffff', 0.35);
+};
+$_contactIconOnPrimary = $__lightenForContrast($_s, $_p, $_pDark, 3.0);
+
 /* RGB for rgba() usage */
 $_pRgb = $__rgb($_p);
 $_sRgb = $__rgb($_s);
@@ -218,6 +255,7 @@ $__heroScrimMid = $_heroScrimMid ?? 'rgba(5,8,12,0.22)';
 $__heroScrimEdge = $_heroScrimEdge ?? 'rgba(11,20,16,0.12)';
 $__pInk = $_pInk ?? $__p;
 $__sInk = $_sInk ?? $__s;
+$__contactIconOnPrimary = $_contactIconOnPrimary ?? '#f4b400';
 $__shadowP = $_shadowP ?? '0 4px 20px rgba(26,95,42,0.20)';
 $__shadowS = $_shadowS ?? '0 4px 16px rgba(192,57,43,0.20)';
 $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
@@ -243,6 +281,8 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --secondary-rgb:    <?= $__sRgb ?>;
     --secondary-ink:    <?= $__sInk ?>;
     --secondary:        <?= $__s ?>;
+    /* Secondary hue lightened for icons on primary green panel (WCAG ≥ 3:1) */
+    --contact-icon-on-primary: <?= $__contactIconOnPrimary ?>;
 
     --header-color:     <?= $__h ?>;
     --header-dark:      <?= $__hDark ?>;
@@ -1602,8 +1642,8 @@ body.dark-mode .hero-section                    {
 .contact-info-box .contact-icon i,
 .contact-info-box .contact-icon .lucide-icon,
 .contact-info-box .contact-icon svg {
-    color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
-    stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;
+    color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
+    stroke: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
 }
 
 /* ── Z14. SECTION TOOLS / CATEGORY CARDS ────────────────────── */
