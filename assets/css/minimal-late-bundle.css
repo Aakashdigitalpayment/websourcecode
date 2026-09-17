@@ -3894,6 +3894,60 @@ textarea:focus-visible,
   content: none !important;
 }
 
+/* About intro card — center badge / title / body (divider already centered) */
+.about-content-box {
+  text-align: center !important;
+}
+.about-content-box > div:first-child {
+  display: flex;
+  justify-content: center;
+}
+.about-content-box .section-tag {
+  margin-left: auto;
+  margin-right: auto;
+}
+.about-content-box h2 {
+  text-align: center !important;
+}
+.about-content-box .intro-text,
+.about-content-box .intro-text.coop-prose,
+.about-content-box .coop-prose {
+  text-align: center !important;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 42rem;
+}
+.about-content-box .intro-text p,
+.about-content-box .coop-prose p {
+  text-align: center !important;
+}
+
+/* Career hero — center join-us copy + open-position stats */
+.cr-hero-inner {
+  justify-content: center !important;
+  align-items: center !important;
+  flex-direction: column !important;
+  text-align: center !important;
+  gap: 1.25rem !important;
+}
+.cr-hero-text {
+  flex: 0 1 auto !important;
+  max-width: 40rem;
+  margin: 0 auto;
+  text-align: center !important;
+}
+.cr-hero-text h2,
+.cr-hero-text p {
+  text-align: center !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+.cr-stats {
+  justify-content: center !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Admin modal keeps flex line dividers (— text —) */
 .modal-content .section-divider {
   display: flex !important;
