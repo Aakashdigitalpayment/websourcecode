@@ -200,3 +200,15 @@ function nepali_latin_digits_to_devanagari(string $s): string {
     ];
     return strtr($s, $map);
 }
+
+/** देवनागरी अंक → Latin (Member ID / mobile paste safe) */
+function nepali_devanagari_digits_to_latin(string $s): string {
+    if (function_exists('memberSsotDevanagariDigitsToLatin')) {
+        return memberSsotDevanagariDigitsToLatin($s);
+    }
+    static $map = [
+        '०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4',
+        '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
+    ];
+    return strtr($s, $map);
+}

@@ -1063,7 +1063,11 @@ try {
             }
     } else {
         // At least basic member data prefill to avoid fully blank form
-        $prefillInput['full_name'] = (string)($loggedMember['name'] ?? '');
+        $prefillInput['full_name'] = (string)($loggedMember['name_np'] ?? '');
+        if ($prefillInput['full_name'] === '') {
+            $prefillInput['full_name'] = (string)($loggedMember['name'] ?? '');
+        }
+        $prefillInput['full_name_en'] = (string)($loggedMember['name'] ?? '');
         $prefillInput['member_id'] = function_exists('memberSsotResolveSadasyata')
             ? memberSsotResolveSadasyata($loggedMember)
             : (string)($loggedMember['sadasyata_number'] ?? '');
@@ -1088,7 +1092,10 @@ try {
             try {
                 $gm = memberSsotFindBySadasyata($db, (string)$pg['member_id']);
                 if ($gm && empty($prefillInput['full_name'])) {
-                    $prefillInput['full_name'] = (string)($gm['name'] ?? '');
+                    $prefillInput['full_name'] = (string)(($gm['name_np'] ?? '') ?: ($gm['name'] ?? ''));
+                }
+                if ($gm && empty($prefillInput['full_name_en'])) {
+                    $prefillInput['full_name_en'] = (string)($gm['name'] ?? '');
                 }
                 $gkyc = $gm ? memberSsotLoadLinkedKyc($db, $gm) : null;
                 if (!$gkyc) {

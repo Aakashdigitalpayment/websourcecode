@@ -853,8 +853,13 @@ assertFileContains('includes/member-import-helpers.php', 'memberImportIsValidCon
 assertFileContains('includes/member-import-helpers.php', "foreach (['sadasyata_number', 'full_name'] as \$req)", 'import CSV requires only member_id + name');
 assertFileContains('includes/member-import-helpers.php', "phone=COALESCE(NULLIF(?, ''), phone)", 'import keeps old phone when CSV mobile empty');
 assertFileContains('admin/member-import.php', 'mobile optional', 'admin import UI marks mobile optional');
-assertFileContains('admin/member-import-sample.php', 'mobile empty OK', 'sample documents empty mobile');
-assertFileContains('includes/member-import-helpers.php', 'Updated by Member ID', 're-import replaces by Member ID');
+assertFileContains('includes/member-ssot.php', 'memberSsotDevanagariDigitsToLatin', 'Nepali digits normalize helper');
+assertFileContains('includes/member-ssot.php', 'name_np', 'SSOT knows members.name_np');
+assertFileContains('includes/member-auth.php', "'name_np'", 'ensureMemberTables adds name_np');
+assertFileContains('admin/members.php', 'name="name_np"', 'admin members edit has Nepali name field');
+assertFileContains('admin/member-import-sample.php', "'name_np'", 'sample CSV includes name_np column');
+assertFileContains('includes/member-import-helpers.php', "'name_np' => 'name_np'", 'import maps name_np column');
+assertFileContains('includes/member-import-helpers.php', 'memberSsotNormalizeMobile', 'import mobile uses SSOT digit normalize');
 assertFileContains('tracker-id-card.php', "htmlspecialchars(\$siteUrl, ENT_QUOTES, 'UTF-8')", 'tracker id-card siteUrl escaped');
 assertFileContains('admin/includes/admin-page-boot.php', 'ADMIN_PAGE_BOOT_SKIP_LOGIN', 'thin boot supports login skip for AJAX');
 

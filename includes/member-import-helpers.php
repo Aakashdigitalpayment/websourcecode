@@ -65,8 +65,12 @@ if (!function_exists('ensureMemberImportTables')) {
         // Resume parse without re-scanning earlier rows (50k safe)
         if (function_exists('safeAddColumn')) {
             safeAddColumn($pdo, 'member_import_jobs', 'parse_byte_offset', 'INT NOT NULL DEFAULT 0');
+            safeAddColumn($pdo, 'member_import_rows', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
         } else {
             try { $pdo->exec("ALTER TABLE member_import_jobs ADD COLUMN parse_byte_offset INT NOT NULL DEFAULT 0"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE members ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
         }
         // Helpful lookup index for duplicate checks
         if (function_exists('safeAddIndex')) {
@@ -120,11 +124,18 @@ if (!function_exists('memberImportNormalizeHeader')) {
             'membership_no' => 'sadasyata_number',
             'membership_number' => 'sadasyata_number',
             'coop_member_id' => 'sadasyata_number',
-            /* Name */
+            /* Name EN (CVV / Latin) */
             'name' => 'full_name',
             'full_name' => 'full_name',
+            'full_name_en' => 'full_name',
             'member_name' => 'full_name',
-            'fullname_of_member' => 'full_name',
+            'name_of_member' => 'full_name',
+            'name_en' => 'full_name',
+            /* Name NP */
+            'name_np' => 'name_np',
+            'full_name_np' => 'name_np',
+            'nepali_name' => 'name_np',
+            'name_nepali' => 'name_np',
             /* Contact */
             'phone' => 'mobile',
             'mobile' => 'mobile',
@@ -171,6 +182,12 @@ if (!function_exists('memberImportNormalizeMobile')) {
      * @return string
      */
     function memberImportNormalizeMobile(string $raw): string {
+        if (function_exists('memberSsotNormalizeMobile')) {
+            return memberSsotNormalizeMobile($raw);
+        }
+        if (function_exists('memberSsotDevanagariDigitsToLatin')) {
+            $raw = memberSsotDevanagariDigitsToLatin($raw);
+        }
         $mobile = preg_replace('/[^0-9]/', '', $raw) ?? '';
         if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
             $mobile = substr($mobile, -10);
@@ -494,8 +511,8 @@ if (!function_exists('_memberImportParseChunk')) {
 
         $ins = $pdo->prepare(
             "INSERT INTO member_import_rows
-                (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
 
         $chunk = 0;
@@ -522,6 +539,7 @@ if (!function_exists('_memberImportParseChunk')) {
             $sid = function_exists('clean_text') ? clean_text($val('sadasyata_number')) : $val('sadasyata_number');
             $sid = function_exists('memberSsotNormalizeId') ? memberSsotNormalizeId($sid) : strtoupper(trim((string)$sid));
             $name = function_exists('clean_text') ? clean_text($val('full_name')) : $val('full_name');
+            $nameNp = function_exists('clean_text') ? clean_text($val('name_np')) : $val('name_np');
             $mobile = memberImportNormalizeMobile($val('mobile'));
             $email = function_exists('clean_text') ? clean_text($val('email')) : $val('email');
             $address = function_exists('clean_text') ? clean_text($val('address')) : $val('address');
@@ -561,6 +579,7 @@ if (!function_exists('_memberImportParseChunk')) {
                 $rowNum,
                 mb_substr($sid, 0, 50),
                 mb_substr($name, 0, 255),
+                mb_substr($nameNp, 0, 255),
                 mb_substr($mobile, 0, 20),
                 mb_substr($email, 0, 255),
                 $address,
@@ -674,6 +693,7 @@ if (!function_exists('_memberImportImportChunk')) {
                 ? memberSsotNormalizeId((string)$r['sadasyata_number'])
                 : strtoupper(trim((string)$r['sadasyata_number']));
             $name = trim((string)$r['full_name']);
+            $nameNp = trim((string)($r['name_np'] ?? ''));
             $mobile = memberImportNormalizeMobile((string)$r['mobile']);
             $email = trim((string)$r['email']);
             $address = trim((string)($r['address'] ?? ''));
@@ -771,6 +791,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             "UPDATE members SET
                                 {$sidSql}
                                 name=?,
+                                name_np=COALESCE(NULLIF(?, ''), name_np),
                                 phone=COALESCE(NULLIF(?, ''), phone),
                                 email=COALESCE(NULLIF(?, ''), email),
                                 address=COALESCE(NULLIF(?, ''), address),
@@ -780,15 +801,41 @@ if (!function_exists('_memberImportImportChunk')) {
                                 is_active=1
                              WHERE id=?"
                         );
-                        $up->execute(array_merge($sidParams, [
-                            $name,
-                            $mobile,
-                            $email,
-                            $address,
-                            $dob !== '' ? $dob : null,
-                            $gender,
-                            $memberPk,
-                        ]));
+                        try {
+                            $up->execute(array_merge($sidParams, [
+                                $name,
+                                $nameNp,
+                                $mobile,
+                                $email,
+                                $address,
+                                $dob !== '' ? $dob : null,
+                                $gender,
+                                $memberPk,
+                            ]));
+                        } catch (Throwable $eNameNp) {
+                            $up = $pdo->prepare(
+                                "UPDATE members SET
+                                    {$sidSql}
+                                    name=?,
+                                    phone=COALESCE(NULLIF(?, ''), phone),
+                                    email=COALESCE(NULLIF(?, ''), email),
+                                    address=COALESCE(NULLIF(?, ''), address),
+                                    dob=COALESCE(NULLIF(?, ''), dob),
+                                    gender=COALESCE(NULLIF(?, ''), gender),
+                                    approval_status='approved',
+                                    is_active=1
+                                 WHERE id=?"
+                            );
+                            $up->execute(array_merge($sidParams, [
+                                $name,
+                                $mobile,
+                                $email,
+                                $address,
+                                $dob !== '' ? $dob : null,
+                                $gender,
+                                $memberPk,
+                            ]));
+                        }
                         $cardOk = false;
                         if (function_exists('adminGenerateMemberIdCard')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
@@ -845,14 +892,15 @@ if (!function_exists('_memberImportImportChunk')) {
                     if ($hasCardExpires) {
                         $ins = $pdo->prepare(
                             "INSERT INTO members
-                                (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                (name, name_np, email, phone, sadasyata_number, password_hash, address, dob, gender,
                                  approval_status, approved_at, approved_by, is_active, card_expires_at)
-                             VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1, DATE_ADD(NOW(), INTERVAL 5 YEAR))"
+                             VALUES (?,?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1, DATE_ADD(NOW(), INTERVAL 5 YEAR))"
                         );
                         $ins->execute([
                             $name,
+                            $nameNp,
                             $email !== '' ? $email : null,
-                            $mobile,
+                            $mobile !== '' ? $mobile : null,
                             $sid,
                             $hash,
                             $address !== '' ? $address : null,
@@ -863,14 +911,15 @@ if (!function_exists('_memberImportImportChunk')) {
                     } else {
                         $ins = $pdo->prepare(
                             "INSERT INTO members
-                                (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                (name, name_np, email, phone, sadasyata_number, password_hash, address, dob, gender,
                                  approval_status, approved_at, approved_by, is_active)
-                             VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1)"
+                             VALUES (?,?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1)"
                         );
                         $ins->execute([
                             $name,
+                            $nameNp,
                             $email !== '' ? $email : null,
-                            $mobile,
+                            $mobile !== '' ? $mobile : null,
                             $sid,
                             $hash,
                             $address !== '' ? $address : null,
@@ -888,7 +937,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             $memberPk = (int)$existing['id'];
                             $up = $pdo->prepare(
                                 "UPDATE members SET
-                                    name=?, phone=COALESCE(NULLIF(?, ''), phone),
+                                    name=?, name_np=COALESCE(NULLIF(?, ''), name_np), phone=COALESCE(NULLIF(?, ''), phone),
                                     email=COALESCE(NULLIF(?, ''), email),
                                     address=COALESCE(NULLIF(?, ''), address),
                                     dob=COALESCE(NULLIF(?, ''), dob),
@@ -896,15 +945,38 @@ if (!function_exists('_memberImportImportChunk')) {
                                     approval_status='approved', is_active=1
                                  WHERE id=?"
                             );
-                            $up->execute([
-                                $name,
-                                $mobile,
-                                $email,
-                                $address,
-                                $dob !== '' ? $dob : null,
-                                $gender,
-                                $memberPk,
-                            ]);
+                            try {
+                                $up->execute([
+                                    $name,
+                                    $nameNp,
+                                    $mobile,
+                                    $email,
+                                    $address,
+                                    $dob !== '' ? $dob : null,
+                                    $gender,
+                                    $memberPk,
+                                ]);
+                            } catch (Throwable $eRaceNp) {
+                                $up = $pdo->prepare(
+                                    "UPDATE members SET
+                                        name=?, phone=COALESCE(NULLIF(?, ''), phone),
+                                        email=COALESCE(NULLIF(?, ''), email),
+                                        address=COALESCE(NULLIF(?, ''), address),
+                                        dob=COALESCE(NULLIF(?, ''), dob),
+                                        gender=COALESCE(NULLIF(?, ''), gender),
+                                        approval_status='approved', is_active=1
+                                     WHERE id=?"
+                                );
+                                $up->execute([
+                                    $name,
+                                    $mobile,
+                                    $email,
+                                    $address,
+                                    $dob !== '' ? $dob : null,
+                                    $gender,
+                                    $memberPk,
+                                ]);
+                            }
                             $cardOk = function_exists('adminGenerateMemberIdCard')
                                 ? (bool)adminGenerateMemberIdCard($memberPk, $adminId, true)
                                 : false;
