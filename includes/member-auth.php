@@ -590,6 +590,9 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
      * (1) global $db null भइरहेको थियो जब member-auth.php पहिले load नहुँदा,
      * (2) कुनै unexpected DB exception (column missing, duplicate key race) silently fatal हुन्थ्यो।
      * अब lazy-init + try/catch ले हरेक error लाई user-readable message मा convert गर्छ। */
+    if (is_file(__DIR__ . '/member-ssot.php')) {
+        require_once __DIR__ . '/member-ssot.php';
+    }
     global $db;
     if (!$db) {
         try { $db = getDB(); } catch (\Throwable $e) {
@@ -608,8 +611,12 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
     }
 
     $email = strtolower(trim($email));
-    $phone = preg_replace('/[^0-9]/', '', $phone);
-    $sadasyataNumber = trim($sadasyataNumber);
+    $phone = function_exists('memberSsotNormalizeMobile')
+        ? memberSsotNormalizeMobile($phone)
+        : (preg_replace('/[^0-9]/', '', $phone) ?: '');
+    $sadasyataNumber = function_exists('memberSsotNormalizeId')
+        ? memberSsotNormalizeId($sadasyataNumber)
+        : strtoupper(trim($sadasyataNumber));
 
     /* Sadasyata number required (for manual registration only, not OAuth) */
     if (!$googleId && !$facebookId && empty($sadasyataNumber)) {
@@ -637,8 +644,11 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
     //     }
     // }
 
-    /* Unique sadasyata number check */
+    /* Unique sadasyata number check (Latin + legacy Devanagari digits) */
     if ($sadasyataNumber) {
+        if (function_exists('memberSsotFindBySadasyata') && memberSsotFindBySadasyata($db, $sadasyataNumber)) {
+            return ['error' => 'यो सदस्यता नम्बर पहिले नै दर्ता छ। लगिन गर्नुहोस् वा सम्पर्क गर्नुहोस्।'];
+        }
         $chk = $db->prepare("SELECT id FROM members WHERE sadasyata_number=?");
         $chk->execute([$sadasyataNumber]);
         if ($chk->fetch()) return ['error' => 'यो सदस्यता नम्बर पहिले नै दर्ता छ। लगिन गर्नुहोस् वा सम्पर्क गर्नुहोस्।'];
@@ -739,6 +749,9 @@ if (!function_exists('memberLoginEligibilityError')) {
 /* ─── Login ─── */
 function memberLogin($email, $password, bool $skipSession = false) {
     /* v2 Fix: Same lazy-init + try/catch pattern */
+    if (is_file(__DIR__ . '/member-ssot.php')) {
+        require_once __DIR__ . '/member-ssot.php';
+    }
     global $db;
     if (!$db) {
         try { $db = getDB(); } catch (\Throwable $e) {
@@ -762,9 +775,20 @@ function memberLogin($email, $password, bool $skipSession = false) {
     }
 
     try {
-        $st = $db->prepare("SELECT * FROM members WHERE (email=? OR sadasyata_number=?) AND is_active=1 LIMIT 1");
-        $st->execute([$email, $email]);
-        $m = $st->fetch(PDO::FETCH_ASSOC);
+        $loginKey = $email;
+        $sidKey = function_exists('memberSsotNormalizeId') ? memberSsotNormalizeId($email) : strtoupper(trim($email));
+        $m = null;
+        if ($sidKey !== '' && function_exists('memberSsotFindBySadasyata')) {
+            $bySid = memberSsotFindBySadasyata($db, $sidKey);
+            if ($bySid && !empty($bySid['is_active'])) {
+                $m = $bySid;
+            }
+        }
+        if (!$m) {
+            $st = $db->prepare("SELECT * FROM members WHERE (email=? OR sadasyata_number=?) AND is_active=1 LIMIT 1");
+            $st->execute([$loginKey, $sidKey !== '' ? $sidKey : $loginKey]);
+            $m = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
     } catch (\Throwable $e) {
         error_log('memberLogin SELECT failed: ' . $e->getMessage());
         return ['error' => 'Login प्रक्रियामा त्रुटि भयो। पछि प्रयास गर्नुहोस्।'];

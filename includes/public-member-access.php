@@ -167,15 +167,28 @@ function coopTryUnlockBySadasyata(string $rawId): array
             ];
         }
 
-        /* SSOT match: UPPER(TRIM(sadasyata_number)) — same as memberSsotFindBySadasyata */
+        /* SSOT match: Latin + legacy Devanagari-digit Member IDs */
+        $variants = function_exists('memberSsotIdLookupVariants')
+            ? memberSsotIdLookupVariants($sadasyata)
+            : [$sadasyata];
+        if ($variants === []) {
+            coopMemberAccessRegisterFail();
+            return [
+                'ok' => false,
+                'error' => function_exists('isEnglish') && isEnglish()
+                    ? 'Enter a valid membership number.'
+                    : 'मान्य सदस्यता नम्बर लेख्नुहोस्।',
+            ];
+        }
+        $ph = implode(',', array_fill(0, count($variants), '?'));
         $st = $db->prepare(
             "SELECT id FROM members
-             WHERE UPPER(TRIM(sadasyata_number)) = ?
+             WHERE (UPPER(TRIM(sadasyata_number)) IN ({$ph}) OR TRIM(sadasyata_number) IN ({$ph}))
                AND is_active = 1
                AND approval_status = 'approved'
              LIMIT 1"
         );
-        $st->execute([$sadasyata]);
+        $st->execute(array_merge($variants, $variants));
         $row = $st->fetch(PDO::FETCH_ASSOC);
         if (!$row) {
             coopMemberAccessRegisterFail();

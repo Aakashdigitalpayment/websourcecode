@@ -115,9 +115,10 @@ assertFileContains('institutional-profile-file.php', 'Access denied.', 'IP proxy
 assertFileContains('institutional-profile-file.php', 'Access configuration unavailable', 'IP proxy fail-closed without access_level');
 assertFileContains('assets/uploads/reports/.htaccess', 'Require all denied', 'reports uploads deny direct HTTP');
 assertFileContains('assets/uploads/institutional_profile/.htaccess', 'Require all denied', 'IP uploads deny direct HTTP');
-assertFileContains('includes/public-member-access.php', 'COOP_PMA_MAX_FAILS', 'member unlock rate limit');
-assertFileContains('includes/public-member-access.php', 'UPPER(TRIM(sadasyata_number))', 'unlock uses SSOT normalize match');
-assertFileContains('includes/public-member-access.php', 'coopMemberAccessSafeReturnPath', 'unlock return path allowlist');
+assertFileContains('includes/member-ssot.php', 'memberSsotIdLookupVariants', 'Member ID Latin+Devanagari lookup variants');
+assertFileContains('includes/public-member-access.php', 'memberSsotIdLookupVariants', 'unlock matches legacy Devanagari Member IDs');
+assertFileContains('includes/member-auth.php', 'memberSsotNormalizeId', 'register/login normalize Member ID');
+assertFileContains('admin/kyc-applications.php', 'memberSsotNormalizeId', 'admin KYM status saves normalized Member ID');
 assertFileContains('includes/public-member-access.php', 'coopMemberAccessWantsAjax', 'AJAX unlock detection');
 assertFileContains('includes/public-member-access.php', 'coop_pma_ajax', 'AJAX unlock flag');
 assertFileContains('includes/public-member-access.php', 'data-coop-pma-ajax', 'unlock form marks AJAX');

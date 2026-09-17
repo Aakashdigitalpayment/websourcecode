@@ -154,26 +154,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
         $address = trim($_POST['address'] ?? '');
         $gender  = trim($_POST['gender']  ?? '');
         $dob     = trim($_POST['dob']     ?? '');
-        if ($nameNp === '' && $name !== '') {
-            $nameNp = $name; /* legacy single-field posts */
-        }
-        if ($name === '' && $nameNp !== '') {
-            $name = $nameNp;
-        }
+        /* Do not copy English into Nepali — legacy single-field only updates EN */
 
         if ($name === '' && $nameNp === '') $error = 'नाम राख्नुहोस्।';
         else {
             if ($kycRow && in_array((string)($kycRow['status'] ?? ''), ['pending','incomplete','partial'], true)) {
+                $kycNpWrite = $nameNp !== '' ? $nameNp : trim((string)($kycRow['full_name'] ?? ''));
+                $kycEnWrite = $name !== '' ? $name : trim((string)($kycRow['full_name_en'] ?? ''));
                 try {
                     $db->prepare("UPDATE kyc_applications
                                   SET full_name=?, full_name_en=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
                                   WHERE id=?")
-                       ->execute([$nameNp !== '' ? $nameNp : $name, $name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
+                       ->execute([$kycNpWrite !== '' ? $kycNpWrite : $kycEnWrite, $kycEnWrite, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
                 } catch (Throwable $eProfEn) {
                     $db->prepare("UPDATE kyc_applications
                                   SET full_name=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
                                   WHERE id=?")
-                       ->execute([$nameNp !== '' ? $nameNp : $name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
+                       ->execute([$kycNpWrite !== '' ? $kycNpWrite : ($name !== '' ? $name : $nameNp), $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
                 }
                 if (function_exists('memberSsotAfterKycWrite')) {
                     memberSsotAfterKycWrite($db, (int)$kycRow['id']);
@@ -182,17 +179,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
                 $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
                 $mem = currentMember();
             } elseif (!$kycRow) {
+                $memName = $name !== '' ? $name : trim((string)($mem['name'] ?? ''));
                 try {
-                    $db->prepare("UPDATE members SET name=?, name_np=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
-                       ->execute([$name, $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                    $db->prepare("UPDATE members SET name=?, name_np=COALESCE(NULLIF(?, ''), name_np), phone=?, address=?, gender=?, dob=? WHERE id=?")
+                       ->execute([$memName !== '' ? $memName : $nameNp, $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
                 } catch (Throwable $eMemNp) {
                     $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
-                       ->execute([$name !== '' ? $name : $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                       ->execute([$memName !== '' ? $memName : $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
                 }
                 if (function_exists('memberSsotAfterMemberWrite')) {
                     memberSsotAfterMemberWrite($db, $memberId);
                 }
-                $_SESSION['member_name'] = $name !== '' ? $name : $nameNp;
+                $_SESSION['member_name'] = $memName !== '' ? $memName : $nameNp;
                 $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
                 $mem = currentMember();
             } else {
