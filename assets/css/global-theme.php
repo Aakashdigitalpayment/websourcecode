@@ -1599,8 +1599,11 @@ body.dark-mode .hero-section                    {
     color: var(--text-on-primary) !important;
 }
 .contact-info-box .contact-icon,
-.contact-info-box .contact-icon i              {
-    color: var(--text-on-primary) !important;
+.contact-info-box .contact-icon i,
+.contact-info-box .contact-icon .lucide-icon,
+.contact-info-box .contact-icon svg {
+    color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
+    stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;
 }
 
 /* ── Z14. SECTION TOOLS / CATEGORY CARDS ────────────────────── */

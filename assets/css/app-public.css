@@ -10734,12 +10734,12 @@ input[readonly].nepali-datepicker:hover,
     text-decoration: none;
 }
 .contact-details p a:hover {
-    color: #fef3c7;
+    color: color-mix(in srgb, var(--secondary-color, #f4b400) 72%, #fff);
     text-decoration: underline;
 }
 
 .contact-icon i {
-    color: #fde68a;
+    color: var(--secondary-color, var(--accent-color, #f4b400));
 }
 
 /* Contact box भित्रको value text black नदेखियोस् — force readable white */

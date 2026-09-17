@@ -1285,14 +1285,15 @@ body.dark-mode .text-primary {
 .contact-info-box .contact-icon {
   background: rgba(255, 255, 255, 0.15) !important;
 }
+.contact-info-box .contact-icon,
 .contact-info-box .contact-icon i {
-  color: #fde68a !important;
-  -webkit-text-fill-color: #fde68a !important;
+  color: var(--secondary-color, var(--accent-color, #f39c12)) !important;
+  -webkit-text-fill-color: var(--secondary-color, var(--accent-color, #f39c12)) !important;
 }
 .contact-info-box .contact-details p a:hover,
 .contact-info-box .ct-link-dark:hover {
-  color: #fef3c7 !important;
-  -webkit-text-fill-color: #fef3c7 !important;
+  color: color-mix(in srgb, var(--secondary-color, #f39c12) 55%, #fff) !important;
+  -webkit-text-fill-color: color-mix(in srgb, var(--secondary-color, #f39c12) 55%, #fff) !important;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1732,12 +1733,12 @@ body.dark-mode .text-primary {
   font-size: 2.1rem !important;
 }
 
-/* Contact green panel icons — Lucide-safe */
+/* Contact green panel icons — brand secondary (Admin theme), Lucide-safe */
 .contact-info-box .contact-icon svg,
 .contact-info-box .contact-icon .lucide-icon {
-  color: #fde68a !important;
-  -webkit-text-fill-color: #fde68a !important;
-  stroke: #fde68a !important;
+  color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
+  -webkit-text-fill-color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
+  stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;
   fill: none !important;
   opacity: 1 !important;
   width: 1.35rem !important;

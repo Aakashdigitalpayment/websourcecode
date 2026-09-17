@@ -598,6 +598,15 @@ assertContains('online-kyc.php', 'assets/css/kyc-capture.css', 'online-kyc loads
 assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.11', 'online-kyc capture js version');
 assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.11', 'member profile capture js synced');
 
+// Contact panel icons follow Admin brand secondary (not hardcoded yellow)
+assertContains('assets/css/public-shell-polish.css', 'Contact green panel icons — brand secondary (Admin theme)', 'contact Lucide icons documented as brand secondary');
+assertContains('assets/css/public-shell-polish.css', 'stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;', 'contact Lucide stroke uses --secondary-color');
+assertContains('assets/css/public-late-bundle.css', 'stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;', 'public late embeds contact brand secondary stroke');
+assertContains('assets/css/global-theme.php', '.contact-info-box .contact-icon .lucide-icon', 'global-theme contact Lucide uses secondary');
+assertContains('assets/css/app-public.css', 'color: var(--secondary-color, var(--accent-color, #f4b400));', 'app-public contact-icon i uses secondary');
+assertNotContains('assets/css/public-shell-polish.css', 'color: #fde68a !important;', 'contact shell no hardcoded pale yellow');
+assertNotContains('assets/css/app-public.css', '.contact-icon i {\n    color: #fde68a;', 'app-public contact-icon no hardcoded yellow');
+
 // KYC soft polish markers
 assertContains('online-kyc.php', 'id="kymWizardNav"', 'wizard nav id');
 assertContains('online-kyc.php', 'aria-label="<?php echo isEnglish() ? \'KYM sections\'', 'wizard nav aria-label');
