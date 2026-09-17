@@ -56,7 +56,7 @@ if ($ajaxAction !== '') {
 
     if ($ajaxAction === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json; charset=UTF-8');
-        $mode = (($_POST['mode'] ?? '') === 'update') ? 'update' : 'skip';
+        $mode = (($_POST['mode'] ?? 'update') === 'skip') ? 'skip' : 'update';
         echo json_encode(memberImportCreateJob($pdo, $_FILES['csv_file'] ?? [], $adminId, $mode));
         exit;
     }
@@ -126,9 +126,9 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     <div>
         <h1 class="h4 mb-1"><?php echo htmlspecialchars($pageTitle); ?></h1>
         <p class="text-muted small mb-0">
-            पुराना सदस्यको <strong>CBS Excel → Members Import एक पटक</strong>।
-            स्वतः <strong>KYM stub</strong> बन्छ (नाम/मोबाइल…) — बाँकी फारम/कागजात member ले <strong>online वा portal</strong> बाट भर्छ।
-            CSV → <strong>UTF-8</strong>।
+            CBS Excel/CSV बाट Members मा <strong>Member ID (SSOT)</strong> अनुसार import।
+            उही Member ID फेरि आउँदा <strong>पुरानो data replace</strong> (खाली optional field जोगिन्छ)।
+            CSV → <strong>UTF-8</strong> · ~40MB / 50k+ rows सम्म chunked।
         </p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
@@ -149,14 +149,16 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <h2 class="h6 fw-bold mb-3"><i class="lucide-icon me-2 text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i>CSV Upload</h2>
 
                 <div class="alert alert-info small py-2">
-                    <strong>Required columns:</strong>
-                    <code>sadasyata_number</code>, <code>full_name</code>, <code>mobile</code><br>
-                    Optional: <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
-                    <code>gender</code>, <code>branch</code>, <code>remarks</code>
+                    <strong>अनिवार्य (compulsory):</strong>
+                    <code>member_id</code>, <code>full_name</code>, <code>mobile</code>
+                    <span class="text-muted">(alias: <code>sadasyata_number</code>, <code>name</code>, <code>phone</code>/<code>contact</code>)</span><br>
+                    <strong>Optional</strong> (खाली = OK / re-import मा पुरानो जोगिन्छ):
+                    <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
+                    <code>gender</code>
                     <div class="mt-1"><strong>full_name = English नाम</strong> (जस्तै <code>Ram Prasad Sharma</code>) —
-                        CVV नामको पहिलो ३ अक्षरबाट बन्छ; नेपाली नामले CVV बिग्रन्छ / टाइप गर्न गाह्रो हुन्छ।</div>
-                    <div class="mt-1">Import पछि KYM stub स्वतः बन्छ / खाली field soft-fill — पहिले भरिएको KYM overwrite हुँदैन।
-                        बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
+                        CVV नामको पहिलो ३ अक्षरबाट बन्छ।</div>
+                    <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम/मोबाइल replace; खाली email/address/dob/gender ले पुरानो मेटाउँदैन।
+                        KYM stub/shared soft-sync। बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>
                 </div>
@@ -164,18 +166,18 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <form id="miUploadForm" enctype="multipart/form-data" class="mb-3">
                     <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
                     <div class="mb-3">
-                        <label for="miFile" class="form-label small fw-semibold">CSV फाइल</label>
+                        <label for="miFile" class="form-label small fw-semibold">CSV फाइल (Excel → Save As → CSV UTF-8)</label>
                         <input type="file" name="csv_file" id="miFile" class="form-control" accept=".csv,text/csv" required>
                     </div>
                     <div class="mb-3">
-                        <label for="miModeSkip" class="form-label small fw-semibold">Duplicate भएमा</label>
+                        <label class="form-label small fw-semibold">उही Member ID भएमा</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="mode" id="miModeSkip" value="skip" checked>
-                            <label class="form-check-label" for="miModeSkip">Skip (सिफारिस) — नयाँ नबनाउने</label>
+                            <input class="form-check-input" type="radio" name="mode" id="miModeUpdate" value="update" checked>
+                            <label class="form-check-label" for="miModeUpdate"><strong>Update / Replace</strong> (सिफारिस) — compulsory replace, खाली optional जोगिने</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="mode" id="miModeUpdate" value="update">
-                            <label class="form-check-label" for="miModeUpdate">Update — नाम/ठेगाना आदि refresh + card ensure</label>
+                            <input class="form-check-input" type="radio" name="mode" id="miModeSkip" value="skip">
+                            <label class="form-check-label" for="miModeSkip">Skip — पहिले नै भएको Member ID छोडी नयाँ मात्र</label>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success" id="miStartBtn">
@@ -219,11 +221,11 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
             <div class="card-body">
                 <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
-                    <li>Sample CSV download गर्नुहोस्।</li>
-                    <li>Excel मा खोल्नुहोस् → सदस्य भर्नुहोस्।</li>
+                    <li>Sample CSV download → Excel मा खोल्नुहोस्।</li>
+                    <li><strong>member_id + full_name + mobile</strong> अनिवार्य; अरू खाली छोड्न मिल्छ।</li>
                     <li><strong>File → Save As → CSV UTF-8</strong>।</li>
-                    <li>यहाँ upload → Skip/Update छान्नुहोस् → Start।</li>
-                    <li>Progress आफैं चल्छ (ठूलो फाइलमा धेरै chunk)।</li>
+                    <li>Upload → Update/Replace (default) → Start।</li>
+                    <li>उही Member ID फेरि आउँदा पुरानो members row update हुन्छ।</li>
                 </ol>
             </div>
         </div>

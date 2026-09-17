@@ -27,7 +27,7 @@ if (!function_exists('ensureMemberImportTables')) {
             filename        VARCHAR(255) NOT NULL DEFAULT '',
             stored_path     VARCHAR(500) NOT NULL DEFAULT '',
             status          VARCHAR(20) NOT NULL DEFAULT 'uploaded',
-            mode            VARCHAR(10) NOT NULL DEFAULT 'skip',
+            mode            VARCHAR(10) NOT NULL DEFAULT 'update',
             total_rows      INT NOT NULL DEFAULT 0,
             parsed_rows     INT NOT NULL DEFAULT 0,
             ok_count        INT NOT NULL DEFAULT 0,
@@ -109,20 +109,84 @@ if (!function_exists('memberImportNormalizeHeader')) {
         $h = strtolower(trim($h));
         $h = preg_replace('/^\xEF\xBB\xBF/', '', $h) ?? $h;
         $aliases = [
+            /* Member ID SSOT — all map to sadasyata_number */
             'member_id' => 'sadasyata_number',
             'memberid' => 'sadasyata_number',
+            'member id' => 'sadasyata_number',
+            'सदस्यता_नं' => 'sadasyata_number',
             'sadasyata' => 'sadasyata_number',
             'sadasyata_no' => 'sadasyata_number',
+            'sadasyata_number' => 'sadasyata_number',
             'membership_no' => 'sadasyata_number',
+            'membership_number' => 'sadasyata_number',
+            'coop_member_id' => 'sadasyata_number',
+            /* Name */
             'name' => 'full_name',
+            'full_name' => 'full_name',
             'member_name' => 'full_name',
+            'fullname_of_member' => 'full_name',
+            /* Contact */
             'phone' => 'mobile',
+            'mobile' => 'mobile',
             'mobile_no' => 'mobile',
+            'contact' => 'mobile',
+            'contact_number' => 'mobile',
+            'contact_no' => 'mobile',
+            /* Optional */
+            'e_mail' => 'email',
             'permanent_address' => 'address',
+            'addr' => 'address',
             'dob_ad' => 'dob',
             'date_of_birth' => 'dob',
+            'birth_date' => 'dob',
+            'sex' => 'gender',
         ];
         return $aliases[$h] ?? $h;
+    }
+}
+
+if (!function_exists('memberImportNormalizeGender')) {
+    /** @return string normalized gender or '' */
+    function memberImportNormalizeGender(string $raw): string {
+        $g = strtolower(trim($raw));
+        if ($g === '') {
+            return '';
+        }
+        if (in_array($g, ['m', 'male', 'पुरुष', 'boy'], true)) {
+            return 'male';
+        }
+        if (in_array($g, ['f', 'female', 'महिला', 'girl'], true)) {
+            return 'female';
+        }
+        if (in_array($g, ['o', 'other', 'अन्य'], true)) {
+            return 'other';
+        }
+        return mb_substr(preg_replace('/[^a-z]/', '', $g) ?? '', 0, 20);
+    }
+}
+
+if (!function_exists('memberImportNormalizeMobile')) {
+    /**
+     * Digits only; strip leading 977 → last 10 when longer.
+     * @return string
+     */
+    function memberImportNormalizeMobile(string $raw): string {
+        $mobile = preg_replace('/[^0-9]/', '', $raw) ?? '';
+        if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
+            $mobile = substr($mobile, -10);
+        }
+        return $mobile;
+    }
+}
+
+if (!function_exists('memberImportIsValidContact')) {
+    /** Compulsory contact: at least 7 digits; Nepali mobiles typically 10 starting with 9. */
+    function memberImportIsValidContact(string $mobile): bool {
+        $len = strlen($mobile);
+        if ($len < 7 || $len > 15) {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -154,9 +218,9 @@ if (!function_exists('memberImportCreateJob')) {
     /**
      * @return array{ok:bool,job_id?:int,error?:string}
      */
-    function memberImportCreateJob(PDO $pdo, array $file, int $adminId, string $mode = 'skip'): array {
+    function memberImportCreateJob(PDO $pdo, array $file, int $adminId, string $mode = 'update'): array {
         ensureMemberImportTables($pdo);
-        $mode = ($mode === 'update') ? 'update' : 'skip';
+        $mode = ($mode === 'skip') ? 'skip' : 'update';
 
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             return ['ok' => false, 'error' => 'CSV file upload असफल भयो।'];
@@ -418,8 +482,9 @@ if (!function_exists('_memberImportParseChunk')) {
             foreach (['sadasyata_number', 'full_name', 'mobile'] as $req) {
                 if (!isset($idx[$req])) {
                     fclose($fh);
+                    $label = $req === 'sadasyata_number' ? 'member_id (वा sadasyata_number)' : $req;
                     $pdo->prepare("UPDATE member_import_jobs SET status='failed', error_message=? WHERE id=?")
-                        ->execute(["CSV header मा '{$req}' अनिवार्य छ। Sample file प्रयोग गर्नुहोस्।", $jobId]);
+                        ->execute(["CSV header मा '{$label}' अनिवार्य छ। Sample file प्रयोग गर्नुहोस्।", $jobId]);
                     return ['finished' => true, 'tick' => 'parse'];
                 }
             }
@@ -457,25 +522,23 @@ if (!function_exists('_memberImportParseChunk')) {
             $sid = function_exists('clean_text') ? clean_text($val('sadasyata_number')) : $val('sadasyata_number');
             $sid = function_exists('memberSsotNormalizeId') ? memberSsotNormalizeId($sid) : strtoupper(trim((string)$sid));
             $name = function_exists('clean_text') ? clean_text($val('full_name')) : $val('full_name');
-            $mobile = preg_replace('/[^0-9]/', '', $val('mobile')) ?? '';
-            // Nepal mobiles often stored with 977 prefix — normalize to last 10 digits when longer
-            if (strlen($mobile) > 10 && strpos($mobile, '977') === 0) {
-                $mobile = substr($mobile, -10);
-            }
+            $mobile = memberImportNormalizeMobile($val('mobile'));
             $email = function_exists('clean_text') ? clean_text($val('email')) : $val('email');
             $address = function_exists('clean_text') ? clean_text($val('address')) : $val('address');
             $dobRaw = trim($val('dob'));
             $dobNorm = memberImportNormalizeDob($dobRaw);
-            $gender = function_exists('clean_text') ? clean_text($val('gender')) : $val('gender');
+            $gender = memberImportNormalizeGender(
+                function_exists('clean_text') ? clean_text($val('gender')) : $val('gender')
+            );
             $branch = function_exists('clean_text') ? clean_text($val('branch')) : $val('branch');
             $remarks = function_exists('clean_text') ? clean_text($val('remarks')) : $val('remarks');
 
             $status = 'queued';
             $message = '';
             $dob = '';
-            if ($sid === '' || $name === '' || strlen($mobile) < 7) {
+            if ($sid === '' || $name === '' || !memberImportIsValidContact($mobile)) {
                 $status = 'failed';
-                $message = 'sadasyata_number, full_name र valid mobile अनिवार्य।';
+                $message = 'member_id, full_name र contact (mobile) अनिवार्य — खाली/अमान्य छ।';
                 $failAdd++;
             } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $status = 'failed';
@@ -483,7 +546,7 @@ if (!function_exists('_memberImportParseChunk')) {
                 $failAdd++;
             } elseif ($dobNorm === false) {
                 $status = 'failed';
-                $message = 'dob AD format गलत (YYYY-MM-DD वा DD/MM/YYYY)।';
+                $message = 'dob AD format गलत (YYYY-MM-DD वा DD/MM/YYYY)। खाली छोड्न मिल्छ।';
                 $failAdd++;
             } else {
                 $dob = (string)$dobNorm;
@@ -541,7 +604,7 @@ if (!function_exists('_memberImportImportChunk')) {
         $db = $pdo;
 
         $jobId = (int)$job['id'];
-        $mode = ((string)($job['mode'] ?? 'skip') === 'update') ? 'update' : 'skip';
+        $mode = ((string)($job['mode'] ?? 'update') === 'skip') ? 'skip' : 'update';
         $adminId = (int)($job['admin_id'] ?? 0);
 
         // Requeue rows stuck in processing from a killed request
@@ -607,18 +670,20 @@ if (!function_exists('_memberImportImportChunk')) {
                 ? memberSsotNormalizeId((string)$r['sadasyata_number'])
                 : strtoupper(trim((string)$r['sadasyata_number']));
             $name = trim((string)$r['full_name']);
-            $mobile = trim((string)$r['mobile']);
-            if (strlen($mobile) > 10 && strpos($mobile, '977') === 0) {
-                $mobile = substr($mobile, -10);
-            }
+            $mobile = memberImportNormalizeMobile((string)$r['mobile']);
             $email = trim((string)$r['email']);
             $address = trim((string)($r['address'] ?? ''));
             $dob = trim((string)$r['dob']);
-            $gender = trim((string)$r['gender']);
+            $gender = memberImportNormalizeGender(trim((string)$r['gender']));
 
             try {
-                if ($sid === '') {
-                    $mark->execute(['failed', 'सदस्यता नं. (Member ID) खाली छ — SSOT मा अनिवार्य।', null, $rowId]);
+                if ($sid === '' || $name === '' || !memberImportIsValidContact($mobile)) {
+                    $mark->execute([
+                        'failed',
+                        'member_id, full_name र contact (mobile) अनिवार्य।',
+                        null,
+                        $rowId,
+                    ]);
                     $failAdd++;
                     continue;
                 }
@@ -638,7 +703,7 @@ if (!function_exists('_memberImportImportChunk')) {
                         if ($otherSid !== '' && $otherSid !== $sid) {
                             $mark->execute([
                                 'failed',
-                                'यो mobile अर्को सदस्यता नं. (' . $otherSid . ') सँग जोडिएको छ।',
+                                'यो mobile अर्को Member ID (' . $otherSid . ') सँग जोडिएको छ।',
                                 (int)$byPhone['id'],
                                 $rowId,
                             ]);
@@ -687,6 +752,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             $failAdd++;
                             continue;
                         }
+                        /* Required fields always replace; optional empty = keep old */
                         $up = $pdo->prepare(
                             "UPDATE members SET
                                 {$sidSql}
@@ -713,7 +779,9 @@ if (!function_exists('_memberImportImportChunk')) {
                         if (function_exists('adminGenerateMemberIdCard')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                         }
-                        if ($cardOk) $cardsAdd++;
+                        if ($cardOk) {
+                            $cardsAdd++;
+                        }
                         $kymMsg = '';
                         if (function_exists('memberSsotEnsureKycStubFromMember')) {
                             $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk);
@@ -721,13 +789,12 @@ if (!function_exists('_memberImportImportChunk')) {
                                 $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
                             }
                         }
-                        /* Import update = intentional correction — overwrite KYM shared fields like admin edit */
                         if (function_exists('memberSsotSyncKycFromMember')) {
                             memberSsotSyncKycFromMember($pdo, $memberPk);
                         }
                         $mark->execute([
                             'ok',
-                            'Updated existing member'
+                            'Updated by Member ID (पुरानो data replace; खाली optional जोगियो)'
                                 . ($sidParams ? ' + Member ID filled' : '')
                                 . ($cardOk ? ' + card' : '')
                                 . $kymMsg,
@@ -736,7 +803,12 @@ if (!function_exists('_memberImportImportChunk')) {
                         ]);
                         $okAdd++;
                     } else {
-                        $mark->execute(['skipped', 'Duplicate (Member ID/mobile पहिले नै छ) — Update mode प्रयोग गर्नुहोस्।', $memberPk, $rowId]);
+                        $mark->execute([
+                            'skipped',
+                            'Duplicate Member ID — Skip mode। Update mode मा re-import गर्नुहोस्।',
+                            $memberPk,
+                            $rowId,
+                        ]);
                         $skipAdd++;
                     }
                     continue;
@@ -754,42 +826,93 @@ if (!function_exists('_memberImportImportChunk')) {
                 $tempPass = memberImportTempPassword($mobile, $sid);
                 $hash = password_hash($tempPass, PASSWORD_BCRYPT);
 
-                if ($hasCardExpires) {
-                    $ins = $pdo->prepare(
-                        "INSERT INTO members
-                            (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
-                             approval_status, approved_at, approved_by, is_active, card_expires_at)
-                         VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1, DATE_ADD(NOW(), INTERVAL 5 YEAR))"
-                    );
-                    $ins->execute([
-                        $name,
-                        $email !== '' ? $email : null,
-                        $mobile,
-                        $sid,
-                        $hash,
-                        $address !== '' ? $address : null,
-                        $dob !== '' ? $dob : null,
-                        $gender !== '' ? $gender : null,
-                        $adminId > 0 ? $adminId : null,
-                    ]);
-                } else {
-                    $ins = $pdo->prepare(
-                        "INSERT INTO members
-                            (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
-                             approval_status, approved_at, approved_by, is_active)
-                         VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1)"
-                    );
-                    $ins->execute([
-                        $name,
-                        $email !== '' ? $email : null,
-                        $mobile,
-                        $sid,
-                        $hash,
-                        $address !== '' ? $address : null,
-                        $dob !== '' ? $dob : null,
-                        $gender !== '' ? $gender : null,
-                        $adminId > 0 ? $adminId : null,
-                    ]);
+                try {
+                    if ($hasCardExpires) {
+                        $ins = $pdo->prepare(
+                            "INSERT INTO members
+                                (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                 approval_status, approved_at, approved_by, is_active, card_expires_at)
+                             VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1, DATE_ADD(NOW(), INTERVAL 5 YEAR))"
+                        );
+                        $ins->execute([
+                            $name,
+                            $email !== '' ? $email : null,
+                            $mobile,
+                            $sid,
+                            $hash,
+                            $address !== '' ? $address : null,
+                            $dob !== '' ? $dob : null,
+                            $gender !== '' ? $gender : null,
+                            $adminId > 0 ? $adminId : null,
+                        ]);
+                    } else {
+                        $ins = $pdo->prepare(
+                            "INSERT INTO members
+                                (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                 approval_status, approved_at, approved_by, is_active)
+                             VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1)"
+                        );
+                        $ins->execute([
+                            $name,
+                            $email !== '' ? $email : null,
+                            $mobile,
+                            $sid,
+                            $hash,
+                            $address !== '' ? $address : null,
+                            $dob !== '' ? $dob : null,
+                            $gender !== '' ? $gender : null,
+                            $adminId > 0 ? $adminId : null,
+                        ]);
+                    }
+                } catch (Throwable $insEx) {
+                    /* Race / unique: same Member ID appeared — upsert when update mode */
+                    if ($mode === 'update' && stripos($insEx->getMessage(), 'Duplicate') !== false) {
+                        $findBySid->execute([$sid]);
+                        $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
+                        if ($existing) {
+                            $memberPk = (int)$existing['id'];
+                            $up = $pdo->prepare(
+                                "UPDATE members SET
+                                    name=?, phone=?,
+                                    email=COALESCE(NULLIF(?, ''), email),
+                                    address=COALESCE(NULLIF(?, ''), address),
+                                    dob=COALESCE(NULLIF(?, ''), dob),
+                                    gender=COALESCE(NULLIF(?, ''), gender),
+                                    approval_status='approved', is_active=1
+                                 WHERE id=?"
+                            );
+                            $up->execute([
+                                $name,
+                                $mobile,
+                                $email,
+                                $address,
+                                $dob !== '' ? $dob : null,
+                                $gender,
+                                $memberPk,
+                            ]);
+                            $cardOk = function_exists('adminGenerateMemberIdCard')
+                                ? (bool)adminGenerateMemberIdCard($memberPk, $adminId, true)
+                                : false;
+                            if ($cardOk) {
+                                $cardsAdd++;
+                            }
+                            if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                                memberSsotEnsureKycStubFromMember($pdo, $memberPk);
+                            }
+                            if (function_exists('memberSsotSyncKycFromMember')) {
+                                memberSsotSyncKycFromMember($pdo, $memberPk);
+                            }
+                            $mark->execute([
+                                'ok',
+                                'Updated by Member ID (duplicate key → replace)',
+                                $memberPk,
+                                $rowId,
+                            ]);
+                            $okAdd++;
+                            continue;
+                        }
+                    }
+                    throw $insEx;
                 }
 
                 $memberPk = (int)$pdo->lastInsertId();
@@ -797,7 +920,9 @@ if (!function_exists('_memberImportImportChunk')) {
                 if ($memberPk > 0 && function_exists('adminGenerateMemberIdCard')) {
                     $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                 }
-                if ($cardOk) $cardsAdd++;
+                if ($cardOk) {
+                    $cardsAdd++;
+                }
 
                 $kymMsg = '';
                 if ($memberPk > 0 && function_exists('memberSsotEnsureKycStubFromMember')) {
@@ -831,7 +956,7 @@ if (!function_exists('_memberImportImportChunk')) {
             } catch (Throwable $e) {
                 $msg = $e->getMessage();
                 if (stripos($msg, 'Duplicate') !== false) {
-                    $mark->execute(['skipped', 'Duplicate key', null, $rowId]);
+                    $mark->execute(['skipped', 'Duplicate key — Update mode मा फेरि import गर्नुहोस्।', null, $rowId]);
                     $skipAdd++;
                 } else {
                     $mark->execute(['failed', mb_substr($msg, 0, 400), null, $rowId]);

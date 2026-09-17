@@ -1333,9 +1333,9 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
     {
         $title = 'एक Member ID = एक मान्छे (SSOT)';
         $flow = '<strong>SSOT = Member ID मात्र।</strong> '
-            . 'Shared (नाम/मोबाइल/इमेल/ठेगान) = <em>एक पटक भर्ने</em> — Members↔KYM auto soft-sync। '
+            . 'Shared (नाम/मोबाइल/इमेल/ठेगान) = Members↔KYM auto soft-sync। '
             . 'KYM-only = कागजात/AML/पूरा फारम · Members-only = पोर्टल पासवर्ड। '
-            . 'CBS Import एक पटक → stub → online/portal भर्ने।';
+            . 'CBS Import = Member ID अनुसार upsert (पुनः import → replace)।';
         $body = $flow;
         if ($context === 'kyc') {
             $body = '<strong>सच्याउने ठाउँ = KYM पृष्ठ</strong> — दायाँतर्फ <em>KYM विवरण सम्पादन</em> (tab: व्यक्तिगत/परिवार/ठेगाना/पहिचान/पेशा)। '
@@ -1347,7 +1347,8 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
                 . 'Members ↔ KYM <em>auto sync</em> — admin, portal, online जहाँ बाट save गरे पनि। '
                 . 'Import correction → Member सम्पादन · कागजात/AML → <a href="kyc-applications.php">KYM</a>। Member ID परिवर्तन हुँदैन।';
         } elseif ($context === 'import') {
-            $body = 'CBS Excel <strong>एक पटक</strong> Members मा। Shared field KYM stub मा auto copy — दोहोरो Excel नहाल्नुहोस्। बाँकी online/portal।';
+            $body = 'CBS CSV: <code>member_id</code> + नाम + मोबाइल अनिवार्य। उही Member ID फेरि import → '
+                . '<strong>पुरानो members data replace</strong> (खाली optional जोगिन्छ)। KYM stub/shared sync। बाँकी online/portal।';
         } elseif ($context === 'membership') {
             $body = 'नयाँ व्यक्ति → Member ID दिनुहोस् → members stub (+ पछि KYM)। अनि Online KYM / portal।';
         }
