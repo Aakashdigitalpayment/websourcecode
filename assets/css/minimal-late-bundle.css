@@ -1287,13 +1287,13 @@ body.dark-mode .text-primary {
 }
 .contact-info-box .contact-icon,
 .contact-info-box .contact-icon i {
-  color: var(--secondary-color, var(--accent-color, #f39c12)) !important;
-  -webkit-text-fill-color: var(--secondary-color, var(--accent-color, #f39c12)) !important;
+  color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
+  -webkit-text-fill-color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
 }
 .contact-info-box .contact-details p a:hover,
 .contact-info-box .ct-link-dark:hover {
-  color: color-mix(in srgb, var(--secondary-color, #f39c12) 55%, #fff) !important;
-  -webkit-text-fill-color: color-mix(in srgb, var(--secondary-color, #f39c12) 55%, #fff) !important;
+  color: color-mix(in srgb, var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) 72%, #fff) !important;
+  -webkit-text-fill-color: color-mix(in srgb, var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) 72%, #fff) !important;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1733,12 +1733,12 @@ body.dark-mode .text-primary {
   font-size: 2.1rem !important;
 }
 
-/* Contact green panel icons — brand secondary (Admin theme), Lucide-safe */
+/* Contact green panel icons — brand secondary (WCAG on primary), Lucide-safe */
 .contact-info-box .contact-icon svg,
 .contact-info-box .contact-icon .lucide-icon {
-  color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
-  -webkit-text-fill-color: var(--secondary-color, var(--accent-color, #f4b400)) !important;
-  stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;
+  color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
+  -webkit-text-fill-color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
+  stroke: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;
   fill: none !important;
   opacity: 1 !important;
   width: 1.35rem !important;

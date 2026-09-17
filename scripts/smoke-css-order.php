@@ -599,11 +599,13 @@ assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.11', 'online-kyc
 assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.11', 'member profile capture js synced');
 
 // Contact panel icons follow Admin brand secondary (not hardcoded yellow)
-assertContains('assets/css/public-shell-polish.css', 'Contact green panel icons — brand secondary (Admin theme)', 'contact Lucide icons documented as brand secondary');
-assertContains('assets/css/public-shell-polish.css', 'stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;', 'contact Lucide stroke uses --secondary-color');
-assertContains('assets/css/public-late-bundle.css', 'stroke: var(--secondary-color, var(--accent-color, #f4b400)) !important;', 'public late embeds contact brand secondary stroke');
+assertContains('assets/css/global-theme.php', '--contact-icon-on-primary:', 'contact icon WCAG token from secondary');
+assertContains('assets/css/global-theme.php', '$_contactIconOnPrimary = $__lightenForContrast', 'contact icon lightens secondary for primary panel');
+assertContains('assets/css/public-shell-polish.css', 'Contact green panel icons — brand secondary (WCAG on primary)', 'contact Lucide icons documented as brand secondary');
+assertContains('assets/css/public-shell-polish.css', 'stroke: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;', 'contact Lucide stroke uses contrast-safe secondary');
+assertContains('assets/css/public-late-bundle.css', 'stroke: var(--contact-icon-on-primary, var(--secondary-color, #f4b400)) !important;', 'public late embeds contact brand secondary stroke');
 assertContains('assets/css/global-theme.php', '.contact-info-box .contact-icon .lucide-icon', 'global-theme contact Lucide uses secondary');
-assertContains('assets/css/app-public.css', 'color: var(--secondary-color, var(--accent-color, #f4b400));', 'app-public contact-icon i uses secondary');
+assertContains('assets/css/app-public.css', 'color: var(--contact-icon-on-primary, var(--secondary-color, #f4b400));', 'app-public contact-icon i uses contrast-safe secondary');
 assertNotContains('assets/css/public-shell-polish.css', 'color: #fde68a !important;', 'contact shell no hardcoded pale yellow');
 assertNotContains('assets/css/app-public.css', '.contact-icon i {\n    color: #fde68a;', 'app-public contact-icon no hardcoded yellow');
 
