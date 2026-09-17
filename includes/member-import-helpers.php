@@ -180,13 +180,13 @@ if (!function_exists('memberImportNormalizeMobile')) {
 }
 
 if (!function_exists('memberImportIsValidContact')) {
-    /** Compulsory contact: at least 7 digits; Nepali mobiles typically 10 starting with 9. */
+    /** Optional contact: empty OK; if provided, 7–15 digits. */
     function memberImportIsValidContact(string $mobile): bool {
-        $len = strlen($mobile);
-        if ($len < 7 || $len > 15) {
-            return false;
+        if ($mobile === '') {
+            return true;
         }
-        return true;
+        $len = strlen($mobile);
+        return $len >= 7 && $len <= 15;
     }
 }
 
@@ -479,7 +479,7 @@ if (!function_exists('_memberImportParseChunk')) {
                 $headers[$i] = memberImportNormalizeHeader((string)$h);
             }
             $idx = array_flip($headers);
-            foreach (['sadasyata_number', 'full_name', 'mobile'] as $req) {
+            foreach (['sadasyata_number', 'full_name'] as $req) {
                 if (!isset($idx[$req])) {
                     fclose($fh);
                     $label = $req === 'sadasyata_number' ? 'member_id (वा sadasyata_number)' : $req;
@@ -536,9 +536,13 @@ if (!function_exists('_memberImportParseChunk')) {
             $status = 'queued';
             $message = '';
             $dob = '';
-            if ($sid === '' || $name === '' || !memberImportIsValidContact($mobile)) {
+            if ($sid === '' || $name === '') {
                 $status = 'failed';
-                $message = 'member_id, full_name र contact (mobile) अनिवार्य — खाली/अमान्य छ।';
+                $message = 'member_id र full_name अनिवार्य — खाली छ।';
+                $failAdd++;
+            } elseif ($mobile !== '' && !memberImportIsValidContact($mobile)) {
+                $status = 'failed';
+                $message = 'mobile/contact अमान्य (७–१५ अङ्क)। खाली छोड्न मिल्छ।';
                 $failAdd++;
             } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $status = 'failed';
@@ -677,10 +681,20 @@ if (!function_exists('_memberImportImportChunk')) {
             $gender = memberImportNormalizeGender(trim((string)$r['gender']));
 
             try {
-                if ($sid === '' || $name === '' || !memberImportIsValidContact($mobile)) {
+                if ($sid === '' || $name === '') {
                     $mark->execute([
                         'failed',
-                        'member_id, full_name र contact (mobile) अनिवार्य।',
+                        'member_id र full_name अनिवार्य।',
+                        null,
+                        $rowId,
+                    ]);
+                    $failAdd++;
+                    continue;
+                }
+                if ($mobile !== '' && !memberImportIsValidContact($mobile)) {
+                    $mark->execute([
+                        'failed',
+                        'mobile/contact अमान्य। खाली छोड्न मिल्छ।',
                         null,
                         $rowId,
                     ]);
@@ -693,7 +707,7 @@ if (!function_exists('_memberImportImportChunk')) {
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
 
                 /* Phone collisions on a *different* Member ID must not hijack SSOT row */
-                if (!$existing) {
+                if (!$existing && $mobile !== '') {
                     $findByPhone->execute([$mobile]);
                     $byPhone = $findByPhone->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($byPhone) {
@@ -752,12 +766,12 @@ if (!function_exists('_memberImportImportChunk')) {
                             $failAdd++;
                             continue;
                         }
-                        /* Required fields always replace; optional empty = keep old */
+                        /* name always replace; phone/email/… empty = keep old */
                         $up = $pdo->prepare(
                             "UPDATE members SET
                                 {$sidSql}
                                 name=?,
-                                phone=?,
+                                phone=COALESCE(NULLIF(?, ''), phone),
                                 email=COALESCE(NULLIF(?, ''), email),
                                 address=COALESCE(NULLIF(?, ''), address),
                                 dob=COALESCE(NULLIF(?, ''), dob),
@@ -874,7 +888,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             $memberPk = (int)$existing['id'];
                             $up = $pdo->prepare(
                                 "UPDATE members SET
-                                    name=?, phone=?,
+                                    name=?, phone=COALESCE(NULLIF(?, ''), phone),
                                     email=COALESCE(NULLIF(?, ''), email),
                                     address=COALESCE(NULLIF(?, ''), address),
                                     dob=COALESCE(NULLIF(?, ''), dob),

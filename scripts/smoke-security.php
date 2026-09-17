@@ -849,7 +849,11 @@ assertFileContains('admin/kyc-import-sample.php', 'admin-page-boot.php', 'kyc-im
 assertFileContains('admin/member-import-sample.php', 'admin-page-boot.php', 'member-import-sample thin boot');
 assertFileContains('admin/member-import-sample.php', "'member_id'", 'sample leads with member_id SSOT column');
 assertFileContains('includes/member-import-helpers.php', "string \$mode = 'update'", 'import createJob default update');
-assertFileContains('includes/member-import-helpers.php', 'memberImportIsValidContact', 'import validates compulsory contact');
+assertFileContains('includes/member-import-helpers.php', 'memberImportIsValidContact', 'import validates optional contact when present');
+assertFileContains('includes/member-import-helpers.php', "foreach (['sadasyata_number', 'full_name'] as \$req)", 'import CSV requires only member_id + name');
+assertFileContains('includes/member-import-helpers.php', "phone=COALESCE(NULLIF(?, ''), phone)", 'import keeps old phone when CSV mobile empty');
+assertFileContains('admin/member-import.php', 'mobile optional', 'admin import UI marks mobile optional');
+assertFileContains('admin/member-import-sample.php', 'mobile empty OK', 'sample documents empty mobile');
 assertFileContains('includes/member-import-helpers.php', 'Updated by Member ID', 're-import replaces by Member ID');
 assertFileContains('tracker-id-card.php', "htmlspecialchars(\$siteUrl, ENT_QUOTES, 'UTF-8')", 'tracker id-card siteUrl escaped');
 assertFileContains('admin/includes/admin-page-boot.php', 'ADMIN_PAGE_BOOT_SKIP_LOGIN', 'thin boot supports login skip for AJAX');

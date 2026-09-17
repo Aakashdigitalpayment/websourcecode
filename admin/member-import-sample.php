@@ -4,8 +4,8 @@
  * Excel-compatible UTF-8 BOM — CBS → Members.
  *
  * SSOT key = member_id (= sadasyata_number).
- * Required: member_id, full_name, mobile
- * Optional empty cells = keep existing value on re-import (update).
+ * Required: member_id, full_name
+ * Optional: mobile (खाली OK), email, address, dob, gender — empty keeps old on re-import.
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 
@@ -41,7 +41,7 @@ fputcsv($out, [
     'male',
 ]);
 
-/* Row 2: only compulsory + some blanks (empty optional = OK / keep old on update) */
+/* Row 2: compulsory + some blanks (empty optional = OK / keep old on update) */
 fputcsv($out, [
     '2081-00124',
     'Sita Adhikari',
@@ -52,11 +52,11 @@ fputcsv($out, [
     'female',
 ]);
 
-/* Row 3: compulsory only */
+/* Row 3: compulsory only — mobile empty OK */
 fputcsv($out, [
     '2081-00125',
     'Hari Bahadur Thapa',
-    '9841112233',
+    '',
     '',
     '',
     '',
