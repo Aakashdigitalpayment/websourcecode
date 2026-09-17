@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 CREATE TABLE IF NOT EXISTS members (
     id                   INT AUTO_INCREMENT PRIMARY KEY,
     name                 VARCHAR(255) NOT NULL,
+    name_np              VARCHAR(255) NOT NULL DEFAULT '',
     email                VARCHAR(255) UNIQUE,
     phone                VARCHAR(20),
     sadasyata_number     VARCHAR(50) NOT NULL DEFAULT '',
@@ -1753,6 +1754,7 @@ CREATE TABLE IF NOT EXISTS notification_templates (
 
 -- Members table मा नयाँ columns थप्ने
 ALTER TABLE members ADD COLUMN IF NOT EXISTS sadasyata_number VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE members ADD COLUMN IF NOT EXISTS name_np VARCHAR(255) NOT NULL DEFAULT '';
 ALTER TABLE members ADD COLUMN IF NOT EXISTS approval_status VARCHAR(20) DEFAULT 'pending';
 ALTER TABLE members ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP NULL DEFAULT NULL;
 ALTER TABLE members ADD COLUMN IF NOT EXISTS approved_by INT NULL DEFAULT NULL;

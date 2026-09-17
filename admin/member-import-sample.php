@@ -4,8 +4,9 @@
  * Excel-compatible UTF-8 BOM — CBS → Members.
  *
  * SSOT key = member_id (= sadasyata_number).
- * Required: member_id, full_name
- * Optional: mobile (खाली OK), email, address, dob, gender — empty keeps old on re-import.
+ * Required: member_id, full_name (English)
+ * Optional: name_np (Nepali), mobile, email, address, dob, gender
+ * Nepali digits in member_id/mobile auto-convert to English 0–9.
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 
@@ -18,11 +19,10 @@ header('Expires: 0');
 echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
 $out = fopen('php://output', 'w');
 
-/* Canonical columns that write into `members` (+ KYM stub soft-fill).
- * Aliases also accepted: sadasyata_number, name, phone, etc. */
 fputcsv($out, [
     'member_id',
     'full_name',
+    'name_np',
     'mobile',
     'email',
     'address',
@@ -30,10 +30,11 @@ fputcsv($out, [
     'gender',
 ]);
 
-/* Row 1: full optional data filled */
+/* Row 1: EN + NP names filled */
 fputcsv($out, [
     '2081-00123',
     'Ram Prasad Sharma',
+    'राम प्रसाद शर्मा',
     '9812345678',
     'ram@example.com',
     'Pokhara-8, Kaski',
@@ -41,21 +42,23 @@ fputcsv($out, [
     'male',
 ]);
 
-/* Row 2: compulsory + some blanks (empty optional = OK / keep old on update) */
+/* Row 2: Nepali digits in Member ID (auto → Latin) */
 fputcsv($out, [
-    '2081-00124',
+    '२०८१-००१२४',
     'Sita Adhikari',
-    '9800001122',
+    'सीता अधिकारी',
+    '९८००००११२२',
     '',
     'Lekhnath-12, Kaski',
     '',
     'female',
 ]);
 
-/* Row 3: compulsory only — mobile empty OK */
+/* Row 3: compulsory EN name only */
 fputcsv($out, [
     '2081-00125',
     'Hari Bahadur Thapa',
+    '',
     '',
     '',
     '',

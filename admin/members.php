@@ -22,6 +22,11 @@ if (!isset($db) || !($db instanceof PDO)) {
         $db = null;
     }
 }
+if ($db instanceof PDO && function_exists('safeAddColumn')) {
+    try {
+        safeAddColumn($db, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
+    } catch (Throwable $e) { /* ignore */ }
+}
 
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -190,18 +195,22 @@ if (isset($_POST['reset_member_2fa'])) {
     redirect('members.php?view=' . $mid);
 }
 
-/* ── Update shared profile (name/phone/email/address) + sync to linked KYM ── */
+/* ── Update shared profile (name/name_np/phone/email/address) + sync to linked KYM ── */
 if (isset($_POST['update_member_profile'])) {
     checkCSRF();
     $mid = (int)($_POST['member_id'] ?? 0);
     $name = function_exists('mb_substr')
         ? mb_substr(trim((string)($_POST['name'] ?? '')), 0, 200, 'UTF-8')
         : substr(trim((string)($_POST['name'] ?? '')), 0, 200);
-    $phoneRaw = preg_replace('/[^0-9]/', '', (string)($_POST['phone'] ?? '')) ?: '';
-    if (strlen($phoneRaw) > 10 && str_starts_with($phoneRaw, '977')) {
-        $phoneRaw = substr($phoneRaw, -10);
+    $nameNp = function_exists('mb_substr')
+        ? mb_substr(trim((string)($_POST['name_np'] ?? '')), 0, 200, 'UTF-8')
+        : substr(trim((string)($_POST['name_np'] ?? '')), 0, 200);
+    $phone = function_exists('memberSsotNormalizeMobile')
+        ? memberSsotNormalizeMobile((string)($_POST['phone'] ?? ''))
+        : (preg_replace('/[^0-9]/', '', (string)($_POST['phone'] ?? '')) ?: '');
+    if (strlen($phone) > 10 && str_starts_with($phone, '977')) {
+        $phone = substr($phone, -10);
     }
-    $phone = $phoneRaw;
     $email = function_exists('mb_substr')
         ? mb_substr(trim((string)($_POST['email'] ?? '')), 0, 200, 'UTF-8')
         : substr(trim((string)($_POST['email'] ?? '')), 0, 200);
@@ -220,7 +229,7 @@ if (isset($_POST['update_member_profile'])) {
         redirect('members.php');
     }
     if ($name === '') {
-        setFlash('error', 'नाम अनिवार्य छ।');
+        setFlash('error', 'English नाम अनिवार्य छ (CVV / कार्ड)।');
         redirect('members.php?view=' . $mid . '&edit=1');
     }
     if ($phone === '' || strlen($phone) < 10) {
@@ -233,16 +242,33 @@ if (isset($_POST['update_member_profile'])) {
     }
 
     try {
-        $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
-            ->execute([
-                $name,
-                $phone,
-                $email !== '' ? $email : null,
-                $address !== '' ? $address : null,
-                $gender !== '' ? $gender : null,
-                $dob !== '' ? $dob : null,
-                $mid,
-            ]);
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
+        }
+        try {
+            $db->prepare('UPDATE members SET name=?, name_np=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
+                ->execute([
+                    $name,
+                    $nameNp,
+                    $phone,
+                    $email !== '' ? $email : null,
+                    $address !== '' ? $address : null,
+                    $gender !== '' ? $gender : null,
+                    $dob !== '' ? $dob : null,
+                    $mid,
+                ]);
+        } catch (Throwable $eCol) {
+            $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
+                ->execute([
+                    $name,
+                    $phone,
+                    $email !== '' ? $email : null,
+                    $address !== '' ? $address : null,
+                    $gender !== '' ? $gender : null,
+                    $dob !== '' ? $dob : null,
+                    $mid,
+                ]);
+        }
         if (function_exists('memberSsotAfterMemberWrite')) {
             memberSsotAfterMemberWrite($db, $mid);
         }
@@ -608,6 +634,7 @@ try {
 <?php
 $memEditMode = isset($_GET['edit']) && (string)$_GET['edit'] !== '' && (string)$_GET['edit'] !== '0';
 $memEditName = htmlspecialchars((string)($viewMember['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditNameNp = htmlspecialchars((string)($viewMember['name_np'] ?? ''), ENT_QUOTES, 'UTF-8');
 $memEditPhone = htmlspecialchars((string)($viewMember['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
 $memEditEmail = htmlspecialchars((string)($viewMember['email'] ?? ''), ENT_QUOTES, 'UTF-8');
 $memEditAddress = htmlspecialchars((string)($viewMember['address'] ?? ''), ENT_QUOTES, 'UTF-8');
@@ -717,22 +744,31 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <div class="tab-content" id="memEditTabContent">
                 <div class="tab-pane fade show active" id="memTabContact" role="tabpanel">
                     <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label fw-semibold" for="mem_edit_name">पूरा नाम <span class="text-danger">*</span></label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="mem_edit_name">नाम (English) <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="mem_edit_name" class="form-control form-control-lg" required maxlength="200"
-                                   value="<?php echo e($memEditName); ?>" autocomplete="name">
+                                   value="<?php echo e($memEditName); ?>" autocomplete="name"
+                                   placeholder="Ram Prasad Sharma">
+                            <div class="form-text">CVV / कार्ड / Latin नाम।</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="mem_edit_name_np">नाम (नेपाली)</label>
+                            <input type="text" name="name_np" id="mem_edit_name_np" class="form-control form-control-lg" maxlength="200"
+                                   value="<?php echo e($memEditNameNp); ?>"
+                                   placeholder="राम प्रसाद शर्मा">
+                            <div class="form-text">KYM पूरा नाम (नेपाली) सँग sync।</div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold" for="mem_edit_phone">मोबाइल <span class="text-danger">*</span></label>
                             <input type="tel" name="phone" id="mem_edit_phone" class="form-control form-control-lg" required maxlength="20"
                                    value="<?php echo e($memEditPhone); ?>" inputmode="numeric" autocomplete="tel">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold" for="mem_edit_email">इमेल</label>
                             <input type="email" name="email" id="mem_edit_email" class="form-control" maxlength="200"
                                    value="<?php echo e($memEditEmail); ?>" autocomplete="email">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold" for="mem_edit_address">ठेगाना</label>
                             <input type="text" name="address" id="mem_edit_address" class="form-control" maxlength="300"
                                    value="<?php echo e($memEditAddress); ?>" autocomplete="street-address">

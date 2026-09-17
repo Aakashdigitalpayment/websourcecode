@@ -11,11 +11,26 @@
  */
 declare(strict_types=1);
 
+if (!function_exists('memberSsotDevanagariDigitsToLatin')) {
+    /** नेपाली/देवनागरी अंक → Latin 0–9 (Member ID / mobile safe normalize). */
+    function memberSsotDevanagariDigitsToLatin(string $s): string
+    {
+        return strtr($s, [
+            '०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4',
+            '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
+            /* Arabic-Indic ( occasionally pasted ) */
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+            '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
+    }
+}
+
 if (!function_exists('memberSsotNormalizeId')) {
     function memberSsotNormalizeId(?string $id): string
     {
+        $id = memberSsotDevanagariDigitsToLatin(trim((string) $id));
         /* Coop Member IDs are Latin alphanumeric — normalize case for consistent match/store */
-        return strtoupper(trim((string)$id));
+        return strtoupper($id);
     }
 }
 
@@ -262,8 +277,11 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 return ['ok' => false, 'message' => 'Empty Member ID'];
             }
 
-            $name = trim((string)($memberRow['name'] ?? ''));
-            $phone = preg_replace('/[^0-9]/', '', (string)($memberRow['phone'] ?? '')) ?: '';
+            $nameEn = trim((string)($memberRow['name'] ?? ''));
+            $nameNp = trim((string)($memberRow['name_np'] ?? ''));
+            $kycNepali = $nameNp !== '' ? $nameNp : ($nameEn !== '' ? $nameEn : ('Member ' . $sid));
+            $kycEnglish = $nameEn;
+            $phone = preg_replace('/[^0-9]/', '', memberSsotDevanagariDigitsToLatin((string)($memberRow['phone'] ?? ''))) ?: '';
             if (strlen($phone) > 10 && str_starts_with($phone, '977')) {
                 $phone = substr($phone, -10);
             }
@@ -280,25 +298,49 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
             if ($kyc && !empty($kyc['id'])) {
                 $kycId = (int)$kyc['id'];
                 /* Soft-fill empty KYM contact/profile only — no overwrite */
-                $db->prepare(
-                    "UPDATE kyc_applications SET
-                        full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
-                        mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
-                        email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
-                        permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
-                        gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
-                        dob_ad = CASE WHEN (dob_ad IS NULL OR TRIM(dob_ad) = '') AND ? <> '' THEN ? ELSE dob_ad END,
-                        updated_at = NOW()
-                     WHERE id = ?"
-                )->execute([
-                    $name !== '' ? $name : 'Member ' . $sid,
-                    $phone,
-                    $email, $email,
-                    $address, $address,
-                    $gender, $gender,
-                    $dobAd, $dobAd,
-                    $kycId,
-                ]);
+                try {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
+                            full_name_en = CASE WHEN full_name_en IS NULL OR TRIM(full_name_en) = '' THEN ? ELSE full_name_en END,
+                            mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
+                            email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN (dob_ad IS NULL OR TRIM(dob_ad) = '') AND ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali,
+                        $kycEnglish,
+                        $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                } catch (Throwable $eFill) {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
+                            mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
+                            email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN (dob_ad IS NULL OR TRIM(dob_ad) = '') AND ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali,
+                        $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                }
                 memberSsotLinkMemberToKyc($db, $memberPk, $kycId);
                 return ['ok' => true, 'created' => false, 'linked' => true, 'kyc_id' => $kycId];
             }
@@ -325,7 +367,7 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 $ins->execute([
                     $trackingId,
                     $sid,
-                    $name !== '' ? $name : 'Member ' . $sid,
+                    $kycNepali,
                     $phone !== '' ? $phone : null,
                     $email !== '' ? $email : null,
                     $address !== '' ? $address : null,
@@ -340,7 +382,7 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 );
                 $ins->execute([
                     $sid,
-                    $name !== '' ? $name : 'Member ' . $sid,
+                    $kycNepali,
                     $phone !== '' ? $phone : null,
                     $email !== '' ? $email : null,
                     $address !== '' ? $address : null,
@@ -350,6 +392,13 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
             $kycId = (int)$db->lastInsertId();
             if ($kycId < 1) {
                 return ['ok' => false, 'message' => 'KYM stub insert failed'];
+            }
+            if ($kycEnglish !== '') {
+                try {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET full_name_en = CASE WHEN TRIM(COALESCE(full_name_en,'')) = '' THEN ? ELSE full_name_en END WHERE id = ?"
+                    )->execute([$kycEnglish, $kycId]);
+                } catch (Throwable $eEn) { /* column missing */ }
             }
             memberSsotLinkMemberToKyc($db, $memberPk, $kycId);
             return ['ok' => true, 'created' => true, 'linked' => true, 'kyc_id' => $kycId];
@@ -612,7 +661,8 @@ if (!function_exists('memberSsotRequireExistingMember')) {
 if (!function_exists('memberSsotNormalizeMobile')) {
     function memberSsotNormalizeMobile(?string $phone): string
     {
-        $d = preg_replace('/\D+/', '', (string)$phone) ?? '';
+        $raw = memberSsotDevanagariDigitsToLatin((string) $phone);
+        $d = preg_replace('/\D+/', '', $raw) ?? '';
         if (strlen($d) > 10 && str_starts_with($d, '977')) {
             $d = substr($d, -10);
         }
@@ -891,7 +941,11 @@ if (!function_exists('memberSsotSyncKycFromMember')) {
                 return ['ok' => true, 'synced' => false, 'message' => 'No KYM row to sync'];
             }
 
-            $name = trim((string)($memberRow['name'] ?? ''));
+            $nameEn = trim((string)($memberRow['name'] ?? ''));
+            $nameNp = trim((string)($memberRow['name_np'] ?? ''));
+            /* KYM: full_name = Nepali, full_name_en = English (CVV / Latin) */
+            $kycNepali = $nameNp !== '' ? $nameNp : $nameEn;
+            $kycEnglish = $nameEn;
             $phone = function_exists('memberSsotNormalizeMobile')
                 ? memberSsotNormalizeMobile((string)($memberRow['phone'] ?? ''))
                 : (preg_replace('/[^0-9]/', '', (string)($memberRow['phone'] ?? '')) ?: '');
@@ -908,45 +962,93 @@ if (!function_exists('memberSsotSyncKycFromMember')) {
             }
 
             if ($soft) {
-                $db->prepare(
-                    "UPDATE kyc_applications SET
-                        full_name = CASE WHEN TRIM(COALESCE(full_name,'')) = '' AND ? <> '' THEN ? ELSE full_name END,
-                        mobile = CASE WHEN TRIM(COALESCE(mobile,'')) = '' AND ? <> '' THEN ? ELSE mobile END,
-                        email = CASE WHEN TRIM(COALESCE(email,'')) = '' AND ? <> '' THEN ? ELSE email END,
-                        permanent_address = CASE WHEN TRIM(COALESCE(permanent_address,'')) = '' AND ? <> '' THEN ? ELSE permanent_address END,
-                        gender = CASE WHEN TRIM(COALESCE(gender,'')) = '' AND ? <> '' THEN ? ELSE gender END,
-                        dob_ad = CASE WHEN (dob_ad IS NULL OR dob_ad = '0000-00-00') AND ? <> '' THEN ? ELSE dob_ad END,
-                        updated_at = NOW()
-                     WHERE id = ?"
-                )->execute([
-                    $name, $name,
-                    $phone, $phone,
-                    $email, $email,
-                    $address, $address,
-                    $gender, $gender,
-                    $dobAd, $dobAd,
-                    $kycId,
-                ]);
+                try {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN TRIM(COALESCE(full_name,'')) = '' AND ? <> '' THEN ? ELSE full_name END,
+                            full_name_en = CASE WHEN TRIM(COALESCE(full_name_en,'')) = '' AND ? <> '' THEN ? ELSE full_name_en END,
+                            mobile = CASE WHEN TRIM(COALESCE(mobile,'')) = '' AND ? <> '' THEN ? ELSE mobile END,
+                            email = CASE WHEN TRIM(COALESCE(email,'')) = '' AND ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN TRIM(COALESCE(permanent_address,'')) = '' AND ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN TRIM(COALESCE(gender,'')) = '' AND ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN (dob_ad IS NULL OR dob_ad = '0000-00-00') AND ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali, $kycNepali,
+                        $kycEnglish, $kycEnglish,
+                        $phone, $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                } catch (Throwable $eSoft) {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN TRIM(COALESCE(full_name,'')) = '' AND ? <> '' THEN ? ELSE full_name END,
+                            mobile = CASE WHEN TRIM(COALESCE(mobile,'')) = '' AND ? <> '' THEN ? ELSE mobile END,
+                            email = CASE WHEN TRIM(COALESCE(email,'')) = '' AND ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN TRIM(COALESCE(permanent_address,'')) = '' AND ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN TRIM(COALESCE(gender,'')) = '' AND ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN (dob_ad IS NULL OR dob_ad = '0000-00-00') AND ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali, $kycNepali,
+                        $phone, $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                }
             } else {
-                $db->prepare(
-                    "UPDATE kyc_applications SET
-                        full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
-                        mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
-                        email = CASE WHEN ? <> '' THEN ? ELSE email END,
-                        permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
-                        gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
-                        dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
-                        updated_at = NOW()
-                     WHERE id = ?"
-                )->execute([
-                    $name, $name,
-                    $phone, $phone,
-                    $email, $email,
-                    $address, $address,
-                    $gender, $gender,
-                    $dobAd, $dobAd,
-                    $kycId,
-                ]);
+                try {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
+                            full_name_en = CASE WHEN ? <> '' THEN ? ELSE full_name_en END,
+                            mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
+                            email = CASE WHEN ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali, $kycNepali,
+                        $kycEnglish, $kycEnglish,
+                        $phone, $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                } catch (Throwable $eOw) {
+                    $db->prepare(
+                        "UPDATE kyc_applications SET
+                            full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
+                            mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
+                            email = CASE WHEN ? <> '' THEN ? ELSE email END,
+                            permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
+                            gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
+                            dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
+                            updated_at = NOW()
+                         WHERE id = ?"
+                    )->execute([
+                        $kycNepali, $kycNepali,
+                        $phone, $phone,
+                        $email, $email,
+                        $address, $address,
+                        $gender, $gender,
+                        $dobAd, $dobAd,
+                        $kycId,
+                    ]);
+                }
             }
 
             return ['ok' => true, 'synced' => true, 'kyc_id' => $kycId];
@@ -993,7 +1095,10 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
             return ['ok' => false, 'message' => 'Invalid KYM id'];
         }
 
-        $name = trim((string)(($kyc['full_name'] ?? '') ?: ($kyc['full_name_en'] ?? '')));
+        $nameNp = trim((string)($kyc['full_name'] ?? ''));
+        $nameEn = trim((string)($kyc['full_name_en'] ?? ''));
+        /* members.name = English (CVV); name_np = Nepali; fallback English←Nepali if EN empty */
+        $name = $nameEn !== '' ? $nameEn : $nameNp;
         $phoneRaw = function_exists('memberSsotNormalizeMobile')
             ? memberSsotNormalizeMobile((string)($kyc['mobile'] ?? ''))
             : (preg_replace('/[^0-9]/', '', (string)($kyc['mobile'] ?? '')) ?: '');
@@ -1010,7 +1115,7 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
             memberSsotLinkMemberToKyc($db, $pk, $kycId);
             /*
              * Shared contact: KYM = सच्याउने ठाउँ → members मा sync।
-             * खाली KYM name ले members.name overwrite नगर्ने (placeholder "Member ID" नहाल्ने)।
+             * खाली KYM name ले members.name overwrite नगर्ने।
              */
             $address = trim((string)($kyc['permanent_address'] ?? ''));
             $gender = trim((string)($kyc['gender'] ?? ''));
@@ -1022,6 +1127,7 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
                 $db->prepare(
                     "UPDATE members SET
                         name = CASE WHEN ? <> '' THEN ? ELSE name END,
+                        name_np = CASE WHEN ? <> '' THEN ? ELSE name_np END,
                         phone = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE phone END,
                         email = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE email END,
                         address = CASE WHEN ? <> '' THEN ? ELSE address END,
@@ -1030,6 +1136,7 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
                      WHERE id = ?"
                 )->execute([
                     $name, $name,
+                    $nameNp, $nameNp,
                     $phone, $phone, $phone,
                     $email, $email, $email,
                     $address, $address,
@@ -1062,13 +1169,23 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
         $nameForInsert = $name !== '' ? $name : ('Member ' . $sadasyata);
         try {
             $cardNo = 'M-' . date('Y') . '-' . str_pad((string)random_int(1, 99999), 5, '0', STR_PAD_LEFT);
-            $st = $db->prepare(
-                "INSERT INTO members
-                    (name, email, phone, sadasyata_number, password_hash, member_card_no,
-                     approval_status, is_active, kyc_application_id, approved_at, approved_by)
-                 VALUES (?,?,?,?,NULL,?, 'pending', 1, ?, NULL, NULL)"
-            );
-            $st->execute([$nameForInsert, $email, $phone, $sadasyata, $cardNo, $kycId]);
+            try {
+                $st = $db->prepare(
+                    "INSERT INTO members
+                        (name, name_np, email, phone, sadasyata_number, password_hash, member_card_no,
+                         approval_status, is_active, kyc_application_id, approved_at, approved_by)
+                     VALUES (?,?,?,?,?,NULL,?, 'pending', 1, ?, NULL, NULL)"
+                );
+                $st->execute([$nameForInsert, $nameNp, $email, $phone, $sadasyata, $cardNo, $kycId]);
+            } catch (Throwable $eCol) {
+                $st = $db->prepare(
+                    "INSERT INTO members
+                        (name, email, phone, sadasyata_number, password_hash, member_card_no,
+                         approval_status, is_active, kyc_application_id, approved_at, approved_by)
+                     VALUES (?,?,?,?,NULL,?, 'pending', 1, ?, NULL, NULL)"
+                );
+                $st->execute([$nameForInsert, $email, $phone, $sadasyata, $cardNo, $kycId]);
+            }
             $pk = (int)$db->lastInsertId();
             return [
                 'ok' => true,
@@ -1372,8 +1489,8 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
                 . 'Members ↔ KYM <em>auto sync</em> — admin, portal, online जहाँ बाट save गरे पनि। '
                 . 'Import correction → Member सम्पादन · कागजात/AML → <a href="kyc-applications.php">KYM</a>। Member ID परिवर्तन हुँदैन।';
         } elseif ($context === 'import') {
-            $body = 'CBS CSV: <code>member_id</code> + नाम अनिवार्य; <strong>mobile optional</strong>। उही Member ID फेरि import → '
-                . '<strong>पुरानो members data replace</strong> (खाली optional जोगिन्छ)। KYM stub/shared sync। बाँकी online/portal।';
+            $body = 'CBS CSV: <code>member_id</code> + <code>full_name</code> (EN) अनिवार्य; <code>name_np</code> / mobile optional। '
+                . 'नेपाली अंक Member ID मा auto Latin। उही ID फेरि import → replace (खाली optional जोगिन्छ)।';
         } elseif ($context === 'membership') {
             $body = 'नयाँ व्यक्ति → Member ID दिनुहोस् → members stub (+ पछि KYM)। अनि Online KYM / portal।';
         }

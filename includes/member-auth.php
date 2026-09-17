@@ -151,6 +151,7 @@ function ensureMemberTables() {
     $db->exec("CREATE TABLE IF NOT EXISTS members (
         id                  INT AUTO_INCREMENT PRIMARY KEY,
         name                VARCHAR(255) NOT NULL,
+        name_np             VARCHAR(255) NOT NULL DEFAULT '',
         email               VARCHAR(255) UNIQUE,
         phone               VARCHAR(20),
         sadasyata_number    VARCHAR(50) NOT NULL DEFAULT '',
@@ -196,6 +197,7 @@ function ensureMemberTables() {
         'avatar_url' => 'VARCHAR(500) NULL',
         'password_hash' => 'VARCHAR(255) NULL',
         'phone' => 'VARCHAR(20) NULL',
+        'name_np' => "VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Nepali full name'",
         'member_card_no' => 'VARCHAR(50) NULL',
         'twofa_enabled' => 'TINYINT DEFAULT 0',
         'twofa_secret' => 'VARCHAR(64) NULL',

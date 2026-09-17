@@ -6,6 +6,7 @@
 $GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN'] = true;
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/member-auth.php';
+require_once __DIR__ . '/../includes/member-ssot.php';
 require_once __DIR__ . '/../includes/member-import-helpers.php';
 
 if (!isAdminLoggedIn()) {
@@ -150,16 +151,16 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
 
                 <div class="alert alert-info small py-2">
                     <strong>अनिवार्य (compulsory):</strong>
-                    <code>member_id</code>, <code>full_name</code>
+                    <code>member_id</code>, <code>full_name</code> (English)
                     <span class="text-muted">(alias: <code>sadasyata_number</code>, <code>name</code>)</span><br>
                     <strong>Optional</strong> (खाली = OK / re-import मा पुरानो जोगिन्छ):
+                    <code>name_np</code> (नेपाली नाम),
                     <code>mobile</code>/<code>phone</code>/<code>contact</code>,
                     <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
                     <code>gender</code>
-                    <div class="mt-1"><strong>full_name = English नाम</strong> (जस्तै <code>Ram Prasad Sharma</code>) —
-                        CVV नामको पहिलो ३ अक्षरबाट बन्छ।</div>
-                    <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम replace; खाली mobile/email/address/dob/gender ले पुरानो मेटाउँदैन।
-                        KYM stub/shared soft-sync। बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
+                    <div class="mt-1"><strong>full_name = English नाम</strong> (CVV) · <strong>name_np = नेपाली नाम</strong> (KYM पूरा नाम)।</div>
+                    <div class="mt-1">Member ID / mobile मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
+                    <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम replace; खाली optional ले पुरानो मेटाउँदैन।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>
                 </div>
@@ -223,7 +224,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
                     <li>Sample CSV download → Excel मा खोल्नुहोस्।</li>
-                    <li><strong>member_id + full_name</strong> अनिवार्य; <strong>mobile optional</strong> — अरू खाली छोड्न मिल्छ।</li>
+                    <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile optional।</li>
                     <li><strong>File → Save As → CSV UTF-8</strong>।</li>
                     <li>Upload → Update/Replace (default) → Start।</li>
                     <li>उही Member ID फेरि आउँदा पुरानो members row update हुन्छ।</li>
