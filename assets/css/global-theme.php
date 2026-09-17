@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.7');
+define('THEME_VERSION', '2.8');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);
@@ -118,6 +118,31 @@ $_onH = $__textOnGradient($_h, $_hDark);
 $_onT = $__textOnGradient($_t, $_tDark);
 $_onF = $__textOnGradient($_f, $_fDark);
 
+/* Hero slider: dark readable scrim + light brand tint — text WCAG vs effective backdrop */
+$__mixHex = function (string $a, string $b, float $ratioA): string {
+    $parse = static function (string $hex): array {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) !== 6) {
+            return [26, 95, 42];
+        }
+        return [hexdec(substr($hex, 0, 2)), hexdec(substr($hex, 2, 2)), hexdec(substr($hex, 4, 2))];
+    };
+    $ratioA = max(0.0, min(1.0, $ratioA));
+    [$ar, $ag, $ab] = $parse($a);
+    [$br, $bg, $bb] = $parse($b);
+    $r = (int) round($ar * $ratioA + $br * (1 - $ratioA));
+    $g = (int) round($ag * $ratioA + $bg * (1 - $ratioA));
+    $bch = (int) round($ab * $ratioA + $bb * (1 - $ratioA));
+    return sprintf('#%02x%02x%02x', $r, $g, $bch);
+};
+/* ~78% near-black + brand → always readable; photo stays clear (low brand wash in CSS) */
+$_heroEff = $__mixHex('#0b1220', $_pDark, 0.78);
+$_onHero = $__textOn($_heroEff);
+$_heroBrandWash = $__rgba($_p, 0.18);
+$_heroScrimLeft = $__rgba('#05080c', 0.58);
+$_heroScrimMid = $__rgba('#05080c', 0.22);
+$_heroScrimEdge = $__rgba($_pDark, 0.12);
+
 /*
  * Bright brand bars (vivid orange/yellow): WCAG may pick dark ink, which looks
  * muddy on orange. Keep the admin-selected bar colour (do NOT darken to rust)
@@ -186,6 +211,11 @@ $__onS = $_onS ?? '#ffffff';
 $__onH = $_onH ?? '#ffffff';
 $__onT = $_onT ?? $__onH;
 $__onF = $_onF ?? '#ffffff';
+$__onHero = $_onHero ?? '#ffffff';
+$__heroBrandWash = $_heroBrandWash ?? 'rgba(26,95,42,0.18)';
+$__heroScrimLeft = $_heroScrimLeft ?? 'rgba(5,8,12,0.58)';
+$__heroScrimMid = $_heroScrimMid ?? 'rgba(5,8,12,0.22)';
+$__heroScrimEdge = $_heroScrimEdge ?? 'rgba(11,20,16,0.12)';
 $__pInk = $_pInk ?? $__p;
 $__sInk = $_sInk ?? $__s;
 $__shadowP = $_shadowP ?? '0 4px 20px rgba(26,95,42,0.20)';
@@ -228,12 +258,19 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --text-on-header:    <?= $__onH ?>;
     --text-on-footer:    <?= $__onF ?>;
     --text-on-topbar:    <?= $__onT ?>;
+    /* Hero slider: WCAG text vs dark scrim (admin primary may change) */
+    --text-on-hero:      <?= $__onHero ?>;
+    --hero-brand-wash:   <?= $__heroBrandWash ?>;
+    --hero-scrim-left:   <?= $__heroScrimLeft ?>;
+    --hero-scrim-mid:    <?= $__heroScrimMid ?>;
+    --hero-scrim-edge:   <?= $__heroScrimEdge ?>;
     /* Icons on brand fills — same as text-on-* (never hardcode #fff) */
     --icon-on-primary:   var(--text-on-primary);
     --icon-on-secondary: var(--text-on-secondary);
     --icon-on-header:    var(--text-on-header);
     --icon-on-footer:    var(--text-on-footer);
     --icon-on-topbar:    var(--text-on-topbar);
+    --icon-on-hero:      var(--text-on-hero);
 
     /* ── Shadows derived from brand ── */
     --shadow-primary:  <?= $__shadowP ?>;
@@ -573,38 +610,83 @@ table.table-primary thead th,
 .stat-card.stat-card-brand .stat-label  { color: var(--text-on-primary) !important; }
 
 /* ══════════════════════════════════════════════════════════════════
-   HERO SECTION — Text always white (overlay ensures dark background)
-   app-public.css को color:#fff override हुन सक्छ; यहाँ directly fix
+   HERO SECTION — clear photo + WCAG auto text (--text-on-hero)
+   Soft left scrim (not heavy brand wash) so faces/photos stay natural
    ══════════════════════════════════════════════════════════════════ */
+.hero-bg-modern::before {
+    background: linear-gradient(
+        105deg,
+        rgba(0, 0, 0, 0.18) 0%,
+        rgba(0, 0, 0, 0.06) 55%,
+        transparent 100%
+    ) !important;
+}
+.slider-overlay,
+.hero-overlay-modern {
+    background:
+        linear-gradient(
+            100deg,
+            var(--hero-scrim-left) 0%,
+            var(--hero-scrim-mid) 42%,
+            transparent 72%
+        ),
+        linear-gradient(
+            180deg,
+            transparent 55%,
+            rgba(0, 0, 0, 0.28) 100%
+        ),
+        linear-gradient(
+            135deg,
+            var(--hero-brand-wash) 0%,
+            var(--hero-scrim-edge) 100%
+        ) !important;
+}
 .hero-title-modern,
 .slider-content .hero-title-modern,
 .hero-content-modern .hero-title-modern,
 .hero-text-wrapper h1                  {
-    color: #fff !important;
-    text-shadow: 0 2px 10px rgba(0,0,0,.32) !important;
+    color: var(--text-on-hero) !important;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.45),
+        0 2px 14px rgba(0, 0, 0, 0.35) !important;
 }
 .hero-subtitle-modern,
 .slider-content .hero-subtitle-modern,
 .hero-content-modern .hero-subtitle-modern,
 .hero-text-wrapper p                   {
-    color: rgba(255,255,255,.93) !important;
-    text-shadow: 0 1px 6px rgba(0,0,0,.22) !important;
+    color: color-mix(in srgb, var(--text-on-hero) 92%, transparent) !important;
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.4),
+        0 2px 10px rgba(0, 0, 0, 0.28) !important;
 }
 .hero-text-wrapper, .hero-content-modern {
-    color: #fff !important;
+    color: var(--text-on-hero) !important;
+}
+.hero-text-wrapper {
+    padding: 1.1rem 1.35rem 1.2rem !important;
+    border-radius: 1rem !important;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, #000 38%, transparent),
+        color-mix(in srgb, #000 12%, transparent)
+    ) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
 }
 .hero-btn-modern                       {
-    background: var(--accent-color, var(--secondary-color)) !important;
-    color: #fff !important;
+    background: var(--secondary-color, var(--accent-color)) !important;
+    color: var(--text-on-secondary, #fff) !important;
     border-color: transparent !important;
 }
 .hero-btn-modern:hover                 {
-    filter: brightness(1.12) !important;
+    filter: brightness(1.1) !important;
     transform: translateY(-2px) !important;
+    color: var(--text-on-secondary, #fff) !important;
 }
 /* Auction hero text */
 .auc2-h, .auc2-sub                    {
-    color: var(--text-on-primary,#fff) !important;
+    color: var(--text-on-hero, var(--text-on-primary,#fff)) !important;
     text-shadow: 0 2px 8px rgba(0,0,0,.25) !important;
 }
 
@@ -887,7 +969,7 @@ footer .footer-bottom,
 /* ── C. HERO / SLIDER SECTION ───────────────────────────────── */
 .slider-section, .hero-section, .hero-wrap,
 .slider-wrap, .main-slider, .hero-area          {
-    color: var(--text-on-primary) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
 }
 /* ALL children of slider/hero get contrasted text */
 .slider-section h1, .slider-section h2,
@@ -895,40 +977,41 @@ footer .footer-bottom,
 .slider-section span:not(.btn):not([class*="badge"]),
 .hero-section h1, .hero-section h2,
 .hero-section h3, .hero-section p               {
-    color: var(--text-on-primary) !important;
-    text-shadow: 0 1px 6px rgba(0,0,0,.22) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
+    text-shadow: 0 1px 6px rgba(0,0,0,.28) !important;
 }
 /* slider-content direct descendants */
 .slider-content                                 {
-    color: var(--text-on-primary) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
 }
 .slider-content h1, .slider-content h2,
 .slider-content h3, .slider-content h4,
 .slider-content p                               {
-    color: var(--text-on-primary) !important;
-    text-shadow: 0 1px 8px rgba(0,0,0,.25) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
+    text-shadow: 0 1px 8px rgba(0,0,0,.3) !important;
 }
 /* Hero modern classes — highest-priority */
 .hero-title-modern                              {
-    color: var(--text-on-primary) !important;
-    text-shadow: 0 2px 10px rgba(0,0,0,.30) !important;
+    color: var(--text-on-hero) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.45), 0 2px 12px rgba(0,0,0,.32) !important;
 }
 .hero-subtitle-modern                           {
-    color: color-mix(in srgb, var(--text-on-primary) 93%, transparent) !important;
-    text-shadow: 0 1px 6px rgba(0,0,0,.20) !important;
+    color: color-mix(in srgb, var(--text-on-hero) 92%, transparent) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.28) !important;
 }
 .hero-text-wrapper, .hero-content-modern,
 .hero-text-block                                {
-    color: var(--text-on-primary) !important;
+    color: var(--text-on-hero) !important;
 }
-.hero-text-wrapper *,  .hero-content-modern *,
-.hero-text-block *                              {
-    color: var(--text-on-primary) !important;
+.hero-text-wrapper *:not(.btn):not(.hero-btn-modern):not(.btn *):not(.hero-btn-modern *),
+.hero-content-modern *:not(.btn):not(.hero-btn-modern):not(.btn *):not(.hero-btn-modern *),
+.hero-text-block *:not(.btn):not(.hero-btn-modern):not(.btn *) {
+    color: var(--text-on-hero) !important;
 }
 .hero-badge                                     {
-    background: rgba(255,255,255,.18) !important;
-    color: var(--text-on-primary) !important;
-    border-color: rgba(255,255,255,.35) !important;
+    background: color-mix(in srgb, var(--text-on-hero) 18%, transparent) !important;
+    color: var(--text-on-hero) !important;
+    border-color: color-mix(in srgb, var(--text-on-hero) 35%, transparent) !important;
 }
 /* Slider button — accent colour so it pops against hero bg */
 .slider-content .btn,
@@ -944,10 +1027,10 @@ footer .footer-bottom,
 }
 /* Auction hero */
 .auc2-hero-section                              {
-    color: var(--text-on-primary) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
 }
 .auc2-h, .auc2-sub                             {
-    color: var(--text-on-primary) !important;
+    color: var(--text-on-hero, var(--text-on-primary)) !important;
     text-shadow: 0 2px 8px rgba(0,0,0,.25) !important;
 }
 

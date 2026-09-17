@@ -206,7 +206,10 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.7')", 'theme version 2.7 keep bright bar brand colour');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.8')", 'theme version 2.8 hero clarity + text-on-hero');
+assertContains('assets/css/global-theme.php', '--text-on-hero', 'hero WCAG text token');
+assertContains('assets/css/global-theme.php', '--hero-scrim-left', 'hero soft left scrim vars');
+assertContains('assets/css/app-public.css', 'transparent 72%', 'hero overlay leaves photo clearer');
 assertContains('assets/css/global-theme.php', '$__forceWhiteGlyphsOnBrightBar', 'bright bars keep admin colour + white glyphs');
 assertNotContains('assets/css/global-theme.php', '$__ensureWhiteOnBar', 'no longer darkens orange bars to rust');
 assertContains('admin/manage-admins.php', "action === 'reset_2fa'", 'superadmin can reset admin 2FA QR');
