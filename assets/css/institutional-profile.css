@@ -617,6 +617,23 @@
 .ip-featured-locked .lucide-icon,
 .ip-featured-locked svg { width: 1rem; height: 1rem; }
 .coop-pma-unlock.ip-pma-unlock .coop-pma-unlock-row { margin-top: 0.15rem; }
+.coop-pma-unlock {
+  text-align: center;
+}
+.coop-pma-unlock-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.coop-pma-unlock-hint,
+.coop-pma-unlock-label,
+.coop-pma-error {
+  text-align: center;
+}
+.coop-pma-unlock-row {
+  justify-content: center;
+}
 .coop-pma-error { margin-bottom: 0.5rem; font-size: 0.85rem; color: #b02a37; }
 .coop-pma-unlock.is-busy { opacity: 0.72; pointer-events: none; }
 .coop-pma-unlock.is-busy .coop-pma-unlock-btn { cursor: wait; }
