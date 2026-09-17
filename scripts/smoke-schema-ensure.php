@@ -171,10 +171,10 @@ if (!str_contains($ensureAdmin, "safeAddColumn(\$db, 'institutional_profile'")) 
 } else {
     ok('ensure-admin-tables institutional_profile via safeAddColumn');
 }
-if (!str_contains($ensureAdmin, 'v15-schema-mig-role-alias-2026')) {
-    fail('admin schema lock should bump for role alias + ledger');
+if (!str_contains($ensureAdmin, 'v16-reports-ip-access-level-2026')) {
+    fail('admin schema lock should bump for reports/IP access_level');
 } else {
-    ok('admin schema lock v15 role-alias');
+    ok('admin schema lock v16 reports/IP access_level');
 }
 
 if (!str_contains($ensureAdmin, 'ensureMemberSuccessStoriesTable')) {

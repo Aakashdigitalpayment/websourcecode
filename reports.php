@@ -76,6 +76,9 @@ $filterMonth = ($filterMonth !== '' && in_array($filterMonth, $nepaliMonthKeys, 
 // Get reports from database
 try {
     $db = getDB();
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($db, 'reports', 'access_level', "ENUM('none','member') NOT NULL DEFAULT 'none'");
+    }
 
     // Build query
     $sql = "SELECT * FROM reports WHERE is_active = 1";

@@ -697,7 +697,7 @@ function ensureAdminTables(): bool {
 
 /* Admin header / login include — `.admin-schema.lock` बाट guard
  * सफल भए मात्र lock लेख्ने (खाली DB मा false lock नहोस्) */
-$_adminSchemaVersion = 'v15-schema-mig-role-alias-2026';
+$_adminSchemaVersion = 'v16-reports-ip-access-level-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {
