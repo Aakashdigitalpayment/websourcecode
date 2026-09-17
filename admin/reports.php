@@ -51,6 +51,19 @@ if (!in_array($filterType, $allowedReportTypes, true)) {
     $filterType = 'all';
 }
 
+/* Ensure access_level exists even when .admin-schema.lock skipped older ensure runs */
+try {
+    $__rptDb = getDB();
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($__rptDb, 'reports', 'access_level', "ENUM('none','member') NOT NULL DEFAULT 'none'");
+    } else {
+        try {
+            $__rptDb->exec("ALTER TABLE reports ADD COLUMN access_level ENUM('none','member') NOT NULL DEFAULT 'none'");
+        } catch (Throwable $e) { /* exists */ }
+    }
+} catch (Throwable $e) { /* DB not ready */ }
+unset($__rptDb);
+
 $adminReportsListUrl = static function (?string $type = null) use ($allowedReportTypes): string {
     $t = $type ?? 'all';
     if (!in_array($t, $allowedReportTypes, true)) {
@@ -134,23 +147,12 @@ checkCSRF();
             }
 
             if ($action === 'add') {
-                try {
-                    $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, access_level, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order]);
-                } catch (Exception $e) {
-                    /* Column missing mid-migrate */
-                    $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order]);
-                }
+                $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, access_level, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order]);
                 setFlash('success', 'प्रतिवेदन थपियो।');
             } else {
-                try {
-                    $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, access_level=?, is_active=?, display_order=? WHERE id=?");
-                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order, $id]);
-                } catch (Exception $e) {
-                    $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, is_active=?, display_order=? WHERE id=?");
-                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order, $id]);
-                }
+                $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, access_level=?, is_active=?, display_order=? WHERE id=?");
+                $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order, $id]);
                 setFlash('success', 'प्रतिवेदन अपडेट भयो।');
             }
         } elseif ($action === 'delete') {

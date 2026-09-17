@@ -747,7 +747,9 @@ assertFileContains('includes/auth-roles.php', 'function coop_widen_admin_role_en
 assertFileContains('includes/auth-roles.php', 'function admin_canonical_db_role', 'canonical DB role helper');
 assertFileContains('admin/includes/ensure-admin-tables.php', "ENUM('superadmin','super_admin','admin','staff','editor')", 'ensure-admin role ENUM aligned with install.sql');
 assertFileContains('admin/db-setup.php', "ENUM('superadmin','super_admin','admin','staff','editor')", 'db-setup core tables role ENUM aligned');
-assertFileContains('admin/includes/ensure-admin-tables.php', 'v15-schema-mig-role-alias-2026', 'admin schema lock bumped for role alias + ledger');
+assertFileContains('admin/includes/ensure-admin-tables.php', 'v16-reports-ip-access-level-2026', 'admin schema lock bumped for reports/IP access_level');
+assertFileContains('admin/reports.php', "safeAddColumn(\$__rptDb, 'reports', 'access_level'", 'admin reports ensures access_level column');
+assertFileNotContains('admin/reports.php', 'Column missing mid-migrate', 'reports no longer silently drop access_level');
 assertFileContains('includes/auth-roles.php', 'function coop_normalize_admin_role_aliases', 'alias-only role row normalize helper');
 assertFileContains('includes/auth-roles.php', "SET `role` = 'super_admin' WHERE `role` = 'superadmin'", 'role normalize is alias-only UPDATE');
 assertFileContains('includes/auth-roles.php', 'admin_canonical_db_role($role)', 'set_admin_session canonicalizes role alias');
