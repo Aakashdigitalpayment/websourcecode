@@ -259,7 +259,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Personal Information
             $full_name = clean_text($_POST['full_name'] ?? '');
             $full_name_en = clean_text($_POST['full_name_en'] ?? '');
-            $member_id = strtoupper(trim(clean_text($_POST['member_id'] ?? '')));
+            $member_id = function_exists('memberSsotNormalizeId')
+                ? memberSsotNormalizeId(clean_text($_POST['member_id'] ?? ''))
+                : strtoupper(trim(clean_text($_POST['member_id'] ?? '')));
             $dob_bs = clean_text($_POST['dob_bs'] ?? '');
             $dob_ad = clean_text($_POST['dob_ad'] ?? '');
             $dob_ad = ($dob_ad === '' ? null : $dob_ad);
@@ -268,7 +270,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nationality = clean_text($_POST['nationality'] ?? 'नेपाली');
 
             // Contact Information
-            $mobile = clean_text($_POST['mobile'] ?? '');
+            $mobile = function_exists('memberSsotNormalizeMobile')
+                ? memberSsotNormalizeMobile(clean_text($_POST['mobile'] ?? ''))
+                : clean_text($_POST['mobile'] ?? '');
             $email = clean_text($_POST['email'] ?? '');
             // v10.4 — Structured address (Province/District/Municipality/Ward/Tole) auto-composed
             $existingKycAddr = []; // filled later on update path
@@ -1233,7 +1237,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i><?php echo isEnglish() ? 'Become a Member' : 'सदस्य बन्नुस्'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="kyc_f0_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <label for="kyc_f0_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपाली)'; ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="full_name" id="kyc_f0_full_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -1332,7 +1336,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <input type="text" name="member_id" id="kyc_f2_member_id" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
                                 <div class="col-md-6 mb-3"><label for="kyc_f2_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile' : 'मोबाइल'; ?></label>
                                     <input type="tel" name="mobile" id="kyc_f2_mobile" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
-                                <div class="col-md-6 mb-3"><label for="kyc_f2_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपाली)'; ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="full_name" id="kyc_f2_full_name" class="form-control" required value="<?php echo htmlspecialchars((string)($prefillInput['full_name'] ?? $_POST['full_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>></div>
                                 <div class="col-md-6 mb-3"><label for="kyc_f2_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
                                     <input type="email" name="email" id="kyc_f2_email" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['email'] ?? $_POST['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['email']) ? ' readonly' : ''; ?>></div>

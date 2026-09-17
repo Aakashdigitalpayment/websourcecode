@@ -929,6 +929,53 @@ if (!function_exists('_memberImportImportChunk')) {
                         ]);
                     }
                 } catch (Throwable $insEx) {
+                    $msgIns = $insEx->getMessage();
+                    /* Pre-migration DB without name_np: retry INSERT without that column */
+                    if (stripos($msgIns, 'name_np') !== false || stripos($msgIns, 'Unknown column') !== false) {
+                        try {
+                            if ($hasCardExpires) {
+                                $ins = $pdo->prepare(
+                                    "INSERT INTO members
+                                        (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                         approval_status, approved_at, approved_by, is_active, card_expires_at)
+                                     VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1, DATE_ADD(NOW(), INTERVAL 5 YEAR))"
+                                );
+                                $ins->execute([
+                                    $name,
+                                    $email !== '' ? $email : null,
+                                    $mobile !== '' ? $mobile : null,
+                                    $sid,
+                                    $hash,
+                                    $address !== '' ? $address : null,
+                                    $dob !== '' ? $dob : null,
+                                    $gender !== '' ? $gender : null,
+                                    $adminId > 0 ? $adminId : null,
+                                ]);
+                            } else {
+                                $ins = $pdo->prepare(
+                                    "INSERT INTO members
+                                        (name, email, phone, sadasyata_number, password_hash, address, dob, gender,
+                                         approval_status, approved_at, approved_by, is_active)
+                                     VALUES (?,?,?,?,?,?,?,?, 'approved', NOW(), ?, 1)"
+                                );
+                                $ins->execute([
+                                    $name,
+                                    $email !== '' ? $email : null,
+                                    $mobile !== '' ? $mobile : null,
+                                    $sid,
+                                    $hash,
+                                    $address !== '' ? $address : null,
+                                    $dob !== '' ? $dob : null,
+                                    $gender !== '' ? $gender : null,
+                                    $adminId > 0 ? $adminId : null,
+                                ]);
+                            }
+                            $insEx = null;
+                        } catch (Throwable $insEx2) {
+                            $insEx = $insEx2;
+                        }
+                    }
+                    if ($insEx !== null) {
                     /* Race / unique: same Member ID appeared — upsert when update mode */
                     if ($mode === 'update' && stripos($insEx->getMessage(), 'Duplicate') !== false) {
                         $findBySid->execute([$sid]);
@@ -1000,6 +1047,7 @@ if (!function_exists('_memberImportImportChunk')) {
                         }
                     }
                     throw $insEx;
+                    } /* end if ($insEx !== null) */
                 }
 
                 $memberPk = (int)$pdo->lastInsertId();
@@ -1016,6 +1064,7 @@ if (!function_exists('_memberImportImportChunk')) {
                     $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk, [
                         'id' => $memberPk,
                         'name' => $name,
+                        'name_np' => $nameNp,
                         'email' => $email,
                         'phone' => $mobile,
                         'sadasyata_number' => $sid,
