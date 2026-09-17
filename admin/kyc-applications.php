@@ -470,7 +470,9 @@ if (isset($_POST['update_status'])) {
     $remarks = clean_text($_POST['remarks'] ?? '');
     $riskCategory = strtolower(trim((string)($_POST['risk_category'] ?? 'medium')));
     if (!in_array($riskCategory, ['low','medium','high'], true)) $riskCategory = 'medium';
-    $editMemberId = strtoupper(trim(clean_text($_POST['member_id'] ?? '')));
+    $editMemberId = function_exists('memberSsotNormalizeId')
+        ? memberSsotNormalizeId(clean_text($_POST['member_id'] ?? ''))
+        : strtoupper(trim(clean_text($_POST['member_id'] ?? '')));
     $newFile = adminUploadFile('admin_attachment');
     $oldStatus = '';
     $notifyOptIn = !empty($_POST['notify_member']) && $_POST['notify_member'] === '1';

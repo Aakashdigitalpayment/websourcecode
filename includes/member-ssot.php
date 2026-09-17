@@ -30,7 +30,39 @@ if (!function_exists('memberSsotNormalizeId')) {
     {
         $id = memberSsotDevanagariDigitsToLatin(trim((string) $id));
         /* Coop Member IDs are Latin alphanumeric — normalize case for consistent match/store */
-        return strtoupper($id);
+        $id = preg_replace('/\s+/u', '', $id) ?? '';
+        return strtoupper(mb_substr($id, 0, 50));
+    }
+}
+
+if (!function_exists('memberSsotLatinDigitsToDevanagari')) {
+    /** Latin 0–9 → Devanagari ०–९ (legacy rows that stored Nepali digits). */
+    function memberSsotLatinDigitsToDevanagari(string $s): string
+    {
+        return strtr($s, [
+            '0' => '०', '1' => '१', '2' => '२', '3' => '३', '4' => '४',
+            '5' => '५', '6' => '६', '7' => '७', '8' => '८', '9' => '९',
+        ]);
+    }
+}
+
+if (!function_exists('memberSsotIdLookupVariants')) {
+    /**
+     * Canonical Latin ID + Devanagari-digit form for legacy DB matches.
+     * @return list<string>
+     */
+    function memberSsotIdLookupVariants(?string $id): array
+    {
+        $norm = memberSsotNormalizeId($id);
+        if ($norm === '') {
+            return [];
+        }
+        $out = [$norm];
+        $deva = memberSsotLatinDigitsToDevanagari($norm);
+        if ($deva !== $norm) {
+            $out[] = $deva;
+        }
+        return array_values(array_unique($out));
     }
 }
 
@@ -135,15 +167,18 @@ if (!function_exists('memberSsotFindBySadasyata')) {
     /** @return array<string,mixed>|null */
     function memberSsotFindBySadasyata(PDO $db, string $memberId): ?array
     {
-        $memberId = memberSsotNormalizeId($memberId);
-        if ($memberId === '') {
+        $variants = memberSsotIdLookupVariants($memberId);
+        if ($variants === []) {
             return null;
         }
         try {
+            $ph = implode(',', array_fill(0, count($variants), '?'));
             $st = $db->prepare(
-                'SELECT * FROM members WHERE UPPER(TRIM(sadasyata_number)) = ? LIMIT 1'
+                "SELECT * FROM members WHERE UPPER(TRIM(sadasyata_number)) IN ({$ph})
+                    OR TRIM(sadasyata_number) IN ({$ph})
+                 LIMIT 1"
             );
-            $st->execute([$memberId]);
+            $st->execute(array_merge($variants, $variants));
             $row = $st->fetch(PDO::FETCH_ASSOC);
             return $row ?: null;
         } catch (Throwable $e) {
@@ -161,20 +196,21 @@ if (!function_exists('memberSsotFindKycByMemberId')) {
      */
     function memberSsotFindKycByMemberId(PDO $db, string $memberId, bool $includeRejectedFallback = false): ?array
     {
-        $memberId = memberSsotNormalizeId($memberId);
-        if ($memberId === '') {
+        $variants = memberSsotIdLookupVariants($memberId);
+        if ($variants === []) {
             return null;
         }
+        $ph = implode(',', array_fill(0, count($variants), '?'));
         try {
             $st = $db->prepare(
                 "SELECT * FROM kyc_applications
-                 WHERE UPPER(TRIM(member_id)) = ?
+                 WHERE (UPPER(TRIM(member_id)) IN ({$ph}) OR TRIM(member_id) IN ({$ph}))
                    AND (deleted_at IS NULL OR deleted_at = '0000-00-00 00:00:00')
                    AND status <> 'rejected'
                  ORDER BY FIELD(status,'approved','pending','incomplete','partial') ASC, id DESC
                  LIMIT 1"
             );
-            $st->execute([$memberId]);
+            $st->execute(array_merge($variants, $variants));
             $row = $st->fetch(PDO::FETCH_ASSOC);
             if ($row) {
                 return $row;
@@ -184,11 +220,12 @@ if (!function_exists('memberSsotFindKycByMemberId')) {
             try {
                 $st = $db->prepare(
                     "SELECT * FROM kyc_applications
-                     WHERE UPPER(TRIM(member_id)) = ? AND status <> 'rejected'
+                     WHERE (UPPER(TRIM(member_id)) IN ({$ph}) OR TRIM(member_id) IN ({$ph}))
+                       AND status <> 'rejected'
                      ORDER BY FIELD(status,'approved','pending','incomplete','partial') ASC, id DESC
                      LIMIT 1"
                 );
-                $st->execute([$memberId]);
+                $st->execute(array_merge($variants, $variants));
                 $row = $st->fetch(PDO::FETCH_ASSOC);
                 if ($row) {
                     return $row;
@@ -204,12 +241,12 @@ if (!function_exists('memberSsotFindKycByMemberId')) {
         try {
             $st = $db->prepare(
                 "SELECT * FROM kyc_applications
-                 WHERE UPPER(TRIM(member_id)) = ?
+                 WHERE (UPPER(TRIM(member_id)) IN ({$ph}) OR TRIM(member_id) IN ({$ph}))
                    AND status = 'rejected'
                  ORDER BY id DESC
                  LIMIT 1"
             );
-            $st->execute([$memberId]);
+            $st->execute(array_merge($variants, $variants));
             $row = $st->fetch(PDO::FETCH_ASSOC);
             return $row ?: null;
         } catch (Throwable $e) {
@@ -279,7 +316,8 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
 
             $nameEn = trim((string)($memberRow['name'] ?? ''));
             $nameNp = trim((string)($memberRow['name_np'] ?? ''));
-            $kycNepali = $nameNp !== '' ? $nameNp : ($nameEn !== '' ? $nameEn : ('Member ' . $sid));
+            /* Never copy English into KYM Nepali full_name — leave empty for soft-fill if no name_np */
+            $kycNepali = $nameNp;
             $kycEnglish = $nameEn;
             $phone = preg_replace('/[^0-9]/', '', memberSsotDevanagariDigitsToLatin((string)($memberRow['phone'] ?? ''))) ?: '';
             if (strlen($phone) > 10 && str_starts_with($phone, '977')) {
@@ -301,9 +339,9 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 try {
                     $db->prepare(
                         "UPDATE kyc_applications SET
-                            full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
-                            full_name_en = CASE WHEN full_name_en IS NULL OR TRIM(full_name_en) = '' THEN ? ELSE full_name_en END,
-                            mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
+                            full_name = CASE WHEN (full_name IS NULL OR TRIM(full_name) = '') AND ? <> '' THEN ? ELSE full_name END,
+                            full_name_en = CASE WHEN (full_name_en IS NULL OR TRIM(full_name_en) = '') AND ? <> '' THEN ? ELSE full_name_en END,
+                            mobile = CASE WHEN (mobile IS NULL OR TRIM(mobile) = '') AND ? <> '' THEN ? ELSE mobile END,
                             email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
                             permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
                             gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
@@ -311,9 +349,9 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                             updated_at = NOW()
                          WHERE id = ?"
                     )->execute([
-                        $kycNepali,
-                        $kycEnglish,
-                        $phone,
+                        $kycNepali, $kycNepali,
+                        $kycEnglish, $kycEnglish,
+                        $phone, $phone,
                         $email, $email,
                         $address, $address,
                         $gender, $gender,
@@ -323,8 +361,8 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 } catch (Throwable $eFill) {
                     $db->prepare(
                         "UPDATE kyc_applications SET
-                            full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
-                            mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
+                            full_name = CASE WHEN (full_name IS NULL OR TRIM(full_name) = '') AND ? <> '' THEN ? ELSE full_name END,
+                            mobile = CASE WHEN (mobile IS NULL OR TRIM(mobile) = '') AND ? <> '' THEN ? ELSE mobile END,
                             email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
                             permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
                             gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
@@ -332,8 +370,8 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                             updated_at = NOW()
                          WHERE id = ?"
                     )->execute([
-                        $kycNepali,
-                        $phone,
+                        $kycNepali, $kycNepali,
+                        $phone, $phone,
                         $email, $email,
                         $address, $address,
                         $gender, $gender,
@@ -357,6 +395,8 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 }
             }
             $hasTracking = $hasTrackingCol;
+            /* full_name NOT NULL — Nepali if available, else temporary label (not English CVV) */
+            $stubFullName = $kycNepali !== '' ? $kycNepali : ('सदस्य ' . $sid);
 
             if ($hasTracking) {
                 $ins = $db->prepare(
@@ -367,7 +407,7 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 $ins->execute([
                     $trackingId,
                     $sid,
-                    $kycNepali,
+                    $stubFullName,
                     $phone !== '' ? $phone : null,
                     $email !== '' ? $email : null,
                     $address !== '' ? $address : null,
@@ -382,7 +422,7 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 );
                 $ins->execute([
                     $sid,
-                    $kycNepali,
+                    $stubFullName,
                     $phone !== '' ? $phone : null,
                     $email !== '' ? $email : null,
                     $address !== '' ? $address : null,
@@ -943,8 +983,8 @@ if (!function_exists('memberSsotSyncKycFromMember')) {
 
             $nameEn = trim((string)($memberRow['name'] ?? ''));
             $nameNp = trim((string)($memberRow['name_np'] ?? ''));
-            /* KYM: full_name = Nepali, full_name_en = English (CVV / Latin) */
-            $kycNepali = $nameNp !== '' ? $nameNp : $nameEn;
+            /* KYM: full_name = Nepali only; full_name_en = English — never EN→Nepali */
+            $kycNepali = $nameNp;
             $kycEnglish = $nameEn;
             $phone = function_exists('memberSsotNormalizeMobile')
                 ? memberSsotNormalizeMobile((string)($memberRow['phone'] ?? ''))
