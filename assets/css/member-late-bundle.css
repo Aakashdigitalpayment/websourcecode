@@ -8777,4 +8777,21 @@ body.admin-page-manage-admins .badge svg {
   vertical-align: -0.1em;
   display: inline-block !important;
 }
+
+/* ── Hero text: no frosted glass panel (photo stays sharp) ─────────
+ * app-public had a padded dark card + backdrop blur over faces.
+ * Theme 2.9 + this late kill: readability via left scrim + text-shadow only.
+ */
+.hero-slider .hero-text-wrapper,
+.hero-slide-modern .hero-text-wrapper,
+.slider-content .hero-text-wrapper,
+.hero-text-wrapper {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0.15rem 0.25rem 0.25rem !important;
+}
 /* ===== END final-ui-polish.css ===== */
