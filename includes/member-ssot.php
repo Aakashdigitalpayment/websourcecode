@@ -1378,7 +1378,8 @@ if (!function_exists('memberSsotCompareSharedContact')) {
             return [];
         }
         $pairs = [
-            ['name', 'full_name', 'नाम'],
+            ['name', 'full_name_en', 'नाम (EN)'],
+            ['name_np', 'full_name', 'नाम (नेपाली)'],
             ['phone', 'mobile', 'मोबाइल'],
             ['email', 'email', 'इमेल'],
             ['address', 'permanent_address', 'ठेगाना'],

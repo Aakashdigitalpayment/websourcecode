@@ -358,12 +358,14 @@ if (isset($_POST['update_kyc_profile'])) {
 
     $fullName = mb_substr(trim(clean_text($_POST['full_name'] ?? '')), 0, 200);
     if ($fullName === '') {
-        setFlash('error', 'पूरा नाम अनिवार्य छ।');
+        setFlash('error', 'पूरा नाम (नेपाली) अनिवार्य छ।');
         redirect('kyc-applications.php?view=' . $id . '#kycProfileEdit');
     }
 
     $fullNameEn = mb_substr(trim(clean_text($_POST['full_name_en'] ?? '')), 0, 200);
-    $mobile = preg_replace('/[^0-9]/', '', (string)($_POST['mobile'] ?? ''));
+    $mobile = function_exists('memberSsotNormalizeMobile')
+        ? memberSsotNormalizeMobile((string)($_POST['mobile'] ?? ''))
+        : (preg_replace('/[^0-9]/', '', (string)($_POST['mobile'] ?? '')) ?: '');
     if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
         $mobile = substr($mobile, -10);
     }
@@ -875,11 +877,11 @@ if ($viewApp):
                 <div class="adm-info-group">
                     <div class="adm-info-group-header"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>व्यक्तिगत जानकारी</div>
                     <table class="table adm-detail-table">
-                        <tr><th>पूरा नाम</th>
+                        <tr><th>पूरा नाम (नेपाली)</th>
                             <td><strong><?php echo htmlspecialchars($viewApp['full_name'] ?? '—'); ?></strong></td></tr>
                         <tr><th>सदस्यता नं. (Member ID)</th>
                             <td><code class="text-primary fw-bold"><?php echo htmlspecialchars($viewApp['member_id'] ?? '—'); ?></code></td></tr>
-                        <tr><th>Full Name (EN)</th>
+                        <tr><th>Full Name (English)</th>
                             <td><?php echo htmlspecialchars($viewApp['full_name_en'] ?: '—'); ?></td></tr>
                         <tr><th>जन्म मिति (BS)</th>
                             <td><?php echo htmlspecialchars($viewApp['dob_bs'] ?: '—'); ?></td></tr>
@@ -1340,14 +1342,16 @@ if ($viewApp):
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="kycEditPersonal" role="tabpanel">
                                     <div class="mb-2">
-                                        <label for="kyc_ed_full_name" class="form-label fw-semibold small">पूरा नाम <span class="text-danger">*</span></label>
+                                        <label for="kyc_ed_full_name" class="form-label fw-semibold small">पूरा नाम (नेपाली) <span class="text-danger">*</span></label>
                                         <input type="text" name="full_name" id="kyc_ed_full_name" class="form-control form-control-sm" required maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['full_name'] ?? '')); ?>">
+                                        <div class="form-text">Members <code>name_np</code> सँग sync।</div>
                                     </div>
                                     <div class="mb-2">
-                                        <label for="kyc_ed_full_name_en" class="form-label fw-semibold small">Full Name (EN)</label>
+                                        <label for="kyc_ed_full_name_en" class="form-label fw-semibold small">Full Name (English / CVV)</label>
                                         <input type="text" name="full_name_en" id="kyc_ed_full_name_en" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['full_name_en'] ?? '')); ?>">
+                                        <div class="form-text">Members <code>name</code> सँग sync।</div>
                                     </div>
                                     <div class="row g-2">
                                         <div class="col-6">

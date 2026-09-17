@@ -14,6 +14,7 @@ $kycRow = null;
 $kycLocked = false;
 $kycDocCols = ['photo' => true, 'signature' => false, 'left_thumb' => false, 'right_thumb' => false];
 $viewName = trim((string)($mem['name'] ?? ''));
+$viewNameNp = trim((string)($mem['name_np'] ?? ''));
 $viewEmail = trim((string)($mem['email'] ?? ''));
 $viewPhone = trim((string)($mem['phone'] ?? ''));
 $viewAddress = trim((string)($mem['address'] ?? ''));
@@ -67,7 +68,17 @@ try {
         }
         $kycLocked = (($kycRow['status'] ?? '') === 'approved');
         // KYC लाई primary display source बनाउने (duplicate mismatch रोक्न)
-        $viewName = trim((string)($kycRow['full_name'] ?? '')) !== '' ? trim((string)$kycRow['full_name']) : $viewName;
+        // KYM: full_name = Nepali, full_name_en = English — members.name = EN, name_np = NP
+        $kycNp = trim((string)($kycRow['full_name'] ?? ''));
+        $kycEn = trim((string)($kycRow['full_name_en'] ?? ''));
+        if ($kycNp !== '') {
+            $viewNameNp = $kycNp;
+        }
+        if ($kycEn !== '') {
+            $viewName = $kycEn;
+        } elseif ($kycNp !== '' && $viewName === '') {
+            $viewName = $kycNp;
+        }
         $viewEmail = trim((string)($kycRow['email'] ?? '')) !== '' ? trim((string)$kycRow['email']) : $viewEmail;
         $viewPhone = trim((string)($kycRow['mobile'] ?? '')) !== '' ? trim((string)$kycRow['mobile']) : $viewPhone;
         $viewAddress = trim((string)($kycRow['permanent_address'] ?? '')) !== '' ? trim((string)$kycRow['permanent_address']) : $viewAddress;
@@ -134,32 +145,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
     } elseif ($kycLocked) {
         $error = 'तपाईंको केवाइएम स्वीकृत भइसकेको छ। Profile जानकारी edit गर्न Admin लाई सम्पर्क गर्नुहोस्।';
     } else {
-        $name    = trim($_POST['name']    ?? '');
-        $phone   = trim($_POST['phone']   ?? '');
+        $name    = trim($_POST['name']    ?? ''); /* English / CVV */
+        $nameNp  = trim($_POST['name_np'] ?? ''); /* Nepali */
+        $phoneRaw = trim($_POST['phone']   ?? '');
+        $phone   = function_exists('memberSsotNormalizeMobile')
+            ? memberSsotNormalizeMobile($phoneRaw)
+            : preg_replace('/[^0-9]/', '', $phoneRaw);
         $address = trim($_POST['address'] ?? '');
         $gender  = trim($_POST['gender']  ?? '');
         $dob     = trim($_POST['dob']     ?? '');
+        if ($nameNp === '' && $name !== '') {
+            $nameNp = $name; /* legacy single-field posts */
+        }
+        if ($name === '' && $nameNp !== '') {
+            $name = $nameNp;
+        }
 
-        if (!$name) $error = 'नाम राख्नुहोस्।';
+        if ($name === '' && $nameNp === '') $error = 'नाम राख्नुहोस्।';
         else {
             if ($kycRow && in_array((string)($kycRow['status'] ?? ''), ['pending','incomplete','partial'], true)) {
-                $db->prepare("UPDATE kyc_applications
-                              SET full_name=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
-                              WHERE id=?")
-                   ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
+                try {
+                    $db->prepare("UPDATE kyc_applications
+                                  SET full_name=?, full_name_en=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
+                                  WHERE id=?")
+                       ->execute([$nameNp !== '' ? $nameNp : $name, $name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
+                } catch (Throwable $eProfEn) {
+                    $db->prepare("UPDATE kyc_applications
+                                  SET full_name=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
+                                  WHERE id=?")
+                       ->execute([$nameNp !== '' ? $nameNp : $name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
+                }
                 if (function_exists('memberSsotAfterKycWrite')) {
                     memberSsotAfterKycWrite($db, (int)$kycRow['id']);
                 }
-                $_SESSION['member_name'] = $name;
+                $_SESSION['member_name'] = $name !== '' ? $name : $nameNp;
                 $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
                 $mem = currentMember();
             } elseif (!$kycRow) {
-                $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
-                   ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                try {
+                    $db->prepare("UPDATE members SET name=?, name_np=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
+                       ->execute([$name, $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                } catch (Throwable $eMemNp) {
+                    $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
+                       ->execute([$name !== '' ? $name : $nameNp, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                }
                 if (function_exists('memberSsotAfterMemberWrite')) {
                     memberSsotAfterMemberWrite($db, $memberId);
                 }
-                $_SESSION['member_name'] = $name;
+                $_SESSION['member_name'] = $name !== '' ? $name : $nameNp;
                 $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
                 $mem = currentMember();
             } else {
@@ -306,7 +339,10 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <div class="mem-kym-avatar-fallback mem-kym-avatar-fallback--show" aria-hidden="true"><?php echo htmlspecialchars(mb_substr($viewName, 0, 1)); ?></div>
                         <?php endif; ?>
                         <div class="mem-kym-hero-text">
-                            <h2 class="mem-kym-name"><?php echo htmlspecialchars($viewName ?: '—'); ?></h2>
+                            <h2 class="mem-kym-name"><?php echo htmlspecialchars(($viewNameNp !== '' ? $viewNameNp : $viewName) ?: '—'); ?></h2>
+                            <?php if ($viewNameNp !== '' && $viewName !== '' && $viewName !== $viewNameNp): ?>
+                            <p class="mem-kym-name-en" style="margin:2px 0 0;font-size:0.9rem;opacity:0.85;"><?php echo htmlspecialchars($viewName); ?></p>
+                            <?php endif; ?>
                             <?php if (!empty($mem['member_card_no'])): ?>
                             <p class="mem-kym-member-id"><i class="lucide-icon" data-lucide="badge-check" aria-hidden="true"></i><?php echo htmlspecialchars($mem['member_card_no']); ?></p>
                             <?php endif; ?>
@@ -472,8 +508,8 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <div class="table-responsive">
                             <table class="kyc-detail-table" style="width:100%;font-size:0.8rem;border-collapse:collapse;">
                                 <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;width:38%;">सदस्यता नं.</td><td><code><?php echo htmlspecialchars($kycRow['member_id'] ?? '—'); ?></code></td></tr>
-                                <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">नाम</td><td><?php echo htmlspecialchars($kycRow['full_name'] ?? '—'); ?></td></tr>
-                                <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">नाम (EN)</td><td><?php echo htmlspecialchars($kycRow['full_name_en'] ?? '—'); ?></td></tr>
+                                <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">नाम (नेपाली)</td><td><?php echo htmlspecialchars($kycRow['full_name'] ?? '—'); ?></td></tr>
+                                <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">नाम (English)</td><td><?php echo htmlspecialchars($kycRow['full_name_en'] ?? '—'); ?></td></tr>
                                 <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">मोबाइल</td><td><?php echo htmlspecialchars($kycRow['mobile'] ?? '—'); ?></td></tr>
                                 <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">इमेल</td><td><?php echo htmlspecialchars($kycRow['email'] ?? '—'); ?></td></tr>
                                 <tr><td style="color:#6b7280;padding:4px 0;font-weight:600;">लिङ्ग</td><td><?php echo htmlspecialchars($kycRow['gender'] ?? '—'); ?></td></tr>
