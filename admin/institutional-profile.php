@@ -49,6 +49,7 @@ if ($tableExists) {
         'liquidity_percent' => "DECIMAL(8,2) DEFAULT 0 COMMENT 'तरलता अनुपात'",
         'npl_percent' => "DECIMAL(5,2) DEFAULT 0 COMMENT 'NPL %'",
         'attachment_path' => "VARCHAR(255) DEFAULT '' COMMENT 'PDF/photo attachment'",
+        'access_level' => "ENUM('none','member') NOT NULL DEFAULT 'none' COMMENT 'none=public, member=member-only actions'",
         'other_fund' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'अन्य कोष'",
         'bank_cash_balance' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'बैंक तथा नगद मौज्दात'",
         'fixed_assets' => "DECIMAL(18,2) DEFAULT 0 COMMENT 'स्थिर सम्पत्ति'",
@@ -126,6 +127,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $report_note                = clean_text($_POST['report_note']               ?? '');
         $attachment_path            = clean_text($_POST['existing_attachment_path']   ?? '');
         $is_active                  = isset($_POST['is_active']) ? 1 : 0;
+        $access_level               = (isset($_POST['access_level']) && (string) $_POST['access_level'] === 'member') ? 'member' : 'none';
 
         if (empty($fiscal_year)) {
             $_SESSION['flash_error'] = 'आर्थिक वर्ष अनिवार्य छ।';
@@ -173,7 +175,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             'loan','loan_percent','total_loan_members',
             'total_loan_reserve_fund','total_loan_reserve_percent',
             'npa_percent','liquidity_percent','npl_percent',
-            'report_note','attachment_path','is_active'
+            'report_note','attachment_path','access_level','is_active'
         );
 
         try {
@@ -498,7 +500,15 @@ echo adminPageHeader(
             <?php $npa = (float)$p['npa_percent']; ?>
             <span class="badge <?php echo npaClass($npa); ?>"><?php echo $npa; ?>%</span>
           </td>
-          <td class="ip-col ip-col-shared"><?php echo adminToggleBtn((int)$p['id'], $p['is_active'], $csrf); ?></td>
+          <td class="ip-col ip-col-shared"><?php echo adminToggleBtn((int)$p['id'], $p['is_active'], $csrf); ?>
+            <?php if (($p['access_level'] ?? 'none') === 'member'): ?>
+            <span class="badge bg-warning text-dark mt-1 d-inline-flex align-items-center gap-1">
+              <i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="width:12px;height:12px;"></i>सदस्य
+            </span>
+            <?php else: ?>
+            <span class="badge bg-light text-muted border mt-1">सार्वजनिक</span>
+            <?php endif; ?>
+          </td>
           <td class="ip-col ip-col-shared">
             <div class="d-flex gap-1">
               <?php echo adminEditBtn('', $selfUrl . '?action=edit&id=' . $p['id']); ?>
@@ -829,6 +839,22 @@ echo adminPageHeader(
                 </label>
               </div>
               <small class="text-muted">Checked = Public website मा देखिन्छ</small>
+              <div class="mt-3">
+                <div class="form-label">पहुँच (Access)</div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="access_level" id="ipAccessNone" value="none"
+                         ' . (((string)$v('access_level', 'none') !== 'member') ? 'checked' : '') . '
+                         data-testid="institutional-profile-access-none">
+                  <label class="form-check-label" for="ipAccessNone">None (सार्वजनिक)</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="access_level" id="ipAccessMember" value="member"
+                         ' . (((string)$v('access_level', 'none') === 'member') ? 'checked' : '') . '
+                         data-testid="institutional-profile-access-member">
+                  <label class="form-check-label" for="ipAccessMember">Only member</label>
+                </div>
+                <small class="text-muted">Member = रकम / कागजात / सेयर अघि सदस्यता नम्बर चाहिन्छ</small>
+              </div>
             </div>
           </div>
         '); ?>

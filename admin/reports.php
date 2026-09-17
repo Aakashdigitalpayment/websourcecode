@@ -101,6 +101,7 @@ checkCSRF();
             $report_quarter = $report_type === 'quarterly' ? clean_text($_POST['report_quarter'] ?? '') : null;
             $is_active = isset($_POST['is_active']) ? 1 : 0;
             $display_order = (int)($_POST['display_order'] ?? 0);
+            $access_level = (isset($_POST['access_level']) && (string) $_POST['access_level'] === 'member') ? 'member' : 'none';
 
             // Keep existing file from DB only (never trust POST path)
             $file_path = '';
@@ -133,12 +134,23 @@ checkCSRF();
             }
 
             if ($action === 'add') {
-                $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order]);
+                try {
+                    $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, access_level, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order]);
+                } catch (Exception $e) {
+                    /* Column missing mid-migrate */
+                    $stmt = $db->prepare("INSERT INTO reports (title, title_np, report_type, report_year, report_month, report_quarter, file_path, is_active, display_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order]);
+                }
                 setFlash('success', 'प्रतिवेदन थपियो।');
             } else {
-                $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, is_active=?, display_order=? WHERE id=?");
-                $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order, $id]);
+                try {
+                    $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, access_level=?, is_active=?, display_order=? WHERE id=?");
+                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order, $id]);
+                } catch (Exception $e) {
+                    $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, is_active=?, display_order=? WHERE id=?");
+                    $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $is_active, $display_order, $id]);
+                }
                 setFlash('success', 'प्रतिवेदन अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
@@ -310,6 +322,22 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                             <?php endif; ?>
                         </div>
 
+                        <?php
+                        $editAccess = (($editReport['access_level'] ?? 'none') === 'member') ? 'member' : 'none';
+                        ?>
+                        <div class="mb-3">
+                            <span class="form-label d-block"><?php echo $__t('पहुँच', 'Access'); ?></span>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="access_level" id="rptAccessNone" value="none" <?php echo $editAccess === 'none' ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="rptAccessNone"><?php echo $__t('None (सबै सार्वजनिक)', 'None (public — anyone)'); ?></label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="access_level" id="rptAccessMember" value="member" <?php echo $editAccess === 'member' ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="rptAccessMember"><?php echo $__t('Only member (हेर्नु/डाउनलोड/सेयर अघि सदस्यता नम्बर)', 'Only member (require membership ID before view/download/share)'); ?></label>
+                            </div>
+                            <div class="form-text"><?php echo $__t('सूचीमा शीर्षक देखिन्छ; member मात्र भए फाइल क्रियाहरू लक हुन्छन्।', 'Title stays listed; member-only locks file actions.'); ?></div>
+                        </div>
+
                         <div class="mb-3 form-check">
                             <input type="checkbox" name="is_active" class="form-check-input" id="isActive"
                                    <?php echo ($editReport['is_active'] ?? 1) ? 'checked' : ''; ?>>
@@ -406,6 +434,14 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                         <span class="badge rounded-pill <?php echo $report['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
                                             <?php echo $report['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?>
                                         </span>
+                                        <?php if (($report['access_level'] ?? 'none') === 'member'): ?>
+                                        <span class="badge rounded-pill bg-warning text-dark ms-1" title="<?php echo $__t('सदस्य मात्र','Members only'); ?>">
+                                            <i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="width:12px;height:12px;"></i>
+                                            <?php echo $__t('सदस्य','Member'); ?>
+                                        </span>
+                                        <?php else: ?>
+                                        <span class="badge rounded-pill bg-light text-muted border ms-1"><?php echo $__t('सार्वजनिक','Public'); ?></span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="align-middle rpt-actions-cell">
                                         <div class="rpt-row-actions">

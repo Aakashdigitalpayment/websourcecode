@@ -108,6 +108,12 @@ assertFileContains('member/push-subscribe.php', 'verifyCSRFToken', 'push subscri
 assertFileContains('member/includes/chrome.php', 'MEMBER_PUSH_CSRF', 'push subscribe client CSRF token');
 assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon class sanitizer');
 assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
+assertFileContains('reports.php', 'public-member-access.php', 'reports member gate helper');
+assertFileContains('report-file.php', 'Access denied.', 'report proxy denies locked access');
+assertFileContains('institutional-profile-file.php', 'Access denied.', 'IP proxy denies locked access');
+assertFileContains('includes/public-member-access.php', 'COOP_PMA_MAX_FAILS', 'member unlock rate limit');
+assertFileContains('admin/reports.php', "name=\"access_level\"", 'admin reports access_level');
+assertFileContains('admin/institutional-profile.php', "'access_level'", 'admin IP persists access_level');
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
 assertFileContains('includes/config.php', 'function coop_new_tracking_id', 'strong tracking id helper');
 assertFileContains('includes/config.php', 'COOP_HMAC_LEGACY_SECRET', 'HMAC legacy only via optional local define');

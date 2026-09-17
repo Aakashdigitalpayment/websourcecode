@@ -380,6 +380,7 @@ CREATE TABLE IF NOT EXISTS reports (
     report_month VARCHAR(20),
     report_quarter VARCHAR(10),
     file_path VARCHAR(255),
+    access_level ENUM('none','member') NOT NULL DEFAULT 'none',
     is_active TINYINT(1) DEFAULT 1,
     display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -1185,6 +1186,7 @@ CREATE TABLE IF NOT EXISTS institutional_profile (
     total_loan_members INT DEFAULT 0,
     npa_percent DECIMAL(5,2) DEFAULT 0,
     profit_loss DECIMAL(18,2) DEFAULT 0,
+    access_level ENUM('none','member') NOT NULL DEFAULT 'none',
     is_active TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -1195,6 +1197,8 @@ CREATE TABLE IF NOT EXISTS institutional_profile (
 
 -- Upgrade-safe: पुरानो DB मा यदि profit_loss column छैन भने थप्ने
 ALTER TABLE institutional_profile ADD COLUMN IF NOT EXISTS profit_loss DECIMAL(18,2) DEFAULT 0 AFTER npa_percent;
+ALTER TABLE institutional_profile ADD COLUMN IF NOT EXISTS access_level ENUM('none','member') NOT NULL DEFAULT 'none';
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS access_level ENUM('none','member') NOT NULL DEFAULT 'none';
 ALTER TABLE institutional_profile ADD COLUMN IF NOT EXISTS other_fund DECIMAL(18,2) DEFAULT 0 AFTER total_assets;
 ALTER TABLE institutional_profile ADD COLUMN IF NOT EXISTS bank_cash_balance DECIMAL(18,2) DEFAULT 0 AFTER other_fund;
 ALTER TABLE institutional_profile ADD COLUMN IF NOT EXISTS fixed_assets DECIMAL(18,2) DEFAULT 0 AFTER bank_cash_balance;

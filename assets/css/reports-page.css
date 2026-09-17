@@ -161,3 +161,80 @@
     height: 2.6rem;
   }
 }
+
+.report-action-lock {
+  color: var(--primary-color, #0d6efd);
+  border-color: color-mix(in srgb, var(--primary-color, #0d6efd) 35%, transparent);
+  background: color-mix(in srgb, var(--primary-color, #0d6efd) 8%, transparent);
+}
+
+.report-member-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted, #6c757d);
+  align-self: center;
+}
+
+.report-member-badge-open {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.report-member-badge-open .lucide-icon,
+.report-member-badge-open svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.report-pma-panel {
+  margin-top: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #0d6efd) 22%, transparent);
+  background: color-mix(in srgb, var(--primary-color, #0d6efd) 5%, #fff);
+}
+
+.coop-pma-unlock-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.coop-pma-unlock-head .lucide-icon,
+.coop-pma-unlock-head svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.coop-pma-unlock-hint {
+  margin: 0 0 0.55rem;
+  font-size: 0.85rem;
+  color: var(--text-muted, #6c757d);
+}
+
+.coop-pma-unlock-label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.coop-pma-unlock-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.coop-pma-unlock-input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.coop-pma-error {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #b02a37;
+}
+

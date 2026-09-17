@@ -413,6 +413,17 @@ assertContains('reports.php', "coopThemeLinkHtml('assets/css/reports-page.css')"
 assertContains('reports.php', 'report-actions-icons', 'reports icon-only action row');
 assertContains('reports.php', 'report-action-share', 'reports share action present');
 assertContains('reports.php', 'data-share-text', 'share includes report details payload');
+assertContains('reports.php', 'public-member-access.php', 'reports loads member access helper');
+assertContains('reports.php', 'report-file.php', 'member reports use file proxy');
+assertContains('reports.php', 'report-action-lock', 'locked reports show lock action');
+assertContains('report-file.php', 'coopMemberAccessCanOpen', 'report proxy gates member access');
+assertContains('institutional-profile.php', 'public-member-access.php', 'IP loads member access helper');
+assertContains('institutional-profile.php', 'is-member-locked', 'IP locked tile class');
+assertContains('institutional-profile.php', 'institutional-profile-file.php', 'IP attachments use file proxy');
+assertContains('institutional-profile-file.php', 'coopMemberAccessCanOpen', 'IP proxy gates member access');
+assertContains('admin/reports.php', "name=\"access_level\"", 'admin reports access_level field');
+assertContains('admin/institutional-profile.php', 'institutional-profile-access-member', 'admin IP member access choice');
+assertContains('includes/public-member-access.php', 'coopTryUnlockBySadasyata', 'sadasyata unlock helper');
 assertContains('assets/css/reports-page.css', '.report-action-btn', 'reports icon button styles');
 assertContains('assets/css/reports-page.css', 'position: fixed', 'share menu uses fixed positioning');
 assertContains('reports.php', 'showFallbackMenu', 'share has desktop fallback menu');

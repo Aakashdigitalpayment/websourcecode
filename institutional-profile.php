@@ -8,9 +8,19 @@
  */
 require_once 'includes/config.php';
 require_once __DIR__ . '/includes/institutional-profile-helpers.php';
+require_once __DIR__ . '/includes/public-member-access.php';
 if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
     require_once __DIR__ . '/includes/nepali-bs-convert.php';
 }
+
+$pmaUnlock = coopMemberAccessHandleUnlockPost();
+if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
+    header('Location: ' . rtrim((string) SITE_URL, '/') . '/institutional-profile.php');
+    exit;
+}
+$pmaUnlockError = !empty($pmaUnlock['handled']) ? (string) ($pmaUnlock['error'] ?? '') : '';
+$pmaUnlocked = coopMemberAccessUnlocked();
+
 $pageTitle = isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल';
 $pageDescription = isEnglish()
     ? 'Key institutional indicators and financial profile of our cooperative.'
@@ -203,7 +213,16 @@ if (!$currentProfile || !$previousProfile) {
 </div>
 
 <?php
-$renderFeatured = static function (?array $p, string $kicker, string $title, string $sub, bool $isCurrent, bool $isEn): void {
+$ipCanViewProfile = static function (?array $p) use ($pmaUnlocked): bool {
+    if (!$p) {
+        return true;
+    }
+    $lvl = function_exists('coopAccessLevelNormalize')
+        ? coopAccessLevelNormalize((string) ($p['access_level'] ?? 'none'))
+        : 'none';
+    return $lvl !== 'member' || !empty($pmaUnlocked);
+};
+$renderFeatured = static function (?array $p, string $kicker, string $title, string $sub, bool $isCurrent, bool $isEn) use ($ipCanViewProfile): void {
     if (!$p) {
         echo '<div class="ip-featured-card ip-featured-empty">';
         echo '<span class="ip-featured-kicker"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> ' . htmlspecialchars($kicker) . '</span>';
@@ -217,6 +236,13 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     echo '<span class="ip-featured-kicker"><i class="lucide-icon" aria-hidden="true" data-lucide="' . ($isCurrent ? 'zap' : 'history') . '"></i> ' . htmlspecialchars($kicker) . '</span>';
     echo '<h3 class="ip-featured-title">' . htmlspecialchars($title) . '</h3>';
     echo '<p class="ip-featured-sub">' . htmlspecialchars($sub) . '</p>';
+    if (!$ipCanViewProfile($p)) {
+        echo '<div class="ip-featured-locked"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i> '
+            . htmlspecialchars($isEn ? 'Members only — unlock below' : 'सदस्य मात्र — तल अनलक गर्नुहोस्')
+            . '</div>';
+        echo '</article>';
+        return;
+    }
     echo '<div class="ip-featured-stats">';
     $stats = [
         [$isEn ? 'Members' : 'सदस्य', number_format((int)($p['total_members'] ?? 0))],
@@ -273,7 +299,13 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
 </div>
 
 <?php
-$ipChartSeries = coopIpBuildChartSeries($profiles, 12, $isEn);
+$chartProfiles = array_values(array_filter($profiles, static function (array $p) use ($pmaUnlocked): bool {
+    $lvl = function_exists('coopAccessLevelNormalize')
+        ? coopAccessLevelNormalize((string) ($p['access_level'] ?? 'none'))
+        : 'none';
+    return $lvl !== 'member' || !empty($pmaUnlocked);
+}));
+$ipChartSeries = coopIpBuildChartSeries($chartProfiles, 12, $isEn);
 if ($ipChartSeries['count'] >= 2):
 ?>
 <div class="ip-charts-section" data-aos="fade-up" data-testid="institutional-profile-charts">
@@ -367,21 +399,35 @@ if ($ipChartSeries['count'] >= 2):
         <?php
             $rowNo = $idx + 1;
             $rm = (int)($p['_month'] ?? 0);
+            $pid = (int)($p['id'] ?? 0);
+            $accessLevel = function_exists('coopAccessLevelNormalize')
+                ? coopAccessLevelNormalize((string)($p['access_level'] ?? 'none'))
+                : 'none';
+            $isMemberOnly = ($accessLevel === 'member');
+            $canOpenIp = !$isMemberOnly || !empty($pmaUnlocked);
             $totalLoanMembers = (int)($p['total_loan_members'] ?? 0);
             $otherFund = (float)($p['other_fund'] ?? 0);
             $bankCashBalance = (float)($p['bank_cash_balance'] ?? 0);
             $fixedAssets = (float)($p['fixed_assets'] ?? 0);
-            $_ipDocUrl  = !empty($p['attachment_path']) ? htmlspecialchars(SITE_URL . ltrim($p['attachment_path'], '/'), ENT_QUOTES, 'UTF-8') : '';
-            $_ipDocExt  = !empty($p['attachment_path']) ? strtolower(pathinfo($p['attachment_path'], PATHINFO_EXTENSION)) : '';
+            $_ipDocUrl = '';
+            $_ipDocExt = '';
+            if (!empty($p['attachment_path']) && $canOpenIp) {
+                if ($isMemberOnly && $pid > 0 && function_exists('coopMemberAccessFileUrl')) {
+                    $_ipDocUrl = htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $pid, false), ENT_QUOTES, 'UTF-8');
+                } else {
+                    $_ipDocUrl = htmlspecialchars(SITE_URL . ltrim((string)$p['attachment_path'], '/'), ENT_QUOTES, 'UTF-8');
+                }
+                $_ipDocExt = strtolower(pathinfo((string)$p['attachment_path'], PATHINFO_EXTENSION));
+            }
             $_fy = trim((string)($p['fiscal_year'] ?? ''));
             $_dateBs = trim((string)($p['report_date_bs'] ?? ''));
             $_monthName = ipMonthLabel($rm, $isEn);
             $_filterText = strtolower(trim($_fy . ' ' . $_monthName . ' ' . $_dateBs . ' ' . ($isEn
                 ? 'members share capital reserve fund institutional capital other funds deposits loan investment liquidity bank cash fixed assets total assets welfare relief facilities'
                 : 'कुल सदस्य शेयर पूँजी जगेडा कोष कुल बचत ऋण लगानी बैंक नगद स्थिर सम्पत्ति कुल सम्पत्ति राहत कल्याण welfare')));
-            $isCur = ($currentProfile && (int)($currentProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
-            $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
-            $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '');
+            $isCur = ($currentProfile && (int)($currentProfile['id'] ?? 0) === $pid);
+            $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === $pid);
+            $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '') . ($isMemberOnly && !$canOpenIp ? ' is-member-locked' : '');
             $defaultShow = ($isCur || $isPrev) ? '1' : '0';
         ?>
         <article class="<?php echo $tileCls; ?>"
@@ -394,20 +440,41 @@ if ($ipChartSeries['count'] >= 2):
                 <div>
                     <strong data-testid="institutional-profile-fiscal-year-<?php echo $rowNo; ?>"><?php echo $isEn ? 'FY ' : 'आ.व. '; ?><?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
                     <span class="ip-month-badge"><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i> <?php echo htmlspecialchars($_monthName); ?></span>
+                    <?php if ($isMemberOnly): ?>
+                    <span class="ip-member-badge"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i> <?php echo $isEn ? 'Members' : 'सदस्य'; ?></span>
+                    <?php endif; ?>
                     <?php if (!empty($p['report_date_bs'])): ?>
                     <span data-testid="institutional-profile-published-date-<?php echo $rowNo; ?>"><?php echo htmlspecialchars($p['report_date_bs']); ?><?php if (!empty($p['report_date_ad'])): ?> / <?php echo date('d M Y', strtotime($p['report_date_ad'])); ?><?php endif; ?></span>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($p['attachment_path'])): ?>
+                <?php if (!empty($p['attachment_path']) && $canOpenIp && $_ipDocUrl !== ''): ?>
                 <button type="button" class="ip-row-doc-btn"
                         onclick="ipOpenDoc('<?php echo $_ipDocUrl; ?>','<?php echo $_ipDocExt; ?>')"
                         data-testid="institutional-profile-document-button-<?php echo $rowNo; ?>"
                         title="कागजात हेर्नुहोस्">
                     <i class="lucide-icon" data-lucide="<?php echo $_ipDocExt === 'pdf' ? 'file-text' : 'image'; ?>" aria-hidden="true"></i>
                 </button>
+                <?php elseif (!empty($p['attachment_path']) && !$canOpenIp): ?>
+                <button type="button" class="ip-row-doc-btn ip-row-doc-locked" data-pma-toggle="1"
+                        title="<?php echo $isEn ? 'Members only' : 'सदस्य मात्र'; ?>">
+                    <i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i>
+                </button>
                 <?php endif; ?>
             </div>
 
+            <?php if ($isMemberOnly && !$canOpenIp): ?>
+            <div class="ip-month-locked-body">
+                <p class="ip-month-locked-msg">
+                    <?php echo $isEn
+                        ? 'Financial details, documents, and share are available to members only.'
+                        : 'वित्तीय विवरण, कागजात र सेयर सदस्यका लागि मात्र उपलब्ध छ।'; ?>
+                </p>
+                <?php if ($pmaUnlockError !== ''): ?>
+                <div class="coop-pma-error" role="alert"><?php echo htmlspecialchars($pmaUnlockError, ENT_QUOTES, 'UTF-8'); ?></div>
+                <?php endif; ?>
+                <?php echo coopMemberAccessUnlockFormHtml('institutional-profile.php', 'ip-pma-unlock'); ?>
+            </div>
+            <?php else: ?>
             <div class="ip-month-ledger">
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(1); ?></span>
@@ -554,6 +621,7 @@ if ($ipChartSeries['count'] >= 2):
                     <span><?php echo $isEn ? 'Share' : 'सेयर'; ?></span>
                 </button>
             </div>
+            <?php endif; /* member lock else */ ?>
         </article>
         <?php endforeach; ?>
     </div>

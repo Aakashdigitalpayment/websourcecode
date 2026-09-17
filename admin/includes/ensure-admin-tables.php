@@ -207,10 +207,18 @@ function ensureAdminTables(): bool {
             report_month VARCHAR(20),
             report_quarter VARCHAR(10),
             file_path VARCHAR(255),
+            access_level ENUM('none','member') NOT NULL DEFAULT 'none',
             is_active TINYINT(1) DEFAULT 1,
             display_order INT DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'reports', 'access_level', "ENUM('none','member') NOT NULL DEFAULT 'none'");
+        } else {
+            try {
+                $db->exec("ALTER TABLE reports ADD COLUMN access_level ENUM('none','member') NOT NULL DEFAULT 'none'");
+            } catch (Exception $e) { /* exists */ }
+        }
 
         /* ── 10. NEWS ───────────────────────────────────── */
         $db->exec("CREATE TABLE IF NOT EXISTS news (
@@ -433,6 +441,7 @@ function ensureAdminTables(): bool {
             branch_count INT DEFAULT 0,
             staff_count INT DEFAULT 0,
             report_note TEXT DEFAULT NULL COMMENT 'थप टिप्पणी',
+            access_level ENUM('none','member') NOT NULL DEFAULT 'none',
             is_active TINYINT(1) DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
@@ -461,6 +470,7 @@ function ensureAdminTables(): bool {
                 'net_profit' => 'DECIMAL(18,2) DEFAULT 0',
                 'profit_loss' => 'DECIMAL(18,2) DEFAULT 0',
                 'report_note' => 'TEXT DEFAULT NULL',
+                'access_level' => "ENUM('none','member') NOT NULL DEFAULT 'none'",
             ];
             foreach ($ipCols as $col => $def) {
                 safeAddColumn($db, 'institutional_profile', $col, $def);
@@ -494,6 +504,7 @@ function ensureAdminTables(): bool {
                 "ALTER TABLE institutional_profile ADD COLUMN net_profit DECIMAL(18,2) DEFAULT 0",
                 "ALTER TABLE institutional_profile ADD COLUMN profit_loss DECIMAL(18,2) DEFAULT 0",
                 "ALTER TABLE institutional_profile ADD COLUMN report_note TEXT DEFAULT NULL",
+                "ALTER TABLE institutional_profile ADD COLUMN access_level ENUM('none','member') NOT NULL DEFAULT 'none'",
             ];
             foreach ($ipAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
             foreach ([
