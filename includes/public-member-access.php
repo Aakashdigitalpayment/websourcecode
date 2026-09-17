@@ -74,14 +74,35 @@ function coopMemberAccessClientIp(): string
 }
 
 /**
+ * Session + IP-keyed rate guard (peek only — do not increment here).
+ *
  * @return array{blocked:bool,retry_after:int}
  */
 function coopMemberAccessGuardState(): array
 {
+    $ip = coopMemberAccessClientIp();
+
+    /* Peek shared rate_* session key without consuming a slot */
+    $rateKey = 'rate_coop_pma_unlock_' . $ip;
+    if (isset($_SESSION[$rateKey]) && is_array($_SESSION[$rateKey])) {
+        $r = $_SESSION[$rateKey];
+        $elapsed = time() - (int) ($r['time'] ?? 0);
+        if ($elapsed <= COOP_PMA_BLOCK_SECONDS && (int) ($r['count'] ?? 0) > COOP_PMA_MAX_FAILS) {
+            return [
+                'blocked' => true,
+                'retry_after' => max(1, COOP_PMA_BLOCK_SECONDS - $elapsed),
+            ];
+        }
+    }
+
     if (!isset($_SESSION[COOP_PMA_GUARD_KEY]) || !is_array($_SESSION[COOP_PMA_GUARD_KEY])) {
-        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0];
+        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0, 'ip' => $ip];
     }
     $g = $_SESSION[COOP_PMA_GUARD_KEY];
+    if (($g['ip'] ?? '') !== '' && (string) ($g['ip'] ?? '') !== $ip) {
+        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0, 'ip' => $ip];
+        $g = $_SESSION[COOP_PMA_GUARD_KEY];
+    }
     $until = (int) ($g['blocked_until'] ?? 0);
     $now = time();
     if ($until > $now) {
@@ -92,11 +113,19 @@ function coopMemberAccessGuardState(): array
 
 function coopMemberAccessNormalizeSadasyata(string $raw): string
 {
-    $id = trim($raw);
-    $id = preg_replace('/\s+/u', '', $id) ?? '';
-    /* Allow common membership id characters only */
-    $id = preg_replace('/[^\p{L}\p{N}\-\/.]/u', '', $id) ?? '';
-    return mb_substr($id, 0, 50);
+    if (function_exists('memberSsotNormalizeId')) {
+        return memberSsotNormalizeId($raw);
+    }
+    if (!is_file(__DIR__ . '/member-ssot.php')) {
+        $id = trim($raw);
+        $id = preg_replace('/\s+/u', '', $id) ?? '';
+        return strtoupper(mb_substr($id, 0, 50));
+    }
+    require_once __DIR__ . '/member-ssot.php';
+    if (function_exists('memberSsotNormalizeId')) {
+        return memberSsotNormalizeId($raw);
+    }
+    return strtoupper(trim($raw));
 }
 
 /**
@@ -137,9 +166,11 @@ function coopTryUnlockBySadasyata(string $rawId): array
                     : 'सेवा अस्थायी रूपमा उपलब्ध छैन।',
             ];
         }
+
+        /* SSOT match: UPPER(TRIM(sadasyata_number)) — same as memberSsotFindBySadasyata */
         $st = $db->prepare(
             "SELECT id FROM members
-             WHERE sadasyata_number = ?
+             WHERE UPPER(TRIM(sadasyata_number)) = ?
                AND is_active = 1
                AND approval_status = 'approved'
              LIMIT 1"
@@ -160,7 +191,11 @@ function coopTryUnlockBySadasyata(string $rawId): array
             'via' => 'sadasyata',
             'member_id' => (int) ($row['id'] ?? 0),
         ];
-        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0];
+        $_SESSION[COOP_PMA_GUARD_KEY] = [
+            'fails' => 0,
+            'blocked_until' => 0,
+            'ip' => coopMemberAccessClientIp(),
+        ];
         return ['ok' => true];
     } catch (Throwable $e) {
         error_log('[public-member-access] ' . $e->getMessage());
@@ -175,8 +210,14 @@ function coopTryUnlockBySadasyata(string $rawId): array
 
 function coopMemberAccessRegisterFail(): void
 {
+    $ip = coopMemberAccessClientIp();
+    /* IP-keyed counter via shared helper (increments) */
+    if (function_exists('checkRateLimit')) {
+        checkRateLimit('coop_pma_unlock', COOP_PMA_MAX_FAILS, COOP_PMA_BLOCK_SECONDS);
+    }
+
     if (!isset($_SESSION[COOP_PMA_GUARD_KEY]) || !is_array($_SESSION[COOP_PMA_GUARD_KEY])) {
-        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0];
+        $_SESSION[COOP_PMA_GUARD_KEY] = ['fails' => 0, 'blocked_until' => 0, 'ip' => $ip];
     }
     $fails = (int) ($_SESSION[COOP_PMA_GUARD_KEY]['fails'] ?? 0) + 1;
     $blockedUntil = 0;
@@ -187,18 +228,79 @@ function coopMemberAccessRegisterFail(): void
     $_SESSION[COOP_PMA_GUARD_KEY] = [
         'fails' => $fails,
         'blocked_until' => $blockedUntil,
-        'ip' => coopMemberAccessClientIp(),
+        'ip' => $ip,
     ];
+}
+
+/**
+ * Safe same-origin return path for unlock POST (allowlist).
+ */
+function coopMemberAccessSafeReturnPath(?string $raw): string
+{
+    $raw = trim((string) $raw);
+    if ($raw === '') {
+        return '';
+    }
+    /* Absolute SITE_URL → path+query */
+    $site = rtrim((string) (defined('SITE_URL') ? SITE_URL : ''), '/');
+    if ($site !== '' && str_starts_with($raw, $site . '/')) {
+        $raw = substr($raw, strlen($site));
+    }
+    if ($raw === '' || $raw[0] !== '/') {
+        /* Relative page name */
+        if (!preg_match('#^[a-z0-9][a-z0-9._/-]*$#i', $raw)) {
+            return '';
+        }
+        $raw = '/' . ltrim($raw, '/');
+    }
+    $parts = parse_url($raw);
+    if ($parts === false || isset($parts['host']) || isset($parts['scheme'])) {
+        return '';
+    }
+    $path = (string) ($parts['path'] ?? '');
+    $path = '/' . ltrim(str_replace('\\', '/', $path), '/');
+    if (str_contains($path, '..')) {
+        return '';
+    }
+    $allowed = [
+        '/reports.php',
+        '/institutional-profile.php',
+    ];
+    if (!in_array($path, $allowed, true)) {
+        return '';
+    }
+    $query = (string) ($parts['query'] ?? '');
+    if ($query === '') {
+        return $path;
+    }
+    parse_str($query, $qs);
+    $safeQs = [];
+    if ($path === '/reports.php') {
+        if (!empty($qs['type']) && preg_match('/^[a-z_]+$/', (string) $qs['type'])) {
+            $safeQs['type'] = (string) $qs['type'];
+        }
+        if (!empty($qs['year']) && preg_match('/^\d{4}\/\d{2}$/', (string) $qs['year'])) {
+            $safeQs['year'] = (string) $qs['year'];
+        }
+        if (!empty($qs['id']) && (int) $qs['id'] > 0) {
+            $safeQs['id'] = (int) $qs['id'];
+        }
+    } elseif ($path === '/institutional-profile.php') {
+        if (!empty($qs['id']) && (int) $qs['id'] > 0) {
+            $safeQs['id'] = (int) $qs['id'];
+        }
+    }
+    return $safeQs === [] ? $path : ($path . '?' . http_build_query($safeQs));
 }
 
 /**
  * Handle unlock POST. Returns flash message keys for the page.
  *
- * @return array{handled:bool,ok:bool,error:string}
+ * @return array{handled:bool,ok:bool,error:string,return?:string}
  */
 function coopMemberAccessHandleUnlockPost(): array
 {
-    $out = ['handled' => false, 'ok' => false, 'error' => ''];
+    $out = ['handled' => false, 'ok' => false, 'error' => '', 'return' => ''];
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
         return $out;
     }
@@ -213,6 +315,9 @@ function coopMemberAccessHandleUnlockPost(): array
             : 'सुरक्षा जाँच असफल। पेज रिफ्रेस गरी फेरि प्रयास गर्नुहोस्।';
         return $out;
     }
+
+    $ret = coopMemberAccessSafeReturnPath((string) ($_POST['coop_pma_return'] ?? ''));
+    $out['return'] = $ret;
 
     $result = coopTryUnlockBySadasyata((string) ($_POST['sadasyata_number'] ?? ''));
     if (!empty($result['ok'])) {
@@ -314,10 +419,18 @@ function coopMemberAccessFileUrl(string $endpoint, int $id, bool $download = fal
 }
 
 /**
- * Compact unlock form markup (EN/NP).
+ * Compact unlock form markup (EN/NP). Unique input ids when many cards on one page.
  */
-function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraClass = ''): string
+function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraClass = '', string $idSuffix = ''): string
 {
+    static $formSeq = 0;
+    $formSeq++;
+    $suffix = $idSuffix !== '' ? preg_replace('/[^a-zA-Z0-9_-]/', '', $idSuffix) : ('f' . $formSeq);
+    if ($suffix === '') {
+        $suffix = 'f' . $formSeq;
+    }
+    $inputId = 'coop_pma_sadasyata_' . $suffix;
+
     $en = function_exists('isEnglish') && isEnglish();
     $title = $en ? 'Members only' : 'सदस्य मात्र';
     $hint = $en
@@ -326,7 +439,13 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
     $label = $en ? 'Membership number' : 'सदस्यता नम्बर';
     $btn = $en ? 'Unlock' : 'अनलक गर्नुहोस्';
     $csrf = function_exists('csrfField') ? csrfField() : '';
-    $ret = htmlspecialchars($returnPath !== '' ? $returnPath : (string) ($_SERVER['REQUEST_URI'] ?? ''), ENT_QUOTES, 'UTF-8');
+
+    $defaultRet = (string) ($_SERVER['REQUEST_URI'] ?? '');
+    $safeRet = coopMemberAccessSafeReturnPath($returnPath !== '' ? $returnPath : $defaultRet);
+    if ($safeRet === '') {
+        $safeRet = coopMemberAccessSafeReturnPath($defaultRet);
+    }
+    $ret = htmlspecialchars($safeRet !== '' ? $safeRet : '/reports.php', ENT_QUOTES, 'UTF-8');
     $cls = trim('coop-pma-unlock ' . $extraClass);
 
     return '<form method="post" class="' . htmlspecialchars($cls, ENT_QUOTES, 'UTF-8') . '" data-testid="coop-pma-unlock-form">'
@@ -338,10 +457,11 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
         . '<strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</strong>'
         . '</div>'
         . '<p class="coop-pma-unlock-hint">' . htmlspecialchars($hint, ENT_QUOTES, 'UTF-8') . '</p>'
-        . '<label class="coop-pma-unlock-label" for="coop_pma_sadasyata">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label>'
+        . '<label class="coop-pma-unlock-label" for="' . htmlspecialchars($inputId, ENT_QUOTES, 'UTF-8') . '">'
+        . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label>'
         . '<div class="coop-pma-unlock-row">'
-        . '<input type="text" name="sadasyata_number" id="coop_pma_sadasyata" class="form-control coop-pma-unlock-input" '
-        . 'autocomplete="username" required maxlength="50" '
+        . '<input type="text" name="sadasyata_number" id="' . htmlspecialchars($inputId, ENT_QUOTES, 'UTF-8') . '" '
+        . 'class="form-control coop-pma-unlock-input" autocomplete="username" required maxlength="50" '
         . 'placeholder="' . htmlspecialchars($en ? 'e.g. 1234' : 'उदा. १२३४', ENT_QUOTES, 'UTF-8') . '">'
         . '<button type="submit" class="btn btn-primary coop-pma-unlock-btn">' . htmlspecialchars($btn, ENT_QUOTES, 'UTF-8') . '</button>'
         . '</div>'

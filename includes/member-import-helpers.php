@@ -295,7 +295,7 @@ if (!function_exists('memberImportJobProgress')) {
             'status'      => $status,
             'phase'       => $phase,
             'percent'     => $pct,
-            'mode'        => (string)($job['mode'] ?? 'skip'),
+            'mode'        => (string)($job['mode'] ?? 'update'),
             'filename'    => (string)($job['filename'] ?? ''),
             'total_rows'  => $total,
             'parsed_rows' => $parsed,
@@ -790,7 +790,8 @@ if (!function_exists('_memberImportImportChunk')) {
                             }
                         }
                         if (function_exists('memberSsotSyncKycFromMember')) {
-                            memberSsotSyncKycFromMember($pdo, $memberPk);
+                            /* Import: soft-fill only — never clobber existing KYM fields */
+                            memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                         }
                         $mark->execute([
                             'ok',
@@ -900,7 +901,7 @@ if (!function_exists('_memberImportImportChunk')) {
                                 memberSsotEnsureKycStubFromMember($pdo, $memberPk);
                             }
                             if (function_exists('memberSsotSyncKycFromMember')) {
-                                memberSsotSyncKycFromMember($pdo, $memberPk);
+                                memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                             }
                             $mark->execute([
                                 'ok',

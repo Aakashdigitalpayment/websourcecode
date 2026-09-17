@@ -4,21 +4,24 @@ require_once __DIR__ . '/includes/public-member-access.php';
 
 $pmaUnlock = coopMemberAccessHandleUnlockPost();
 if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
-    $ret = rtrim((string) SITE_URL, '/') . '/reports.php';
-    $qs = [];
-    if (!empty($_GET['type'])) {
-        $qs['type'] = (string) $_GET['type'];
+    $retPath = (string) ($pmaUnlock['return'] ?? '');
+    if ($retPath === '') {
+        $retPath = '/reports.php';
+        $qs = [];
+        if (!empty($_GET['type'])) {
+            $qs['type'] = (string) $_GET['type'];
+        }
+        if (!empty($_GET['year'])) {
+            $qs['year'] = (string) $_GET['year'];
+        }
+        if (!empty($_GET['id']) && (int) $_GET['id'] > 0) {
+            $qs['id'] = (int) $_GET['id'];
+        }
+        if ($qs) {
+            $retPath .= '?' . http_build_query($qs);
+        }
     }
-    if (!empty($_GET['year'])) {
-        $qs['year'] = (string) $_GET['year'];
-    }
-    if (!empty($_GET['id']) && (int) $_GET['id'] > 0) {
-        $qs['id'] = (int) $_GET['id'];
-    }
-    if ($qs) {
-        $ret .= '?' . http_build_query($qs);
-    }
-    header('Location: ' . $ret);
+    header('Location: ' . rtrim((string) SITE_URL, '/') . $retPath);
     exit;
 }
 $pmaUnlockError = !empty($pmaUnlock['handled']) ? (string) ($pmaUnlock['error'] ?? '') : '';
@@ -290,7 +293,11 @@ function render_report_actions(array $report): void {
         if (!empty($pmaUnlockError)) {
             echo '<div class="coop-pma-error" role="alert">' . htmlspecialchars((string) $pmaUnlockError, ENT_QUOTES, 'UTF-8') . '</div>';
         }
-        echo coopMemberAccessUnlockFormHtml('/reports.php');
+        echo coopMemberAccessUnlockFormHtml(
+            '/reports.php' . ($reportId > 0 ? ('?id=' . $reportId) : ''),
+            '',
+            'r' . $reportId
+        );
         echo '</div>';
         return;
     }

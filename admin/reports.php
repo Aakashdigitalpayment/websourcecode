@@ -447,13 +447,14 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                         <div class="rpt-row-actions">
                                             <?php
                                             $adminFileHref = '';
+                                            $rid = (int) ($report['id'] ?? 0);
                                             $rawPath = trim((string) ($report['file_path'] ?? ''));
-                                            if ($rawPath !== '' && !str_contains($rawPath, '..')) {
-                                                if (function_exists('safe_media_src')) {
-                                                    $adminFileHref = safe_media_src($rawPath);
+                                            if ($rid > 0 && $rawPath !== '') {
+                                                if (!function_exists('coopMemberAccessFileUrl')) {
+                                                    require_once dirname(__DIR__) . '/includes/public-member-access.php';
                                                 }
-                                                if ($adminFileHref === '' && function_exists('getAssetUrl')) {
-                                                    $adminFileHref = getAssetUrl(ltrim(str_replace('\\', '/', $rawPath), '/'));
+                                                if (function_exists('coopMemberAccessFileUrl')) {
+                                                    $adminFileHref = coopMemberAccessFileUrl('report-file.php', $rid, false);
                                                 }
                                             }
                                             if ($adminFileHref !== ''):

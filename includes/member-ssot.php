@@ -847,17 +847,20 @@ if (!function_exists('memberSsotAfterKycWrite')) {
 
 if (!function_exists('memberSsotSyncKycFromMember')) {
     /**
-     * Admin members edit पछि: linked KYM मा shared contact overwrite (import correction)।
-     * Status/docs/AML छुँदैन। Soft-fill होइन — admin intentional fix।
+     * Linked KYM मा shared contact sync। Status/docs/AML छुँदैन।
+     * $mode:
+     *   - 'overwrite' (default): admin intentional — non-empty member fields replace KYM
+     *   - 'soft': CBS/import — only fill empty KYM fields (never clobber existing KYM data)
      *
      * @param array<string,mixed>|null $memberRow
      * @return array{ok:bool,kyc_id?:int,synced?:bool,message?:string}
      */
-    function memberSsotSyncKycFromMember(PDO $db, int $memberPk, ?array $memberRow = null): array
+    function memberSsotSyncKycFromMember(PDO $db, int $memberPk, ?array $memberRow = null, string $mode = 'overwrite'): array
     {
         if ($memberPk < 1) {
             return ['ok' => false, 'message' => 'Invalid member'];
         }
+        $soft = ($mode === 'soft');
         try {
             if ($memberRow === null) {
                 $st = $db->prepare('SELECT * FROM members WHERE id = ? LIMIT 1');
@@ -904,25 +907,47 @@ if (!function_exists('memberSsotSyncKycFromMember')) {
                 $dobAd = '';
             }
 
-            $db->prepare(
-                "UPDATE kyc_applications SET
-                    full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
-                    mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
-                    email = CASE WHEN ? <> '' THEN ? ELSE email END,
-                    permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
-                    gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
-                    dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
-                    updated_at = NOW()
-                 WHERE id = ?"
-            )->execute([
-                $name, $name,
-                $phone, $phone,
-                $email, $email,
-                $address, $address,
-                $gender, $gender,
-                $dobAd, $dobAd,
-                $kycId,
-            ]);
+            if ($soft) {
+                $db->prepare(
+                    "UPDATE kyc_applications SET
+                        full_name = CASE WHEN TRIM(COALESCE(full_name,'')) = '' AND ? <> '' THEN ? ELSE full_name END,
+                        mobile = CASE WHEN TRIM(COALESCE(mobile,'')) = '' AND ? <> '' THEN ? ELSE mobile END,
+                        email = CASE WHEN TRIM(COALESCE(email,'')) = '' AND ? <> '' THEN ? ELSE email END,
+                        permanent_address = CASE WHEN TRIM(COALESCE(permanent_address,'')) = '' AND ? <> '' THEN ? ELSE permanent_address END,
+                        gender = CASE WHEN TRIM(COALESCE(gender,'')) = '' AND ? <> '' THEN ? ELSE gender END,
+                        dob_ad = CASE WHEN (dob_ad IS NULL OR dob_ad = '0000-00-00') AND ? <> '' THEN ? ELSE dob_ad END,
+                        updated_at = NOW()
+                     WHERE id = ?"
+                )->execute([
+                    $name, $name,
+                    $phone, $phone,
+                    $email, $email,
+                    $address, $address,
+                    $gender, $gender,
+                    $dobAd, $dobAd,
+                    $kycId,
+                ]);
+            } else {
+                $db->prepare(
+                    "UPDATE kyc_applications SET
+                        full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
+                        mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
+                        email = CASE WHEN ? <> '' THEN ? ELSE email END,
+                        permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
+                        gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
+                        dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
+                        updated_at = NOW()
+                     WHERE id = ?"
+                )->execute([
+                    $name, $name,
+                    $phone, $phone,
+                    $email, $email,
+                    $address, $address,
+                    $gender, $gender,
+                    $dobAd, $dobAd,
+                    $kycId,
+                ]);
+            }
 
             return ['ok' => true, 'synced' => true, 'kyc_id' => $kycId];
         } catch (Throwable $e) {

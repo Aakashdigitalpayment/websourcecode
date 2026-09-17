@@ -15,7 +15,14 @@ if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
 
 $pmaUnlock = coopMemberAccessHandleUnlockPost();
 if (!empty($pmaUnlock['handled']) && !empty($pmaUnlock['ok'])) {
-    header('Location: ' . rtrim((string) SITE_URL, '/') . '/institutional-profile.php');
+    $retPath = (string) ($pmaUnlock['return'] ?? '');
+    if ($retPath === '') {
+        $retPath = '/institutional-profile.php';
+        if (!empty($_GET['id']) && (int) $_GET['id'] > 0) {
+            $retPath .= '?id=' . (int) $_GET['id'];
+        }
+    }
+    header('Location: ' . rtrim((string) SITE_URL, '/') . $retPath);
     exit;
 }
 $pmaUnlockError = !empty($pmaUnlock['handled']) ? (string) ($pmaUnlock['error'] ?? '') : '';
@@ -410,13 +417,11 @@ if ($ipChartSeries['count'] >= 2):
             $bankCashBalance = (float)($p['bank_cash_balance'] ?? 0);
             $fixedAssets = (float)($p['fixed_assets'] ?? 0);
             $_ipDocUrl = '';
+            $_ipDocDlUrl = '';
             $_ipDocExt = '';
-            if (!empty($p['attachment_path']) && $canOpenIp) {
-                if ($pid > 0 && function_exists('coopMemberAccessFileUrl')) {
-                    $_ipDocUrl = htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $pid, false), ENT_QUOTES, 'UTF-8');
-                } else {
-                    $_ipDocUrl = htmlspecialchars(SITE_URL . ltrim((string)$p['attachment_path'], '/'), ENT_QUOTES, 'UTF-8');
-                }
+            if (!empty($p['attachment_path']) && $canOpenIp && $pid > 0 && function_exists('coopMemberAccessFileUrl')) {
+                $_ipDocUrl = htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $pid, false), ENT_QUOTES, 'UTF-8');
+                $_ipDocDlUrl = htmlspecialchars(coopMemberAccessFileUrl('institutional-profile-file.php', $pid, true), ENT_QUOTES, 'UTF-8');
                 $_ipDocExt = strtolower(pathinfo((string)$p['attachment_path'], PATHINFO_EXTENSION));
             }
             $_fy = trim((string)($p['fiscal_year'] ?? ''));
@@ -452,7 +457,7 @@ if ($ipChartSeries['count'] >= 2):
                 </div>
                 <?php if (!empty($p['attachment_path']) && $canOpenIp && $_ipDocUrl !== ''): ?>
                 <button type="button" class="ip-row-doc-btn"
-                        onclick="ipOpenDoc('<?php echo $_ipDocUrl; ?>','<?php echo $_ipDocExt; ?>')"
+                        onclick="ipOpenDoc('<?php echo $_ipDocUrl; ?>','<?php echo $_ipDocExt; ?>','<?php echo $_ipDocDlUrl; ?>')"
                         data-testid="institutional-profile-document-button-<?php echo $rowNo; ?>"
                         title="कागजात हेर्नुहोस्">
                     <i class="lucide-icon" data-lucide="<?php echo $_ipDocExt === 'pdf' ? 'file-text' : 'image'; ?>" aria-hidden="true"></i>
@@ -475,7 +480,11 @@ if ($ipChartSeries['count'] >= 2):
                 <?php if ($pmaUnlockError !== ''): ?>
                 <div class="coop-pma-error" role="alert"><?php echo htmlspecialchars($pmaUnlockError, ENT_QUOTES, 'UTF-8'); ?></div>
                 <?php endif; ?>
-                <?php echo coopMemberAccessUnlockFormHtml('institutional-profile.php', 'ip-pma-unlock'); ?>
+                <?php echo coopMemberAccessUnlockFormHtml(
+                    'institutional-profile.php' . ($pid > 0 ? ('?id=' . $pid) : ''),
+                    'ip-pma-unlock',
+                    'ip' . $pid
+                ); ?>
             </div>
             <?php else: ?>
             <div class="ip-month-ledger">
@@ -864,7 +873,7 @@ if ($ipChartSeries['count'] >= 2):
         } catch (e) { /* ignore */ }
     })();
 
-    function ipOpenDoc(url, ext) {
+    function ipOpenDoc(url, ext, dlUrl) {
         var modal  = document.getElementById('ipDocModal');
         var body   = document.getElementById('ipDocBody');
         var loader = document.getElementById('ipDocLoader');
@@ -874,7 +883,7 @@ if ($ipChartSeries['count'] >= 2):
         var icon   = document.getElementById('ipDocIcon');
         var isImg  = ['jpg','jpeg','png','gif','webp'].indexOf(ext) !== -1;
 
-        dlBtn.href = url;
+        dlBtn.href = dlUrl || (url + (url.indexOf('?') >= 0 ? '&' : '?') + 'dl=1');
         if (isImg) {
             icon.innerHTML  = '<i class="lucide-icon" data-lucide="image" aria-hidden="true"></i>';
             title.textContent = '<?php echo $isEn ? 'Image Document' : 'छवि कागजात'; ?>';
@@ -888,23 +897,25 @@ if ($ipChartSeries['count'] >= 2):
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         body.innerHTML = '';
-        body.appendChild(loader);
-        loader.style.display = 'block';
+        if (loader) {
+            body.appendChild(loader);
+            loader.style.display = 'block';
+        }
 
         if (isImg) {
             var img = document.createElement('img');
             img.src = url;
             img.alt = '<?php echo $isEn ? 'Document Preview' : 'कागजात पूर्वावलोकन'; ?>';
             img.style.cssText = 'max-width:100%;max-height:75vh;border-radius:8px;display:block;padding:16px;';
-            img.onload  = function () { loader.style.display = 'none'; body.style.justifyContent = 'center'; };
-            img.onerror = function () { loader.innerHTML = '<i class="lucide-icon lucide-2x" data-lucide="triangle-alert" aria-hidden="true" style="color:#dc2626;margin-bottom:12px;display:block;"></i><div><?php echo $isEn ? 'Could not load image.' : 'छवि लोड भएन।'; ?></div>'; };
+            img.onload  = function () { if (loader) loader.style.display = 'none'; body.style.justifyContent = 'center'; };
+            img.onerror = function () { if (loader) loader.innerHTML = '<i class="lucide-icon lucide-2x" data-lucide="triangle-alert" aria-hidden="true" style="color:#dc2626;margin-bottom:12px;display:block;"></i><div><?php echo $isEn ? 'Could not load image.' : 'छवि लोड भएन।'; ?></div>'; };
             body.appendChild(img);
         } else {
             var iframe = document.createElement('iframe');
             iframe.src   = url;
             iframe.title = '<?php echo $isEn ? 'PDF Preview' : 'PDF पूर्वावलोकन'; ?>';
             iframe.style.cssText = 'width:100%;height:75vh;border:0;display:block;';
-            iframe.onload = function () { loader.style.display = 'none'; };
+            iframe.onload = function () { if (loader) loader.style.display = 'none'; };
             body.style.justifyContent = 'flex-start';
             body.appendChild(iframe);
         }
@@ -914,9 +925,36 @@ if ($ipChartSeries['count'] >= 2):
         var modal = document.getElementById('ipDocModal');
         if (!modal || modal.style.display !== 'flex') return;
         modal.style.display = 'none';
-        document.getElementById('ipDocBody').innerHTML = '';
+        var body = document.getElementById('ipDocBody');
+        var loader = document.getElementById('ipDocLoader');
+        if (body) {
+            /* Keep loader node for next open — do not destroy */
+            Array.prototype.slice.call(body.children).forEach(function (ch) {
+                if (ch && ch.id !== 'ipDocLoader') body.removeChild(ch);
+            });
+            if (loader && !loader.parentNode) body.appendChild(loader);
+            if (loader) loader.style.display = 'none';
+        }
         document.body.style.overflow = '';
     }
+
+    document.addEventListener('click', function (ev) {
+        var t = ev.target;
+        if (!t || !t.closest) return;
+        var lockBtn = t.closest('[data-pma-toggle]');
+        if (!lockBtn) return;
+        ev.preventDefault();
+        var card = lockBtn.closest('.ip-month-tile') || lockBtn.closest('article');
+        if (!card) return;
+        var input = card.querySelector('input[name="sadasyata_number"]');
+        var form = card.querySelector('.coop-pma-unlock');
+        if (form && typeof form.scrollIntoView === 'function') {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        if (input && typeof input.focus === 'function') {
+            window.setTimeout(function () { input.focus(); }, 200);
+        }
+    });
 
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
