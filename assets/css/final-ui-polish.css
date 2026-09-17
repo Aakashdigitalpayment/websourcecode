@@ -429,6 +429,40 @@ html[lang="en"] .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
   text-align: center;
   gap: 0.4rem;
 }
+
+/* Homepage news cards — center “थप पढ्नुहोस्” like reports / services CTAs */
+.news-card .news-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+}
+.news-card .news-content h4,
+.news-card .news-content p {
+  text-align: center;
+}
+.news-card .news-content .read-more,
+.news-card .read-more {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center;
+  width: auto !important;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0.35rem;
+  text-align: center;
+  gap: 0.35rem;
+}
+.news-card .news-content .read-more .lucide-icon,
+.news-card .news-content .read-more svg,
+.news-card .read-more .lucide-icon,
+.news-card .read-more svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
 .service-card .service-link:hover,
 .service-card .service-link-modern:hover,
 .service-card-modern .service-link:hover,
