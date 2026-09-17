@@ -435,6 +435,8 @@ assertContains('institutional-profile-file.php', 'coopMemberAccessCanOpen', 'IP 
 assertContains('admin/reports.php', "name=\"access_level\"", 'admin reports access_level field');
 assertContains('admin/institutional-profile.php', 'institutional-profile-access-member', 'admin IP member access choice');
 assertContains('includes/public-member-access.php', 'coopTryUnlockBySadasyata', 'sadasyata unlock helper');
+assertContains('assets/css/reports-page.css', '.report-section-header', 'reports section header centered styles');
+assertContains('assets/css/reports-page.css', 'justify-content: center', 'reports cards/unlock row center');
 assertContains('assets/css/reports-page.css', '.report-action-btn', 'reports icon button styles');
 assertContains('assets/css/reports-page.css', 'position: fixed', 'share menu uses fixed positioning');
 assertContains('reports.php', 'showFallbackMenu', 'share has desktop fallback menu');

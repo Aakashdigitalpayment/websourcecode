@@ -1,5 +1,76 @@
 /* Public reports.php — compact icon-only View / Download / Share */
 
+/* Section titles + year banners — match page hero centering */
+.report-section {
+  text-align: center;
+}
+
+.report-section-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 2px solid var(--primary-color, #0d6efd);
+  text-align: center;
+}
+
+.report-section-header h3 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin: 0;
+  color: var(--primary-color, #0d6efd);
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.report-section-header h3 .lucide-icon,
+.report-section-header h3 svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.report-year-block {
+  text-align: center;
+}
+
+.report-year-block .year-title,
+.report-section .year-title {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto 1rem;
+  padding: 0.65rem 1.35rem;
+  text-align: center;
+  border-left: none;
+  border-bottom: 3px solid var(--primary-color, #0d6efd);
+  border-radius: 0.65rem;
+  background: var(--bg-soft, #f5faf6);
+  color: var(--text-color, #1f2937);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.report-section .row {
+  justify-content: center;
+}
+
+.report-card {
+  text-align: center;
+  align-items: center;
+}
+
+.report-card .report-icon {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.report-card .report-info {
+  width: 100%;
+  text-align: center;
+}
+
 .report-card .report-actions.report-actions-icons {
   display: flex !important;
   flex-direction: row !important;
@@ -196,9 +267,14 @@
   background: color-mix(in srgb, var(--primary-color, #0d6efd) 5%, #fff);
 }
 
+.coop-pma-unlock {
+  text-align: center;
+}
+
 .coop-pma-unlock-head {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   margin-bottom: 0.35rem;
 }
@@ -213,29 +289,36 @@
   margin: 0 0 0.55rem;
   font-size: 0.85rem;
   color: var(--text-muted, #6c757d);
+  text-align: center;
 }
 
 .coop-pma-unlock-label {
   display: block;
   font-size: 0.8rem;
   margin-bottom: 0.25rem;
+  text-align: center;
 }
 
 .coop-pma-unlock-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .coop-pma-unlock-input {
   flex: 1 1 10rem;
   min-width: 0;
+  max-width: 18rem;
+  text-align: center;
 }
 
 .coop-pma-error {
   margin-bottom: 0.5rem;
   font-size: 0.85rem;
   color: #b02a37;
+  text-align: center;
 }
 
 .coop-pma-unlock.is-busy {
