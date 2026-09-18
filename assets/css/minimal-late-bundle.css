@@ -4116,6 +4116,15 @@ body.dark-mode .modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):n
   min-width: 44px !important;
   margin: 0 0 0 4px !important;
   flex-shrink: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+}
+
+.pfl-since-badge .since-text,
+.pfl-since-badge .since-year {
+  white-space: nowrap !important;
+  max-width: 100% !important;
 }
 
 .pfl-brand-area {
