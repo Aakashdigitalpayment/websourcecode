@@ -22,17 +22,17 @@ if (!function_exists('coopPublicUiLooks')) {
             ],
             'sharp' => [
                 'label' => 'Sharp',
-                'hint'  => 'Square edges, rates early, contact-first top bar — formal ledger feel.',
+                'hint'  => 'Square edges, rates then join CTA early, contact-first top bar — formal ledger feel.',
                 'best'  => 'Best for formal / office look. Same pages, text, and brand colors.',
             ],
             'editorial' => [
                 'label' => 'Editorial',
-                'hint'  => 'Full-bleed hero, why+app before rates, services-first nav — magazine rhythm.',
+                'hint'  => 'Full-bleed hero, why-us then join CTA, app before rates — magazine rhythm.',
                 'best'  => 'Best for a calmer story-led look. Same pages, text, and brand colors.',
             ],
             'compact' => [
                 'label' => 'Compact',
-                'hint'  => 'Tools+rates early, denser gaps, contact last in nav — more on one screen.',
+                'hint'  => 'Tools+rates then join CTA early, denser gaps, contact last in nav.',
                 'best'  => 'Best when you want more content visible at once. Same pages, text, and brand colors.',
             ],
         ];

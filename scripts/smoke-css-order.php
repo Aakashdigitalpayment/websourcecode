@@ -91,6 +91,8 @@ assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .
 assertContains('assets/css/public-ui-looks.css', 'PASS 6 — Soft-preserving flow serial', 'PASS 6 home/menu flow serial');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] #main-content > .why-us-section', 'Editorial why-us early in flow');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] #main-content > .rates-notices-section', 'Sharp rates early in flow');
+assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after why-us', 'Editorial CTA after why-us');
+assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after rates', 'Sharp/Compact CTA after rates');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] #main-content > .tools-widget-section', 'Compact tools early in flow');
 assertContains('assets/css/public-ui-looks.css', 'PASS 7 — Secondary public pages', 'PASS 7 secondary page look diffs');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .value-card', 'Sharp about value-card personality');

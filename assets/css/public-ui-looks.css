@@ -2377,44 +2377,44 @@ html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
 html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
 html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2; }
 
-/* Sharp — formal info board: rates early, app story later */
+/* Sharp — formal info board: rates early, then CTA invite, app story later */
 html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 3; }
-html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 4; }
-html[data-ui-look="sharp"] #main-content > .services-section { order: 5; }
-html[data-ui-look="sharp"] #main-content > .why-us-section { order: 6; }
-html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 7; }
-html[data-ui-look="sharp"] #main-content > .news-section { order: 8; }
-html[data-ui-look="sharp"] #main-content > .awards-section { order: 9; }
-html[data-ui-look="sharp"] #main-content > .mobile-app-section { order: 10; }
-html[data-ui-look="sharp"] #main-content > .app-features-section { order: 11; }
-html[data-ui-look="sharp"] #main-content > .member-spotlight-section { order: 12; }
-html[data-ui-look="sharp"] #main-content > .cta-section { order: 13; }
+html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after rates */
+html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 5; }
+html[data-ui-look="sharp"] #main-content > .services-section { order: 6; }
+html[data-ui-look="sharp"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 8; }
+html[data-ui-look="sharp"] #main-content > .news-section { order: 9; }
+html[data-ui-look="sharp"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="sharp"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="sharp"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="sharp"] #main-content > .member-spotlight-section { order: 13; }
 
-/* Editorial — story magazine: why + app before rates (institutional pinned at 2) */
+/* Editorial — story magazine: CTA right after किन हामीलाई छान्ने? */
 html[data-ui-look="editorial"] #main-content > .services-section { order: 3; }
 html[data-ui-look="editorial"] #main-content > .why-us-section { order: 4; }
-html[data-ui-look="editorial"] #main-content > .mobile-app-section { order: 5; }
-html[data-ui-look="editorial"] #main-content > .app-features-section { order: 6; }
-html[data-ui-look="editorial"] #main-content > .tools-widget-section { order: 7; }
-html[data-ui-look="editorial"] #main-content > .rates-notices-section { order: 8; }
-html[data-ui-look="editorial"] #main-content > .leadership-messages-section { order: 9; }
-html[data-ui-look="editorial"] #main-content > .news-section { order: 10; }
-html[data-ui-look="editorial"] #main-content > .awards-section { order: 11; }
-html[data-ui-look="editorial"] #main-content > .member-spotlight-section { order: 12; }
-html[data-ui-look="editorial"] #main-content > .cta-section { order: 13; }
+html[data-ui-look="editorial"] #main-content > .cta-section { order: 5; } /* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="editorial"] #main-content > .mobile-app-section { order: 6; }
+html[data-ui-look="editorial"] #main-content > .app-features-section { order: 7; }
+html[data-ui-look="editorial"] #main-content > .tools-widget-section { order: 8; }
+html[data-ui-look="editorial"] #main-content > .rates-notices-section { order: 9; }
+html[data-ui-look="editorial"] #main-content > .leadership-messages-section { order: 10; }
+html[data-ui-look="editorial"] #main-content > .news-section { order: 11; }
+html[data-ui-look="editorial"] #main-content > .awards-section { order: 12; }
+html[data-ui-look="editorial"] #main-content > .member-spotlight-section { order: 13; }
 
-/* Compact — tools + rates early; app pair together denser */
+/* Compact — tools + rates early, then CTA before denser mid page */
 html[data-ui-look="compact"] #main-content > .tools-widget-section { order: 3; }
 html[data-ui-look="compact"] #main-content > .rates-notices-section { order: 4; }
-html[data-ui-look="compact"] #main-content > .services-section { order: 5; }
-html[data-ui-look="compact"] #main-content > .why-us-section { order: 6; }
-html[data-ui-look="compact"] #main-content > .mobile-app-section { order: 7; }
-html[data-ui-look="compact"] #main-content > .app-features-section { order: 8; }
-html[data-ui-look="compact"] #main-content > .leadership-messages-section { order: 9; }
-html[data-ui-look="compact"] #main-content > .news-section { order: 10; }
-html[data-ui-look="compact"] #main-content > .awards-section { order: 11; }
-html[data-ui-look="compact"] #main-content > .member-spotlight-section { order: 12; }
-html[data-ui-look="compact"] #main-content > .cta-section { order: 13; }
+html[data-ui-look="compact"] #main-content > .cta-section { order: 5; } /* सदस्य बन्नुहोस् after rates */
+html[data-ui-look="compact"] #main-content > .services-section { order: 6; }
+html[data-ui-look="compact"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="compact"] #main-content > .mobile-app-section { order: 8; }
+html[data-ui-look="compact"] #main-content > .app-features-section { order: 9; }
+html[data-ui-look="compact"] #main-content > .leadership-messages-section { order: 10; }
+html[data-ui-look="compact"] #main-content > .news-section { order: 11; }
+html[data-ui-look="compact"] #main-content > .awards-section { order: 12; }
+html[data-ui-look="compact"] #main-content > .member-spotlight-section { order: 13; }
 
 /* —— Top utility serial (href-based; Soft untouched) —— */
 /* Sharp/Compact: keep dropdowns (छिटो लिंक) at the end */
