@@ -35,6 +35,13 @@ if (is_file($__bootShared)) {
 }
 unset($__bootShared);
 
+/* Public chrome cache helpers — available before admin-header for POST-before-header pages */
+$__simpleCache = __DIR__ . '/../../includes/simple-cache.php';
+if (is_file($__simpleCache)) {
+    require_once $__simpleCache;
+}
+unset($__simpleCache);
+
 $__coreHelpers = __DIR__ . '/../../core/helpers.php';
 if (is_file($__coreHelpers)) {
     require_once $__coreHelpers;
