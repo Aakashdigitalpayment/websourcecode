@@ -257,6 +257,19 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>Status: <span class="hg-badge hg-badge-yellow">Pending</span> → <span class="hg-badge hg-badge-green">Approved</span> वा <span class="hg-badge hg-badge-red">Rejected</span>।</li>
         <li>Approved भएपछि payment process को लागि finance team लाई जानकारी दिनुहोस्।</li>
       </ol>
+
+      <h5>🏷️ राहत प्रकार (catalog):</h5>
+      <div class="hg-step">
+        प्रकार <a href="welfare-claim-types.php">कल्याण दाबी प्रकार</a> बाट मात्र आउँछ — सहकारीअनुसार फरक नाम/रङ। संस्थागत प्रोफाइलमा नयाँ प्रकार फिल्ड बनाउन पर्दैन।
+      </div>
+
+      <h5>🏛️ संस्थागत प्रोफाइलमा राहत जम्मा:</h5>
+      <ol class="hg-steps-list">
+        <li><b>Portal अघिको इतिहास:</b> <a href="institutional-welfare-opening.php">राहत Opening</a> मा प्रकारअनुसार संख्या + रकम सेट गर्नुहोस्।</li>
+        <li><b>मासिक प्रोफाइल:</b> <a href="institutional-profile.php">संस्थागत प्रोफाइल</a> → नयाँ महिना → Section «सदस्य राहत» मा
+          <em>यो महिना नयाँ</em> (approved) र <em>हालसम्म जम्मा</em> auto-fill हुन्छ; नम्बर फेर्न मिल्छ; <span class="kbd">पुन: भर्नुहोस्</span> ले फेरि गणना गर्छ।</li>
+        <li>Public <code>institutional-profile.php</code> मा सुरक्षित जम्मा देखिन्छ (नभए Opening + live claims)।</li>
+      </ol>
     </section>
 
     <!-- ══ 9. GRIEVANCE ══ -->
@@ -307,7 +320,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li><a href="member-import-sample.php">Sample CSV</a> download गर्नुहोस्।</li>
         <li>Excel मा खोलेर सदस्य भर्नुहोस्। <b>Required:</b> <code>member_id</code> (वा <code>sadasyata_number</code>), <code>full_name</code> (English नाम, CVV का लागि)। <b>Optional:</b> <code>name_np</code>, <code>mobile</code>, email, address, <code>dob</code>/<code>dob_bs</code> (<b>बि.सं.</b> <code>YYYY-MM-DD</code> सिफारिस — DB मा AD), <code>dob_ad</code> (ई.सं. मात्र), gender, branch, remarks।</li>
         <li>Excel बाट <b>File → Save As → CSV UTF-8</b>। <code>full_name</code> मा English मात्र राख्नुहोस् (जस्तै <code>Ram Prasad Sharma</code>) — नेपाली नामले CVV बिग्रन्छ।</li>
-        <li>CSV upload गर्नुहोस्। Duplicate मा <code>Skip</code> (सिफारिस) वा <code>Update</code> छान्नुहोस्।</li>
+        <li>CSV upload गर्नुहोस्। उही Member ID मा <code>Update / Replace</code> (सिफारिस — खाली optional ले पुरानो नमेटाउने) वा <code>Skip</code> छान्नुहोस्।</li>
         <li>Import सुरु — ठूलो फाइल (१०–५० हजार) मा progress बारले chunk-chunk मा चल्छ; timeout हुँदैन। कार्ड auto-generate हुन्छ।</li>
         <li>Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>। Bulk SMS पठाइँदैन।</li>
       </ol>
@@ -725,6 +738,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <table class="hg-table">
         <tr><th>के बदल्ने?</th><th>Setting Tab</th></tr>
         <tr><td>Website नाम, Logo, Favicon</td><td><a href="settings.php#branding">Settings → Branding</a></td></tr>
+        <tr><td>Brand रङ (primary / secondary) — contact icon secondary सहित</td><td><a href="settings.php">Settings → Theme / Colours</a></td></tr>
         <tr><td>Office ठेगाना, Phone, Email</td><td><a href="settings.php#contact">Settings → Contact</a></td></tr>
         <tr><td>Facebook, YouTube links</td><td><a href="settings.php#social">Settings → Social Media</a></td></tr>
         <tr><td>Google Map embed</td><td><a href="settings.php#map">Settings → Map</a></td></tr>
@@ -735,13 +749,19 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
       <div class="hg-warn">⚠️ <b>Maintenance Mode ON</b> गर्दा public website देखिँदैन — developers को लागि मात्र।</div>
 
-      <h5>🏛️ About / Institutional Profile:</h5>
+      <h5>🏛️ About / संस्थागत प्रोफाइल (मासिक):</h5>
       <div class="hg-step">
-        <a href="about-settings.php">About Settings</a> र <a href="institutional-profile.php">Institutional Profile</a> pages मा संस्थाको इतिहास, mission, vision, registration numbers edit गर्नुहोस्।
-        दृष्टि/लक्ष्य public: <code>vision-mission.php</code> · किन छान्ने: <a href="why-choose.php">Why Choose</a> → <code>../why-choose.php</code>।
-        सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → public <code>success-stories.php</code> (About ड्रपडाउन अन्तिम)।
-        अध्यक्ष/CEO सन्देश: <code>chairman-message.php</code> / <code>ceo-message.php</code> (Pages → Static / About Settings बाट)।
+        <a href="about-settings.php">About Settings</a> — इतिहास, mission/vision, registration।
+        दृष्टि/लक्ष्य public: <code>vision-mission.php</code> · किन छान्ने: <a href="why-choose.php">Why Choose</a>।
+        सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → <code>success-stories.php</code>।
+        अध्यक्ष/CEO: <code>chairman-message.php</code> / <code>ceo-message.php</code>।
       </div>
+      <ol class="hg-steps-list">
+        <li><a href="institutional-profile.php">संस्थागत प्रोफाइल</a> — आ.व. + बि.सं. महिनाअनुसार financial data (सदस्य, शेयर, बचत, ऋण, NPA…)।</li>
+        <li>उही फारममा <b>सदस्य राहत</b> Section: प्रकार member-welfare बाट; Opening + यो महिना approved auto-fill; editable।</li>
+        <li>Portal अघिको राहत कुल: <a href="institutional-welfare-opening.php">राहत Opening</a> (संस्था मेनुमा पनि)।</li>
+        <li>Public: <code>../institutional-profile.php</code> — महिना filter + राहत तालिका / share poster। Member-only पहुँच Settings मा <code>access_level</code>।</li>
+      </ol>
 
       <h5>🌐 Info Officer (RTI):</h5>
       <div class="hg-step">

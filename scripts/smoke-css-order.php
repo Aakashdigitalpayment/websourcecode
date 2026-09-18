@@ -324,6 +324,10 @@ assertContains('includes/institutional-profile-helpers.php', 'function coopIpWel
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfareOpeningMap', 'IP welfare opening balance helper');
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfarePrefillForMonth', 'IP welfare monthly prefill helper');
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfareResolveForProfile', 'IP welfare prefers stored snapshot');
+assertContains('README.md', 'Product SSOT notes', 'README documents product SSOT table');
+assertContains('README.md', 'institutional-welfare-opening', 'README mentions welfare opening');
+assertContains('admin/help-guide.php', 'institutional-welfare-opening.php', 'help guide documents राहत Opening');
+assertContains('admin/help-guide.php', 'सदस्य राहत', 'help guide documents monthly IP welfare section');
 assertContains('admin/institutional-welfare-opening.php', 'ip-welfare-opening-table', 'admin welfare opening setup page');
 assertContains('admin/institutional-welfare-opening.php', "includes/admin-header.php", 'opening page loads admin shell');
 assertContains('admin/institutional-profile.php', 'ip-welfare-section', 'monthly IP form has welfare section');
