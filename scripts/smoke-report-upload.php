@@ -46,6 +46,12 @@ if (strpos($rpt, 'uploadFile($_FILES[\'file\'], \'reports\'') !== false
 } else {
     bad('reports.php still uses default 10MB upload');
 }
+
+if (strpos($rpt, 'clearHomepageCache') !== false) {
+    ok('reports.php busts homepage cache after CRUD');
+} else {
+    bad('reports.php missing clearHomepageCache');
+}
 if (strpos($rpt, 'PDF फाइल आवश्यक छ') !== false || strpos($rpt, 'required') !== false) {
     ok('new report requires a file');
 } else {

@@ -7,20 +7,10 @@ $__t = static function (string $np, string $en): string {
 $pageTitle = $__t('प्रतिवेदन व्यवस्थापन', 'Reports Management');
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once dirname(__DIR__) . '/includes/simple-cache.php';
+require_once __DIR__ . '/includes/bs-fiscal-years.php';
 
-/* ── getBSFiscalYears: BS आर्थिक वर्ष <option> list ── */
-if (!function_exists('getBSFiscalYears')) {
-    function getBSFiscalYears(string $selected = ''): string {
-        $html = '';
-        for ($y = 2070; $y <= 2086; $y++) {
-            $next  = $y + 1 - 2000;          // e.g. 2080+1-2000 = 81
-            $label = $y . '/' . str_pad($next, 2, '0', STR_PAD_LEFT); // 2080/81
-            $sel   = ($selected === $label) ? ' selected' : '';
-            $html .= "<option value=\"{$label}\"{$sel}>{$label}</option>\n";
-        }
-        return $html;
-    }
-}
+/* ── getBSFiscalYears loaded from admin/includes/bs-fiscal-years.php ── */
 
 // Nepali months array
 $nepaliMonths = [
@@ -155,10 +145,16 @@ checkCSRF();
                 $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order, $id]);
                 setFlash('success', 'प्रतिवेदन अपडेट भयो।');
             }
+            if (function_exists('clearHomepageCache')) {
+                clearHomepageCache();
+            }
         } elseif ($action === 'delete') {
             $id = $_POST['id'];
             $db->prepare("DELETE FROM reports WHERE id = ?")->execute([$id]);
             setFlash('success', 'प्रतिवेदन मेटाइयो।');
+            if (function_exists('clearHomepageCache')) {
+                clearHomepageCache();
+            }
         }
     } catch (Exception $e) {
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');
