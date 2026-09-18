@@ -1860,7 +1860,8 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         if (!function_exists('getCachedData')) {
             require_once __DIR__ . '/simple-cache.php';
         }
-        $__noticeExtra = getCachedData('nav_notices_extra_v1', 90, function () {
+        $__noticeCacheKey = 'nav_notices_extra_v2_' . date('Y-m-d');
+        $__noticeExtra = getCachedData($__noticeCacheKey, 90, function () {
             $out = ['ticker' => [], 'popup' => []];
             try {
                 $db = getDB();
@@ -1868,9 +1869,19 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 if ($tickerStmt) {
                     $out['ticker'] = $tickerStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
-                $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
-                if ($popupStmt) {
+                $today = date('Y-m-d');
+                $popupSql = "SELECT * FROM notices
+                    WHERE is_popup = 1 AND is_active = 1
+                      AND (popup_expires_at IS NULL OR popup_expires_at = '' OR popup_expires_at >= ?)
+                    ORDER BY id DESC LIMIT 5";
+                try {
+                    $popupStmt = $db->prepare($popupSql);
+                    $popupStmt->execute([$today]);
                     $out['popup'] = $popupStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                } catch (Throwable $ePopup) {
+                    /* Column missing mid-migrate */
+                    $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
+                    $out['popup'] = $popupStmt ? ($popupStmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
                 }
             } catch (Exception $e) {
                 /* keep empty */
@@ -1879,6 +1890,18 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         }) ?: [];
         $tickerNotices = is_array($__noticeExtra['ticker'] ?? null) ? $__noticeExtra['ticker'] : [];
         $popupNotices = is_array($__noticeExtra['popup'] ?? null) ? $__noticeExtra['popup'] : [];
+        /* Defense-in-depth: drop expired even if cache was warm across midnight */
+        if ($popupNotices !== []) {
+            $__today = date('Y-m-d');
+            $popupNotices = array_values(array_filter($popupNotices, static function ($n) use ($__today) {
+                $exp = trim((string) ($n['popup_expires_at'] ?? ''));
+                if ($exp === '') {
+                    return true;
+                }
+                $ymd = substr($exp, 0, 10);
+                return !preg_match('/^\d{4}-\d{2}-\d{2}$/', $ymd) || $ymd >= $__today;
+            }));
+        }
     } catch (Exception $e) {
         $tickerNotices = [];
         $popupNotices = [];

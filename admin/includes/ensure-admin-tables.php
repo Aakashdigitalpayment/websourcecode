@@ -77,6 +77,7 @@ function ensureAdminTables(): bool {
             attachment VARCHAR(255),
             popup_image VARCHAR(255) DEFAULT '',
             popup_photo_only TINYINT(1) NOT NULL DEFAULT 0,
+            popup_expires_at DATE NULL,
             is_active TINYINT(1) DEFAULT 1,
             is_popup TINYINT(1) DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -483,6 +484,7 @@ function ensureAdminTables(): bool {
             }
             safeAddColumn($db, 'notices', 'popup_image', "VARCHAR(255) DEFAULT ''");
             safeAddColumn($db, 'notices', 'popup_photo_only', 'TINYINT(1) DEFAULT 0');
+            safeAddColumn($db, 'notices', 'popup_expires_at', 'DATE NULL');
             safeAddColumn($db, 'gallery', 'media_type', "VARCHAR(20) DEFAULT 'photo'");
             safeAddColumn($db, 'gallery', 'video_url', "VARCHAR(500) DEFAULT ''");
             safeAddColumn($db, 'gallery', 'thumbnail', "VARCHAR(255) DEFAULT ''");
@@ -522,6 +524,7 @@ function ensureAdminTables(): bool {
             foreach ([
                 "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT ''",
                 "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) DEFAULT 0",
+                "ALTER TABLE notices ADD COLUMN popup_expires_at DATE NULL",
             ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
             foreach ([
                 "ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT 'photo'",

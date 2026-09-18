@@ -400,7 +400,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li><span class="kbd">Save Notice</span> click गर्नुहोस्।</li>
       </ol>
 
-      <div class="hg-info">💡 <b>Publish Date</b> future मा राख्न सकिन्छ — त्यो दिनसम्म website मा देखिँदैन।</div>
+      <div class="hg-info">💡 <b>पप-अप</b>: "Show as popup" ON गर्दा homepage मा popup देखिन्छ। <b>पप-अप समाप्त मिति (बि.सं.)</b> राखेपछि त्यो दिनसम्म मात्र देखिन्छ — मिति सकिएपछि स्वतः लुक्छ (हरेक पटक edit गर्न पर्दैन)। खाली छोडे म्याद हुँदैन।</div>
     </section>
 
     <!-- ══ 14. NEWS ══ -->

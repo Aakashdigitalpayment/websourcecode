@@ -14,16 +14,18 @@ require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once dirname(__DIR__) . '/includes/simple-cache.php';
 
-/* ─── Ensure popup_photo_only + popup_image columns exist ─── */
+/* ─── Ensure popup columns exist ─── */
 try {
     $__db = getDB();
     if (function_exists('safeAddColumn')) {
         safeAddColumn($__db, 'notices', 'popup_photo_only', "TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Popup shows photo only'");
         safeAddColumn($__db, 'notices', 'popup_image', "VARCHAR(255) DEFAULT '' COMMENT 'Custom popup image'");
+        safeAddColumn($__db, 'notices', 'popup_expires_at', "DATE NULL COMMENT 'Popup auto-hide after this AD date (inclusive until end of day)'");
     } else {
         foreach ([
             "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Popup shows photo only'",
             "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT '' COMMENT 'Custom popup image'",
+            "ALTER TABLE notices ADD COLUMN popup_expires_at DATE NULL COMMENT 'Popup expiry AD date'",
         ] as $__sql) {
             try { $__db->exec($__sql); } catch (Exception $e) { /* column exists */ }
         }
@@ -51,6 +53,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
     $isActive          = isset($_POST['is_active']) ? 1 : 0;
     $isPopup           = isset($_POST['is_popup']) ? 1 : 0;
     $isPopupPhotoOnly  = isset($_POST['popup_photo_only']) ? 1 : 0;
+    $popupExpiresRaw   = trim((string) ($_POST['popup_expires_at'] ?? ''));
+    $popupExpiresAt    = null;
+    if ($popupExpiresRaw !== '') {
+        if (is_file(dirname(__DIR__) . '/includes/coop-date-ui.php')) {
+            require_once dirname(__DIR__) . '/includes/coop-date-ui.php';
+        }
+        if (is_file(dirname(__DIR__) . '/includes/appointment-submit-helper.php')) {
+            require_once dirname(__DIR__) . '/includes/appointment-submit-helper.php';
+        }
+        $ad = '';
+        if (function_exists('coop_date_ui_normalize_ad')) {
+            $ad = coop_date_ui_normalize_ad($popupExpiresRaw);
+        } elseif (function_exists('appointmentNormalizeDate')) {
+            $ad = appointmentNormalizeDate($popupExpiresRaw);
+        } else {
+            $ad = $popupExpiresRaw;
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad) && (int)substr($ad, 0, 4) < 2070) {
+            $popupExpiresAt = $ad;
+        } else {
+            setFlash('error', $__t('पप-अप समाप्त मिति अमान्य। बि.सं. YYYY-MM-DD राख्नुहोस्।', 'Invalid popup expiry date. Use BS YYYY-MM-DD.'));
+            $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
+        }
+    }
+    if (!$isPopup) {
+        $popupExpiresAt = null;
+    }
     $removeAttachment  = isset($_POST['remove_attachment']);
     $removePopupImage  = isset($_POST['remove_popup_image']);
     $newAttachment     = null;
@@ -152,12 +181,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
         $popupDb  = $finalPopupImage !== '' ? $finalPopupImage : null;
 
         if ($noticeIdPost > 0) {
-            $st = $db->prepare(
-                'UPDATE notices
-                 SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?
-                 WHERE id=?'
-            );
-            $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $noticeIdPost]);
+            try {
+                $st = $db->prepare(
+                    'UPDATE notices
+                     SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?, popup_expires_at=?
+                     WHERE id=?'
+                );
+                $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $popupExpiresAt, $noticeIdPost]);
+            } catch (Throwable $eUpd) {
+                $st = $db->prepare(
+                    'UPDATE notices
+                     SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?
+                     WHERE id=?'
+                );
+                $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $noticeIdPost]);
+            }
             setFlash('success', $__t('सूचना सफलतापूर्वक अपडेट भयो।', 'Notice updated successfully.'));
             writeAuditLog('notice_update', 'Updated: ' . mb_substr($title, 0, 80), 'notice', $noticeIdPost);
             if (function_exists('clearHomepageCache')) {
@@ -166,10 +204,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
             redirect('notices.php?edit=' . $noticeIdPost);
         }
 
-        $db->prepare(
-            'INSERT INTO notices (title, content, notice_date, attachment, is_active, is_popup, popup_photo_only, popup_image)
-             VALUES (?,?,?,?,?,?,?,?)'
-        )->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb]);
+        try {
+            $db->prepare(
+                'INSERT INTO notices (title, content, notice_date, attachment, is_active, is_popup, popup_photo_only, popup_image, popup_expires_at)
+                 VALUES (?,?,?,?,?,?,?,?,?)'
+            )->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $popupExpiresAt]);
+        } catch (Throwable $eIns) {
+            /* Older DB without popup_expires_at mid-migrate */
+            $db->prepare(
+                'INSERT INTO notices (title, content, notice_date, attachment, is_active, is_popup, popup_photo_only, popup_image)
+                 VALUES (?,?,?,?,?,?,?,?)'
+            )->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb]);
+        }
         $newNoticeId = (int) $db->lastInsertId();
         setFlash('success', $__t('नयाँ सूचना सफलतापूर्वक थपियो।', 'New notice added successfully.'));
         writeAuditLog('notice_create', 'Created: ' . mb_substr($title, 0, 80), 'notice', $newNoticeId);
@@ -259,6 +305,16 @@ $efAttachment = trim((string) ($ef['attachment'] ?? ''));
 $efPopupImage = trim((string) ($ef['popup_image'] ?? ''));
 $efAttachmentExists = $efAttachment !== '' && coop_stored_upload_exists($efAttachment);
 $efPopupImageExists = $efPopupImage !== '' && coop_stored_upload_exists($efPopupImage);
+$efPopupExpiresDisplay = '';
+$efPopupExpiresAd = trim((string) ($ef['popup_expires_at'] ?? ''));
+if ($efPopupExpiresAd !== '' && preg_match('/^\d{4}-\d{2}-\d{2}/', $efPopupExpiresAd)) {
+    if (is_file(dirname(__DIR__) . '/includes/coop-date-ui.php')) {
+        require_once dirname(__DIR__) . '/includes/coop-date-ui.php';
+    }
+    $efPopupExpiresDisplay = function_exists('coop_date_ui_to_display')
+        ? coop_date_ui_to_display(substr($efPopupExpiresAd, 0, 10))
+        : substr($efPopupExpiresAd, 0, 10);
+}
 $ntcBasename = static function (?string $path): string {
     $path = trim(str_replace('\\', '/', (string) $path));
     return $path !== '' ? basename($path) : '';
@@ -351,7 +407,28 @@ $ntcBasename = static function (?string $path): string {
                                 </td>
                                 <td class="text-center" data-label="पप-अप">
                                     <?php if ($item['is_popup']): ?>
+                                        <?php
+                                        $__expAd = trim((string) ($item['popup_expires_at'] ?? ''));
+                                        $__expToday = date('Y-m-d');
+                                        $__expGone = ($__expAd !== '' && preg_match('/^\d{4}-\d{2}-\d{2}/', $__expAd) && substr($__expAd, 0, 10) < $__expToday);
+                                        ?>
                                         <span class="badge ntc-popup-badge"><i class="lucide-icon me-1" data-lucide="bell" aria-hidden="true"></i><?php echo $__t('पप-अप', 'Popup'); ?></span>
+                                        <?php if ($__expAd !== '' && preg_match('/^\d{4}-\d{2}-\d{2}/', $__expAd)): ?>
+                                            <?php
+                                            if (!function_exists('coop_date_ui_to_display') && is_file(dirname(__DIR__) . '/includes/coop-date-ui.php')) {
+                                                require_once dirname(__DIR__) . '/includes/coop-date-ui.php';
+                                            }
+                                            $__expShow = function_exists('coop_date_ui_to_display')
+                                                ? coop_date_ui_to_display(substr($__expAd, 0, 10))
+                                                : substr($__expAd, 0, 10);
+                                            ?>
+                                            <div class="small mt-1 <?php echo $__expGone ? 'text-danger' : 'text-muted'; ?>">
+                                                <?php echo $__expGone
+                                                    ? $__t('समाप्त', 'Expired')
+                                                    : $__t('सम्म', 'Until'); ?>:
+                                                <?php echo htmlspecialchars($__expShow, ENT_QUOTES, 'UTF-8'); ?>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="badge ntc-no-badge"><?php echo $__t('होइन', 'No'); ?></span>
                                     <?php endif; ?>
@@ -562,6 +639,22 @@ $ntcBasename = static function (?string $path): string {
                                     <small class="text-muted d-block"><?php echo $__t('JPG/PNG/WebP/GIF — अधिकतम 10MB', 'JPG/PNG/WebP/GIF — max 10MB'); ?></small>
                                     <small class="text-muted d-block"><?php echo $__t('Photo-only बन्द भए पप-अप फोटो सामान्य popup मा पनि देखिन सक्छ।', 'When not photo-only, popup image may still show in the standard popup.'); ?></small>
                                     <small class="text-muted"><?php echo $__t('फाइल (PDF) पनि भए photo click गर्दा फाइल खुल्छ।', 'If a file (PDF) is also attached, clicking the popup photo opens that file.'); ?></small>
+                                </div>
+                                <div class="mt-3 mb-0">
+                                    <label for="ntf_popup_expires" class="form-label fw-semibold small mb-1">
+                                        <i class="lucide-icon me-1 text-success" data-lucide="calendar-x" aria-hidden="true"></i>
+                                        <?php echo $__t('पप-अप समाप्त मिति (वैकल्पिक, बि.सं.)', 'Popup expiry date (optional, BS)'); ?>
+                                    </label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="popup_expires_at" id="ntf_popup_expires"
+                                               class="form-control admin-fancy-input nepali-datepicker"
+                                               placeholder="YYYY-MM-DD" autocomplete="off"
+                                               value="<?php echo htmlspecialchars($efPopupExpiresDisplay, ENT_QUOTES, 'UTF-8'); ?>">
+                                        <span class="input-group-text ntc-date-trigger ndp-trigger ntf-cursor-pointer">
+                                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted d-block mt-1"><?php echo $__t('यो मिति सम्म (त्यो दिन सहित) पप-अप देखिन्छ; भोलिदेखि स्वतः लुक्छ। खाली = म्याद नभएको।', 'Popup shows through this date (inclusive); hides automatically the next day. Empty = no expiry.'); ?></small>
                                 </div>
                             </div>
                         </div>

@@ -183,5 +183,32 @@ if (!str_contains($ensureAdmin, 'ensureMemberSuccessStoriesTable')) {
     ok('ensure-admin-tables member success stories');
 }
 
+if (!str_contains($ensureAdmin, "popup_expires_at")) {
+    fail('ensure-admin-tables should add notices.popup_expires_at');
+} else {
+    ok('notices.popup_expires_at in ensure-admin-tables');
+}
+
+$noticesAdmin = (string) file_get_contents($root . '/admin/notices.php');
+if (!str_contains($noticesAdmin, 'popup_expires_at') || !str_contains($noticesAdmin, 'ntf_popup_expires')) {
+    fail('admin/notices.php should have popup expiry field');
+} else {
+    ok('admin notices popup expiry UI');
+}
+
+$headerPhp = (string) file_get_contents($root . '/includes/header.php');
+if (!str_contains($headerPhp, 'popup_expires_at') || !str_contains($headerPhp, 'nav_notices_extra_v2_')) {
+    fail('header.php should filter popup by popup_expires_at with dated cache key');
+} else {
+    ok('header popup expiry filter + cache key');
+}
+
+$installSql = (string) file_get_contents($root . '/database/install.sql');
+if (!str_contains($installSql, 'popup_expires_at')) {
+    fail('install.sql notices should include popup_expires_at');
+} else {
+    ok('install.sql notices.popup_expires_at');
+}
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed > 0 ? 1 : 0);
