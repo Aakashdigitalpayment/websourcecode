@@ -94,6 +94,7 @@ assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] #ma
 assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after app features', 'Editorial CTA after app features');
 assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after rates', 'Sharp/Compact CTA after rates');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] #main-content > .tools-widget-section', 'Compact tools early in flow');
+assertContains('assets/css/public-ui-looks.css', '#main-content > .notice-ticker', 'Notice ticker pinned above hero on ordered looks');
 assertContains('assets/css/public-ui-looks.css', 'PASS 7 — Secondary public pages', 'PASS 7 secondary page look diffs');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .value-card', 'Sharp about value-card personality');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .gallery-card', 'Editorial gallery-card personality');

@@ -2351,6 +2351,12 @@ html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section)
 html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section) {
   order: 90;
 }
+/* Notice ticker is a <div> under <main> — keep it above hero, not at page bottom */
+html[data-ui-look="sharp"] #main-content > .notice-ticker,
+html[data-ui-look="editorial"] #main-content > .notice-ticker,
+html[data-ui-look="compact"] #main-content > .notice-ticker {
+  order: 0;
+}
 html[data-ui-look="sharp"] .pfl-quick-links,
 html[data-ui-look="editorial"] .pfl-quick-links,
 html[data-ui-look="compact"] .pfl-quick-links,
