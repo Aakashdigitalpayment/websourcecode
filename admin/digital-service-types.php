@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($tid > 0) {
                 $db->prepare(
-                    'UPDATE digital_service_types SET name_np=?, name_en=?, icon=?, color=?, display_order=?, is_active=?, requires_document=? WHERE id=?'
+                    'UPDATE digital_service_types SET name_np=?, name_en=?, icon=?, color=?, display_order=?, is_active=?, requires_document=? WHERE id=? LIMIT 1'
                 )->execute([$nameNp, $nameEn, $icon, $color, $order, $isActive, $requiresDocument, $tid]);
                 setFlash('success', $__t('सेवा प्रकार अद्यावधिक भयो।', 'Service type updated.'));
             } else {

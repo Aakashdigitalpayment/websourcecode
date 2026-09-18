@@ -74,16 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setFlash('success', 'फाइल थपियो।');
             } else {
                 if ($file_type !== '') {
-                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, file_type=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, file_type=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$title, $title_np, $category, $file_path, $file_type, $is_active, $id]);
                 } else {
-                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$title, $title_np, $category, $file_path, $is_active, $id]);
                 }
                 setFlash('success', 'फाइल अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM downloads WHERE id=?")->execute([$_POST['id']]);
+            $db->prepare("DELETE FROM downloads WHERE id=? LIMIT 1")->execute([$_POST['id']]);
             setFlash('success', 'फाइल मेटाइयो।');
         } elseif ($action === 'bulk_status') {
             $bulk = clean_text($_POST['bulk'] ?? '');

@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                             elseif (!twoFaVerifyCode($secret, $code, 1)) $error = '2FA code मिलेन।';
                             else {
                                 $bk = twoFaGenerateBackupCodes(8);
-                                $db->prepare("UPDATE admin_users SET twofa_enabled=1, twofa_secret=?, twofa_backup_codes=?, twofa_enabled_at=NOW() WHERE id=?")
+                                $db->prepare("UPDATE admin_users SET twofa_enabled=1, twofa_secret=?, twofa_backup_codes=?, twofa_enabled_at=NOW() WHERE id=? LIMIT 1")
                                    ->execute([$secret, json_encode($bk['hashes']), (int)$user['id']]);
                                 $_SESSION['admin_2fa_backup_plain'] = $bk['plain'];
                                 $_SESSION['admin_2fa_pending'] = [
@@ -204,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                                 if (!is_array($hashes)) $hashes = [];
                                 $resBk = twoFaConsumeBackupCode($code, $hashes);
                                 if (!empty($resBk['ok'])) {
-                                    $db->prepare("UPDATE admin_users SET twofa_backup_codes=? WHERE id=?")->execute([json_encode($resBk['hashes']), (int)$user['id']]);
+                                    $db->prepare("UPDATE admin_users SET twofa_backup_codes=? WHERE id=? LIMIT 1")->execute([json_encode($resBk['hashes']), (int)$user['id']]);
                                     $ok = true;
                                 }
                             }

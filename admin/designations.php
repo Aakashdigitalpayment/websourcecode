@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($titleNp === '') {
                 setFlash('error', 'पदको नाम (नेपाली) अनिवार्य।');
             } elseif ($id > 0) {
-                $db->prepare('UPDATE designations SET title_np=?, title_en=?, category=?, display_order=?, is_active=? WHERE id=?')
+                $db->prepare('UPDATE designations SET title_np=?, title_en=?, category=?, display_order=?, is_active=? WHERE id=? LIMIT 1')
                     ->execute([$titleNp, $titleEn, $cat, $ord, $act, $id]);
                 setFlash('success', 'पद अपडेट भयो।');
             } else {
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('DELETE FROM designations WHERE id=?')->execute([$id]);
+                $db->prepare('DELETE FROM designations WHERE id=? LIMIT 1')->execute([$id]);
                 setFlash('success', 'पद मेटाइयो।');
             }
             redirect('designations.php');
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editRow = null;
 if (($eid = (int)($_GET['edit'] ?? 0)) > 0) {
-    $st = $db->prepare('SELECT * FROM designations WHERE id=?');
+    $st = $db->prepare('SELECT * FROM designations WHERE id=? LIMIT 1');
     $st->execute([$eid]);
     $editRow = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }

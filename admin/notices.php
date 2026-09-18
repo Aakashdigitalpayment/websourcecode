@@ -185,14 +185,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
                 $st = $db->prepare(
                     'UPDATE notices
                      SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?, popup_expires_at=?
-                     WHERE id=?'
+                     WHERE id=? LIMIT 1'
                 );
                 $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $popupExpiresAt, $noticeIdPost]);
             } catch (Throwable $eUpd) {
                 $st = $db->prepare(
                     'UPDATE notices
                      SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?
-                     WHERE id=?'
+                     WHERE id=? LIMIT 1'
                 );
                 $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $noticeIdPost]);
             }
@@ -268,7 +268,7 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
                 deleteFile((string) $fileRow['popup_image']);
             }
         }
-        $db->prepare('DELETE FROM notices WHERE id=?')->execute([$id]);
+        $db->prepare('DELETE FROM notices WHERE id=? LIMIT 1')->execute([$id]);
         setFlash('success', $__t('सूचना मेटाइयो।', 'Notice deleted.'));
         writeAuditLog('notice_delete', "Deleted notice ID: {$id}", 'notice', $id);
         if (function_exists('clearHomepageCache')) clearHomepageCache();

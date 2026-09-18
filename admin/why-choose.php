@@ -54,12 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setFlash('success', 'नयाँ कारण थपियो।');
             } else {
                 $id = (int)$_POST['id'];
-                $db->prepare("UPDATE why_choose_features SET icon=?,title_np=?,title_en=?,desc_np=?,desc_en=?,sort_order=?,is_active=? WHERE id=?")
+                $db->prepare("UPDATE why_choose_features SET icon=?,title_np=?,title_en=?,desc_np=?,desc_en=?,sort_order=?,is_active=? WHERE id=? LIMIT 1")
                    ->execute([$icon,$title_np,$title_en,$desc_np,$desc_en,$sort,$active,$id]);
                 setFlash('success', 'कारण अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM why_choose_features WHERE id=?")->execute([(int)$_POST['id']]);
+            $db->prepare("DELETE FROM why_choose_features WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
             setFlash('success', 'कारण हटाइयो।');
         } elseif ($action === 'toggle') {
             $db->prepare('UPDATE why_choose_features SET is_active = 1 - is_active WHERE id = ?')->execute([(int) ($_POST['id'] ?? 0)]);

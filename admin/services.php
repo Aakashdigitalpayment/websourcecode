@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                    ->execute([$catName, $catNameEn, $catNameNp, $catIcon, $catOrder, $catActive]);
                 $success = $__t('श्रेणी थपियो।', 'Category added.');
             } else {
-                $db->prepare("UPDATE service_categories SET name=?, name_en=?, name_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE service_categories SET name=?, name_en=?, name_np=?, icon=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$catName, $catNameEn, $catNameNp, $catIcon, $catOrder, $catActive, (int)$_POST['cat_id']]);
                 $success = $__t('श्रेणी अपडेट भयो।', 'Category updated.');
             }
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($act === 'cat_delete') {
             $catDel = (int)($_POST['cat_id'] ?? 0);
             if ($catDel) {
-                $db->prepare("DELETE FROM service_categories WHERE id=?")->execute([$catDel]);
+                $db->prepare("DELETE FROM service_categories WHERE id=? LIMIT 1")->execute([$catDel]);
                 // Unlink services from this category
                 $db->prepare("UPDATE services SET service_category_id = NULL WHERE service_category_id=?")->execute([$catDel]);
             }
@@ -90,16 +90,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $success = 'सेवा सफलतापूर्वक थपियो।';
             } else {
                 try {
-                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=?, nav_group=?, service_category_id=? WHERE id=?")
+                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=?, nav_group=?, service_category_id=? WHERE id=? LIMIT 1")
                        ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group, $service_category_id, (int)$_POST['id']]);
                 } catch (Throwable $e2) {
-                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, (int)$_POST['id']]);
                 }
                 $success = 'सेवा सफलतापूर्वक अपडेट भयो।';
             }
         } elseif ($act === 'delete') {
-            $db->prepare("DELETE FROM services WHERE id=?")->execute([(int)$_POST['id']]);
+            $db->prepare("DELETE FROM services WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
             $success = 'सेवा मेटाइयो।';
         } elseif ($act === 'bulk_status') {
             $bulk = clean_text($_POST['bulk'] ?? '');
@@ -133,14 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } else {
                 $db->prepare("UPDATE service_products
                               SET service_id=?, title_np=?, title_en=?, description_np=?, description_en=?, display_order=?, is_active=?
-                              WHERE id=?")
+                              WHERE id=? LIMIT 1")
                     ->execute([$serviceId, $titleNp, $titleEn, $descNp, $descEn, $order, $active, $pid]);
                 $success = 'Service product सफलतापूर्वक अपडेट भयो।';
             }
         } elseif ($act === 'product_delete') {
             $pid = (int)($_POST['product_id'] ?? 0);
             if ($pid > 0) {
-                $db->prepare("DELETE FROM service_products WHERE id=?")->execute([$pid]);
+                $db->prepare("DELETE FROM service_products WHERE id=? LIMIT 1")->execute([$pid]);
                 $success = 'Service product हटाइयो।';
             }
         }

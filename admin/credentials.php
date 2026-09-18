@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             "UPDATE office_credentials
                              SET site_name=?, site_url=?, site_logo=?, username=?, password_enc=?, password_iv=?,
                                  category=?, notes=?, updated_by=?
-                             WHERE id=?"
+                             WHERE id=? LIMIT 1"
                         );
                         $stmt->execute([$siteName, $siteUrl, $siteLogo, $username,
                                         $enc['cipher'], $enc['iv'], $category, $notes, $me, $id]);
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             "UPDATE office_credentials
                              SET site_name=?, site_url=?, site_logo=?, username=?,
                                  category=?, notes=?, updated_by=?
-                             WHERE id=?"
+                             WHERE id=? LIMIT 1"
                         );
                         $stmt->execute([$siteName, $siteUrl, $siteLogo, $username,
                                         $category, $notes, $me, $id]);

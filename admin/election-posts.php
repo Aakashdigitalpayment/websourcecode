@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$desig) {
                 setFlash('error', 'कृपया पद मास्टरबाट पद छान्नुहोस्।');
             } elseif ($pid > 0) {
-                $db->prepare('UPDATE election_posts SET designation_id=?, title_np=?, title_en=?, committee_type_id=?, default_seats=?, default_max_votes=?, display_order=?, is_active=? WHERE id=?')
+                $db->prepare('UPDATE election_posts SET designation_id=?, title_np=?, title_en=?, committee_type_id=?, default_seats=?, default_max_votes=?, display_order=?, is_active=? WHERE id=? LIMIT 1')
                     ->execute([(int)$desig['id'], clean_text($desig['title_np'] ?? '', 160), clean_text($desig['title_en'] ?? '', 160), $ctid, $seats, $maxV, $ord, $act, $pid]);
                 setFlash('success', 'पद अपडेट भयो।');
             } else {
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ((int)$st->fetchColumn() > 0) {
                     setFlash('error', 'यो पद कुनै चक्रमा प्रयोग भएको छ — मेटाउन मिलेन।');
                 } else {
-                    $db->prepare('DELETE FROM election_posts WHERE id=?')->execute([$pid]);
+                    $db->prepare('DELETE FROM election_posts WHERE id=? LIMIT 1')->execute([$pid]);
                     setFlash('success', 'पद मेटाइयो।');
                 }
             }
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editPost = null;
 if (($epid = (int)($_GET['edit'] ?? 0)) > 0) {
-    $st = $db->prepare('SELECT * FROM election_posts WHERE id=?');
+    $st = $db->prepare('SELECT * FROM election_posts WHERE id=? LIMIT 1');
     $st->execute([$epid]);
     $editPost = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }

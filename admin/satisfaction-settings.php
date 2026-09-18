@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order    = (int)($_POST['display_order'] ?? 0);
 
         if ($id && $title && $url) {
-            $stmt = $db->prepare("UPDATE satisfaction_links SET title=?, title_en=?, url=?, icon=?, is_active=?, display_order=? WHERE id=?");
+            $stmt = $db->prepare("UPDATE satisfaction_links SET title=?, title_en=?, url=?, icon=?, is_active=?, display_order=? WHERE id=? LIMIT 1");
             $stmt->execute([$title, $titleEn, $url, $icon, $isActive, $order, $id]);
             setFlash('success', 'Link अपडेट भयो।');
         }

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_reviewed'])) {
                                        risk_review_due_at=?,
                                        risk_review_status='normal',
                                        updated_at=NOW()
-                                   WHERE id=?");
+                                   WHERE id=? LIMIT 1");
                 $u->execute([$due, $id]);
                 setFlash('success', 'KYC review cycle reset गरियो।');
             }

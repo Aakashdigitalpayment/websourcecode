@@ -40,12 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$title, $title_np, $icon, $desc, $desc_np, $is_new, $is_active, $order]);
                 setFlash('success', 'सुविधा थपियो।');
             } else {
-                $db->prepare("UPDATE app_features SET title=?, title_np=?, icon=?, description=?, description_np=?, is_new=?, is_active=?, sort_order=? WHERE id=?")
+                $db->prepare("UPDATE app_features SET title=?, title_np=?, icon=?, description=?, description_np=?, is_new=?, is_active=?, sort_order=? WHERE id=? LIMIT 1")
                    ->execute([$title, $title_np, $icon, $desc, $desc_np, $is_new, $is_active, $order, $id]);
                 setFlash('success', 'सुविधा अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM app_features WHERE id=?")->execute([$_POST['id']]);
+            $db->prepare("DELETE FROM app_features WHERE id=? LIMIT 1")->execute([$_POST['id']]);
             setFlash('success', 'सुविधा हटाइयो।');
         } elseif ($action === 'toggle_new') {
             $db->prepare('UPDATE app_features SET is_new = NOT is_new WHERE id = ?')->execute([(int) ($_POST['id'] ?? 0)]);

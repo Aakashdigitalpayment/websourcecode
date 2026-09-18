@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($areaParts)) $area = implode(' ', $areaParts);
 
             if ($id > 0) {
-                $stmt = $db->prepare("UPDATE auction_notices SET title=?,title_en=?,description=?,description_en=?,property_type=?,location=?,google_map_link=?,google_map_embed=?,area_bigha=?,area_ropani=?,area_aana=?,area_paisa=?,area=?,minimum_price=?,auction_date=?,auction_time=?,contact_person=?,contact_phone=?,image=?,images=?,document=?,status=?,is_active=?,updated_at=NOW() WHERE id=?");
+                $stmt = $db->prepare("UPDATE auction_notices SET title=?,title_en=?,description=?,description_en=?,property_type=?,location=?,google_map_link=?,google_map_embed=?,area_bigha=?,area_ropani=?,area_aana=?,area_paisa=?,area=?,minimum_price=?,auction_date=?,auction_time=?,contact_person=?,contact_phone=?,image=?,images=?,document=?,status=?,is_active=?,updated_at=NOW() WHERE id=? LIMIT 1");
                 $stmt->execute([$title,$title_en,$description,$description_en,$property_type,$location,$google_map_link,$google_map_embed,$area_bigha,$area_ropani,$area_aana,$area_paisa,$area,$minimum_price,$auction_date,$auction_time,$contact_person,$contact_phone,$image,$imagesJson,$document,$status,$is_active,$id]);
                 setFlash('success', 'लिलामी सूचना अपडेट भयो।');
             } else {
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $bc->execute([$id]);
                 $bidN = (int)$bc->fetchColumn();
                 if ($bidN > 0) {
-                    $db->prepare('UPDATE auction_notices SET is_active=0, status=?, updated_at=NOW() WHERE id=?')
+                    $db->prepare('UPDATE auction_notices SET is_active=0, status=?, updated_at=NOW() WHERE id=? LIMIT 1')
                         ->execute(['cancelled', $id]);
                     setFlash('success', 'बोलपत्र भएकाले मेटाउन सकिएन — निष्क्रिय/रद्द गरियो।');
                 } else {
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = (int)($_POST['auction_id'] ?? 0);
             $st = clean_text($_POST['status'] ?? 'upcoming');
             if (!isset($statusLabels[$st])) $st = 'upcoming';
-            $db->prepare("UPDATE auction_notices SET status=?, updated_at=NOW() WHERE id=?")->execute([$st, $id]);
+            $db->prepare("UPDATE auction_notices SET status=?, updated_at=NOW() WHERE id=? LIMIT 1")->execute([$st, $id]);
             setFlash('success', 'स्थिति अपडेट भयो।');
             redirect('auctions.php');
         }

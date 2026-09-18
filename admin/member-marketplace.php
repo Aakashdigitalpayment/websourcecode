@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare(
                 "UPDATE member_marketplace_listings
                  SET status='approved', is_active=1, approved_at=NOW(), approved_by=?, admin_note=''
-                 WHERE id=?"
+                 WHERE id=? LIMIT 1"
             )->execute([$adminId ?: null, $id]);
             $GLOBALS['db'] = $db;
             if (function_exists('createMemberNotification')) {
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare(
                 "UPDATE member_marketplace_listings
                  SET status='rejected', admin_note=?, approved_at=NULL, approved_by=NULL
-                 WHERE id=?"
+                 WHERE id=? LIMIT 1"
             )->execute([$note, $id]);
             $msg = 'तपाईंको सूची "' . (string) $row['title'] . '" अस्वीकृत भयो।';
             if ($note !== '') {
@@ -102,14 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect('member-marketplace.php?view=' . $id . '&tab=' . urlencode((string) ($_GET['tab'] ?? 'pending')));
             }
             $db->prepare(
-                'UPDATE member_marketplace_listings SET available_until=?, status=CASE WHEN status=\'expired\' THEN \'pending\' ELSE status END WHERE id=?'
+                'UPDATE member_marketplace_listings SET available_until=?, status=CASE WHEN status=\'expired\' THEN \'pending\' ELSE status END WHERE id=? LIMIT 1'
             )->execute([$until, $id]);
             setFlash('success', 'उपलब्ध मिति अपडेट भयो।');
             redirect('member-marketplace.php?view=' . $id . '&tab=' . urlencode((string) ($_GET['tab'] ?? 'pending')));
         }
 
         if ($action === 'expire' && $row) {
-            $db->prepare("UPDATE member_marketplace_listings SET status='expired' WHERE id=?")->execute([$id]);
+            $db->prepare("UPDATE member_marketplace_listings SET status='expired' WHERE id=? LIMIT 1")->execute([$id]);
             setFlash('success', 'सूची सार्वजनिकबाट हटाइयो (अवधि सकियो)।');
             redirect('member-marketplace.php?tab=expired');
         }
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try { deleteFile((string) $row['image']); } catch (Throwable $e) { /* ignore */ }
             }
             $db->prepare('DELETE FROM member_marketplace_inquiries WHERE listing_id=?')->execute([$id]);
-            $db->prepare('DELETE FROM member_marketplace_listings WHERE id=?')->execute([$id]);
+            $db->prepare('DELETE FROM member_marketplace_listings WHERE id=? LIMIT 1')->execute([$id]);
             setFlash('success', 'सूची मेटाइयो।');
             redirect('member-marketplace.php');
         }

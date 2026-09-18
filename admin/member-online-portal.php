@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* Toggle active/inactive */
     if ($action === 'toggle_active' && $memberId) {
-        $db->prepare("UPDATE members SET is_active = 1 - is_active WHERE id=?")->execute([$memberId]);
+        $db->prepare("UPDATE members SET is_active = 1 - is_active WHERE id=? LIMIT 1")->execute([$memberId]);
         setFlash('success', 'Member अवस्था बदलियो।');
         redirect('member-online-portal.php');
     }
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'reject_reset') {
         $requestId = (int)($_POST['request_id'] ?? 0);
         if ($requestId) {
-            $db->prepare("UPDATE member_password_reset_requests SET status='rejected', admin_id=?, resolved_at=NOW() WHERE id=?")
+            $db->prepare("UPDATE member_password_reset_requests SET status='rejected', admin_id=?, resolved_at=NOW() WHERE id=? LIMIT 1")
                ->execute([$adminId, $requestId]);
             /* v2: prepared statement (SQL injection safe) */
             $stmt = $db->prepare("SELECT member_id FROM member_password_reset_requests WHERE id = ?");

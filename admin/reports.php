@@ -141,7 +141,7 @@ checkCSRF();
                 $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order]);
                 setFlash('success', 'प्रतिवेदन थपियो।');
             } else {
-                $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, access_level=?, is_active=?, display_order=? WHERE id=?");
+                $stmt = $db->prepare("UPDATE reports SET title=?, title_np=?, report_type=?, report_year=?, report_month=?, report_quarter=?, file_path=?, access_level=?, is_active=?, display_order=? WHERE id=? LIMIT 1");
                 $stmt->execute([$title, $title_np, $report_type, $report_year, $report_month, $report_quarter, $file_path, $access_level, $is_active, $display_order, $id]);
                 setFlash('success', 'प्रतिवेदन अपडेट भयो।');
             }

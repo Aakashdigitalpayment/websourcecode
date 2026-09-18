@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if ($cid > 0) {
                     $db->prepare(
-                        'UPDATE election_cycles SET title_np=?, title_en=?, intro_np=?, intro_en=?, period_label=?, date_from=?, date_to=?, is_published=?, show_in_navbar=?, sort_order=?, vote_start_at=?, vote_end_at=?, voting_enabled=? WHERE id=?'
+                        'UPDATE election_cycles SET title_np=?, title_en=?, intro_np=?, intro_en=?, period_label=?, date_from=?, date_to=?, is_published=?, show_in_navbar=?, sort_order=?, vote_start_at=?, vote_end_at=?, voting_enabled=? WHERE id=? LIMIT 1'
                     )->execute([$titleNp, $titleEn, $introNp, $introEn, $period ?: null, $df, $dt, $pub, $nav, $sort, $vs, $ve, $vEnabled, $cid]);
                     setFlash('success', 'निर्वाचन चक्र अपडेट भयो।');
                 } else {
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $db->prepare('DELETE FROM election_candidates WHERE cycle_id=?')->execute([$cid]);
                         $db->prepare('DELETE FROM election_positions WHERE cycle_id=?')->execute([$cid]);
                         $db->prepare('DELETE FROM election_milestones WHERE cycle_id=?')->execute([$cid]);
-                        $db->prepare('DELETE FROM election_cycles WHERE id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_cycles WHERE id=? LIMIT 1')->execute([$cid]);
                         $db->commit();
                         setFlash('success', 'चक्र र सम्बन्धित डेटा मेटाइयो।');
                     } catch (Throwable $e) {
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mid = (int)($_POST['milestone_id'] ?? 0);
             $cid = (int)($_POST['cycle_id'] ?? 0);
             if ($mid > 0) {
-                $db->prepare('DELETE FROM election_milestones WHERE id=?')->execute([$mid]);
+                $db->prepare('DELETE FROM election_milestones WHERE id=? LIMIT 1')->execute([$mid]);
                 setFlash('success', 'चरण मेटाइयो।');
             }
             $__clearNavCache();
