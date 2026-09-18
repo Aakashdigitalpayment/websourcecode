@@ -8,13 +8,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/public-member-access.php';
 
-try {
-    $db = getDB();
-} catch (Throwable $e) {
-    http_response_code(503);
-    exit;
-}
-
 $id = (int) ($_GET['id'] ?? 0);
 $wantDownload = isset($_GET['dl']) && (string) $_GET['dl'] === '1';
 
@@ -22,6 +15,16 @@ if ($id < 1) {
     http_response_code(404);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Document not found.';
+    exit;
+}
+
+/* Cold Facebook/Instagram taps: land on HTML page before any DB/PDF work */
+coopMemberAccessBounceSocialInAppToPage('institutional-profile.php', $id);
+
+try {
+    $db = getDB();
+} catch (Throwable $e) {
+    http_response_code(503);
     exit;
 }
 

@@ -1146,9 +1146,7 @@ if ($ipChartSeries['count'] >= 2):
     wa.textContent = labels.wa;
     wa.addEventListener('click', closeMenu);
 
-    var fbTarget = (current && current.memberOnly)
-      ? (url || location.href)
-      : ((current && current.fileUrl) ? current.fileUrl : (url || location.href));
+    var fbTarget = url || location.href;
     var fb = document.createElement('a');
     fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(fbTarget)
       + '&quote=' + encodeURIComponent(String(text || title || '').slice(0, 240));
