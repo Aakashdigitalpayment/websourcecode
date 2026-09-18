@@ -86,7 +86,22 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 - Public content pages skip unused jQuery/datepicker and form-validation JS where safe.
 - Schema helpers: `dbTableExists()` / `dbColumnExists()` avoid repeated `SHOW` probes.
 
-Branch used for this work: `feat/ai-chat-speed-security`.
+---
+
+## Product SSOT notes (keep in sync with admin Help Guide)
+
+| Area | Rule |
+|------|------|
+| **Member ID** | `sadasyata_number` / CSV `member_id` — single key across Members, KYM, import |
+| **Names** | `full_name` / `members.name` = English (CVV); `name_np` = Nepali (KYM `full_name`) |
+| **Import DOB** | CSV `dob` / `dob_bs` = **बि.सं.** → stored as AD in `members.dob`; use `dob_ad` only for Gregorian sheets |
+| **Dates in UI** | Nepali lang → Nepali datepicker (BS); DB DATE columns stay Gregorian AD |
+| **Brand colours** | Admin Settings → `global-theme.php` tokens (`--primary-color`, `--secondary-color`, …). Contact panel icons use `--contact-icon-on-primary` (secondary hue, WCAG on green) |
+| **Welfare types** | `welfare_claim_types` / member-welfare catalog only — no duplicate type fields on IP |
+| **Institutional राहत** | Pre-portal totals: Admin → **राहत Opening**. Monthly IP form auto-fills month-new + cumulative (editable). Public prefers saved snapshot |
+| **Reports / IP member gate** | `access_level` + `includes/public-member-access.php`; files via `report-file.php` / `institutional-profile-file.php` |
+
+Admin how-to: `admin/help-guide.php` (sections कल्याण, Members import, Settings → Institutional).
 
 ---
 
@@ -131,4 +146,4 @@ PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 ---
 
 *Internal property of Aakash Cooperative — Not for redistribution.*  
-**Last updated: 2026-08-27**
+**Last updated: 2026-09-18**
