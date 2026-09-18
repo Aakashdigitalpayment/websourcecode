@@ -2387,12 +2387,12 @@ html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
 html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
 html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2; }
 
-/* Sharp — formal info board: rates early, then CTA invite, app story later */
-html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 3; }
-html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after rates */
+/* Sharp — why-us under institutional, rates later; CTA after why-us */
+html[data-ui-look="sharp"] #main-content > .why-us-section { order: 3; } /* किन हामीलाई छान्ने? after institutional */
+html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after why-us */
 html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 5; }
 html[data-ui-look="sharp"] #main-content > .services-section { order: 6; }
-html[data-ui-look="sharp"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 7; } /* ब्याज तथा सूचना where why-us was */
 html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 8; }
 html[data-ui-look="sharp"] #main-content > .news-section { order: 9; }
 html[data-ui-look="sharp"] #main-content > .awards-section { order: 10; }
