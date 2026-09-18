@@ -139,6 +139,23 @@ assertContains('admin/settings.php', 'look-mini--cascade', 'admin look mini for 
 assertContains('assets/css/public-ui-looks.css', 'PASS 9.1 — Bold / Airy / Cascade polish', 'PASS 9.1 new-look polish');
 assertContains('assets/css/public-ui-looks.css', 'Soft underline accent → cascade rail only', 'Cascade hero hides Soft underline');
 assertContains('assets/css/public-ui-looks.css', 'li.open > a .mnav-main-label', 'new looks open-nav child label contrast');
+assertContains('includes/public-ui-look.php', "'pulse'", 'public look catalog includes pulse');
+assertContains('includes/public-ui-look.php', "'summit'", 'public look catalog includes summit');
+assertContains('includes/public-ui-look.php', "'harbor'", 'public look catalog includes harbor');
+assertContains('assets/css/public-ui-looks.css', 'PASS 10 — Pulse / Summit / Harbor', 'PASS 10 new looks documented');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="pulse"] #main-content > .rates-notices-section', 'Pulse rates early in flow');
+assertContains('assets/css/public-ui-looks.css', 'ब्याज तथा सूचना early', 'Pulse rates early marker');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="summit"] #main-content > .awards-section', 'Summit awards early in flow');
+assertContains('assets/css/public-ui-looks.css', 'पुरस्कार early', 'Summit awards early marker');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="harbor"] #main-content > .why-us-section', 'Harbor why-us early in flow');
+assertContains('assets/css/public-ui-looks.css', 'किन हामीलाई छान्ने? early welcome', 'Harbor why early marker');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="pulse"] .hero-slider .btn.hero-btn-modern', 'Pulse hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="summit"] .hero-slider .btn.hero-btn-modern', 'Summit hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="harbor"] .hero-slider .btn.hero-btn-modern', 'Harbor hero CTA beats late-bundle pill');
+assertContains('admin/settings.php', 'look-mini--pulse', 'admin look mini for pulse');
+assertContains('admin/settings.php', 'look-mini--summit', 'admin look mini for summit');
+assertContains('admin/settings.php', 'look-mini--harbor', 'admin look mini for harbor');
+
 
 assertContains('admin/settings.php', 'look_confirm_pin', 'settings public look PIN gate');
 assertContains('admin/settings.php', 'Public look PIN gate FIRST', 'look PIN aborts before settings writes');
