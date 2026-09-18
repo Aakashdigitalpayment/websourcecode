@@ -790,6 +790,11 @@ assertFileContains('scripts/inventory-app-css.py', 'thin import shim', 'inventor
 assertFileContains('includes/header.php', 'data-lucide="download"', 'header downloads icon Lucide');
 assertFileContains('includes/header.php', 'data-lucide="mail"', 'header contact icon Lucide');
 assertFileContains('includes/theme-assets.php', 'FROZEN: Do not rewrite app-public', 'app-* panels frozen for polish');
+assertFileContains('includes/public-ui-look.php', "getSetting('public_ui_look', 'soft')", 'public look defaults soft');
+assertFileContains('includes/public-ui-look.php', 'coopVerifyPublicLookChangePin', 'public look PIN verifier');
+assertFileContains('admin/settings.php', 'is_superadmin() && isset($_POST[\'public_ui_look\'])', 'look save gated to superadmin');
+assertFileContains('admin/settings.php', 'Public look PIN gate FIRST', 'look PIN aborts before settings writes');
+assertFileContains('includes/header.php', 'data-ui-look=', 'public html data-ui-look wire');
 assertFileContains('core/helpers.php', "'fa-exchange-alt'", 'FA→Lucide map has exchange-alt');
 
 
@@ -917,7 +922,7 @@ assertFileContains('admin/notices.php', 'fileIconMeta', 'notices attachment icon
 assertFileContains('admin/loan-applications.php', 'data-lucide=', 'loan-applications Lucide');
 assertFileContains('admin/members.php', 'data-lucide=', 'members Lucide');
 assertFileContains('auction.php', "htmlspecialchars(rtrim(SITE_URL", 'auction photo/doc SITE_URL escaped');
-assertFileContains('includes/header.php', 'json_encode((string)$siteName', 'header CSS site name JSON-safe');
+assertFileContains('includes/header.php', 'json_encode((string) $siteName', 'header CSS site name JSON-safe');
 assertFileContains('includes/header.php', "htmlspecialchars(rtrim(SITE_URL", 'header mobile logo URL escaped');
 assertFileContains('admin/login.php', 'ADMIN_URL', 'login redirect prefers ADMIN_URL');
 assertFileContains('admin/db-setup.php', 'data-lucide="ban"', 'db-setup alert Lucide');
