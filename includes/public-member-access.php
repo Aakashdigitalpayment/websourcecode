@@ -484,6 +484,38 @@ function coopMemberAccessFileUrl(string $endpoint, int $id, bool $download = fal
 }
 
 /**
+ * Facebook / Instagram / Line in-app browsers (not link-preview crawlers).
+ */
+function coopMemberAccessIsSocialInAppBrowser(?string $ua = null): bool
+{
+    $ua = $ua ?? (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    if ($ua === '') {
+        return false;
+    }
+    /* FBAN/FBAV/FB_IAB = Facebook app WebView; exclude facebookexternalhit crawler */
+    return (bool) preg_match('/FBAN|FBAV|FB_IAB|Instagram|Line\//i', $ua);
+}
+
+/**
+ * Bounce social in-app browsers to an HTML page before streaming a PDF/doc.
+ * Call early (before DB) so cold Facebook taps never hang on a proxy 503/PDF.
+ */
+function coopMemberAccessBounceSocialInAppToPage(string $pageScript, int $id): void
+{
+    if ($id < 1 || !coopMemberAccessIsSocialInAppBrowser()) {
+        return;
+    }
+    $page = basename(str_replace('\\', '/', $pageScript));
+    $page = preg_replace('/[^a-zA-Z0-9._-]/', '', $page) ?: '';
+    if ($page === '' || !str_ends_with(strtolower($page), '.php')) {
+        return;
+    }
+    $to = rtrim((string) (defined('SITE_URL') ? SITE_URL : ''), '/') . '/' . $page . '?id=' . $id;
+    header('Location: ' . $to, true, 302);
+    exit;
+}
+
+/**
  * Compact unlock form markup (EN/NP). Unique input ids when many cards on one page.
  */
 function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraClass = '', string $idSuffix = ''): string
@@ -499,8 +531,8 @@ function coopMemberAccessUnlockFormHtml(string $returnPath = '', string $extraCl
     $en = function_exists('isEnglish') && isEnglish();
     $title = $en ? 'Members only' : 'सदस्य मात्र';
     $hint = $en
-        ? 'Enter your membership number to view, download, or share.'
-        : 'हेर्न, डाउनलोड वा सेयर गर्न आफ्नो सदस्यता नम्बर लेख्नुहोस्।';
+        ? 'Enter your membership number to view or download.'
+        : 'हेर्न वा डाउनलोड गर्न आफ्नो सदस्यता नम्बर लेख्नुहोस्।';
     $label = $en ? 'Membership number' : 'सदस्यता नम्बर';
     $btn = $en ? 'Unlock' : 'अनलक गर्नुहोस्';
     $csrf = function_exists('csrfField') ? csrfField() : '';
