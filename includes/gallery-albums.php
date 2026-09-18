@@ -139,7 +139,8 @@ if (!function_exists('galleryMigrateLegacyVideos')) {
                 "SELECT DISTINCT TRIM(album) AS album_name
                  FROM gallery
                  WHERE media_type = 'video' AND album_id IS NULL
-                   AND album IS NOT NULL AND TRIM(album) <> ''"
+                   AND album IS NOT NULL AND TRIM(album) <> ''
+                 LIMIT 200"
             )->fetchAll(PDO::FETCH_COLUMN) ?: [];
             $assignNamed = $db->prepare(
                 "UPDATE gallery SET album_id = ?

@@ -75,13 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             $flash = $_t('कम्तीमा एक उम्मेदवार छान्नुहोस्।', 'Please select at least one candidate.'); $flashType = 'warning';
         } else {
         try {
-            $positions = $db->prepare('SELECT id, max_votes_per_voter FROM election_positions WHERE cycle_id=? AND is_active=1');
+            $positions = $db->prepare('SELECT id, max_votes_per_voter FROM election_positions WHERE cycle_id=? AND is_active=1 LIMIT 200');
             $positions->execute([$cycleId]);
             $positions = $positions->fetchAll(PDO::FETCH_ASSOC) ?: [];
             $posLimit = []; foreach ($positions as $p) $posLimit[(int)$p['id']] = (int)$p['max_votes_per_voter'];
 
             $validCandIds = [];
-            $cs2 = $db->prepare('SELECT id, position_id FROM election_candidates WHERE cycle_id=? AND is_active=1');
+            $cs2 = $db->prepare('SELECT id, position_id FROM election_candidates WHERE cycle_id=? AND is_active=1 LIMIT 500');
             $cs2->execute([$cycleId]);
             foreach ($cs2->fetchAll(PDO::FETCH_ASSOC) ?: [] as $c) $validCandIds[(int)$c['id']] = (int)$c['position_id'];
 

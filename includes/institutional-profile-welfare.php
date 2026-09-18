@@ -82,7 +82,7 @@ if (!function_exists('coopIpWelfareOpeningMap')) {
         coopIpEnsureWelfareTables($db);
         $out = [];
         try {
-            $st = $db->query('SELECT claim_type, opening_count, opening_amount, note FROM institutional_welfare_opening');
+            $st = $db->query('SELECT claim_type, opening_count, opening_amount, note FROM institutional_welfare_opening ORDER BY claim_type ASC LIMIT 200');
             foreach ($st->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
                 $slug = trim((string)($row['claim_type'] ?? ''));
                 if ($slug === '') {
@@ -392,7 +392,8 @@ if (!function_exists('coopIpWelfareLoadProfileRows')) {
         try {
             $st = $db->prepare(
                 'SELECT claim_type, month_count, month_amount, cum_count, cum_amount
-                 FROM institutional_profile_welfare WHERE profile_id = ?'
+                 FROM institutional_profile_welfare WHERE profile_id = ?
+                 ORDER BY claim_type ASC LIMIT 200'
             );
             $st->execute([$profileId]);
             foreach ($st->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
