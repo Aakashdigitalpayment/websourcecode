@@ -513,6 +513,12 @@ function ensureAdminTables(): bool {
                 "ALTER TABLE institutional_profile ADD COLUMN access_level ENUM('none','member') NOT NULL DEFAULT 'none'",
             ];
             foreach ($ipAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+            if (is_file(dirname(__DIR__, 2) . '/includes/institutional-profile-welfare.php')) {
+                require_once dirname(__DIR__, 2) . '/includes/institutional-profile-welfare.php';
+                if (function_exists('coopIpEnsureWelfareTables')) {
+                    coopIpEnsureWelfareTables($db);
+                }
+            }
             foreach ([
                 "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT ''",
                 "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) DEFAULT 0",

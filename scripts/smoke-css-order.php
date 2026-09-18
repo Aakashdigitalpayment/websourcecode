@@ -325,8 +325,12 @@ assertContains('includes/institutional-profile-welfare.php', 'function coopIpWel
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfarePrefillForMonth', 'IP welfare monthly prefill helper');
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfareResolveForProfile', 'IP welfare prefers stored snapshot');
 assertContains('admin/institutional-welfare-opening.php', 'ip-welfare-opening-table', 'admin welfare opening setup page');
+assertContains('admin/institutional-welfare-opening.php', "includes/admin-header.php", 'opening page loads admin shell');
 assertContains('admin/institutional-profile.php', 'ip-welfare-section', 'monthly IP form has welfare section');
 assertContains('admin/institutional-profile.php', 'welfare_prefill', 'monthly IP welfare AJAX prefill');
+assertContains('admin/institutional-profile.php', 'DELETE FROM institutional_profile_welfare', 'profile delete cleans welfare snapshots');
+assertContains('includes/institutional-profile-welfare.php', 'beginTransaction()', 'welfare snapshot save is transactional');
+assertContains('admin/institutional-profile.php', 'escHtml', 'welfare refill escapes labels');
 assertContains('institutional-profile.php', 'coopIpWelfareResolveForProfile', 'public IP uses welfare resolve (opening + snapshot)');
 assertContains('includes/institutional-profile-helpers.php', "strtr(\$grouped", 'full amount uses Nepali digits for NP UI');
 assertContains('institutional-profile.php', 'getLocalizedLogoPath', 'IP poster uses header banner logo path');

@@ -198,6 +198,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         try {
+            $welfareOk = true;
             if ($action === 'add') {
                 $cols = implode(', ', array_keys($fields));
                 $phs  = implode(', ', array_fill(0, count($fields), '?'));
@@ -215,7 +216,11 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['flash_success'] = 'प्रोफाइल अपडेट भयो।';
             }
             if ($savedId > 0) {
-                coopIpWelfareSaveProfileRows($db, $savedId, coopIpWelfareParsePostRows($_POST));
+                $welfareOk = coopIpWelfareSaveProfileRows($db, $savedId, coopIpWelfareParsePostRows($_POST));
+                if (!$welfareOk) {
+                    $_SESSION['flash_error'] = 'प्रोफाइल सुरक्षित भयो तर राहत (Section 8) बचत असफल — फेरि सम्पादन गर्नुहोस्।';
+                    unset($_SESSION['flash_success']);
+                }
             }
         } catch (Exception $e) {
             error_log('[institutional-profile] ' . $e->getMessage());
@@ -252,7 +257,12 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         try {
-            $db->prepare("DELETE FROM institutional_profile WHERE id = ?")->execute([$id]);
+            if ($id > 0) {
+                try {
+                    $db->prepare('DELETE FROM institutional_profile_welfare WHERE profile_id = ?')->execute([$id]);
+                } catch (Throwable $eW) { /* table may not exist yet */ }
+                $db->prepare("DELETE FROM institutional_profile WHERE id = ?")->execute([$id]);
+            }
             $_SESSION['flash_success'] = 'रेकर्ड हटाइयो।';
             if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
@@ -1257,6 +1267,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!btn || !tbody) return;
         var excludeId = <?php echo (int)((isset($isEdit) && $isEdit && !empty($r['id'])) ? $r['id'] : 0); ?>;
 
+        function escHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
         function fmtAmt(n) {
             return Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -1267,9 +1285,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             var html = '';
             rows.forEach(function (wr) {
-                html += '<tr data-slug="' + String(wr.slug).replace(/"/g, '') + '">'
-                    + '<td><input type="hidden" name="welfare_slug[]" value="' + String(wr.slug).replace(/"/g, '') + '">'
-                    + '<span class="fw-semibold">' + String(wr.label || wr.slug) + '</span></td>'
+                var slug = escHtml(wr.slug || '');
+                var label = escHtml(wr.label || wr.slug || '');
+                html += '<tr data-slug="' + slug + '">'
+                    + '<td><input type="hidden" name="welfare_slug[]" value="' + slug + '">'
+                    + '<span class="fw-semibold">' + label + '</span></td>'
                     + '<td class="text-end small text-muted ip-w-prev">' + (wr.prev_count|0) + ' / रू. ' + fmtAmt(wr.prev_amount) + '</td>'
                     + '<td class="text-end" style="width:7rem;"><input type="number" min="0" step="1" class="form-control form-control-sm text-end" name="welfare_month_count[]" value="' + (wr.month_count|0) + '"></td>'
                     + '<td class="text-end" style="width:8.5rem;"><input type="number" min="0" step="0.01" class="form-control form-control-sm text-end" name="welfare_month_amount[]" value="' + Number(wr.month_amount || 0) + '"></td>'

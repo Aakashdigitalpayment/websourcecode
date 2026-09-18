@@ -424,6 +424,7 @@ if (!function_exists('coopIpWelfareSaveProfileRows')) {
         }
         coopIpEnsureWelfareTables($db);
         try {
+            $db->beginTransaction();
             $db->prepare('DELETE FROM institutional_profile_welfare WHERE profile_id = ?')->execute([$profileId]);
             $ins = $db->prepare(
                 'INSERT INTO institutional_profile_welfare
@@ -444,8 +445,12 @@ if (!function_exists('coopIpWelfareSaveProfileRows')) {
                 }
                 $ins->execute([$profileId, $slug, $mc, $ma, $cc, $ca]);
             }
+            $db->commit();
             return true;
         } catch (Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             error_log('[ip-welfare] saveProfileRows: ' . $e->getMessage());
             return false;
         }
@@ -500,10 +505,11 @@ if (!function_exists('coopIpWelfarePrefillForMonth')) {
 
         $prev = coopIpPreviousProfileRow($db, $fiscalYear, $reportMonth, $excludeProfileId);
         $prevAgg = [];
+        $prevStored = [];
         if ($prev && !empty($prev['id'])) {
-            $stored = coopIpWelfareLoadProfileRows($db, (int)$prev['id']);
-            if ($stored) {
-                foreach ($stored as $slug => $v) {
+            $prevStored = coopIpWelfareLoadProfileRows($db, (int)$prev['id']);
+            if ($prevStored) {
+                foreach ($prevStored as $slug => $v) {
                     $prevAgg[$slug] = [
                         'count' => (int)$v['cum_count'],
                         'amount' => (float)$v['cum_amount'],
@@ -522,7 +528,7 @@ if (!function_exists('coopIpWelfarePrefillForMonth')) {
 
         $cumAgg = coopIpWelfareMergeMaps($prevAgg, $monthAgg);
         /* Prefer full opening+claims upto when no previous snapshot (more accurate vs month-split edge cases) */
-        if (!$prev || empty($prev['id']) || !coopIpWelfareLoadProfileRows($db, (int)$prev['id'])) {
+        if (!$prevStored) {
             $cumAgg = coopIpWelfareMergeMaps($openingAgg, $claimsUpto);
         }
 
