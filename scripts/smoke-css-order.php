@@ -121,6 +121,21 @@ assertContains('assets/css/public-ui-looks.css', 'li.has-drop { order: 1; }', 'E
 assertContains('assets/css/public-ui-looks.css', 'Shared: brand column (col-lg-4)', 'Shared footer brand column center for non-Soft looks');
 assertContains('assets/css/public-ui-looks.css', 'contact.php"]) { order: 9; } /* सम्पर्क last */', 'Compact nav contact last');
 assertContains('assets/css/public-ui-looks.css', 'Solid brand pill', 'nav hover/active solid primary for readable text');
+assertContains('includes/public-ui-look.php', "'bold'", 'public look catalog includes bold');
+assertContains('includes/public-ui-look.php', "'airy'", 'public look catalog includes airy');
+assertContains('includes/public-ui-look.php', "'cascade'", 'public look catalog includes cascade');
+assertContains('assets/css/public-ui-looks.css', 'PASS 9 — Bold / Airy / Cascade', 'PASS 9 new looks documented');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="bold"] #main-content > .cta-section', 'Bold CTA early after institutional');
+assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after institutional', 'Bold join CTA under institutional');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="airy"] #main-content > .leadership-messages-section', 'Airy leadership early in flow');
+assertContains('assets/css/public-ui-looks.css', 'नेतृत्व after services', 'Airy leadership after services');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="cascade"] #main-content > .tools-widget-section', 'Cascade tools after services');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="bold"] .hero-slider .btn.hero-btn-modern', 'Bold hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="airy"] .hero-slider .btn.hero-btn-modern', 'Airy hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="cascade"] .hero-slider .btn.hero-btn-modern', 'Cascade hero CTA beats late-bundle pill');
+assertContains('admin/settings.php', 'look-mini--bold', 'admin look mini for bold');
+assertContains('admin/settings.php', 'look-mini--airy', 'admin look mini for airy');
+assertContains('admin/settings.php', 'look-mini--cascade', 'admin look mini for cascade');
 assertContains('admin/settings.php', 'look_confirm_pin', 'settings public look PIN gate');
 assertContains('admin/settings.php', 'Public look PIN gate FIRST', 'look PIN aborts before settings writes');
 

@@ -7,6 +7,9 @@
    sharp     = formal / square / government ledger
    editorial = magazine / airy / story-led
    compact   = dense / tighter gaps / more on one screen
+   bold      = punchy / join-CTA early / recruitment
+   airy      = roomy / people-first / leadership early
+   cascade   = services→tools→rates waterfall
 
    Brand colors stay in global-theme.php (--primary-color, etc.).
    Admin / member portals do not load this personality path.
@@ -34,6 +37,26 @@ html[data-ui-look="compact"] {
   --look-radius-lg: 0.55rem;
   --look-paper: #fff;
   --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #f6f8f7);
+}
+html[data-ui-look="bold"] {
+  --look-radius: 0.5rem;
+  --look-radius-lg: 0.7rem;
+  --look-paper: #fff;
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #f4f6f5);
+  --look-ink-rail: 2px solid var(--primary-color, var(--primary));
+}
+html[data-ui-look="airy"] {
+  --look-radius: 1.35rem;
+  --look-radius-lg: 1.75rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 3%, #f9fbfa);
+}
+html[data-ui-look="cascade"] {
+  --look-radius: 0.65rem;
+  --look-radius-lg: 0.85rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 2%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f3f6f4);
+  --look-ink-rail: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 70%, #64748b);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -2876,4 +2899,829 @@ html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
 html[data-ui-look="compact"] .tools-widget-section .tools-category-card h5 {
   color: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 9 — Bold / Airy / Cascade (new looks; Soft–Compact untouched)
+   Same pages / text / brand tokens. Distinct chrome + flex rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Tokens already set above; body wash —— */
+html[data-ui-look="bold"] body,
+html[data-ui-look="airy"] body,
+html[data-ui-look="cascade"] body {
+  background-color: var(--look-wash);
+}
+
+/* ───────────── BOLD — punchy recruitment ───────────── */
+html[data-ui-look="bold"] .pfl-main-header {
+  border-bottom: 4px solid var(--primary-color, var(--primary)) !important;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent) !important;
+}
+html[data-ui-look="bold"] .pfl-header-wrapper,
+html[data-ui-look="bold"] .pfl-drop,
+html[data-ui-look="bold"] .pfl-login-menu,
+html[data-ui-look="bold"] .mobile-nav-drawer,
+html[data-ui-look="bold"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="bold"] .pfl-quick-links > li > a {
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 0.7rem !important;
+}
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+  transform: none !important;
+}
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="bold"] .hero-slider,
+html[data-ui-look="bold"] .hero-carousel-modern,
+html[data-ui-look="bold"] .hero-slide-modern,
+html[data-ui-look="bold"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="bold"] .hero-title-modern {
+  font-weight: 800 !important;
+  letter-spacing: -0.01em;
+  max-width: min(34rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="bold"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="bold"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="bold"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="bold"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="bold"] .hero-btn-modern,
+html[data-ui-look="bold"] .btn,
+html[data-ui-look="bold"] .btn-primary,
+html[data-ui-look="bold"] .home-btn-primary,
+html[data-ui-look="bold"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.03em;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent) !important;
+}
+html[data-ui-look="bold"] .hero-slider .carousel-indicators button {
+  border-radius: var(--look-radius) !important;
+  width: 16px !important;
+  height: 5px !important;
+}
+html[data-ui-look="bold"] .card,
+html[data-ui-look="bold"] .service-card,
+html[data-ui-look="bold"] .service-card-modern,
+html[data-ui-look="bold"] .notice-card,
+html[data-ui-look="bold"] .news-card,
+html[data-ui-look="bold"] .feature-card,
+html[data-ui-look="bold"] .why-choose-card,
+html[data-ui-look="bold"] .award-card,
+html[data-ui-look="bold"] .rate-card,
+html[data-ui-look="bold"] .rate-card-enhanced,
+html[data-ui-look="bold"] .coop-card,
+html[data-ui-look="bold"] .ds-coop-card,
+html[data-ui-look="bold"] .tools-category-card,
+html[data-ui-look="bold"] .feature-box,
+html[data-ui-look="bold"] .value-card,
+html[data-ui-look="bold"] .gallery-card,
+html[data-ui-look="bold"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+html[data-ui-look="bold"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+}
+html[data-ui-look="bold"] .tools-mini-link > svg.lucide,
+html[data-ui-look="bold"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="bold"] .cta-section {
+  border-block: 3px solid color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent);
+}
+html[data-ui-look="bold"] .cta-section .btn,
+html[data-ui-look="bold"] .cta-section .home-btn-primary {
+  font-size: 1.05rem !important;
+  padding: 0.7rem 1.4rem !important;
+}
+html[data-ui-look="bold"] .section-padding,
+html[data-ui-look="bold"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) - 4px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) - 4px) !important;
+}
+html[data-ui-look="bold"] .section-header h2,
+html[data-ui-look="bold"] .section-header-unified h2,
+html[data-ui-look="bold"] .home-heading-unified {
+  font-weight: 800 !important;
+  letter-spacing: -0.015em;
+}
+html[data-ui-look="bold"] .institutional-profile-bar,
+html[data-ui-look="bold"] .rates-box-enhanced,
+html[data-ui-look="bold"] .notices-box-enhanced {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary));
+  background: var(--look-paper);
+}
+html[data-ui-look="bold"] .page-banner {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="bold"] .page-banner h1,
+html[data-ui-look="bold"] .page-banner .page-title-modern {
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text-on-primary, #fff) !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem !important;
+}
+html[data-ui-look="bold"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color, var(--primary)) 30%, transparent) !important;
+}
+html[data-ui-look="bold"] .main-footer .footer-widget h4 {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* ───────────── AIRY — people-first calm ───────────── */
+html[data-ui-look="airy"] .pfl-main-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent) !important;
+  box-shadow: none !important;
+  padding-block: 0.55rem !important;
+}
+html[data-ui-look="airy"] .pfl-header-wrapper,
+html[data-ui-look="airy"] .pfl-drop,
+html[data-ui-look="airy"] .pfl-login-menu,
+html[data-ui-look="airy"] .mobile-nav-drawer,
+html[data-ui-look="airy"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .pfl-quick-links > li > a {
+  border-radius: 999px !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: 999px !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 0.55rem 0.85rem !important;
+  background: transparent !important;
+  border-bottom: 2px solid transparent;
+}
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #fff) !important;
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+  border-bottom-color: var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+  color: var(--primary-color, var(--primary)) !important;
+  stroke: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="airy"] .hero-slider,
+html[data-ui-look="airy"] .hero-carousel-modern,
+html[data-ui-look="airy"] .hero-slide-modern,
+html[data-ui-look="airy"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="airy"] .hero-slider .carousel-item,
+html[data-ui-look="airy"] .hero-slide-modern,
+html[data-ui-look="airy"] .hero-bg-modern {
+  min-height: clamp(280px, 48vw, 520px) !important;
+}
+html[data-ui-look="airy"] .hero-title-modern {
+  font-weight: 600 !important;
+  letter-spacing: -0.03em;
+  line-height: 1.2 !important;
+  max-width: min(40rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="airy"] .hero-subtitle-modern {
+  max-width: 36rem;
+  line-height: 1.7;
+  opacity: 0.95;
+}
+html[data-ui-look="airy"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="airy"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="airy"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="airy"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="airy"] .hero-btn-modern,
+html[data-ui-look="airy"] .btn,
+html[data-ui-look="airy"] .btn-primary,
+html[data-ui-look="airy"] .home-btn-primary,
+html[data-ui-look="airy"] .view-all-btn {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  padding: 0.65rem 1.35rem !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+html[data-ui-look="airy"] .hero-slider .carousel-indicators button {
+  border-radius: 999px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+html[data-ui-look="airy"] .card,
+html[data-ui-look="airy"] .service-card,
+html[data-ui-look="airy"] .service-card-modern,
+html[data-ui-look="airy"] .notice-card,
+html[data-ui-look="airy"] .news-card,
+html[data-ui-look="airy"] .feature-card,
+html[data-ui-look="airy"] .why-choose-card,
+html[data-ui-look="airy"] .award-card,
+html[data-ui-look="airy"] .rate-card,
+html[data-ui-look="airy"] .rate-card-enhanced,
+html[data-ui-look="airy"] .coop-card,
+html[data-ui-look="airy"] .ds-coop-card,
+html[data-ui-look="airy"] .tools-category-card,
+html[data-ui-look="airy"] .feature-box,
+html[data-ui-look="airy"] .value-card,
+html[data-ui-look="airy"] .gallery-card,
+html[data-ui-look="airy"] .download-card,
+html[data-ui-look="airy"] .app-feature-item,
+html[data-ui-look="airy"] .contact-info-box {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  overflow: hidden !important;
+}
+html[data-ui-look="airy"] .tools-mini-link {
+  border-radius: 1rem !important;
+  padding: 1rem 0.75rem !important;
+  border: 0 !important;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary-color, var(--primary)) 6%, transparent);
+}
+html[data-ui-look="airy"] .tools-mini-link > svg.lucide,
+html[data-ui-look="airy"] .tools-mini-link .lucide-icon {
+  border-radius: 1rem !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="airy"] .section-padding,
+html[data-ui-look="airy"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) + 28px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) + 28px) !important;
+}
+html[data-ui-look="airy"] .section-header,
+html[data-ui-look="airy"] .section-header-unified {
+  margin-bottom: 2.5rem !important;
+}
+html[data-ui-look="airy"] .section-header h2,
+html[data-ui-look="airy"] .section-header-unified h2,
+html[data-ui-look="airy"] .home-heading-unified {
+  font-weight: 600 !important;
+  letter-spacing: -0.03em;
+  font-size: clamp(1.45rem, 2.6vw, 2rem) !important;
+}
+html[data-ui-look="airy"] .section-header p,
+html[data-ui-look="airy"] .section-header-unified p {
+  font-size: 1.05rem !important;
+  line-height: 1.7 !important;
+  max-width: 38rem;
+  margin-inline: auto;
+}
+html[data-ui-look="airy"] .section-divider {
+  width: 5rem !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+}
+html[data-ui-look="airy"] .institutional-profile-section {
+  padding-block: 1.75rem;
+}
+html[data-ui-look="airy"] .institutional-profile-bar,
+html[data-ui-look="airy"] .ip-home-stat,
+html[data-ui-look="airy"] .rates-box-enhanced,
+html[data-ui-look="airy"] .notices-box-enhanced {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="airy"] .ip-home-snapshot-grid {
+  gap: 1.25rem !important;
+}
+html[data-ui-look="airy"] .cta-section {
+  padding-block: 3rem !important;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #fff) !important;
+}
+html[data-ui-look="airy"] .page-banner {
+  padding-top: 4rem !important;
+  padding-bottom: 4rem !important;
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="airy"] .page-banner h1,
+html[data-ui-look="airy"] .page-banner .page-title-modern {
+  font-weight: 600 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-on-primary, #fff) !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="airy"] .footer-top {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3rem !important;
+}
+html[data-ui-look="airy"] .footer-social a,
+html[data-ui-look="airy"] .whatsapp-float,
+html[data-ui-look="airy"] #wa-float-btn,
+html[data-ui-look="airy"] #float-chat-btn,
+html[data-ui-look="airy"] .qh-fab {
+  border-radius: 999px !important;
+}
+html[data-ui-look="airy"] .row.g-3 {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1.5rem;
+}
+
+/* ───────────── CASCADE — services→tools waterfall ───────────── */
+html[data-ui-look="cascade"] .pfl-main-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+html[data-ui-look="cascade"] .pfl-header-wrapper,
+html[data-ui-look="cascade"] .pfl-drop,
+html[data-ui-look="cascade"] .pfl-login-menu,
+html[data-ui-look="cascade"] .mobile-nav-drawer,
+html[data-ui-look="cascade"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="cascade"] .pfl-quick-links > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  padding: 0.42rem 0.6rem !important;
+  border-left: 2px solid transparent;
+}
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  border-left-color: color-mix(in srgb, var(--secondary-color, var(--secondary)) 70%, #fff) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="cascade"] .hero-slider,
+html[data-ui-look="cascade"] .hero-carousel-modern,
+html[data-ui-look="cascade"] .hero-slide-modern,
+html[data-ui-look="cascade"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="cascade"] .hero-title-modern {
+  font-weight: 750 !important;
+  border-left: var(--look-ink-rail) !important;
+  padding-left: 0.7rem;
+  max-width: min(36rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="cascade"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="cascade"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="cascade"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="cascade"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="cascade"] .hero-btn-modern,
+html[data-ui-look="cascade"] .btn,
+html[data-ui-look="cascade"] .btn-primary,
+html[data-ui-look="cascade"] .home-btn-primary,
+html[data-ui-look="cascade"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="cascade"] .hero-slider .carousel-indicators button {
+  border-radius: 2px !important;
+  width: 14px !important;
+  height: 4px !important;
+}
+html[data-ui-look="cascade"] .card,
+html[data-ui-look="cascade"] .service-card,
+html[data-ui-look="cascade"] .service-card-modern,
+html[data-ui-look="cascade"] .notice-card,
+html[data-ui-look="cascade"] .news-card,
+html[data-ui-look="cascade"] .feature-card,
+html[data-ui-look="cascade"] .why-choose-card,
+html[data-ui-look="cascade"] .award-card,
+html[data-ui-look="cascade"] .rate-card,
+html[data-ui-look="cascade"] .rate-card-enhanced,
+html[data-ui-look="cascade"] .coop-card,
+html[data-ui-look="cascade"] .ds-coop-card,
+html[data-ui-look="cascade"] .tools-category-card,
+html[data-ui-look="cascade"] .feature-box,
+html[data-ui-look="cascade"] .value-card,
+html[data-ui-look="cascade"] .gallery-card,
+html[data-ui-look="cascade"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #dce3df) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="cascade"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e5e7eb) !important;
+}
+html[data-ui-look="cascade"] .tools-mini-link > svg.lucide,
+html[data-ui-look="cascade"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="cascade"] .tools-links-grid {
+  gap: 0.45rem !important;
+}
+html[data-ui-look="cascade"] .section-padding,
+html[data-ui-look="cascade"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) - 10px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) - 10px) !important;
+}
+html[data-ui-look="cascade"] .section-header h2,
+html[data-ui-look="cascade"] .section-header-unified h2 {
+  font-weight: 750 !important;
+  letter-spacing: -0.01em;
+}
+html[data-ui-look="cascade"] .institutional-profile-bar,
+html[data-ui-look="cascade"] .rates-box-enhanced,
+html[data-ui-look="cascade"] .notices-box-enhanced,
+html[data-ui-look="cascade"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #dce3df);
+  border-left: var(--look-ink-rail);
+  background: var(--look-paper);
+  box-shadow: none !important;
+}
+html[data-ui-look="cascade"] .tools-widget-section {
+  padding-block: 1rem !important;
+  border-block: 1px dashed color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent);
+}
+html[data-ui-look="cascade"] .page-banner {
+  border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="cascade"] .page-banner h1,
+html[data-ui-look="cascade"] .page-banner .page-title-modern {
+  font-weight: 750 !important;
+  color: var(--text-on-primary, #fff) !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="cascade"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="cascade"] .main-footer .footer-widget h4 {
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+/* Shared safety: no hover translate clip */
+html[data-ui-look="bold"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="airy"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="cascade"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* Soft-matching hero scrim for new looks (photo + text stay clear) */
+html[data-ui-look="bold"] .hero-overlay-modern,
+html[data-ui-look="bold"] .slider-overlay,
+html[data-ui-look="airy"] .hero-overlay-modern,
+html[data-ui-look="airy"] .slider-overlay,
+html[data-ui-look="cascade"] .hero-overlay-modern,
+html[data-ui-look="cascade"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+/* ── PASS 9 flex shells + homepage serial ── */
+html[data-ui-look="bold"] #main-content:has(> .hero-slider),
+html[data-ui-look="airy"] #main-content:has(> .hero-slider),
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+html[data-ui-look="bold"] .pfl-quick-links,
+html[data-ui-look="airy"] .pfl-quick-links,
+html[data-ui-look="cascade"] .pfl-quick-links,
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu,
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu,
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu,
+html[data-ui-look="bold"] .main-footer .footer-top .row,
+html[data-ui-look="airy"] .main-footer .footer-top .row,
+html[data-ui-look="cascade"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+html[data-ui-look="bold"] #main-content > .hero-slider,
+html[data-ui-look="airy"] #main-content > .hero-slider,
+html[data-ui-look="cascade"] #main-content > .hero-slider { order: 1; }
+html[data-ui-look="bold"] #main-content > .institutional-profile-section,
+html[data-ui-look="airy"] #main-content > .institutional-profile-section,
+html[data-ui-look="cascade"] #main-content > .institutional-profile-section { order: 2; }
+
+/* Bold — join CTA under institutional (recruitment) */
+html[data-ui-look="bold"] #main-content > .cta-section { order: 3; } /* सदस्य बन्नुहोस् after institutional */
+html[data-ui-look="bold"] #main-content > .services-section { order: 4; }
+html[data-ui-look="bold"] #main-content > .rates-notices-section { order: 5; }
+html[data-ui-look="bold"] #main-content > .why-us-section { order: 6; }
+html[data-ui-look="bold"] #main-content > .tools-widget-section { order: 7; }
+html[data-ui-look="bold"] #main-content > .leadership-messages-section { order: 8; }
+html[data-ui-look="bold"] #main-content > .news-section { order: 9; }
+html[data-ui-look="bold"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="bold"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="bold"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="bold"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Airy — people story: leadership+news early, CTA mid */
+html[data-ui-look="airy"] #main-content > .services-section { order: 3; }
+html[data-ui-look="airy"] #main-content > .leadership-messages-section { order: 4; } /* नेतृत्व after services */
+html[data-ui-look="airy"] #main-content > .news-section { order: 5; }
+html[data-ui-look="airy"] #main-content > .why-us-section { order: 6; }
+html[data-ui-look="airy"] #main-content > .cta-section { order: 7; } /* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="airy"] #main-content > .tools-widget-section { order: 8; }
+html[data-ui-look="airy"] #main-content > .rates-notices-section { order: 9; }
+html[data-ui-look="airy"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="airy"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="airy"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="airy"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Cascade — services→tools→rates then why+CTA */
+html[data-ui-look="cascade"] #main-content > .services-section { order: 3; }
+html[data-ui-look="cascade"] #main-content > .tools-widget-section { order: 4; }
+html[data-ui-look="cascade"] #main-content > .rates-notices-section { order: 5; }
+html[data-ui-look="cascade"] #main-content > .why-us-section { order: 6; }
+html[data-ui-look="cascade"] #main-content > .cta-section { order: 7; } /* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="cascade"] #main-content > .leadership-messages-section { order: 8; }
+html[data-ui-look="cascade"] #main-content > .news-section { order: 9; }
+html[data-ui-look="cascade"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="cascade"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="cascade"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="cascade"] #main-content > .member-spotlight-section { order: 13; }
+
+/* —— Top utility serial —— */
+html[data-ui-look="bold"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="cascade"] .pfl-quick-links > li.has-drop { order: 20; }
+html[data-ui-look="bold"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 1; }
+html[data-ui-look="bold"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 2; }
+html[data-ui-look="bold"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 3; }
+html[data-ui-look="bold"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4; }
+html[data-ui-look="bold"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 5; }
+
+html[data-ui-look="airy"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 1; }
+html[data-ui-look="airy"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 2; }
+html[data-ui-look="airy"] .pfl-quick-links > li.has-drop { order: 3; }
+html[data-ui-look="airy"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 4; }
+html[data-ui-look="airy"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 5; }
+html[data-ui-look="airy"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 6; }
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 1; }
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 2; }
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 3; }
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4; }
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 5; }
+
+/* —— Main nav serial —— */
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 2; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 4; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 5; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 2; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 3; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 4; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 5; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 6; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 7; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 2; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 3; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 8; }
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 9; }
+
+/* —— Footer column serial —— */
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 { order: 1; } /* brand first */
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-5 { order: 2; }
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-3 { order: 3; }
+
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-5 { order: 1; }
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 { order: 2; }
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-3 { order: 3; }
+
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-5 { order: 1; }
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-3 { order: 2; }
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 { order: 3; }
+
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  justify-content: center;
+}
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Dark-mode paper for new looks */
+html[data-ui-look="bold"] body.dark-mode,
+html[data-ui-look="airy"] body.dark-mode,
+html[data-ui-look="cascade"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #1a1f1c);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #121512);
+}
+html[data-ui-look="bold"] body.dark-mode .service-card,
+html[data-ui-look="bold"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="airy"] body.dark-mode .service-card,
+html[data-ui-look="airy"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .service-card,
+html[data-ui-look="cascade"] body.dark-mode .rate-card-enhanced {
+  background: var(--look-paper) !important;
+}
+
+/* Forms */
+html[data-ui-look="bold"] .form-control,
+html[data-ui-look="bold"] .form-select,
+html[data-ui-look="cascade"] .form-control,
+html[data-ui-look="cascade"] .form-select {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .form-control,
+html[data-ui-look="airy"] .form-select {
+  border-radius: 1rem !important;
+}
+html[data-ui-look="airy"] .form-control:focus,
+html[data-ui-look="airy"] .form-select:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+
+/* Devanagari wrap safety */
+html[data-ui-look="bold"] .hero-title-modern,
+html[data-ui-look="airy"] .hero-title-modern,
+html[data-ui-look="cascade"] .hero-title-modern,
+html[data-ui-look="bold"] .tools-mini-link span,
+html[data-ui-look="airy"] .tools-mini-link span,
+html[data-ui-look="cascade"] .tools-mini-link span,
+html[data-ui-look="bold"] .value-card h5,
+html[data-ui-look="airy"] .value-card h5,
+html[data-ui-look="cascade"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
 }

@@ -35,6 +35,21 @@ if (!function_exists('coopPublicUiLooks')) {
                 'hint'  => 'Tools+rates then join CTA early, denser gaps, contact last in nav.',
                 'best'  => 'Best when you want more content visible at once. Same pages, text, and brand colors.',
             ],
+            'bold' => [
+                'label' => 'Bold',
+                'hint'  => 'Join CTA right under institutional, then services+rates — punchy recruitment feel.',
+                'best'  => 'Best when you want visitors to join sooner. Same pages, text, and brand colors.',
+            ],
+            'airy' => [
+                'label' => 'Airy',
+                'hint'  => 'Roomy spacing, leadership+news early, join CTA mid-page — people-first calm.',
+                'best'  => 'Best for a calm people-led look. Same pages, text, and brand colors.',
+            ],
+            'cascade' => [
+                'label' => 'Cascade',
+                'hint'  => 'Services→tools→rates then why+join CTA — clear utility waterfall.',
+                'best'  => 'Best for a services-then-tools path. Same pages, text, and brand colors.',
+            ],
         ];
     }
 }
