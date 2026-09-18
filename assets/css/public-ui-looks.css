@@ -2948,12 +2948,23 @@ html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
 }
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
 html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
-html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li.open > a i {
   color: var(--text-on-primary, #fff) !important;
   stroke: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
@@ -3114,12 +3125,23 @@ html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
 }
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
 html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
-html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li.open > a i {
   color: var(--primary-color, var(--primary)) !important;
   stroke: var(--primary-color, var(--primary)) !important;
   -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
@@ -3321,12 +3343,23 @@ html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
 }
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
 html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
-html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg {
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a i {
   color: var(--text-on-primary, #fff) !important;
   stroke: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
@@ -3338,11 +3371,16 @@ html[data-ui-look="cascade"] .hero-bg-modern {
   border-radius: var(--look-radius-lg) !important;
 }
 html[data-ui-look="cascade"] .hero-title-modern {
-  font-weight: 750 !important;
+  font-weight: 700 !important;
   border-left: var(--look-ink-rail) !important;
   padding-left: 0.7rem;
   max-width: min(36rem, 100%);
   overflow-wrap: anywhere;
+}
+/* Soft underline accent → cascade rail only (avoid double chrome) */
+html[data-ui-look="cascade"] .hero-title-modern::after,
+html[data-ui-look="cascade"] .hero-title-modern::before {
+  display: none !important;
 }
 html[data-ui-look="cascade"] .hero-slider .btn.hero-btn-modern,
 html[data-ui-look="cascade"] #heroCarousel .btn.hero-btn-modern,
@@ -3406,7 +3444,7 @@ html[data-ui-look="cascade"] .section-py {
 }
 html[data-ui-look="cascade"] .section-header h2,
 html[data-ui-look="cascade"] .section-header-unified h2 {
-  font-weight: 750 !important;
+  font-weight: 700 !important;
   letter-spacing: -0.01em;
 }
 html[data-ui-look="cascade"] .institutional-profile-bar,
@@ -3429,7 +3467,7 @@ html[data-ui-look="cascade"] .page-banner {
 }
 html[data-ui-look="cascade"] .page-banner h1,
 html[data-ui-look="cascade"] .page-banner .page-title-modern {
-  font-weight: 750 !important;
+  font-weight: 700 !important;
   color: var(--text-on-primary, #fff) !important;
   overflow-wrap: anywhere;
 }
@@ -3445,7 +3483,7 @@ html[data-ui-look="cascade"] .qh-fab {
   border-radius: var(--look-radius) !important;
 }
 html[data-ui-look="cascade"] .main-footer .footer-widget h4 {
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0.02em;
 }
 
@@ -3724,4 +3762,106 @@ html[data-ui-look="cascade"] .value-card h5 {
   word-break: normal;
   white-space: normal;
   max-width: 100%;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 9.1 — Bold / Airy / Cascade polish (Soft–Compact untouched)
+   Nav open/hover child contrast, dropdown radius, mobile close,
+   since-badge circle safety, secondary-page accents.
+   ════════════════════════════════════════════════════════════ */
+
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu .sub-menu,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: 1rem !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+  border: 0 !important;
+}
+
+html[data-ui-look="bold"] .pfl-mobile-toggle,
+html[data-ui-look="bold"] .close-menu,
+html[data-ui-look="cascade"] .pfl-mobile-toggle,
+html[data-ui-look="cascade"] .close-menu {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .pfl-mobile-toggle,
+html[data-ui-look="airy"] .close-menu {
+  border-radius: 999px !important;
+}
+
+/* Since seal: keep Soft year-only circle; never oval from look radius */
+html[data-ui-look="bold"] .pfl-since-badge,
+html[data-ui-look="airy"] .pfl-since-badge,
+html[data-ui-look="cascade"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+html[data-ui-look="bold"] .pfl-since-badge .since-text,
+html[data-ui-look="airy"] .pfl-since-badge .since-text,
+html[data-ui-look="cascade"] .pfl-since-badge .since-text {
+  display: none !important;
+}
+
+html[data-ui-look="bold"] .section-badge,
+html[data-ui-look="cascade"] .section-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.03em;
+}
+html[data-ui-look="airy"] .section-badge {
+  border-radius: 999px !important;
+  padding-inline: 0.85rem !important;
+}
+
+html[data-ui-look="bold"] .ip-home-stat,
+html[data-ui-look="cascade"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+}
+
+html[data-ui-look="bold"] .breadcrumb,
+html[data-ui-look="cascade"] .breadcrumb {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .breadcrumb {
+  border-radius: 999px !important;
+  padding: 0.35rem 0.85rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+
+html[data-ui-look="bold"] .public-form-shell .form-control,
+html[data-ui-look="bold"] .public-form-shell .form-select,
+html[data-ui-look="cascade"] .public-form-shell .form-control,
+html[data-ui-look="cascade"] .public-form-shell .form-select {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .public-form-shell .form-control,
+html[data-ui-look="airy"] .public-form-shell .form-select {
+  border-radius: 1rem !important;
+}
+
+@media (max-width: 991.98px) {
+  html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a,
+  html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: var(--look-radius) !important;
+  }
+  html[data-ui-look="airy"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+  }
+  html[data-ui-look="bold"] body.header-v2 #mainNavV2 .close-menu,
+  html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: var(--look-radius) !important;
+  }
+  html[data-ui-look="airy"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 999px !important;
+  }
 }

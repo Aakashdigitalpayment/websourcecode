@@ -136,6 +136,10 @@ assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="cascade"] .
 assertContains('admin/settings.php', 'look-mini--bold', 'admin look mini for bold');
 assertContains('admin/settings.php', 'look-mini--airy', 'admin look mini for airy');
 assertContains('admin/settings.php', 'look-mini--cascade', 'admin look mini for cascade');
+assertContains('assets/css/public-ui-looks.css', 'PASS 9.1 — Bold / Airy / Cascade polish', 'PASS 9.1 new-look polish');
+assertContains('assets/css/public-ui-looks.css', 'Soft underline accent → cascade rail only', 'Cascade hero hides Soft underline');
+assertContains('assets/css/public-ui-looks.css', 'li.open > a .mnav-main-label', 'new looks open-nav child label contrast');
+
 assertContains('admin/settings.php', 'look_confirm_pin', 'settings public look PIN gate');
 assertContains('admin/settings.php', 'Public look PIN gate FIRST', 'look PIN aborts before settings writes');
 
