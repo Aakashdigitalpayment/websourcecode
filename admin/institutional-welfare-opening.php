@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once dirname(__DIR__) . '/includes/institutional-profile-welfare.php';
+require_once dirname(__DIR__) . '/includes/simple-cache.php';
 
 $db = getDB();
 coopIpEnsureWelfareTables($db);
@@ -39,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (coopIpWelfareSaveOpening($db, $rows)) {
         $_SESSION['flash_success'] = 'राहत Opening मूल्य सुरक्षित भयो। मासिक प्रोफाइल बनाउँदा cumulative मा जोडिन्छ।';
-        if (function_exists('clearHomepageCache')) {
+        if (function_exists('coop_bust_public_cache')) {
+            coop_bust_public_cache();
+        } elseif (function_exists('clearHomepageCache')) {
             clearHomepageCache();
         }
     } else {

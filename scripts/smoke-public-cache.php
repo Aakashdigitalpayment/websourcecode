@@ -115,6 +115,7 @@ $homepageWriters = [
     'admin/team.php',
     'admin/member-of-year.php',
     'admin/institutional-profile.php',
+    'admin/institutional-welfare-opening.php',
 ];
 foreach ($homepageWriters as $rel) {
     $src = (string) @file_get_contents($root . '/' . $rel);
@@ -122,10 +123,38 @@ foreach ($homepageWriters as $rel) {
         bad($rel . ' missing');
         continue;
     }
-    if (strpos($src, 'clearHomepageCache') !== false) {
+    if (strpos($src, 'clearHomepageCache') !== false || strpos($src, 'coop_bust_public_cache') !== false) {
         ok($rel . ' clears homepage cache');
     } else {
         bad($rel . ' missing clearHomepageCache (homepage stale risk)');
+    }
+    if (strpos($src, 'simple-cache.php') === false) {
+        bad($rel . ' calls cache bust without requiring simple-cache.php');
+    } else {
+        ok($rel . ' requires simple-cache.php');
+    }
+}
+
+/* Nav / footer writers (nav_public_v1, footer_public_v1, etc.) */
+$navWriters = [
+    'admin/programs.php',
+    'admin/careers.php',
+    'admin/committees.php',
+    'admin/pages.php',
+    'admin/useful-links.php',
+    'admin/help-center.php',
+    'admin/election-information.php',
+];
+foreach ($navWriters as $rel) {
+    $src = (string) @file_get_contents($root . '/' . $rel);
+    if ($src === '') {
+        bad($rel . ' missing');
+        continue;
+    }
+    if (strpos($src, 'clearHomepageCache') !== false || strpos($src, 'coop_bust_public_cache') !== false) {
+        ok($rel . ' clears public chrome cache');
+    } else {
+        bad($rel . ' missing cache bust (nav/footer stale risk)');
     }
 }
 
@@ -134,6 +163,20 @@ if (strpos($rpt, 'bs-fiscal-years.php') !== false) {
     ok('reports.php uses shared bs-fiscal-years helper');
 } else {
     bad('reports.php should require bs-fiscal-years.php');
+}
+
+$cachePhp = (string) file_get_contents($root . '/includes/simple-cache.php');
+if (strpos($cachePhp, 'function coop_bust_public_cache') !== false) {
+    ok('coop_bust_public_cache helper present');
+} else {
+    bad('coop_bust_public_cache missing');
+}
+
+$cfgPhp = (string) file_get_contents($root . '/includes/config.php');
+if (preg_match("/if\s*\(\s*!function_exists\s*\(\s*'getNepaliMonthName'\s*\)\s*\)/", $cfgPhp)) {
+    ok('getNepaliMonthName guarded with function_exists');
+} else {
+    bad('getNepaliMonthName should use function_exists');
 }
 
 $hdr = (string) file_get_contents($root . '/includes/header.php');

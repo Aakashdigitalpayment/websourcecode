@@ -1831,18 +1831,20 @@ if (!function_exists('toNepaliNumeral')) {
 }
 
 // Get Nepali month name
-function getNepaliMonthName($monthKey) {
-    $nepaliMonths = [
-        'baisakh' => 'बैशाख', 'jestha' => 'जेठ', 'ashadh' => 'असार',
-        'shrawan' => 'श्रावण', 'bhadra' => 'भदौ', 'ashwin' => 'असोज',
-        'kartik' => 'कात्तिक', 'mangsir' => 'मंसिर', 'poush' => 'पुष',
-        'magh' => 'माघ', 'falgun' => 'फागुन', 'chaitra' => 'चैत्र',
-        '1' => 'बैशाख', '2' => 'जेठ', '3' => 'असार',
-        '4' => 'श्रावण', '5' => 'भदौ', '6' => 'असोज',
-        '7' => 'कात्तिक', '8' => 'मंसिर', '9' => 'पुष',
-        '10' => 'माघ', '11' => 'फागुन', '12' => 'चैत्र'
-    ];
-    return $nepaliMonths[$monthKey] ?? $monthKey;
+if (!function_exists('getNepaliMonthName')) {
+    function getNepaliMonthName($monthKey) {
+        $nepaliMonths = [
+            'baisakh' => 'बैशाख', 'jestha' => 'जेठ', 'ashadh' => 'असार',
+            'shrawan' => 'श्रावण', 'bhadra' => 'भदौ', 'ashwin' => 'असोज',
+            'kartik' => 'कात्तिक', 'mangsir' => 'मंसिर', 'poush' => 'पुष',
+            'magh' => 'माघ', 'falgun' => 'फागुन', 'chaitra' => 'चैत्र',
+            '1' => 'बैशाख', '2' => 'जेठ', '3' => 'असार',
+            '4' => 'श्रावण', '5' => 'भदौ', '6' => 'असोज',
+            '7' => 'कात्तिक', '8' => 'मंसिर', '9' => 'पुष',
+            '10' => 'माघ', '11' => 'फागुन', '12' => 'चैत्र'
+        ];
+        return $nepaliMonths[$monthKey] ?? $monthKey;
+    }
 }
 
 // Format date in Nepali style (for display)
