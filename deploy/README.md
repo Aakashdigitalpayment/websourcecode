@@ -1,8 +1,10 @@
-# Nginx deploy notes (Apache .htaccess is ignored on nginx)
+# Nginx deploy notes
+
+Apache `.htaccess` is ignored on nginx. **Product docs:** root [`README.md`](../README.md).
 
 ## Required
-Include `deploy/nginx-security.conf` inside your `server { }` block so these
-Apache protections still apply:
+
+Include `deploy/nginx-security.conf` inside your `server { }` block so these Apache protections still apply:
 
 - Deny `/includes/`, `/cache/`, `/logs/`, `/scripts/`, `/database/`, `/core/`, `/deploy/`, `/vendor/`
 - Deny credential files (`.cred*`, `.auth-secret`, `.env`, `.git`)
@@ -12,9 +14,11 @@ Apache protections still apply:
 - `/sitemap.xml` → `sitemap.php`, `/robots.txt` → `robots.php`, `/manifest.json` → `manifest.php`
 
 ## Example
+
 See `deploy/nginx-site.example.conf`.
 
 ## Verify
+
 ```bash
 sudo nginx -t
 curl -I https://YOUR_HOST/includes/config.php   # expect 403
