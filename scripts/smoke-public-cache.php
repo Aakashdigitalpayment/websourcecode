@@ -101,6 +101,41 @@ if (strpos($settings, 'clearHomepageCache') !== false) {
     bad('settings.php missing clearHomepageCache');
 }
 
+/* Homepage-affecting admin writers must bust homepage_data_v2 */
+$homepageWriters = [
+    'admin/reports.php',
+    'admin/notices.php',
+    'admin/services.php',
+    'admin/news.php',
+    'admin/sliders.php',
+    'admin/interest-rates.php',
+    'admin/awards.php',
+    'admin/app-features.php',
+    'admin/why-choose.php',
+    'admin/team.php',
+    'admin/member-of-year.php',
+    'admin/institutional-profile.php',
+];
+foreach ($homepageWriters as $rel) {
+    $src = (string) @file_get_contents($root . '/' . $rel);
+    if ($src === '') {
+        bad($rel . ' missing');
+        continue;
+    }
+    if (strpos($src, 'clearHomepageCache') !== false) {
+        ok($rel . ' clears homepage cache');
+    } else {
+        bad($rel . ' missing clearHomepageCache (homepage stale risk)');
+    }
+}
+
+$rpt = (string) file_get_contents($root . '/admin/reports.php');
+if (strpos($rpt, 'bs-fiscal-years.php') !== false) {
+    ok('reports.php uses shared bs-fiscal-years helper');
+} else {
+    bad('reports.php should require bs-fiscal-years.php');
+}
+
 $hdr = (string) file_get_contents($root . '/includes/header.php');
 if (strpos($hdr, 'coop_versioned_asset_url') !== false) {
     ok('header uses versioned asset helper (favicon)');
