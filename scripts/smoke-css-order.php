@@ -155,6 +155,13 @@ assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="harbor"] .h
 assertContains('admin/settings.php', 'look-mini--pulse', 'admin look mini for pulse');
 assertContains('admin/settings.php', 'look-mini--summit', 'admin look mini for summit');
 assertContains('admin/settings.php', 'look-mini--harbor', 'admin look mini for harbor');
+assertContains('assets/css/public-ui-looks.css', 'PASS 11 — Final polish for last 6 looks', 'PASS 11 final polish last six');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="bold"] .cta-section', 'Bold CTA band personality');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="pulse"] .notice-ticker', 'Pulse notice ticker accent');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="harbor"] textarea.form-control', 'Harbor textarea not oval pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="bold"] .hero-title-modern::after', 'Bold hides Soft Soft hero underline');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="airy"] .hero-title-modern::after', 'Airy softens Soft Soft hero underline');
+
 
 
 assertContains('admin/settings.php', 'look_confirm_pin', 'settings public look PIN gate');

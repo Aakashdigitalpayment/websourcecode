@@ -4431,10 +4431,14 @@ html[data-ui-look="harbor"] .breadcrumb {
   background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
 }
 html[data-ui-look="harbor"] .form-control,
-html[data-ui-look="harbor"] .form-select,
-html[data-ui-look="harbor"] .public-form-shell .form-control,
-html[data-ui-look="harbor"] .public-form-shell .form-select {
+html[data-ui-look="harbor"] .public-form-shell .form-control {
   border-radius: 999px !important;
+}
+html[data-ui-look="harbor"] .form-select,
+html[data-ui-look="harbor"] .public-form-shell .form-select,
+html[data-ui-look="harbor"] textarea.form-control,
+html[data-ui-look="harbor"] .public-form-shell textarea.form-control {
+  border-radius: var(--look-radius) !important;
 }
 
 /* Shared Soft-matching hero scrim */
@@ -4702,4 +4706,324 @@ html[data-ui-look="summit"] .form-select {
   html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a {
     border-radius: 999px !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 11 — Final polish for last 6 looks (Bold→Harbor)
+   Soft / Sharp / Editorial / Compact untouched.
+   CTA bands, hero accents, ticker, leadership cards, forms,
+   breadcrumbs, bottom-nav — so each look feels finished.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Hero Soft Soft underline: give each look a clear accent —— */
+/* Bold / Pulse: ledger-clean — Soft Soft underline off */
+html[data-ui-look="bold"] .hero-title-modern::after,
+html[data-ui-look="bold"] .hero-title-modern::before,
+html[data-ui-look="pulse"] .hero-title-modern::after,
+html[data-ui-look="pulse"] .hero-title-modern::before {
+  display: none !important;
+}
+html[data-ui-look="bold"] .hero-title-modern {
+  border-bottom: 3px solid color-mix(in srgb, #fff 70%, transparent);
+  padding-bottom: 0.4rem;
+  display: inline-block;
+  max-width: min(34rem, 100%);
+}
+html[data-ui-look="pulse"] .hero-title-modern {
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, #fff);
+  padding-bottom: 0.35rem;
+  display: inline-block;
+}
+
+/* Airy / Harbor: keep Soft Soft underline but softer / longer */
+html[data-ui-look="airy"] .hero-title-modern::after,
+html[data-ui-look="harbor"] .hero-title-modern::after {
+  display: block !important;
+  width: min(6.5rem, 40%) !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, #fff 75%, transparent) !important;
+  margin-top: 0.55rem !important;
+}
+html[data-ui-look="airy"] .hero-title-modern::before,
+html[data-ui-look="harbor"] .hero-title-modern::before {
+  display: none !important;
+}
+
+/* —— CTA bands (early CTAs need clear personality) —— */
+html[data-ui-look="bold"] .cta-section,
+html[data-ui-look="pulse"] .cta-section {
+  border-radius: var(--look-radius-lg) !important;
+  border-block: 3px solid color-mix(in srgb, var(--primary-color, var(--primary)) 40%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent);
+}
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > .cta-section,
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > .cta-section,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > .cta-section {
+  width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.35rem));
+  max-width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.35rem));
+  margin-inline: auto;
+  align-self: center;
+  box-sizing: border-box;
+}
+html[data-ui-look="bold"] .cta-section h2,
+html[data-ui-look="bold"] .cta-section .home-heading-unified,
+html[data-ui-look="pulse"] .cta-section h2,
+html[data-ui-look="pulse"] .cta-section .home-heading-unified {
+  font-weight: 800 !important;
+  letter-spacing: -0.015em;
+}
+html[data-ui-look="bold"] .cta-section .cta-content .btn-light,
+html[data-ui-look="bold"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="bold"] .cta-section .cta-content a.btn,
+html[data-ui-look="bold"] .cta-section .cta-content .btn-outline-light,
+html[data-ui-look="pulse"] .cta-section .cta-content .btn-light,
+html[data-ui-look="pulse"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="pulse"] .cta-section .cta-content a.btn,
+html[data-ui-look="pulse"] .cta-section .cta-content .btn-outline-light {
+  border-radius: var(--look-radius) !important;
+  font-weight: 800 !important;
+  padding-inline: 1.25rem !important;
+}
+
+html[data-ui-look="airy"] .cta-section,
+html[data-ui-look="harbor"] .cta-section {
+  border-radius: var(--look-radius-lg) !important;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent);
+}
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > .cta-section {
+  width: calc(100% - 2 * clamp(0.75rem, 3vw, 2rem));
+  max-width: calc(100% - 2 * clamp(0.75rem, 3vw, 2rem));
+  margin-inline: auto;
+  align-self: center;
+}
+html[data-ui-look="airy"] .cta-section .cta-content .btn-light,
+html[data-ui-look="airy"] .cta-section .cta-content a.btn,
+html[data-ui-look="harbor"] .cta-section .cta-content .btn-light,
+html[data-ui-look="harbor"] .cta-section .cta-content a.btn,
+html[data-ui-look="airy"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="harbor"] .cta-section .cta-content .ir-cta-btn {
+  border-radius: 999px !important;
+  padding-inline: 1.4rem !important;
+  font-weight: 600 !important;
+}
+
+html[data-ui-look="cascade"] .cta-section,
+html[data-ui-look="summit"] .cta-section {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail);
+  box-shadow: none !important;
+}
+html[data-ui-look="cascade"] .cta-section .cta-content .btn-light,
+html[data-ui-look="cascade"] .cta-section .cta-content a.btn,
+html[data-ui-look="summit"] .cta-section .cta-content .btn-light,
+html[data-ui-look="summit"] .cta-section .cta-content a.btn,
+html[data-ui-look="cascade"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="summit"] .cta-section .cta-content .ir-cta-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+}
+html[data-ui-look="summit"] .cta-section {
+  border-left: 0;
+  border-bottom: 3px solid var(--primary-color, var(--primary));
+}
+
+/* —— Notice ticker (Pulse especially) —— */
+html[data-ui-look="pulse"] .notice-ticker {
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 45%, var(--primary-color, var(--primary)));
+  font-weight: 600;
+}
+html[data-ui-look="bold"] .notice-ticker,
+html[data-ui-look="cascade"] .notice-ticker,
+html[data-ui-look="summit"] .notice-ticker {
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+}
+html[data-ui-look="airy"] .notice-ticker,
+html[data-ui-look="harbor"] .notice-ticker {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent);
+}
+
+/* —— Leadership / awards cards —— */
+html[data-ui-look="bold"] .leadership-profile-card,
+html[data-ui-look="pulse"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+html[data-ui-look="airy"] .leadership-profile-card,
+html[data-ui-look="harbor"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 9%, transparent) !important;
+}
+html[data-ui-look="cascade"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="summit"] .leadership-profile-card .profile-btn,
+html[data-ui-look="bold"] .leadership-profile-card .profile-btn,
+html[data-ui-look="pulse"] .leadership-profile-card .profile-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+}
+html[data-ui-look="airy"] .leadership-profile-card .profile-btn,
+html[data-ui-look="harbor"] .leadership-profile-card .profile-btn {
+  border-radius: 999px !important;
+}
+
+/* —— Breadcrumb —— */
+html[data-ui-look="pulse"] .breadcrumb,
+html[data-ui-look="summit"] .breadcrumb,
+html[data-ui-look="cascade"] .breadcrumb,
+html[data-ui-look="bold"] .breadcrumb {
+  border-radius: var(--look-radius) !important;
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+html[data-ui-look="summit"] .breadcrumb {
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* —— Section divider / badge polish —— */
+html[data-ui-look="bold"] .section-divider,
+html[data-ui-look="pulse"] .section-divider,
+html[data-ui-look="cascade"] .section-divider,
+html[data-ui-look="summit"] .section-divider {
+  border-radius: var(--look-radius) !important;
+  height: 3px !important;
+}
+html[data-ui-look="airy"] .section-divider,
+html[data-ui-look="harbor"] .section-divider {
+  width: 4.5rem !important;
+  height: 3px !important;
+  border-radius: 999px !important;
+}
+
+/* —— Bottom public nav —— */
+html[data-ui-look="bold"] .pub-bottom-nav,
+html[data-ui-look="pulse"] .pub-bottom-nav,
+html[data-ui-look="cascade"] .pub-bottom-nav,
+html[data-ui-look="summit"] .pub-bottom-nav,
+html[data-ui-look="bold"] .mobile-bottom-nav,
+html[data-ui-look="pulse"] .mobile-bottom-nav,
+html[data-ui-look="cascade"] .mobile-bottom-nav,
+html[data-ui-look="summit"] .mobile-bottom-nav {
+  border-top: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+}
+html[data-ui-look="airy"] .pub-bottom-nav,
+html[data-ui-look="harbor"] .pub-bottom-nav,
+html[data-ui-look="airy"] .mobile-bottom-nav,
+html[data-ui-look="harbor"] .mobile-bottom-nav {
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+  border-radius: var(--look-radius-lg) var(--look-radius-lg) 0 0 !important;
+}
+
+/* —— Rates / notices boxes for Pulse glanceability —— */
+html[data-ui-look="pulse"] .rates-notices-section {
+  padding-block: 1.1rem !important;
+}
+html[data-ui-look="pulse"] .rates-header,
+html[data-ui-look="pulse"] .notices-header {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+}
+html[data-ui-look="summit"] .awards-section {
+  padding-block: 1.5rem !important;
+}
+html[data-ui-look="summit"] .award-card {
+  transform: none !important;
+}
+
+/* —— Tools category headers —— */
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* —— Pagination / tables light touch —— */
+html[data-ui-look="bold"] .pagination .page-link,
+html[data-ui-look="pulse"] .pagination .page-link,
+html[data-ui-look="cascade"] .pagination .page-link,
+html[data-ui-look="summit"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="airy"] .pagination .page-link,
+html[data-ui-look="harbor"] .pagination .page-link {
+  border-radius: 999px !important;
+}
+
+/* —— Dark-mode paper for remaining cards —— */
+html[data-ui-look="bold"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="airy"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="cascade"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="pulse"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="summit"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="harbor"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="bold"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="bold"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .notices-box-enhanced {
+  background: var(--look-paper) !important;
+}
+
+/* —— QH FAB consistency —— */
+html[data-ui-look="pulse"] .qh-fab,
+html[data-ui-look="summit"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="harbor"] .qh-fab {
+  border-radius: 999px !important;
+}
+
+/* —— Why-us feature boxes —— */
+html[data-ui-look="harbor"] .why-us-section .feature-box,
+html[data-ui-look="airy"] .why-us-section .feature-box {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+}
+html[data-ui-look="bold"] .why-us-section .feature-box,
+html[data-ui-look="pulse"] .why-us-section .feature-box {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="cascade"] .why-us-section .feature-box,
+html[data-ui-look="summit"] .why-us-section .feature-box {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail) !important;
+  box-shadow: none !important;
+}
+
+/* —— Devanagari wrap for CTA / section titles —— */
+html[data-ui-look="bold"] .cta-section h2,
+html[data-ui-look="airy"] .cta-section h2,
+html[data-ui-look="cascade"] .cta-section h2,
+html[data-ui-look="pulse"] .cta-section h2,
+html[data-ui-look="summit"] .cta-section h2,
+html[data-ui-look="harbor"] .cta-section h2,
+html[data-ui-look="bold"] .section-header h2,
+html[data-ui-look="airy"] .section-header h2,
+html[data-ui-look="cascade"] .section-header h2,
+html[data-ui-look="pulse"] .section-header h2,
+html[data-ui-look="summit"] .section-header h2,
+html[data-ui-look="harbor"] .section-header h2 {
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
