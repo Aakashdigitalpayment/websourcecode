@@ -15,6 +15,10 @@
  * Lucide size utilities: assets/css/lucide-icon-utils.css (via late-bundles).
  * FROZEN: Do not rewrite app-public / app-admin / app-member / app-core for polish.
  */
+if (!function_exists('coopPublicUiLook') && is_file(__DIR__ . '/public-ui-look.php')) {
+    require_once __DIR__ . '/public-ui-look.php';
+}
+
 if (!function_exists('coopThemeCssUrl')) {
 
     function coopThemeIsUiTestMode(): bool
@@ -458,6 +462,8 @@ if (!function_exists('coopThemeCssUrl')) {
         } else {
             /* public + default shell */
             coopThemeLink('assets/css/public-late-bundle.css');
+            /* Public look personality AFTER late bundle — Soft has zero rules */
+            coopThemeLink('assets/css/public-ui-looks.css');
         }
     }
 

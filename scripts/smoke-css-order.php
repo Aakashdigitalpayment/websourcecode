@@ -62,11 +62,70 @@ assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/app-publi
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/app-admin.css')", 'admin base sheet');
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/app-member.css')", 'member base sheet');
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/public-late-bundle.css')", 'public late bundle');
+assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/public-ui-looks.css')", 'public ui looks after late bundle');
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/admin-late-bundle.css')", 'admin late bundle');
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/member-late-bundle.css')", 'member late bundle');
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/minimal-late-bundle.css')", 'minimal late bundle');
 assertContains('includes/theme-assets.php', 'build-css-late-bundles.py', 'local regenerator documented');
 assertContains('includes/theme-assets.php', 'LATE BUNDLE LAST', 'load-order comment documents late bundle last');
+
+/* Public UI looks: Soft empty; file after late bundle; header wire */
+assertContains('includes/public-ui-look.php', "'soft'", 'public look catalog includes soft');
+assertContains('includes/public-ui-look.php', "getSetting('public_ui_look', 'soft')", 'public look defaults to soft');
+assertContains('includes/header.php', 'data-ui-look=', 'public html exposes data-ui-look');
+assertContains('assets/css/public-ui-looks.css', 'intentional no-op — live Soft unchanged', 'Soft look has zero overrides');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .hero-slider .btn.hero-btn-modern', 'Sharp hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .hero-slider .btn.hero-btn-modern', 'Compact hero CTA beats late-bundle pill');
+assertContains('assets/css/public-ui-looks.css', 'PASS 4 — Deep UI personality gaps', 'PASS 4 deep look gaps documented');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .feature-box', 'Sharp feature-box personality');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .cta-section', 'Editorial CTA band personality');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .qh-fab', 'Compact Quick Actions FAB personality');
+assertContains('assets/css/public-ui-looks.css', 'never oval 999px pills', 'Editorial tools mini-link not oval pill');
+assertContains('assets/css/public-ui-looks.css', 'max-width: min(36rem, 100%)', 'Editorial hero title room for Nepali');
+assertContains('assets/css/public-ui-looks.css', 'border-radius: 12px !important', 'Editorial tools tile matches Soft 12px');
+assertContains('assets/css/public-ui-looks.css', 'border-radius: 14px !important', 'Editorial tools icon well matches Soft 14px');
+assertContains('assets/css/public-ui-looks.css', 'PASS 5 — Glanceable diffs', 'PASS 5 glanceable look diffs');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .tools-widget-section', 'Sharp tools band ledger rail');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .tools-widget-section', 'Editorial tools magazine inset');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .tools-links-grid', 'Compact tools denser grid');
+assertContains('assets/css/public-ui-looks.css', 'PASS 6 — Soft-preserving flow serial', 'PASS 6 home/menu flow serial');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] #main-content > .why-us-section', 'Editorial why-us early in flow');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] #main-content > .rates-notices-section', 'Sharp rates early in flow');
+assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after app features', 'Editorial CTA after app features');
+assertContains('assets/css/public-ui-looks.css', 'सदस्य बन्नुहोस् after rates', 'Sharp/Compact CTA after rates');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] #main-content > .tools-widget-section', 'Compact tools early in flow');
+assertContains('assets/css/public-ui-looks.css', '#main-content > .notice-ticker', 'Notice ticker pinned above hero on ordered looks');
+assertContains('assets/css/public-ui-looks.css', 'PASS 7 — Secondary public pages', 'PASS 7 secondary page look diffs');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .value-card', 'Sharp about value-card personality');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .gallery-card', 'Editorial gallery-card personality');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .download-card', 'Compact download-card personality');
+assertContains('assets/css/public-ui-looks.css', 'letter-spacing: 0.04em !important', 'Sharp page-banner title beats late-bundle');
+assertContains('assets/css/public-ui-looks.css', 'PASS 8 — Brand-token + no-clip', 'PASS 8 brand/clip/icon safety');
+assertContains('assets/css/public-ui-looks.css', 'transform: none !important', 'non-Soft tools hover no translate clip');
+assertContains('assets/css/public-shell-polish.css', 'var(--primary-light, #2d8a45)', 'tools header mid-stop follows admin primary-light');
+assertNotContains('assets/css/public-shell-polish.css', '#0e9b53', 'public shell no hardcoded teal brand stop');
+assertContains('assets/css/public-ui-looks.css', 'carousel) resolve', 'flex shell documents carousel width resolve');
+assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .hero-slider', 'Editorial hero full-bleed flex shell');
+assertContains('assets/css/public-ui-looks.css', 'institutional-profile-section { order: 2; }', 'institutional profile pinned under hero');
+assertContains('assets/css/public-ui-looks.css', 'flex-direction: row-reverse', 'Editorial top bar utility sides swapped');
+assertContains('assets/css/public-ui-looks.css', 'pfl-login-drop-wrap { order: 6; }', 'Editorial login after install icon');
+assertContains('assets/css/public-ui-looks.css', 'pfl-bell-wrap { order: 5; }', 'Editorial bell near login');
+assertContains('assets/css/public-ui-looks.css', 'li.has-drop { order: 1; }', 'Editorial quick-link before digital sewa');
+assertContains('assets/css/public-ui-looks.css', 'Shared: brand column (col-lg-4)', 'Shared footer brand column center for non-Soft looks');
+assertContains('assets/css/public-ui-looks.css', 'contact.php"]) { order: 9; } /* सम्पर्क last */', 'Compact nav contact last');
+assertContains('assets/css/public-ui-looks.css', 'Solid brand pill', 'nav hover/active solid primary for readable text');
+assertContains('admin/settings.php', 'look_confirm_pin', 'settings public look PIN gate');
+assertContains('admin/settings.php', 'Public look PIN gate FIRST', 'look PIN aborts before settings writes');
+
+// Order: late bundle link must appear before ui-looks link in theme-assets.php
+$__ta = (string) file_get_contents($root . '/includes/theme-assets.php');
+$__latePos = strpos($__ta, "coopThemeLink('assets/css/public-late-bundle.css')");
+$__lookPos = strpos($__ta, "coopThemeLink('assets/css/public-ui-looks.css')");
+if ($__latePos === false || $__lookPos === false || $__lookPos <= $__latePos) {
+    fail('includes/theme-assets.php: public-ui-looks must load after public-late-bundle');
+} else {
+    ok('includes/theme-assets.php: public-ui-looks after public-late-bundle');
+}
 
 // Mega app sheets must NOT be merged away
 foreach (['app-public.css', 'app-admin.css', 'app-member.css'] as $sheet) {

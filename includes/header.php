@@ -583,7 +583,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo e($__htmlLang); ?>" style="--pfl-mobile-logo: url('<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/' . ltrim((string)$logo, '/'), ENT_QUOTES, 'UTF-8'); ?>'); --pfl-site-name: <?php echo json_encode((string)$siteName, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;">
+<?php
+$__publicUiLook = function_exists('coopPublicUiLook') ? coopPublicUiLook() : 'soft';
+$__publicUiLook = preg_replace('/[^a-z0-9_-]/', '', (string) $__publicUiLook) ?: 'soft';
+$__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+?>
+<html lang="<?php echo e($__htmlLang); ?>" data-ui-look="<?php echo e($__publicUiLook); ?>" class="ui-look-<?php echo e($__publicUiLook); ?>" style="--pfl-mobile-logo: url('<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/' . ltrim((string)$logo, '/'), ENT_QUOTES, 'UTF-8'); ?>'); --pfl-site-name: <?php echo htmlspecialchars((string) $__pflSiteNameCss, ENT_QUOTES, 'UTF-8'); ?>;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">

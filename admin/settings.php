@@ -18,6 +18,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
 
+        /* Public look PIN gate FIRST — abort before any settings writes if look change lacks PIN */
+        if (function_exists('is_superadmin') && is_superadmin() && isset($_POST['public_ui_look'])) {
+            if (!function_exists('coopPublicUiLookNormalize')) {
+                require_once dirname(__DIR__) . '/includes/public-ui-look.php';
+            }
+            $__lookPrev = function_exists('coopPublicUiLook') ? coopPublicUiLook() : 'soft';
+            $__lookNext = coopPublicUiLookNormalize((string) ($_POST['public_ui_look'] ?? 'soft'));
+            if ($__lookNext !== $__lookPrev) {
+                $__lookPinOk = function_exists('coopVerifyPublicLookChangePin')
+                    && coopVerifyPublicLookChangePin((string) ($_POST['look_confirm_pin'] ?? ''));
+                if (!$__lookPinOk) {
+                    setFlash('error', $__t(
+                        'Public look परिवर्तन गर्न सही site PIN चाहिन्छ। कुनै सेटिङ save भएन।',
+                        'Correct site PIN required to change public look. No settings were saved.'
+                    ));
+                    echo '<script>window.location.href = "settings.php?panel=branding";</script>';
+                    exit();
+                }
+            }
+        }
+
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
         /* Footer credits → footer-settings.php; 2FA policy → security-settings.php (Superadmin) */
@@ -119,6 +140,15 @@ checkCSRF();
         if (!empty($_POST['facebook_app_secret_clear'])) {
             updateSetting('facebook_app_secret', '');
         }
+
+        /* Public site look — superadmin only (PIN already verified above when changing) */
+        if (function_exists('is_superadmin') && is_superadmin() && isset($_POST['public_ui_look'])) {
+            if (!function_exists('coopPublicUiLookNormalize')) {
+                require_once dirname(__DIR__) . '/includes/public-ui-look.php';
+            }
+            updateSetting('public_ui_look', coopPublicUiLookNormalize((string) ($_POST['public_ui_look'] ?? 'soft')));
+        }
+
         /* Keep legacy footer_text in sync with site_name (display still uses coop_footer_copyright_text) */
         if (isset($_POST['site_name']) || isset($_POST['site_name_en'])) {
             if (function_exists('coop_footer_copyright_text')) {
@@ -309,6 +339,9 @@ checkCSRF();
         }
         if (function_exists('clearHomepageCache')) {
             clearHomepageCache();
+        }
+        if (function_exists('coop_bust_public_cache')) {
+            coop_bust_public_cache();
         }
         if (!function_exists('pwaClearIconCache') && is_file(dirname(__DIR__) . '/includes/pwa-icons.php')) {
             require_once dirname(__DIR__) . '/includes/pwa-icons.php';
@@ -858,6 +891,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
         <div class="stg-subtabs mb-3" data-stg-panel="branding">
             <button type="button" class="stg-subtab-btn active" data-stg-group="media"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="images"></i> <?php echo $__t('मिडिया व्यवस्थापक', 'Media Manager'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="colors"><i class="lucide-icon me-1" data-lucide="palette" aria-hidden="true"></i> <?php echo $__t('थिम रङहरू', 'Theme Colors'); ?></button>
+            <?php if (function_exists('is_superadmin') && is_superadmin()): ?>
+            <button type="button" class="stg-subtab-btn" data-stg-group="look"><i class="lucide-icon me-1" data-lucide="layout-template" aria-hidden="true"></i> <?php echo $__t('Public Look', 'Public Look'); ?></button>
+            <?php endif; ?>
             <button type="button" class="stg-subtab-btn" data-stg-group="version"><i class="lucide-icon me-1" data-lucide="git-branch" aria-hidden="true"></i> <?php echo $__t('संस्करण', 'Version'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="lucide-icon me-1" data-lucide="table" aria-hidden="true"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
         </div>
@@ -1580,6 +1616,130 @@ if (function_exists('coopThemeLink')) {
     echo coopThemeLinkHtml('assets/css/admin-settings-page.css');
 }
 ?>
+
+            <?php
+            /* Public site look — superadmin only (CSS chrome personality; Soft = live default) */
+            if (function_exists('is_superadmin') && is_superadmin()):
+                if (!function_exists('coopPublicUiLooks')) {
+                    require_once dirname(__DIR__) . '/includes/public-ui-look.php';
+                }
+                $looks = coopPublicUiLooks();
+                $currentLook = function_exists('coopPublicUiLook') ? coopPublicUiLook() : 'soft';
+            ?>
+            <div class="card mb-4 stg-section-card stg-accent-card stg-filter-card" id="public-look" data-stg-panel="branding" data-stg-group="look" data-stg-order="1">
+                <div class="card-header stg-section-header stg-soft-green-header">
+                    <h5 class="mb-0 stg-section-title"><i class="lucide-icon me-2" data-lucide="layout-template" aria-hidden="true"></i><?php echo $__t('Public site look', 'Public site look'); ?></h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        <?php echo $__t(
+                            'Superadmin only. Visitor का लागि एउटा layout छान्नुहोस्। Brand colors सबै look मा उही रहन्छन् (Theme Colors बाट)। Header, menu, footer, spacing, cards र hero chrome फरक हुन्छ — page text होइन। Admin / member portal प्रभावित हुँदैन।',
+                            'Superadmin only. Pick one layout for visitors. Brand colors stay the same on every look (from Theme Colors). Header, menu, footer, spacing, cards, and hero chrome change — not page text. Admin and member portal are not affected.'
+                        ); ?>
+                    </p>
+                    <p class="small mb-3">
+                        <?php echo $__t('Live now', 'Live now'); ?>:
+                        <strong><?php echo e($looks[$currentLook]['label'] ?? 'Soft'); ?></strong>.
+                        <?php echo $__t('Soft राख्दा अहिलेको live site जस्तै रहन्छ।', 'Keep Soft to match the current live site.'); ?>
+                    </p>
+                    <div class="look-pick" role="radiogroup" aria-label="<?php echo e($__t('Public site look', 'Public site look')); ?>">
+                        <?php foreach ($looks as $key => $meta):
+                            $isLive = ($currentLook === $key);
+                        ?>
+                        <label class="<?php echo $isLive ? 'is-selected' : ''; ?>">
+                            <input type="radio" name="public_ui_look" value="<?php echo e($key); ?>" <?php echo $isLive ? 'checked' : ''; ?> aria-label="<?php echo e($meta['label']); ?>">
+                            <div class="look-mini look-mini--<?php echo e($key); ?>">
+                                <span class="bar"></span>
+                                <span class="bar2"></span>
+                                <span class="card"></span>
+                            </div>
+                            <h4><?php echo e($meta['label']); ?></h4>
+                            <?php if ($key === 'soft'): ?>
+                            <span class="look-badge<?php echo $isLive ? ' look-badge--live' : ''; ?>">Default</span>
+                            <?php elseif ($isLive): ?>
+                            <span class="look-badge look-badge--live">Live</span>
+                            <?php endif; ?>
+                            <p><?php echo e($meta['hint']); ?></p>
+                            <?php if (!empty($meta['best'])): ?>
+                            <p><?php echo e($meta['best']); ?></p>
+                            <?php endif; ?>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="look-pin-gate mt-4 pt-3 border-top" style="max-width:22rem;">
+                        <label class="form-label" for="look_confirm_pin"><?php echo $__t('Confirm PIN to apply live', 'Confirm PIN to apply live'); ?></label>
+                        <input
+                            type="password"
+                            name="look_confirm_pin"
+                            id="look_confirm_pin"
+                            class="form-control"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            maxlength="10"
+                            placeholder="<?php echo e($__t('Site PIN हाल्नुहोस्', 'Enter site PIN')); ?>"
+                            aria-describedby="look_pin_help">
+                        <p id="look_pin_help" class="small text-muted mt-2 mb-0">
+                            <?php echo $__t(
+                                'फरक look मा स्विच गर्दा PIN चाहिन्छ। गलत PIN भए visitor ले अहिलेको live layout नै देख्छन्।',
+                                'Required when you switch to a different look. Without the correct PIN, visitors keep the current live layout.'
+                            ); ?>
+                        </p>
+                    </div>
+                    <p class="small text-muted mt-3 mb-0">
+                        <?php echo $__t('Save पछि homepage खोलेर hard-refresh गर्नुहोस्। Content मेटिँदैन।', 'After save, open the homepage and hard-refresh. Nothing is deleted from content.'); ?>
+                        <a href="<?php echo e(defined('SITE_URL') ? SITE_URL : '../'); ?>" target="_blank" rel="noopener noreferrer"><?php echo $__t('Homepage खोल्नुहोस्', 'Open homepage'); ?></a>
+                    </p>
+                </div>
+            </div>
+            <style>
+            .look-pick{display:grid;grid-template-columns:1fr;gap:1rem;max-width:28rem;}
+            @media(min-width:640px){.look-pick{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;}}
+            @media(min-width:1100px){.look-pick{grid-template-columns:repeat(4,minmax(0,1fr));}}
+            .look-pick label{position:relative;display:flex;flex-direction:column;gap:.5rem;cursor:pointer;margin:0;border:2px solid #e5e7eb;border-radius:.85rem;padding:.85rem;background:#fff;transition:border-color .15s,box-shadow .15s;min-width:0;text-align:left;}
+            .look-pick label:has(input:checked),
+            .look-pick label.is-selected{border-color:var(--primary-color,#1a5f2a);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary-color,#1a5f2a) 22%,transparent);}
+            .look-pick label:focus-within{border-color:var(--primary-color,#1a5f2a);outline:2px solid var(--primary-color,#1a5f2a);outline-offset:2px;}
+            .look-pick input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1;}
+            .look-pick .look-mini,.look-pick h4,.look-pick p,.look-pick .look-badge{position:relative;z-index:0;pointer-events:none;}
+            .look-badge{display:inline-block;width:fit-content;font-size:.625rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .4rem;border-radius:999px;background:#f3f4f6;color:#6b7280;}
+            .look-badge--live{background:color-mix(in srgb,var(--primary-color,#1a5f2a) 12%,#fff);color:var(--primary-color,#1a5f2a);}
+            .look-pick h4{font-size:.9375rem;font-weight:700;margin:0;overflow-wrap:break-word;}
+            .look-pick p{font-size:.75rem;color:#6b7280;margin:0;line-height:1.45;overflow-wrap:break-word;text-align:left;}
+            .look-mini{height:4.5rem;border:1px solid #e5e7eb;overflow:hidden;position:relative;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 28%,#0f172a);}
+            .look-mini span{position:absolute;display:block;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 55%,#fff);}
+            .look-mini .bar{height:6px;width:55%;left:10%;top:18%;}
+            .look-mini .bar2{height:4px;width:38%;left:10%;top:38%;opacity:.5;}
+            .look-mini .card{width:28%;height:42%;right:10%;bottom:12%;background:color-mix(in srgb,var(--secondary-color,#c0392b) 45%,#fff);}
+            .look-mini--soft{border-radius:.85rem;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 16%,#f3f4f6);}
+            .look-mini--soft .bar,.look-mini--soft .bar2{background:color-mix(in srgb,var(--primary-color,#1a5f2a) 50%,#111);}
+            .look-mini--soft .card{border-radius:.45rem;width:32%;right:8%;background:#fff;box-shadow:0 0 0 1px #e5e7eb;}
+            .look-mini--sharp{border-radius:0;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 10%,#f3f4f6);background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:12px 12px;}
+            .look-mini--sharp .card{border-radius:0;width:36%;right:6%;box-shadow:inset 3px 0 0 var(--primary-color,#1a5f2a);}
+            .look-mini--sharp .bar,.look-mini--sharp .bar2{border-radius:0;}
+            .look-mini--editorial{border-radius:1.1rem;background:color-mix(in srgb,var(--secondary-color,#c0392b) 18%,#f3f4f6);}
+            .look-mini--editorial .bar{width:48%;height:8px;left:10%;top:20%;background:var(--primary-color,#1a5f2a);}
+            .look-mini--editorial .bar2{width:34%;left:10%;top:40%;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 40%,#111);}
+            .look-mini--editorial .card{width:34%;height:48%;right:8%;left:auto;bottom:12%;border-radius:.85rem;background:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--primary-color,#1a5f2a) 16%,#e5e7eb);}
+            .look-mini--compact{border-radius:.4rem;}
+            .look-mini--compact .bar,.look-mini--compact .bar2{top:14%;height:4px;left:10%;}
+            .look-mini--compact .bar2{top:26%;}
+            .look-mini--compact .card{height:36%;width:34%;right:8%;left:auto;bottom:14%;border-radius:.35rem;}
+            </style>
+            <script>
+            (function(){
+              var g=document.querySelector('.look-pick');
+              if(!g) return;
+              function sync(){
+                g.querySelectorAll('label').forEach(function(l){
+                  var i=l.querySelector('input[type=radio]');
+                  l.classList.toggle('is-selected', !!(i&&i.checked));
+                });
+              }
+              g.addEventListener('change', sync);
+              sync();
+            })();
+            </script>
+            <?php endif; ?>
 
             <!-- ===================================================
                  Website Version Management

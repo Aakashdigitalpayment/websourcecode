@@ -1,0 +1,2830 @@
+/* ============================================================
+   Public look presets (Settings → Public site look)
+   html[data-ui-look] + .ui-look-*  (includes/header.php)
+
+   soft      = current live UI. No overrides — production unchanged
+               until a superadmin explicitly saves another look.
+   sharp     = formal / square / government ledger
+   editorial = magazine / airy / story-led
+   compact   = dense / tighter gaps / more on one screen
+
+   Brand colors stay in global-theme.php (--primary-color, etc.).
+   Admin / member portals do not load this personality path.
+   ============================================================ */
+
+html[data-ui-look="soft"],
+html.ui-look-soft { /* intentional no-op — live Soft unchanged */ }
+
+/* Surfaces tinted from brand tokens only (Soft does not set these). */
+html[data-ui-look="sharp"] {
+  --look-radius: 0.125rem;
+  --look-radius-lg: 0.2rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 3%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f3f5f4);
+  --look-ink-rail: 3px solid var(--primary-color, var(--primary));
+}
+html[data-ui-look="editorial"] {
+  --look-radius: 1.15rem;
+  --look-radius-lg: 1.5rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 7%, #fff);
+  --look-wash: color-mix(in srgb, var(--secondary-color, var(--secondary)) 9%, #faf7f4);
+}
+html[data-ui-look="compact"] {
+  --look-radius: 0.4rem;
+  --look-radius-lg: 0.55rem;
+  --look-paper: #fff;
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #f6f8f7);
+}
+
+/* ════════════════════════════════════════════════════════════
+   SHARP — formal / government feel
+   ════════════════════════════════════════════════════════════ */
+html[data-ui-look="sharp"] body {
+  background-color: var(--look-wash);
+}
+html[data-ui-look="sharp"] .pfl-top-bar {
+  border-bottom: 1px solid color-mix(in srgb, #fff 22%, transparent);
+}
+html[data-ui-look="sharp"] .pfl-header-wrapper,
+html[data-ui-look="sharp"] .pfl-main-header,
+html[data-ui-look="sharp"] .pfl-drop,
+html[data-ui-look="sharp"] .pfl-login-menu,
+html[data-ui-look="sharp"] .mobile-nav-drawer,
+html[data-ui-look="sharp"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .pfl-main-header {
+  box-shadow: none !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent);
+}
+html[data-ui-look="sharp"] .pfl-nav-area a,
+html[data-ui-look="sharp"] .pfl-quick-links a,
+html[data-ui-look="sharp"] .navbar .nav-link,
+html[data-ui-look="sharp"] .pfl-top-right > li > a,
+html[data-ui-look="sharp"] .pfl-bell-btn,
+html[data-ui-look="sharp"] .pfl-lang-wrap a {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .pfl-quick-links > li > a {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Hero — boxed / notice-board */
+html[data-ui-look="sharp"] .hero-slider,
+html[data-ui-look="sharp"] .hero-carousel-modern,
+html[data-ui-look="sharp"] .hero-slide-modern,
+html[data-ui-look="sharp"] .hero-bg-modern,
+html[data-ui-look="sharp"] .hero-content-modern,
+html[data-ui-look="sharp"] .hero-btn-modern,
+html[data-ui-look="sharp"] .hero-text-wrapper {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .hero-slider {
+  margin-inline: 0;
+  box-shadow: none !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary));
+}
+html[data-ui-look="sharp"] .hero-overlay-modern {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary-color, var(--primary)) 82%, #000) 0%,
+    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 70%
+  ) !important;
+}
+html[data-ui-look="sharp"] .hero-title-modern {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+  text-transform: none;
+  border-left: var(--look-ink-rail) !important;
+  padding-left: 0.75rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="sharp"] .hero-title-modern::after,
+html[data-ui-look="sharp"] .hero-title-modern::before {
+  /* Soft underline accent → ledger rail only */
+  display: none !important;
+}
+html[data-ui-look="sharp"] .hero-subtitle-modern {
+  max-width: 34rem;
+  opacity: 0.92;
+}
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important } */
+html[data-ui-look="sharp"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="sharp"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="sharp"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="sharp"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="sharp"] .hero-btn-modern,
+html[data-ui-look="sharp"] .btn,
+html[data-ui-look="sharp"] .btn-primary,
+html[data-ui-look="sharp"] .btn-outline-primary,
+html[data-ui-look="sharp"] .home-btn-primary,
+html[data-ui-look="sharp"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+html[data-ui-look="sharp"] .hero-slider .carousel-indicators button {
+  border-radius: 0 !important;
+  width: 18px !important;
+  height: 4px !important;
+}
+
+/* Cards / tiles — ledger boxes */
+html[data-ui-look="sharp"] .card,
+html[data-ui-look="sharp"] .service-card,
+html[data-ui-look="sharp"] .service-card-modern,
+html[data-ui-look="sharp"] .notice-card,
+html[data-ui-look="sharp"] .news-card,
+html[data-ui-look="sharp"] .feature-card,
+html[data-ui-look="sharp"] .why-choose-card,
+html[data-ui-look="sharp"] .award-card,
+html[data-ui-look="sharp"] .rate-card,
+html[data-ui-look="sharp"] .rate-card-enhanced,
+html[data-ui-look="sharp"] .coop-card,
+html[data-ui-look="sharp"] .ds-coop-card,
+html[data-ui-look="sharp"] .tools-category-card,
+html[data-ui-look="sharp"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="sharp"] .service-card,
+html[data-ui-look="sharp"] .service-card-modern,
+html[data-ui-look="sharp"] .rate-card-enhanced,
+html[data-ui-look="sharp"] .news-card,
+html[data-ui-look="sharp"] .tools-category-card {
+  border-left: var(--look-ink-rail) !important;
+}
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-forms h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-tools h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-member h5 {
+  border-radius: 0 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="sharp"] .tools-mini-link > svg.lucide,
+html[data-ui-look="sharp"] .tools-mini-link i,
+html[data-ui-look="sharp"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .tools-link-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.58rem !important;
+}
+html[data-ui-look="sharp"] .service-card:hover,
+html[data-ui-look="sharp"] .service-card-modern:hover,
+html[data-ui-look="sharp"] .news-card:hover,
+html[data-ui-look="sharp"] .rate-card:hover,
+html[data-ui-look="sharp"] .rate-card-enhanced:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .service-icon,
+html[data-ui-look="sharp"] .service-icon-modern {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .service-card::before,
+html[data-ui-look="sharp"] .rate-card::before {
+  display: none !important;
+}
+html[data-ui-look="sharp"] .new-badge,
+html[data-ui-look="sharp"] .new-badge-modern,
+html[data-ui-look="sharp"] .section-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.68rem !important;
+  font-weight: 800;
+}
+html[data-ui-look="sharp"] .section-divider {
+  width: 2.75rem !important;
+  height: 3px !important;
+  border-radius: 0 !important;
+  margin-inline: auto;
+}
+html[data-ui-look="sharp"] .section-header h2,
+html[data-ui-look="sharp"] .section-header-unified h2 {
+  letter-spacing: 0.02em;
+  font-weight: 800;
+}
+html[data-ui-look="sharp"] .page-banner {
+  border-radius: 0 !important;
+  background-image: none !important;
+  background-color: var(--primary-color, var(--primary)) !important;
+  border-bottom: 3px solid var(--secondary-color, var(--secondary));
+}
+html[data-ui-look="sharp"] .page-banner::before,
+html[data-ui-look="sharp"] .page-banner::after {
+  opacity: 0.25;
+}
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="sharp"] .page-banner .page-title-modern,
+html[data-ui-look="sharp"] .page-banner-modern h1,
+html[data-ui-look="sharp"] .page-banner-modern .page-title-modern {
+  letter-spacing: 0.04em !important;
+  font-weight: 800 !important;
+  text-transform: none;
+}
+
+/* Footer — striped formal */
+html[data-ui-look="sharp"] footer,
+html[data-ui-look="sharp"] .site-footer,
+html[data-ui-look="sharp"] .footer-top {
+  border-top: 4px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 85%, transparent);
+}
+html[data-ui-look="sharp"] .footer-widget h4,
+html[data-ui-look="sharp"] .footer-widget h5 {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-bottom: 1px solid color-mix(in srgb, #fff 22%, transparent);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+html[data-ui-look="sharp"] .footer-bottom {
+  border-top: 1px dashed color-mix(in srgb, #fff 30%, transparent);
+}
+html[data-ui-look="sharp"] .footer-social a,
+html[data-ui-look="sharp"] .whatsapp-float,
+html[data-ui-look="sharp"] #wa-float-btn,
+html[data-ui-look="sharp"] #float-chat-btn {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] [data-aos],
+html[data-ui-look="sharp"] .aos-animate {
+  transition-duration: 0.18s !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   EDITORIAL — calmer / story-led magazine
+   ════════════════════════════════════════════════════════════ */
+html[data-ui-look="editorial"] body {
+  background-color: var(--look-wash);
+}
+html[data-ui-look="editorial"] .pfl-header-wrapper,
+html[data-ui-look="editorial"] .pfl-main-header {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+/* Top utility: login/dark/lang LEFT · डिजिटल सेवा / quick links RIGHT */
+html[data-ui-look="editorial"] .pfl-top-bar .container {
+  flex-direction: row-reverse;
+}
+html[data-ui-look="editorial"] .pfl-quick-links > li.has-drop .pfl-drop {
+  left: auto;
+  right: 0;
+}
+/* Left cluster: lang → search → dark → install → bell → login (bell near login) */
+html[data-ui-look="editorial"] .pfl-top-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-lang-wrap { order: 1; }
+html[data-ui-look="editorial"] .pfl-top-right > li:has(#topbarSearchBtn) { order: 2; }
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-dark-wrap { order: 3; }
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-pwa-wrap { order: 4; }
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-bell-wrap { order: 5; }
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-login-drop-wrap { order: 6; }
+html[data-ui-look="editorial"] .pfl-login-menu {
+  right: auto;
+  left: 0;
+}
+html[data-ui-look="editorial"] .pfl-nav-area a,
+html[data-ui-look="editorial"] .pfl-quick-links a,
+html[data-ui-look="editorial"] .navbar .nav-link,
+html[data-ui-look="editorial"] .pfl-login-btn > a,
+html[data-ui-look="editorial"] .pfl-top-right > li > a,
+html[data-ui-look="editorial"] .pfl-bell-btn,
+html[data-ui-look="editorial"] .pfl-lang-wrap a {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .pfl-drop,
+html[data-ui-look="editorial"] .pfl-login-menu {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="editorial"] .pfl-quick-links > li > a {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Hero — full-bleed (no side gaps); flex shell needs explicit width */
+html[data-ui-look="editorial"] .hero-slider,
+html[data-ui-look="editorial"] .hero-carousel-modern {
+  border-radius: 0 !important;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  align-self: stretch;
+  box-shadow: none;
+}
+html[data-ui-look="editorial"] .hero-overlay-modern {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, #000 55%, transparent) 10%,
+    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 100%
+  ) !important;
+}
+html[data-ui-look="editorial"] .hero-title-modern {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  /* Nepali headlines need room — 18ch clipped Devanagari mid-phrase */
+  max-width: min(36rem, 100%);
+  overflow-wrap: anywhere;
+  white-space: normal;
+  box-sizing: border-box;
+}
+html[data-ui-look="editorial"] .hero-subtitle-modern {
+  max-width: 38rem;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+html[data-ui-look="editorial"] .hero-btn-modern,
+html[data-ui-look="editorial"] .btn,
+html[data-ui-look="editorial"] .btn-primary,
+html[data-ui-look="editorial"] .btn-outline-primary,
+html[data-ui-look="editorial"] .home-btn-primary,
+html[data-ui-look="editorial"] .view-all-btn,
+html[data-ui-look="editorial"] .service-link-modern {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .hero-slider .carousel-indicators button {
+  border-radius: 999px !important;
+  width: 9px !important;
+  height: 9px !important;
+}
+
+/* Cards — soft paper */
+html[data-ui-look="editorial"] .card,
+html[data-ui-look="editorial"] .service-card,
+html[data-ui-look="editorial"] .service-card-modern,
+html[data-ui-look="editorial"] .notice-card,
+html[data-ui-look="editorial"] .news-card,
+html[data-ui-look="editorial"] .feature-card,
+html[data-ui-look="editorial"] .why-choose-card,
+html[data-ui-look="editorial"] .award-card,
+html[data-ui-look="editorial"] .rate-card,
+html[data-ui-look="editorial"] .rate-card-enhanced,
+html[data-ui-look="editorial"] .coop-card,
+html[data-ui-look="editorial"] .ds-coop-card,
+html[data-ui-look="editorial"] .tools-category-card {
+  border-radius: var(--look-radius) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e6e2dc) !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary-color, var(--primary)) 7%, transparent) !important;
+  overflow: hidden !important;
+}
+/* Match Soft tile geometry (~12px cards, ~14px icon wells) — never oval 999px pills */
+html[data-ui-look="editorial"] .tools-mini-link {
+  border-radius: 12px !important;
+  background: var(--bg-card, #fff) !important;
+  border: 1.5px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e8e4de) !important;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-color, var(--primary)) 5%, transparent);
+  padding: 14px 8px !important;
+}
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-forms h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-tools h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-member h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+}
+html[data-ui-look="editorial"] .tools-mini-link > svg.lucide,
+html[data-ui-look="editorial"] .tools-mini-link i,
+html[data-ui-look="editorial"] .tools-mini-link .lucide-icon {
+  /* Soft baseline uses ~14px rounded square wells, not circles */
+  border-radius: 14px !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+}
+html[data-ui-look="editorial"] .tools-link-badge {
+  border-radius: 4px !important;
+  top: 5px !important;
+  right: 5px !important;
+  z-index: 2;
+  font-size: 0.58rem !important;
+  padding: 2px 5px !important;
+}
+html[data-ui-look="editorial"] .service-icon,
+html[data-ui-look="editorial"] .service-icon-modern {
+  border-radius: 1.25rem !important;
+}
+html[data-ui-look="editorial"] .new-badge,
+html[data-ui-look="editorial"] .new-badge-modern,
+html[data-ui-look="editorial"] .section-badge {
+  border-radius: 999px !important;
+  padding-inline: 0.85rem !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+html[data-ui-look="editorial"] .section-divider {
+  width: 4rem !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .section-padding,
+html[data-ui-look="editorial"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) + 18px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) + 18px) !important;
+}
+html[data-ui-look="editorial"] .section-header,
+html[data-ui-look="editorial"] .section-header-unified {
+  margin-bottom: 2.25rem !important;
+}
+html[data-ui-look="editorial"] .section-header h2,
+html[data-ui-look="editorial"] .section-header-unified h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+html[data-ui-look="editorial"] .page-banner {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3.5rem !important;
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary-color, var(--primary)) 90%, #000),
+    color-mix(in srgb, var(--primary-color, var(--primary)) 62%, var(--secondary-color, var(--secondary)))
+  ) !important;
+}
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner .page-title-modern,
+html[data-ui-look="editorial"] .page-banner-modern h1,
+html[data-ui-look="editorial"] .page-banner-modern .page-title-modern {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  text-transform: none !important;
+}
+html[data-ui-look="editorial"] .services-section,
+html[data-ui-look="editorial"] .tools-widget-section,
+html[data-ui-look="editorial"] .rates-notices-section,
+html[data-ui-look="editorial"] .news-section,
+html[data-ui-look="editorial"] .app-download-section {
+  background: transparent;
+}
+
+/* Footer — roomy */
+html[data-ui-look="editorial"] .footer-top {
+  padding-top: 3.25rem !important;
+  padding-bottom: 2.75rem !important;
+}
+html[data-ui-look="editorial"] .footer-widget h4,
+html[data-ui-look="editorial"] .footer-widget h5 {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-size: 1.05rem;
+}
+html[data-ui-look="editorial"] .footer-social a,
+html[data-ui-look="editorial"] .whatsapp-float,
+html[data-ui-look="editorial"] #wa-float-btn,
+html[data-ui-look="editorial"] #float-chat-btn {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .row.g-3 {
+  --bs-gutter-x: 1.35rem;
+  --bs-gutter-y: 1.35rem;
+}
+
+/* ════════════════════════════════════════════════════════════
+   COMPACT — denser chrome, more on one screen
+   ════════════════════════════════════════════════════════════ */
+html[data-ui-look="compact"] body {
+  background-color: var(--look-wash);
+}
+html[data-ui-look="compact"] .pfl-top-bar {
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+  font-size: 0.8rem;
+}
+html[data-ui-look="compact"] .pfl-main-header {
+  padding-top: 0.28rem !important;
+  padding-bottom: 0.28rem !important;
+  gap: 4px !important;
+}
+html[data-ui-look="compact"] .pfl-nav-area a,
+html[data-ui-look="compact"] .navbar .nav-link,
+html[data-ui-look="compact"] .pfl-quick-links a {
+  padding-top: 0.28rem !important;
+  padding-bottom: 0.28rem !important;
+  border-radius: var(--look-radius) !important;
+  font-size: 0.84rem !important;
+}
+html[data-ui-look="compact"] .pfl-drop,
+html[data-ui-look="compact"] .pfl-login-menu {
+  border-radius: var(--look-radius) !important;
+}
+
+/* Hero — shorter */
+html[data-ui-look="compact"] .hero-slider,
+html[data-ui-look="compact"] .hero-carousel-modern,
+html[data-ui-look="compact"] .hero-slide-modern,
+html[data-ui-look="compact"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="compact"] .hero-slider .carousel-item,
+html[data-ui-look="compact"] .hero-slide-modern,
+html[data-ui-look="compact"] .hero-bg-modern {
+  min-height: clamp(220px, 38vw, 380px) !important;
+}
+html[data-ui-look="compact"] .hero-title-modern {
+  font-size: clamp(1.25rem, 3vw, 1.95rem) !important;
+  line-height: 1.18 !important;
+  margin-bottom: 0.35rem !important;
+}
+html[data-ui-look="compact"] .hero-subtitle-modern {
+  font-size: 0.9rem !important;
+  margin-bottom: 0.55rem !important;
+  line-height: 1.45 !important;
+}
+html[data-ui-look="compact"] .hero-content-modern,
+html[data-ui-look="compact"] .hero-text-wrapper {
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
+}
+/* Beat late-bundle pill CTA so Compact radius/padding apply */
+html[data-ui-look="compact"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="compact"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="compact"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="compact"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="compact"] .hero-btn-modern,
+html[data-ui-look="compact"] .btn,
+html[data-ui-look="compact"] .btn-primary,
+html[data-ui-look="compact"] .home-btn-primary,
+html[data-ui-look="compact"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  padding: 0.4rem 0.9rem !important;
+  font-size: 0.9rem !important;
+}
+html[data-ui-look="compact"] .hero-actions-modern {
+  gap: 0.45rem !important;
+}
+
+/* Cards denser */
+html[data-ui-look="compact"] .card,
+html[data-ui-look="compact"] .service-card,
+html[data-ui-look="compact"] .service-card-modern,
+html[data-ui-look="compact"] .notice-card,
+html[data-ui-look="compact"] .news-card,
+html[data-ui-look="compact"] .feature-card,
+html[data-ui-look="compact"] .why-choose-card,
+html[data-ui-look="compact"] .award-card,
+html[data-ui-look="compact"] .rate-card,
+html[data-ui-look="compact"] .rate-card-enhanced,
+html[data-ui-look="compact"] .coop-card,
+html[data-ui-look="compact"] .ds-coop-card,
+html[data-ui-look="compact"] .tools-category-card {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .card-body,
+html[data-ui-look="compact"] .service-card,
+html[data-ui-look="compact"] .service-card-modern,
+html[data-ui-look="compact"] .notice-card,
+html[data-ui-look="compact"] .news-card,
+html[data-ui-look="compact"] .rate-card-enhanced,
+html[data-ui-look="compact"] .tools-category-card {
+  padding: 0.75rem 0.9rem !important;
+}
+html[data-ui-look="compact"] .service-icon,
+html[data-ui-look="compact"] .service-icon-modern {
+  width: 2.6rem !important;
+  height: 2.6rem !important;
+  font-size: 1.1rem !important;
+  margin-bottom: 0.55rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .service-title-modern,
+html[data-ui-look="compact"] .service-card h4,
+html[data-ui-look="compact"] .news-card h4,
+html[data-ui-look="compact"] .news-card h5 {
+  font-size: 1rem !important;
+  margin-bottom: 0.35rem !important;
+}
+html[data-ui-look="compact"] .service-description-modern,
+html[data-ui-look="compact"] .service-card p,
+html[data-ui-look="compact"] .news-card p {
+  font-size: 0.86rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.45 !important;
+}
+html[data-ui-look="compact"] .section-badge {
+  font-size: 0.7rem !important;
+  padding: 0.2rem 0.55rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .section-divider {
+  width: 2.25rem !important;
+  height: 3px !important;
+  margin-bottom: 0.55rem !important;
+}
+html[data-ui-look="compact"] .section-header h2,
+html[data-ui-look="compact"] .section-header-unified h2 {
+  font-size: clamp(1.2rem, 2.2vw, 1.55rem) !important;
+  margin-bottom: 0.35rem !important;
+}
+html[data-ui-look="compact"] .section-header p,
+html[data-ui-look="compact"] .section-header-unified p {
+  font-size: 0.88rem !important;
+  margin-bottom: 0 !important;
+}
+html[data-ui-look="compact"] .section-padding,
+html[data-ui-look="compact"] .section-py {
+  padding-top: 1.75rem !important;
+  padding-bottom: 1.75rem !important;
+}
+html[data-ui-look="compact"] .section-py-sm,
+html[data-ui-look="compact"] .tools-widget-section {
+  padding-top: 1.15rem !important;
+  padding-bottom: 1.15rem !important;
+}
+html[data-ui-look="compact"] .section-header,
+html[data-ui-look="compact"] .section-header-unified {
+  margin-bottom: 0.85rem !important;
+}
+html[data-ui-look="compact"] main .mb-4,
+html[data-ui-look="compact"] .section-padding .mb-4,
+html[data-ui-look="compact"] .services-section .mb-4,
+html[data-ui-look="compact"] .rates-notices-section .mb-4,
+html[data-ui-look="compact"] .awards-section .mb-4 {
+  margin-bottom: 0.85rem !important;
+}
+html[data-ui-look="compact"] main .mb-5,
+html[data-ui-look="compact"] .section-padding .mb-5 {
+  margin-bottom: 1.1rem !important;
+}
+html[data-ui-look="compact"] .page-banner {
+  padding-top: 1.35rem !important;
+  padding-bottom: 1.35rem !important;
+}
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner .page-title-modern,
+html[data-ui-look="compact"] .page-banner-modern h1,
+html[data-ui-look="compact"] .page-banner-modern .page-title-modern {
+  font-size: clamp(1.15rem, 2.3vw, 1.6rem) !important;
+  margin-bottom: 0.25rem !important;
+  letter-spacing: -0.01em !important;
+  font-weight: 700 !important;
+}
+html[data-ui-look="compact"] .page-banner p {
+  font-size: 0.85rem !important;
+}
+html[data-ui-look="compact"] .tools-links-grid {
+  gap: 0.4rem !important;
+}
+html[data-ui-look="compact"] .tools-mini-link {
+  padding: 0.45rem 0.55rem !important;
+  border-radius: var(--look-radius) !important;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="compact"] .tools-category-card.tools-cat-forms h5,
+html[data-ui-look="compact"] .tools-category-card.tools-cat-tools h5,
+html[data-ui-look="compact"] .tools-category-card.tools-cat-member h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+  padding: 0.55rem 0.75rem !important;
+  font-size: 0.88rem !important;
+}
+html[data-ui-look="compact"] .tools-mini-link > svg.lucide,
+html[data-ui-look="compact"] .tools-mini-link i,
+html[data-ui-look="compact"] .tools-mini-link .lucide-icon {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: var(--look-radius) !important;
+  padding: 0.55rem !important;
+}
+html[data-ui-look="compact"] .tools-category-card {
+  overflow: hidden !important;
+}
+html[data-ui-look="compact"] .footer-top {
+  padding-top: 1.35rem !important;
+  padding-bottom: 1rem !important;
+}
+html[data-ui-look="compact"] .footer-bottom {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  font-size: 0.8rem;
+}
+html[data-ui-look="compact"] .footer-widget {
+  margin-bottom: 0.85rem !important;
+}
+html[data-ui-look="compact"] .footer-widget h4,
+html[data-ui-look="compact"] .footer-widget h5 {
+  font-size: 0.92rem !important;
+  margin-bottom: 0.45rem !important;
+}
+html[data-ui-look="compact"] .row.g-3,
+html[data-ui-look="compact"] .row.g-4 {
+  --bs-gutter-x: 0.75rem;
+  --bs-gutter-y: 0.75rem;
+}
+
+@media (min-width: 1200px) {
+  html[data-ui-look="compact"] .services-section .col-lg-4 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+  html[data-ui-look="compact"] .container .row.row-cols-lg-3 > *,
+  html[data-ui-look="compact"] .container .row.row-cols-md-3 > * {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  html[data-ui-look="editorial"] .hero-slider,
+  html[data-ui-look="editorial"] .hero-carousel-modern {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  html[data-ui-look="compact"] .hero-slider .carousel-item,
+  html[data-ui-look="compact"] .hero-slide-modern,
+  html[data-ui-look="compact"] .hero-bg-modern {
+    min-height: 210px !important;
+  }
+  html[data-ui-look="compact"] .services-section .col-lg-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 2 — homepage bands, forms, popup, dark, inner pages
+   Soft still untouched above.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Shared public forms / breadcrumbs (non-Soft) ── */
+html[data-ui-look="sharp"] .form-control,
+html[data-ui-look="sharp"] .form-select,
+html[data-ui-look="sharp"] .input-group-text,
+html[data-ui-look="sharp"] .breadcrumb,
+html[data-ui-look="sharp"] .accordion-item,
+html[data-ui-look="sharp"] .accordion-button,
+html[data-ui-look="sharp"] .modal-content,
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-dialog {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="editorial"] .form-control,
+html[data-ui-look="editorial"] .form-select,
+html[data-ui-look="editorial"] .input-group-text,
+html[data-ui-look="editorial"] .breadcrumb,
+html[data-ui-look="editorial"] .accordion-item,
+html[data-ui-look="editorial"] .accordion-button,
+html[data-ui-look="editorial"] .modal-content,
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-dialog {
+  border-radius: calc(var(--look-radius) - 0.25rem) !important;
+}
+html[data-ui-look="compact"] .form-control,
+html[data-ui-look="compact"] .form-select,
+html[data-ui-look="compact"] .input-group-text,
+html[data-ui-look="compact"] .breadcrumb,
+html[data-ui-look="compact"] .accordion-item,
+html[data-ui-look="compact"] .accordion-button,
+html[data-ui-look="compact"] .modal-content,
+html[data-ui-look="compact"] .notice-popup-enhanced .popup-dialog {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .form-control,
+html[data-ui-look="compact"] .form-select {
+  padding-top: 0.4rem !important;
+  padding-bottom: 0.4rem !important;
+  font-size: 0.9rem !important;
+}
+html[data-ui-look="sharp"] .form-control,
+html[data-ui-look="sharp"] .form-select {
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #ced4da) !important;
+  box-shadow: none !important;
+}
+/* Beat Bootstrap / late-bundle control radius (incl. input-group + #contactModal) */
+html[data-ui-look="sharp"] form .form-control,
+html[data-ui-look="sharp"] form .form-select,
+html[data-ui-look="sharp"] .contact-form .form-control,
+html[data-ui-look="sharp"] .contact-form .form-select,
+html[data-ui-look="sharp"] main .form-control,
+html[data-ui-look="sharp"] main .form-select,
+html[data-ui-look="sharp"] .input-group > .form-control,
+html[data-ui-look="sharp"] .input-group > .form-select,
+html[data-ui-look="sharp"] .input-group:not(.has-validation) > .form-control,
+html[data-ui-look="sharp"] .input-group:not(.has-validation) > .form-select,
+html[data-ui-look="sharp"] #contactModal .form-control,
+html[data-ui-look="sharp"] #contactModal .form-select,
+html[data-ui-look="sharp"] .modal .form-control,
+html[data-ui-look="sharp"] .modal .form-select,
+html[data-ui-look="sharp"] .modal-body .form-control,
+html[data-ui-look="sharp"] .modal-body .form-select,
+html[data-ui-look="sharp"] .public-form-shell .form-control,
+html[data-ui-look="sharp"] .public-form-shell .form-select {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="editorial"] form .form-control,
+html[data-ui-look="editorial"] form .form-select,
+html[data-ui-look="editorial"] main .form-control,
+html[data-ui-look="editorial"] main .form-select,
+html[data-ui-look="editorial"] .input-group > .form-control,
+html[data-ui-look="editorial"] .input-group > .form-select,
+html[data-ui-look="editorial"] .input-group:not(.has-validation) > .form-control,
+html[data-ui-look="editorial"] .input-group:not(.has-validation) > .form-select,
+html[data-ui-look="editorial"] #contactModal .form-control,
+html[data-ui-look="editorial"] #contactModal .form-select,
+html[data-ui-look="editorial"] .modal .form-control,
+html[data-ui-look="editorial"] .modal .form-select,
+html[data-ui-look="editorial"] .public-form-shell .form-control,
+html[data-ui-look="editorial"] .public-form-shell .form-select {
+  border-radius: calc(var(--look-radius) - 0.25rem) !important;
+}
+html[data-ui-look="compact"] form .form-control,
+html[data-ui-look="compact"] form .form-select,
+html[data-ui-look="compact"] main .form-control,
+html[data-ui-look="compact"] main .form-select,
+html[data-ui-look="compact"] .input-group > .form-control,
+html[data-ui-look="compact"] .input-group > .form-select,
+html[data-ui-look="compact"] .input-group:not(.has-validation) > .form-control,
+html[data-ui-look="compact"] .input-group:not(.has-validation) > .form-select,
+html[data-ui-look="compact"] #contactModal .form-control,
+html[data-ui-look="compact"] #contactModal .form-select,
+html[data-ui-look="compact"] .modal .form-control,
+html[data-ui-look="compact"] .modal .form-select,
+html[data-ui-look="compact"] .public-form-shell .form-control,
+html[data-ui-look="compact"] .public-form-shell .form-select {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="editorial"] .form-control:focus,
+html[data-ui-look="editorial"] .form-select:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent) !important;
+}
+
+/* ── Sharp: institutional / rates / notices / awards / app ── */
+html[data-ui-look="sharp"] .institutional-profile-bar,
+html[data-ui-look="sharp"] .ip-home-snapshot,
+html[data-ui-look="sharp"] .ip-home-stat,
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced,
+html[data-ui-look="sharp"] .notice-item-enhanced,
+html[data-ui-look="sharp"] .notice-date-box,
+html[data-ui-look="sharp"] .award-card,
+html[data-ui-look="sharp"] .award-image,
+html[data-ui-look="sharp"] .award-icon,
+html[data-ui-look="sharp"] .app-download-section .card,
+html[data-ui-look="sharp"] .app-download-section .btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .institutional-profile-bar {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d7ddd9);
+  border-left: var(--look-ink-rail);
+  background: var(--look-paper);
+}
+html[data-ui-look="sharp"] .ip-home-snapshot {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9);
+  background: var(--look-paper);
+}
+html[data-ui-look="sharp"] .ip-home-stat {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e5e7eb) !important;
+  background: var(--bg-card, #fff) !important;
+}
+html[data-ui-look="sharp"] .ip-home-stat:hover {
+  transform: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9);
+  border-top: 3px solid var(--primary-color, var(--primary));
+  background: var(--look-paper);
+}
+html[data-ui-look="sharp"] .rates-header,
+html[data-ui-look="sharp"] .notices-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #e5e7eb);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+html[data-ui-look="sharp"] .notice-date-box {
+  border-radius: var(--look-radius) !important;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #fff) !important;
+}
+html[data-ui-look="sharp"] .notice-item-enhanced {
+  border-bottom: 1px dashed color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent);
+}
+html[data-ui-look="sharp"] .latest-badge,
+html[data-ui-look="sharp"] .tools-link-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.62rem !important;
+}
+html[data-ui-look="sharp"] .award-card {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+html[data-ui-look="sharp"] .award-image img {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .rates-notices-section.bg-light,
+html[data-ui-look="sharp"] .awards-section.bg-light {
+  background: var(--look-wash) !important;
+}
+html[data-ui-look="sharp"] .report-quick-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+/* ── Editorial: same bands, softer magazine ── */
+html[data-ui-look="editorial"] .institutional-profile-bar,
+html[data-ui-look="editorial"] .ip-home-snapshot,
+html[data-ui-look="editorial"] .ip-home-stat,
+html[data-ui-look="editorial"] .rates-box-enhanced,
+html[data-ui-look="editorial"] .notices-box-enhanced,
+html[data-ui-look="editorial"] .notice-item-enhanced,
+html[data-ui-look="editorial"] .award-card,
+html[data-ui-look="editorial"] .report-quick-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e6e2dc) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="editorial"] .institutional-profile-section {
+  padding-block: 1.25rem;
+}
+html[data-ui-look="editorial"] .ip-home-snapshot-grid {
+  gap: 1rem !important;
+}
+html[data-ui-look="editorial"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  padding: 1rem 1.1rem !important;
+  border: 0 !important;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+}
+html[data-ui-look="sharp"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #e5e7eb) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+html[data-ui-look="compact"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  padding: 0.55rem 0.65rem !important;
+}
+html[data-ui-look="editorial"] .notice-date-box,
+html[data-ui-look="editorial"] .award-icon,
+html[data-ui-look="editorial"] .latest-badge {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .rates-header,
+html[data-ui-look="editorial"] .notices-header {
+  border-bottom: 0;
+  padding-bottom: 0.35rem;
+}
+html[data-ui-look="editorial"] .rates-header h3,
+html[data-ui-look="editorial"] .notices-header h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+html[data-ui-look="editorial"] .notice-item-enhanced {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent);
+  padding-block: 0.85rem;
+}
+html[data-ui-look="editorial"] .award-image,
+html[data-ui-look="editorial"] .award-image img {
+  border-radius: calc(var(--look-radius) - 0.35rem) !important;
+}
+html[data-ui-look="editorial"] .rates-notices-section.bg-light,
+html[data-ui-look="editorial"] .awards-section.bg-light,
+html[data-ui-look="editorial"] .app-download-section {
+  background: color-mix(in srgb, var(--secondary-color, var(--secondary)) 6%, #faf7f4) !important;
+}
+html[data-ui-look="editorial"] .breadcrumb {
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+
+/* ── Compact: denser bands ── */
+html[data-ui-look="compact"] .institutional-profile-bar,
+html[data-ui-look="compact"] .ip-home-snapshot,
+html[data-ui-look="compact"] .ip-home-stat,
+html[data-ui-look="compact"] .rates-box-enhanced,
+html[data-ui-look="compact"] .notices-box-enhanced,
+html[data-ui-look="compact"] .award-card,
+html[data-ui-look="compact"] .report-quick-link {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .institutional-profile-section {
+  padding-block: 0.65rem !important;
+}
+html[data-ui-look="compact"] .institutional-profile-bar {
+  padding: 0.55rem 0.75rem !important;
+  gap: 0.5rem !important;
+}
+html[data-ui-look="compact"] .profile-title span,
+html[data-ui-look="compact"] .report-quick-link span {
+  font-size: 0.86rem !important;
+}
+html[data-ui-look="compact"] .ip-home-snapshot {
+  padding: 0.65rem 0.75rem !important;
+  margin-top: 0.55rem !important;
+}
+html[data-ui-look="compact"] .ip-home-snapshot-grid {
+  gap: 0.45rem !important;
+}
+html[data-ui-look="compact"] .ip-home-stat {
+  padding: 0.55rem 0.65rem !important;
+}
+html[data-ui-look="compact"] .ip-home-stat strong,
+html[data-ui-look="compact"] .ip-home-stat .stat-value {
+  font-size: 1rem !important;
+}
+html[data-ui-look="compact"] .rates-header,
+html[data-ui-look="compact"] .notices-header {
+  padding: 0.55rem 0.75rem !important;
+}
+html[data-ui-look="compact"] .rates-header h3,
+html[data-ui-look="compact"] .notices-header h3 {
+  font-size: 0.95rem !important;
+  margin: 0 !important;
+}
+html[data-ui-look="compact"] .rates-body,
+html[data-ui-look="compact"] .notices-body {
+  padding: 0.55rem 0.75rem !important;
+}
+html[data-ui-look="compact"] .rate-item {
+  padding-block: 0.28rem !important;
+  font-size: 0.86rem !important;
+}
+html[data-ui-look="compact"] .notice-item-enhanced {
+  padding-block: 0.45rem !important;
+  gap: 0.55rem !important;
+}
+html[data-ui-look="compact"] .notice-date-box {
+  min-width: 2.6rem !important;
+  padding: 0.25rem !important;
+  font-size: 0.72rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .award-card {
+  padding: 0.75rem !important;
+}
+html[data-ui-look="compact"] .award-image {
+  margin-bottom: 0.45rem !important;
+}
+html[data-ui-look="compact"] .app-download-section {
+  padding-block: 1.35rem !important;
+}
+html[data-ui-look="compact"] .app-download-section h2,
+html[data-ui-look="compact"] .app-download-section .home-heading-unified {
+  font-size: 1.25rem !important;
+}
+html[data-ui-look="compact"] .breadcrumb {
+  font-size: 0.78rem !important;
+  margin-bottom: 0.65rem !important;
+}
+html[data-ui-look="compact"] .accordion-button {
+  padding: 0.65rem 0.85rem !important;
+  font-size: 0.92rem !important;
+}
+html[data-ui-look="compact"] .accordion-body {
+  padding: 0.65rem 0.85rem !important;
+  font-size: 0.88rem !important;
+}
+
+/* ── Notice popup chrome ── */
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-dialog {
+  box-shadow: none !important;
+  border: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 35%, #fff) !important;
+}
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-close-btn {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-dialog {
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent) !important;
+}
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-close-btn {
+  border-radius: 999px !important;
+}
+html[data-ui-look="compact"] .notice-popup-enhanced .popup-dialog.popup-v3 {
+  max-width: min(520px, 94vw) !important;
+}
+
+/* ── Why-choose / news list pages ── */
+html[data-ui-look="sharp"] .why-choose-card,
+html[data-ui-look="sharp"] .feature-card {
+  border-left: var(--look-ink-rail) !important;
+}
+html[data-ui-look="editorial"] .news-card .news-image,
+html[data-ui-look="editorial"] .news-card img {
+  border-radius: calc(var(--look-radius) - 0.4rem) !important;
+}
+html[data-ui-look="compact"] .news-card .news-image,
+html[data-ui-look="compact"] .news-card img {
+  border-radius: var(--look-radius) !important;
+  max-height: 140px;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* ── Dark mode: keep Soft empty; tune other looks ── */
+html[data-ui-look="sharp"] body.dark-mode,
+html[data-ui-look="editorial"] body.dark-mode,
+html[data-ui-look="compact"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #1a2332);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #121820);
+}
+html[data-ui-look="sharp"] body.dark-mode .service-card,
+html[data-ui-look="sharp"] body.dark-mode .service-card-modern,
+html[data-ui-look="sharp"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="sharp"] body.dark-mode .ip-home-snapshot,
+html[data-ui-look="editorial"] body.dark-mode .service-card,
+html[data-ui-look="editorial"] body.dark-mode .service-card-modern,
+html[data-ui-look="editorial"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="compact"] body.dark-mode .service-card,
+html[data-ui-look="compact"] body.dark-mode .service-card-modern,
+html[data-ui-look="compact"] body.dark-mode .rate-card-enhanced {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+html[data-ui-look="sharp"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="sharp"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .awards-section.bg-light {
+  background: var(--look-wash) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 3 — Header / main menu / footer personality
+   Soft stays empty. Brand colors from global-theme only.
+   ════════════════════════════════════════════════════════════ */
+
+/* ───────────── SHARP chrome shell ───────────── */
+html[data-ui-look="sharp"] .pfl-header-wrapper {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .pfl-top-bar {
+  border-bottom: 1px solid color-mix(in srgb, #fff 18%, transparent);
+  letter-spacing: 0.03em;
+}
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a {
+  border-radius: var(--look-radius) !important;
+  text-transform: uppercase;
+  font-size: 0.7rem !important;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding-inline: 0.45rem !important;
+}
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a .lucide-icon,
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a svg {
+  /* formal: slightly smaller utility icons */
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+html[data-ui-look="sharp"] .pfl-drop,
+html[data-ui-look="sharp"] .pfl-login-menu,
+html[data-ui-look="sharp"] .pfl-bell-drop {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #d1d5db) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .pfl-bell-header,
+html[data-ui-look="sharp"] .pfl-bell-footer {
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .pfl-main-header {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary)) !important;
+  background-image: none !important;
+}
+html[data-ui-look="sharp"] .pfl-main-header::after,
+html[data-ui-look="sharp"] .pfl-brand-area::before,
+html[data-ui-look="sharp"] .pfl-brand-area::after {
+  opacity: 0.35 !important;
+  filter: none !important;
+}
+html[data-ui-look="sharp"] .pfl-since-badge {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 30%, transparent) !important;
+}
+html[data-ui-look="sharp"] .pfl-since-badge::after {
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .pfl-brand-logo {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .pfl-mobile-toggle,
+html[data-ui-look="sharp"] .close-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+/* Sharp main nav — ledger tabs */
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+  padding: 0.45rem 0.55rem !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-bottom: 2px solid transparent;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a > .lucide-icon:first-child {
+  /* keep icons but tighter */
+  margin-right: 0.25rem;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  border-radius: var(--look-radius) !important;
+  /* Solid brand pill — light wash + late-bundle white text was unreadable */
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  border-bottom-color: var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d1d5db) !important;
+  border-left: 3px solid var(--primary-color, var(--primary)) !important;
+  padding: 0.25rem 0 !important;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+  border-radius: 0 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.01em;
+}
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a:hover {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #fff) !important;
+  transform: none !important;
+}
+html[data-ui-look="sharp"] .nav-new-badge,
+html[data-ui-look="sharp"] .nav-new-badge--top {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Sharp footer — formal strip */
+html[data-ui-look="sharp"] .main-footer {
+  border-top: 4px solid var(--secondary-color, var(--secondary));
+}
+html[data-ui-look="sharp"] .main-footer .footer-top {
+  padding-top: 2.25rem !important;
+  padding-bottom: 1.75rem !important;
+}
+html[data-ui-look="sharp"] .main-footer .footer-widget h4 {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem !important;
+  font-weight: 800;
+  border-bottom: 2px solid color-mix(in srgb, #fff 28%, transparent);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+html[data-ui-look="sharp"] .main-footer .footer-links a,
+html[data-ui-look="sharp"] .main-footer .footer-contact li,
+html[data-ui-look="sharp"] .main-footer .footer-policy-links a {
+  border-radius: var(--look-radius);
+}
+html[data-ui-look="sharp"] .main-footer .footer-links a:hover {
+  padding-left: 0.35rem;
+  border-left: 2px solid color-mix(in srgb, #fff 55%, transparent);
+}
+html[data-ui-look="sharp"] .main-footer .footer-social a {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, #fff 28%, transparent);
+}
+html[data-ui-look="sharp"] .main-footer .footer-bottom {
+  border-top: 1px dashed color-mix(in srgb, #fff 32%, transparent);
+  letter-spacing: 0.02em;
+}
+html[data-ui-look="sharp"] .main-footer .footer-logo img {
+  border-radius: var(--look-radius) !important;
+}
+
+/* ───────────── EDITORIAL chrome shell ───────────── */
+html[data-ui-look="editorial"] .pfl-header-wrapper {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  overflow: visible;
+}
+html[data-ui-look="editorial"] .pfl-top-bar {
+  padding-block: 0.35rem !important;
+  border-bottom: 0;
+}
+html[data-ui-look="editorial"] .pfl-top-bar .pfl-quick-links > li > a {
+  border-radius: 999px !important;
+  padding: 0.28rem 0.7rem !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: color-mix(in srgb, #fff 10%, transparent);
+}
+html[data-ui-look="editorial"] .pfl-top-bar .pfl-quick-links > li > a:hover {
+  background: color-mix(in srgb, #fff 22%, transparent);
+}
+html[data-ui-look="editorial"] .pfl-drop,
+html[data-ui-look="editorial"] .pfl-login-menu,
+html[data-ui-look="editorial"] .pfl-bell-drop {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e8e4de) !important;
+  padding: 0.45rem !important;
+}
+html[data-ui-look="editorial"] .pfl-main-header {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent) !important;
+  padding-block: 0.55rem !important;
+}
+html[data-ui-look="editorial"] .pfl-since-badge {
+  border-radius: 999px !important;
+  padding-inline: 0.75rem !important;
+}
+html[data-ui-look="editorial"] .pfl-brand-logo {
+  border-radius: 0.85rem !important;
+}
+html[data-ui-look="editorial"] .pfl-mobile-toggle,
+html[data-ui-look="editorial"] .close-menu {
+  border-radius: 999px !important;
+}
+
+/* Editorial main nav — soft pills */
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu {
+  gap: 0.25rem !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: 999px !important;
+  padding: 0.5rem 0.85rem !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-bottom: 0 !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  border-radius: 999px !important;
+  /* Soft-clear: solid primary + on-primary text (light wash hid white labels) */
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent) !important;
+  border-bottom: 0 !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e8e4de) !important;
+  padding: 0.55rem !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+  border-radius: 999px !important;
+  padding: 0.45rem 0.75rem !important;
+}
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a:hover {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #fff) !important;
+}
+html[data-ui-look="editorial"] .nav-new-badge,
+html[data-ui-look="editorial"] .nav-new-badge--top {
+  border-radius: 999px !important;
+}
+
+/* Editorial footer — roomy magazine */
+html[data-ui-look="editorial"] .main-footer {
+  border-top: 0;
+}
+html[data-ui-look="editorial"] .main-footer .footer-top {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3rem !important;
+}
+html[data-ui-look="editorial"] .main-footer .footer-widget h4 {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 1.1rem !important;
+  font-weight: 600;
+  border-bottom: 0;
+  margin-bottom: 1.1rem;
+  position: relative;
+  padding-bottom: 0.65rem;
+}
+/* Centered contact title: keep underline under text (not stranded left) */
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4::after {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  width: 2.75rem;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color, var(--primary)),
+    color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent)
+  );
+}
+html[data-ui-look="editorial"] .main-footer .footer-about-text {
+  line-height: 1.7;
+  max-width: 28rem;
+}
+html[data-ui-look="editorial"] .main-footer .footer-links a {
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  margin-left: -0.45rem;
+}
+html[data-ui-look="editorial"] .main-footer .footer-links a:hover {
+  background: color-mix(in srgb, #fff 12%, transparent);
+}
+html[data-ui-look="editorial"] .main-footer .footer-social {
+  gap: 0.55rem !important;
+  margin-top: 1.1rem !important;
+}
+html[data-ui-look="editorial"] .main-footer .footer-social a {
+  border-radius: 999px !important;
+  width: 2.45rem !important;
+  height: 2.45rem !important;
+}
+html[data-ui-look="editorial"] .main-footer .footer-bottom {
+  border-top: 1px solid color-mix(in srgb, #fff 14%, transparent);
+  padding-block: 1.1rem !important;
+}
+html[data-ui-look="editorial"] .main-footer .footer-policy-links a {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+html[data-ui-look="editorial"] .main-footer .footer-logo img {
+  border-radius: 0.85rem !important;
+}
+
+/* ───────────── COMPACT chrome shell ───────────── */
+html[data-ui-look="compact"] .pfl-header-wrapper {
+  border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .pfl-top-bar {
+  padding-block: 0.05rem !important;
+  font-size: 0.75rem !important;
+}
+html[data-ui-look="compact"] .pfl-top-bar .container {
+  min-height: 32px !important;
+}
+html[data-ui-look="compact"] .pfl-top-bar .pfl-quick-links > li > a {
+  padding: 0.15rem 0.35rem !important;
+  font-size: 0.72rem !important;
+  border-radius: var(--look-radius) !important;
+  gap: 0.2rem;
+}
+html[data-ui-look="compact"] .pfl-top-bar .pfl-quick-links > li > a .lucide-icon,
+html[data-ui-look="compact"] .pfl-top-bar .pfl-quick-links > li > a svg {
+  width: 0.78rem !important;
+  height: 0.78rem !important;
+}
+html[data-ui-look="compact"] .pfl-top-right .pfl-bell-btn,
+html[data-ui-look="compact"] .pfl-top-right > li > a,
+html[data-ui-look="compact"] .pfl-lang-wrap a {
+  min-height: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: var(--look-radius) !important;
+  font-size: 0.72rem !important;
+}
+html[data-ui-look="compact"] .pfl-drop,
+html[data-ui-look="compact"] .pfl-login-menu,
+html[data-ui-look="compact"] .pfl-bell-drop {
+  border-radius: var(--look-radius) !important;
+  max-height: min(70vh, 420px);
+}
+html[data-ui-look="compact"] .pfl-bell-item {
+  padding: 0.4rem 0.55rem !important;
+}
+html[data-ui-look="compact"] .pfl-main-header {
+  padding: 0.2rem 0.55rem !important;
+  min-height: 0 !important;
+  border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .pfl-brand-logo {
+  max-height: 42px !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .pfl-brand-slogan {
+  display: none !important;
+}
+html[data-ui-look="compact"] .pfl-since-badge {
+  transform: scale(0.88);
+  transform-origin: left center;
+  border-radius: var(--look-radius) !important;
+  padding: 0.15rem 0.4rem !important;
+}
+html[data-ui-look="compact"] .pfl-mobile-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--look-radius) !important;
+}
+
+/* Compact main nav — tight */
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  padding: 0.32rem 0.45rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  gap: 0.15rem;
+}
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  border-radius: var(--look-radius) !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a .mnav-main-icon,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a > .lucide-icon:first-child,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a > svg:first-child {
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  padding: 0.25rem !important;
+  min-width: 11.5rem;
+}
+html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.8rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .nav-new-badge,
+html[data-ui-look="compact"] .nav-new-badge--top {
+  font-size: 0.58rem !important;
+  padding: 0.05rem 0.28rem !important;
+  border-radius: var(--look-radius) !important;
+}
+
+/* Compact footer — short */
+html[data-ui-look="compact"] .main-footer .footer-top {
+  padding-top: 1.15rem !important;
+  padding-bottom: 0.85rem !important;
+}
+html[data-ui-look="compact"] .main-footer .footer-widget {
+  margin-bottom: 0.65rem !important;
+}
+html[data-ui-look="compact"] .main-footer .footer-widget h4 {
+  font-size: 0.88rem !important;
+  margin-bottom: 0.4rem !important;
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[data-ui-look="compact"] .main-footer .footer-about-text {
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+html[data-ui-look="compact"] .main-footer .footer-links a,
+html[data-ui-look="compact"] .main-footer .footer-contact li {
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+  padding-block: 0.12rem;
+}
+html[data-ui-look="compact"] .main-footer .footer-social a {
+  width: 1.9rem !important;
+  height: 1.9rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .main-footer .footer-bottom {
+  padding-block: 0.45rem !important;
+  font-size: 0.75rem !important;
+}
+html[data-ui-look="compact"] .main-footer .footer-logo img {
+  max-height: 40px !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .main-footer .footer-policy-links {
+  gap: 0.35rem !important;
+  font-size: 0.75rem !important;
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 4 — Deep UI personality gaps
+   Surfaces that still looked Soft-like across looks:
+   CTA band, why-us feature boxes, mobile-app tiles, store buttons,
+   rates/notices/rate cards, section badges, Quick Actions FAB,
+   contact cards, tables, pagination, public bottom nav.
+   Soft remains empty.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Shared high-specificity radius beaters (late-bundle pills) ── */
+html[data-ui-look="sharp"] .rates-notices-section .rates-box-enhanced,
+html[data-ui-look="sharp"] .rates-notices-section .notices-box-enhanced,
+html[data-ui-look="sharp"] .rates-body .rate-card-enhanced,
+html[data-ui-look="sharp"] .rates-notices-section .rate-card-enhanced,
+html[data-ui-look="sharp"] .section-header .section-badge,
+html[data-ui-look="sharp"] .section-header-unified .section-badge,
+html[data-ui-look="sharp"] .section-badge-wrap .section-badge {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="editorial"] .rates-notices-section .rates-box-enhanced,
+html[data-ui-look="editorial"] .rates-notices-section .notices-box-enhanced,
+html[data-ui-look="editorial"] .rates-body .rate-card-enhanced,
+html[data-ui-look="editorial"] .section-header .section-badge,
+html[data-ui-look="editorial"] .section-header-unified .section-badge {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .rates-notices-section .rates-box-enhanced,
+html[data-ui-look="compact"] .rates-notices-section .notices-box-enhanced,
+html[data-ui-look="compact"] .rates-body .rate-card-enhanced,
+html[data-ui-look="compact"] .section-header .section-badge,
+html[data-ui-look="compact"] .section-header-unified .section-badge {
+  border-radius: var(--look-radius) !important;
+}
+
+/* ───────────── SHARP — formal ledger on remaining bands ───────────── */
+html[data-ui-look="sharp"] .cta-section,
+html[data-ui-look="sharp"] .cta-section .cta-content {
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .cta-section {
+  border-top: 3px solid color-mix(in srgb, #fff 35%, transparent);
+  border-bottom: 3px solid color-mix(in srgb, #000 18%, transparent);
+}
+html[data-ui-look="sharp"] .cta-section h2,
+html[data-ui-look="sharp"] .cta-section .home-heading-unified {
+  letter-spacing: 0.04em;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(1.15rem, 2.2vw, 1.65rem) !important;
+}
+html[data-ui-look="sharp"] .cta-section .cta-content .btn-light,
+html[data-ui-look="sharp"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="sharp"] .cta-section .cta-content a.btn,
+html[data-ui-look="sharp"] .cta-section .cta-content .btn-outline-light {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+  font-weight: 800;
+}
+html[data-ui-look="sharp"] .why-us-section .feature-box,
+html[data-ui-look="sharp"] .feature-box {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="sharp"] .feature-box:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .feature-box .feature-icon,
+html[data-ui-look="sharp"] .feature-box .feature-icon-wrap {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .mobile-app-section,
+html[data-ui-look="sharp"] .app-features-section {
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .app-feature-item {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="sharp"] .app-feature-item .feature-icon-wrap {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .app-btn,
+html[data-ui-look="sharp"] .mobile-app-section .app-btn,
+html[data-ui-look="sharp"] .mobile-app-section a.app-store,
+html[data-ui-look="sharp"] .mobile-app-section a.btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.03em;
+  font-weight: 700;
+}
+html[data-ui-look="sharp"] .home-btn-outline-primary,
+html[data-ui-look="sharp"] .home-btn-outline-secondary,
+html[data-ui-look="sharp"] a.home-btn-outline-primary,
+html[data-ui-look="sharp"] a.home-btn-outline-secondary {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+html[data-ui-look="sharp"] .qh-fab,
+html[data-ui-look="sharp"] .qh-ic,
+html[data-ui-look="sharp"] .qh-item,
+html[data-ui-look="sharp"] button.qh-item {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .qh-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #d1d5db) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .contact-info-box,
+html[data-ui-look="sharp"] .office-hours .card,
+html[data-ui-look="sharp"] .office-hours .feature-box {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+html[data-ui-look="sharp"] .table,
+html[data-ui-look="sharp"] table.table {
+  border-radius: var(--look-radius) !important;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d7ddd9) !important;
+}
+html[data-ui-look="sharp"] .table thead th,
+html[data-ui-look="sharp"] table.table thead th {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+  font-weight: 800;
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+  margin-inline: 0.1rem;
+  font-weight: 700;
+}
+html[data-ui-look="sharp"] .mp-bottom-nav,
+html[data-ui-look="sharp"] .mobile-bottom-nav,
+html[data-ui-look="sharp"] .pub-bottom-nav {
+  border-radius: 0 !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .mp-bottom-nav a,
+html[data-ui-look="sharp"] .mp-bottom-nav__item,
+html[data-ui-look="sharp"] .mobile-bottom-nav .nav-item-btn {
+  border-radius: var(--look-radius) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.62rem !important;
+  font-weight: 800;
+}
+html[data-ui-look="sharp"] .section-divider {
+  width: 2.75rem !important;
+  height: 3px !important;
+  border-radius: 0 !important;
+}
+html[data-ui-look="sharp"] .section-header .section-badge,
+html[data-ui-look="sharp"] .section-header-unified .section-badge {
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+}
+
+/* ───────────── EDITORIAL — magazine air on remaining bands ───────────── */
+html[data-ui-look="editorial"] .cta-section {
+  border-radius: var(--look-radius-lg) !important;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent);
+}
+/* Beat flex-shell section width:100% so CTA keeps magazine side inset */
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .cta-section {
+  width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.5rem));
+  max-width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.5rem));
+  margin-inline: auto;
+  align-self: center;
+  box-sizing: border-box;
+}
+html[data-ui-look="editorial"] .cta-section h2,
+html[data-ui-look="editorial"] .cta-section .home-heading-unified {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  text-transform: none;
+}
+html[data-ui-look="editorial"] .cta-section .cta-content .btn-light,
+html[data-ui-look="editorial"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="editorial"] .cta-section .cta-content a.btn,
+html[data-ui-look="editorial"] .cta-section .cta-content .btn-outline-light {
+  border-radius: 999px !important;
+  padding-inline: 1.35rem !important;
+  font-weight: 600;
+}
+html[data-ui-look="editorial"] .why-us-section .feature-box,
+html[data-ui-look="editorial"] .feature-box {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+  background: var(--look-paper) !important;
+  padding: 2rem 1.5rem !important;
+}
+html[data-ui-look="editorial"] .feature-box .feature-icon,
+html[data-ui-look="editorial"] .feature-box .feature-icon-wrap {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .app-feature-item {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 9%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="editorial"] .app-feature-item .feature-icon-wrap {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .app-btn,
+html[data-ui-look="editorial"] .mobile-app-section .app-btn,
+html[data-ui-look="editorial"] .mobile-app-section a.app-store,
+html[data-ui-look="editorial"] .mobile-app-section a.btn {
+  border-radius: 999px !important;
+  padding-inline: 1.1rem !important;
+}
+html[data-ui-look="editorial"] .home-btn-outline-primary,
+html[data-ui-look="editorial"] .home-btn-outline-secondary,
+html[data-ui-look="editorial"] a.home-btn-outline-primary,
+html[data-ui-look="editorial"] a.home-btn-outline-secondary {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .qh-fab {
+  border-radius: 999px !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+}
+html[data-ui-look="editorial"] .qh-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 20px 50px color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  padding: 0.55rem !important;
+}
+html[data-ui-look="editorial"] .qh-ic,
+html[data-ui-look="editorial"] .qh-item,
+html[data-ui-look="editorial"] button.qh-item {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .contact-info-box,
+html[data-ui-look="editorial"] .office-hours .card {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+  border: 0 !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="editorial"] .table,
+html[data-ui-look="editorial"] table.table {
+  border-radius: var(--look-radius) !important;
+  overflow: hidden;
+}
+html[data-ui-look="editorial"] .pagination .page-link {
+  border-radius: 999px !important;
+  margin-inline: 0.15rem;
+}
+html[data-ui-look="editorial"] .mp-bottom-nav,
+html[data-ui-look="editorial"] .mobile-bottom-nav {
+  border-radius: var(--look-radius-lg) var(--look-radius-lg) 0 0 !important;
+  box-shadow: 0 -8px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+  border-top: 0 !important;
+}
+html[data-ui-look="editorial"] .mp-bottom-nav a,
+html[data-ui-look="editorial"] .mp-bottom-nav__item,
+html[data-ui-look="editorial"] .mobile-bottom-nav .nav-item-btn {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .section-divider {
+  width: 3.5rem !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .section-header .section-badge,
+html[data-ui-look="editorial"] .section-header-unified .section-badge {
+  border-radius: 999px !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+html[data-ui-look="editorial"] .hero-title-modern {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+html[data-ui-look="editorial"] .hero-title-modern::after {
+  border-radius: 999px !important;
+  height: 4px !important;
+  width: 3.25rem !important;
+}
+
+/* ───────────── COMPACT — denser remaining bands ───────────── */
+html[data-ui-look="compact"] .cta-section {
+  padding-block: 1.65rem !important;
+}
+html[data-ui-look="compact"] .cta-section h2,
+html[data-ui-look="compact"] .cta-section .home-heading-unified {
+  font-size: 1.2rem !important;
+  margin-bottom: 0.35rem !important;
+}
+html[data-ui-look="compact"] .cta-section p {
+  font-size: 0.88rem !important;
+  margin-bottom: 0.65rem !important;
+}
+html[data-ui-look="compact"] .cta-section .cta-content .btn-light,
+html[data-ui-look="compact"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="compact"] .cta-section .cta-content a.btn,
+html[data-ui-look="compact"] .cta-section .cta-content .btn-outline-light {
+  border-radius: var(--look-radius) !important;
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.85rem !important;
+}
+html[data-ui-look="compact"] .why-us-section .feature-box,
+html[data-ui-look="compact"] .feature-box {
+  border-radius: var(--look-radius) !important;
+  padding: 1rem 0.85rem !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color, var(--primary)) 6%, transparent) !important;
+}
+html[data-ui-look="compact"] .feature-box h5 {
+  font-size: 0.92rem !important;
+  margin-bottom: 0.25rem !important;
+}
+html[data-ui-look="compact"] .feature-box p {
+  font-size: 0.82rem !important;
+  line-height: 1.4 !important;
+  margin: 0 !important;
+}
+html[data-ui-look="compact"] .feature-box .feature-icon,
+html[data-ui-look="compact"] .feature-box .feature-icon-wrap {
+  width: 2.4rem !important;
+  height: 2.4rem !important;
+  border-radius: var(--look-radius) !important;
+  margin-bottom: 0.45rem !important;
+}
+html[data-ui-look="compact"] .app-feature-item {
+  border-radius: var(--look-radius) !important;
+  padding: 0.75rem !important;
+}
+html[data-ui-look="compact"] .app-feature-item h5 {
+  font-size: 0.88rem !important;
+  margin: 0 !important;
+}
+html[data-ui-look="compact"] .app-features-grid {
+  gap: 0.55rem !important;
+}
+html[data-ui-look="compact"] .app-btn,
+html[data-ui-look="compact"] .mobile-app-section .app-btn,
+html[data-ui-look="compact"] .mobile-app-section a.app-store,
+html[data-ui-look="compact"] .mobile-app-section a.btn {
+  border-radius: var(--look-radius) !important;
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="compact"] .home-btn-outline-primary,
+html[data-ui-look="compact"] .home-btn-outline-secondary,
+html[data-ui-look="compact"] a.home-btn-outline-primary,
+html[data-ui-look="compact"] a.home-btn-outline-secondary {
+  border-radius: var(--look-radius) !important;
+  padding: 0.35rem 0.7rem !important;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="compact"] .qh-fab {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: var(--look-radius) !important;
+  padding: 0 !important;
+}
+html[data-ui-look="compact"] .qh-menu {
+  border-radius: var(--look-radius) !important;
+  max-width: 260px;
+}
+html[data-ui-look="compact"] .qh-item,
+html[data-ui-look="compact"] button.qh-item {
+  border-radius: var(--look-radius) !important;
+  padding: 0.4rem 0.55rem !important;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="compact"] .qh-ic {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .contact-info-box {
+  border-radius: var(--look-radius) !important;
+  padding: 0.85rem !important;
+}
+html[data-ui-look="compact"] .office-hours {
+  padding-block: 1.35rem !important;
+}
+html[data-ui-look="compact"] .table,
+html[data-ui-look="compact"] table.table {
+  font-size: 0.84rem !important;
+}
+html[data-ui-look="compact"] .table td,
+html[data-ui-look="compact"] .table th,
+html[data-ui-look="compact"] table.table td,
+html[data-ui-look="compact"] table.table th {
+  padding: 0.4rem 0.55rem !important;
+}
+html[data-ui-look="compact"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+  padding: 0.28rem 0.55rem !important;
+  font-size: 0.8rem !important;
+}
+html[data-ui-look="compact"] .mp-bottom-nav,
+html[data-ui-look="compact"] .mobile-bottom-nav {
+  min-height: 52px !important;
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+}
+html[data-ui-look="compact"] .mp-bottom-nav a,
+html[data-ui-look="compact"] .mp-bottom-nav__item,
+html[data-ui-look="compact"] .mobile-bottom-nav .nav-item-btn {
+  font-size: 0.65rem !important;
+  border-radius: var(--look-radius) !important;
+  padding: 0.25rem 0.2rem !important;
+}
+html[data-ui-look="compact"] .section-header .section-badge,
+html[data-ui-look="compact"] .section-header-unified .section-badge {
+  border-radius: var(--look-radius) !important;
+  padding: 0.2rem 0.55rem !important;
+  font-size: 0.68rem !important;
+}
+html[data-ui-look="compact"] .mobile-app-section {
+  padding-block: 1.25rem !important;
+}
+html[data-ui-look="compact"] .why-us-section.section-padding {
+  padding-block: 1.5rem !important;
+}
+
+/* Dark: remaining gap surfaces */
+html[data-ui-look="sharp"] body.dark-mode .feature-box,
+html[data-ui-look="sharp"] body.dark-mode .app-feature-item,
+html[data-ui-look="sharp"] body.dark-mode .contact-info-box,
+html[data-ui-look="editorial"] body.dark-mode .feature-box,
+html[data-ui-look="editorial"] body.dark-mode .app-feature-item,
+html[data-ui-look="editorial"] body.dark-mode .contact-info-box,
+html[data-ui-look="compact"] body.dark-mode .feature-box,
+html[data-ui-look="compact"] body.dark-mode .app-feature-item,
+html[data-ui-look="compact"] body.dark-mode .contact-info-box {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 5 — Glanceable diffs (Soft untouched)
+   First-viewport cues so side-by-side ?ui_look= compare is obvious.
+   Brand colors unchanged; tools Soft tile geometry preserved.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Sharp: ledger chrome (square + flat + ink rail) —— */
+html[data-ui-look="sharp"] .pfl-top-bar {
+  box-shadow: none !important;
+}
+html[data-ui-look="sharp"] .pfl-nav-area a,
+html[data-ui-look="sharp"] .navbar .nav-link {
+  font-weight: 700 !important;
+  letter-spacing: 0.015em;
+}
+html[data-ui-look="sharp"] .pfl-nav-area a.active,
+html[data-ui-look="sharp"] .pfl-nav-area .nav-link.active,
+html[data-ui-look="sharp"] .navbar .nav-link.active {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="sharp"] .pfl-logo img,
+html[data-ui-look="sharp"] .navbar-brand img {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .tools-widget-section {
+  background: var(--look-paper);
+  border-top: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+  padding-block: 1.35rem !important;
+}
+html[data-ui-look="sharp"] .tools-category-card {
+  overflow: hidden !important;
+}
+html[data-ui-look="sharp"] .ip-home-snapshot,
+html[data-ui-look="sharp"] .report-quick-links,
+html[data-ui-look="sharp"] .institutional-profile-bar {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+}
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced {
+  border-left: var(--look-ink-rail) !important;
+}
+
+/* —— Editorial: magazine inset + airy paper —— */
+html[data-ui-look="editorial"] .pfl-nav-area a.active,
+html[data-ui-look="editorial"] .pfl-nav-area .nav-link.active,
+html[data-ui-look="editorial"] .navbar .nav-link.active {
+  border-radius: 999px !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+html[data-ui-look="editorial"] .pfl-logo img,
+html[data-ui-look="editorial"] .navbar-brand img {
+  border-radius: calc(var(--look-radius) - 0.35rem) !important;
+}
+html[data-ui-look="editorial"] .tools-widget-section,
+html[data-ui-look="editorial"] .services-section > .container,
+html[data-ui-look="editorial"] .rates-notices-section > .container,
+html[data-ui-look="editorial"] .institutional-profile-section > .container,
+html[data-ui-look="editorial"] .tools-widget-section > .container {
+  max-width: min(1120px, 100%);
+}
+html[data-ui-look="editorial"] .tools-widget-section {
+  padding-block: 1.75rem !important;
+}
+html[data-ui-look="editorial"] .section-header h2,
+html[data-ui-look="editorial"] .section-header-unified h2,
+html[data-ui-look="editorial"] .home-heading-unified {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem) !important;
+}
+html[data-ui-look="editorial"] .section-header p,
+html[data-ui-look="editorial"] .section-header-unified p {
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+html[data-ui-look="editorial"] .ip-home-snapshot-grid {
+  gap: 1.15rem !important;
+}
+html[data-ui-look="editorial"] .rates-box-enhanced,
+html[data-ui-look="editorial"] .notices-box-enhanced {
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 9%, transparent) !important;
+}
+
+/* —— Compact: denser first screen —— */
+html[data-ui-look="compact"] .pfl-logo img,
+html[data-ui-look="compact"] .navbar-brand img {
+  max-height: 44px !important;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="compact"] .pfl-nav-area a.active,
+html[data-ui-look="compact"] .pfl-nav-area .nav-link.active,
+html[data-ui-look="compact"] .navbar .nav-link.active {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="compact"] .tools-widget-section {
+  padding-block: 0.85rem !important;
+}
+html[data-ui-look="compact"] .tools-links-grid {
+  gap: 0.3rem !important;
+}
+html[data-ui-look="compact"] .tools-mini-link {
+  padding: 0.35rem 0.4rem !important;
+  gap: 0.35rem !important;
+}
+html[data-ui-look="compact"] .tools-mini-link span {
+  font-size: 0.76rem !important;
+}
+html[data-ui-look="compact"] .tools-mini-more {
+  font-size: 0.62rem !important;
+}
+html[data-ui-look="compact"] .ip-home-snapshot-grid {
+  gap: 0.45rem !important;
+}
+html[data-ui-look="compact"] .rates-notices-section,
+html[data-ui-look="compact"] .institutional-profile-section {
+  padding-block: 0.85rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 6 — Soft-preserving flow serial (menu + home sections)
+   Soft keeps DOM order. Sharp / Editorial / Compact reorder via
+   CSS flex order only — same pages/text/brand, different rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+/* Shared flex shells (non-Soft only) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+/* Flex children need a definite cross-size so % widths inside (carousel) resolve */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+/* Editorial hero: full-bleed (beats section max-width; no side gaps) */
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .hero-slider {
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  margin-left: 0;
+  margin-right: 0;
+}
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section) {
+  order: 90;
+}
+/* Notice ticker is a <div> under <main> — keep it above hero, not at page bottom */
+html[data-ui-look="sharp"] #main-content > .notice-ticker,
+html[data-ui-look="editorial"] #main-content > .notice-ticker,
+html[data-ui-look="compact"] #main-content > .notice-ticker {
+  order: 0;
+}
+html[data-ui-look="sharp"] .pfl-quick-links,
+html[data-ui-look="editorial"] .pfl-quick-links,
+html[data-ui-look="compact"] .pfl-quick-links,
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu,
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu,
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu,
+html[data-ui-look="sharp"] .main-footer .footer-top .row,
+html[data-ui-look="editorial"] .main-footer .footer-top .row,
+html[data-ui-look="compact"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+/* footer-links-cols stays CSS grid (Soft baseline) — order still works on grid items */
+
+/* —— Soft DOM baseline (unchanged):
+   hero → institutional → services → tools → rates → why → leadership
+   → mobile-app → app-features → news → awards → spotlight → cta —— */
+
+/* Shared: संस्थागत प्रोफाइल always directly under hero (order 2) */
+html[data-ui-look="sharp"] #main-content > .hero-slider,
+html[data-ui-look="editorial"] #main-content > .hero-slider,
+html[data-ui-look="compact"] #main-content > .hero-slider { order: 1; }
+html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
+html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
+html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2; }
+
+/* Sharp — formal info board: rates early, then CTA invite, app story later */
+html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 3; }
+html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after rates */
+html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 5; }
+html[data-ui-look="sharp"] #main-content > .services-section { order: 6; }
+html[data-ui-look="sharp"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 8; }
+html[data-ui-look="sharp"] #main-content > .news-section { order: 9; }
+html[data-ui-look="sharp"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="sharp"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="sharp"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="sharp"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Editorial — story magazine: app pair together, then CTA (avoids green-on-green clash) */
+html[data-ui-look="editorial"] #main-content > .services-section { order: 3; }
+html[data-ui-look="editorial"] #main-content > .why-us-section { order: 4; }
+html[data-ui-look="editorial"] #main-content > .mobile-app-section { order: 5; }
+html[data-ui-look="editorial"] #main-content > .app-features-section { order: 6; }
+html[data-ui-look="editorial"] #main-content > .cta-section { order: 7; } /* सदस्य बन्नुहोस् after app features */
+html[data-ui-look="editorial"] #main-content > .tools-widget-section { order: 8; }
+html[data-ui-look="editorial"] #main-content > .rates-notices-section { order: 9; }
+html[data-ui-look="editorial"] #main-content > .leadership-messages-section { order: 10; }
+html[data-ui-look="editorial"] #main-content > .news-section { order: 11; }
+html[data-ui-look="editorial"] #main-content > .awards-section { order: 12; }
+html[data-ui-look="editorial"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Compact — tools + rates early, then CTA before denser mid page */
+html[data-ui-look="compact"] #main-content > .tools-widget-section { order: 3; }
+html[data-ui-look="compact"] #main-content > .rates-notices-section { order: 4; }
+html[data-ui-look="compact"] #main-content > .cta-section { order: 5; } /* सदस्य बन्नुहोस् after rates */
+html[data-ui-look="compact"] #main-content > .services-section { order: 6; }
+html[data-ui-look="compact"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="compact"] #main-content > .mobile-app-section { order: 8; }
+html[data-ui-look="compact"] #main-content > .app-features-section { order: 9; }
+html[data-ui-look="compact"] #main-content > .leadership-messages-section { order: 10; }
+html[data-ui-look="compact"] #main-content > .news-section { order: 11; }
+html[data-ui-look="compact"] #main-content > .awards-section { order: 12; }
+html[data-ui-look="compact"] #main-content > .member-spotlight-section { order: 13; }
+
+/* —— Top utility serial (href-based; Soft untouched) —— */
+/* Sharp/Compact: keep dropdowns (छिटो लिंक) at the end */
+html[data-ui-look="sharp"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="compact"] .pfl-quick-links > li.has-drop {
+  order: 20;
+}
+/* Soft: Auction → Download → Career → Contact → Digital */
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 1; }
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2; }
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 3; }
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 5; }
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4; }
+
+/* Editorial right cluster: छिटो लिंक first (away from edge clip) → Digital → … */
+html[data-ui-look="editorial"] .pfl-quick-links > li.has-drop { order: 1; }
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2; }
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 3; }
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 4; }
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 5; }
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 6; }
+
+html[data-ui-look="compact"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 1; }
+html[data-ui-look="compact"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2; }
+html[data-ui-look="compact"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 3; }
+html[data-ui-look="compact"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4; }
+html[data-ui-look="compact"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 5; }
+
+/* —— Main nav serial (desktop + drawer) —— */
+/* Soft: Home → About → Services → Rates → Notice → Gallery → Team → More → Contact */
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 2; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 5; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 2; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 2; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; } /* सम्पर्क last */
+
+/* More dropdown (href="#") stays near end */
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+
+/* —— Footer: column + quick-link serial —— */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-3 { order: 1; } /* contact first */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-5 { order: 2; }
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 { order: 3; }
+
+/* Editorial: quick links left · contact center · logo/summary/social right */
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-5 { order: 1; }
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 { order: 2; }
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 { order: 3; }
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 {
+  text-align: center;
+}
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4 {
+  text-align: center;
+  display: block;
+}
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact li {
+  justify-content: center;
+  text-align: center;
+}
+
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-3 { order: 1; }
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 { order: 2; } /* brand center column */
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-5 { order: 3; }
+
+/* Shared: brand column (col-lg-4) — logo + summary + social centered inside */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 {
+  /* Sharp/Editorial: column stays on the right */
+  text-align: center;
+  display: flex;
+  justify-content: flex-end;
+}
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 {
+  text-align: center;
+}
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: 0;
+}
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text {
+  max-width: 28rem;
+}
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 {
+    text-align: left;
+    display: block;
+    justify-content: flex-start;
+  }
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4 {
+    text-align: left;
+  }
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4::after {
+    left: 0 !important;
+    transform: none;
+  }
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+    margin-left: 0;
+    margin-right: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    max-width: none;
+  }
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="services.php"]) { order: 1; }
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="about.php"]) { order: 2; }
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="reports.php"]) { order: 3; }
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="news.php"]) { order: 4; }
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="faqs.php"]) { order: 5; }
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="reports.php"]) { order: 1; }
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="about.php"]) { order: 2; }
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="services.php"]) { order: 3; }
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="service-centers.php"]) { order: 4; }
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="faqs.php"]) { order: 5; }
+
+html[data-ui-look="compact"] .footer-links > li:has(a[href*="faqs.php"]) { order: 1; }
+html[data-ui-look="compact"] .footer-links > li:has(a[href*="member-survey.php"]) { order: 2; }
+html[data-ui-look="compact"] .footer-links > li:has(a[href*="services.php"]) { order: 3; }
+html[data-ui-look="compact"] .footer-links > li:has(a[href*="about.php"]) { order: 4; }
+html[data-ui-look="compact"] .footer-links > li:has(a[href*="reports.php"]) { order: 5; }
+
+/* ════════════════════════════════════════════════════════════
+   PASS 7 — Secondary public pages (Soft unchanged)
+   About / gallery / downloads cards inherit Soft until here.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Sharp: ledger tiles on about / gallery / downloads —— */
+html[data-ui-look="sharp"] .value-card,
+html[data-ui-look="sharp"] .about-content-box,
+html[data-ui-look="sharp"] .history-image-box,
+html[data-ui-look="sharp"] .history-content-v2,
+html[data-ui-look="sharp"] .gallery-card,
+html[data-ui-look="sharp"] .gallery-album-card,
+html[data-ui-look="sharp"] .gallery-tabs-wrapper,
+html[data-ui-look="sharp"] .download-card {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+  transform: none !important;
+}
+html[data-ui-look="sharp"] .value-card:hover,
+html[data-ui-look="sharp"] .gallery-card:hover,
+html[data-ui-look="sharp"] .download-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="sharp"] .value-icon,
+html[data-ui-look="sharp"] .history-icon-ring,
+html[data-ui-look="sharp"] .history-badge,
+html[data-ui-look="sharp"] .history-year-badge,
+html[data-ui-look="sharp"] .gallery-tab,
+html[data-ui-look="sharp"] .download-card .download-icon {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="sharp"] .value-card h5 {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+}
+
+/* —— Editorial: soft magazine cards —— */
+html[data-ui-look="editorial"] .value-card,
+html[data-ui-look="editorial"] .about-content-box,
+html[data-ui-look="editorial"] .history-image-box,
+html[data-ui-look="editorial"] .gallery-card,
+html[data-ui-look="editorial"] .gallery-album-card,
+html[data-ui-look="editorial"] .gallery-tabs-wrapper,
+html[data-ui-look="editorial"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 11%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="editorial"] .value-card {
+  padding: 2rem 1.35rem !important;
+}
+html[data-ui-look="editorial"] .value-icon,
+html[data-ui-look="editorial"] .history-icon-ring,
+html[data-ui-look="editorial"] .history-badge,
+html[data-ui-look="editorial"] .gallery-tab {
+  border-radius: 999px !important;
+}
+html[data-ui-look="editorial"] .about-content-box h2,
+html[data-ui-look="editorial"] .history-content-v2 h2,
+html[data-ui-look="editorial"] .value-card h5 {
+  font-weight: 600 !important;
+  letter-spacing: -0.015em;
+}
+html[data-ui-look="editorial"] .gallery-section,
+html[data-ui-look="editorial"] .about-section,
+html[data-ui-look="editorial"] .values-section,
+html[data-ui-look="editorial"] .history-section-v2 {
+  background: transparent;
+}
+
+/* —— Compact: denser secondary pages —— */
+html[data-ui-look="compact"] .value-card,
+html[data-ui-look="compact"] .about-content-box,
+html[data-ui-look="compact"] .gallery-card,
+html[data-ui-look="compact"] .gallery-album-card,
+html[data-ui-look="compact"] .download-card {
+  border-radius: var(--look-radius) !important;
+  padding: 1rem 0.85rem !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color, var(--primary)) 6%, transparent) !important;
+}
+html[data-ui-look="compact"] .value-icon {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: var(--look-radius) !important;
+  margin-bottom: 0.55rem !important;
+}
+html[data-ui-look="compact"] .value-card h5 {
+  font-size: 0.9rem !important;
+  margin: 0 !important;
+}
+html[data-ui-look="compact"] .gallery-tabs-wrapper {
+  border-radius: var(--look-radius) !important;
+  padding: 0.45rem !important;
+}
+html[data-ui-look="compact"] .gallery-tab {
+  border-radius: var(--look-radius) !important;
+  min-height: 38px !important;
+  padding: 0.35rem 0.7rem !important;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="compact"] .gallery-item.mb-4,
+html[data-ui-look="compact"] .gallery-grid > [class*="col-"].mb-4 {
+  margin-bottom: 0.75rem !important;
+}
+html[data-ui-look="compact"] .about-content-box h2,
+html[data-ui-look="compact"] .history-content-v2 h2 {
+  font-size: clamp(1.2rem, 2.4vw, 1.55rem) !important;
+  margin-bottom: 0.55rem !important;
+}
+html[data-ui-look="compact"] .about-section.section-padding,
+html[data-ui-look="compact"] .values-section.section-padding,
+html[data-ui-look="compact"] .history-section-v2.section-padding,
+html[data-ui-look="compact"] .gallery-section.section-padding {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 8 — Brand-token + no-clip / icon safety (Soft empty)
+   Admin colors (global-theme.php) already drive every look via
+   --primary-color / --secondary-color / --text-on-* / --*-ink.
+   Looks only tint with color-mix of those tokens — no brand hex.
+   ════════════════════════════════════════════════════════════ */
+
+/* Hover lift inside overflow:hidden category cards → chop risk.
+   Non-Soft: keep shadow/border hover, kill translate. Soft Soft
+   keeps a milder Soft-shell lift + grid pad (shell polish). */
+html[data-ui-look="sharp"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* Icon wells: never collapse Lucide to 0×0; allow stroke paint */
+html[data-ui-look="sharp"] .tools-mini-link > svg.lucide,
+html[data-ui-look="sharp"] .tools-mini-link .lucide-icon,
+html[data-ui-look="editorial"] .tools-mini-link > svg.lucide,
+html[data-ui-look="editorial"] .tools-mini-link .lucide-icon,
+html[data-ui-look="compact"] .tools-mini-link > svg.lucide,
+html[data-ui-look="compact"] .tools-mini-link .lucide-icon,
+html[data-ui-look="sharp"] .feature-box .feature-icon svg,
+html[data-ui-look="editorial"] .feature-box .feature-icon svg,
+html[data-ui-look="compact"] .feature-box .feature-icon svg,
+html[data-ui-look="sharp"] .value-icon svg,
+html[data-ui-look="editorial"] .value-icon svg,
+html[data-ui-look="compact"] .value-icon svg {
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+  flex-shrink: 0;
+}
+
+/* Devanagari / long labels — wrap, never mid-glyph clip */
+html[data-ui-look="sharp"] .hero-title-modern,
+html[data-ui-look="editorial"] .hero-title-modern,
+html[data-ui-look="compact"] .hero-title-modern,
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .tools-mini-link span,
+html[data-ui-look="editorial"] .tools-mini-link span,
+html[data-ui-look="compact"] .tools-mini-link span,
+html[data-ui-look="sharp"] .value-card h5,
+html[data-ui-look="editorial"] .value-card h5,
+html[data-ui-look="compact"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Brand fills in looks keep WCAG text-on-* from admin auto contrast */
+html[data-ui-look="sharp"] .page-banner,
+html[data-ui-look="editorial"] .page-banner,
+html[data-ui-look="compact"] .page-banner {
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .page-banner .page-title-modern,
+html[data-ui-look="editorial"] .page-banner .page-title-modern,
+html[data-ui-look="compact"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}

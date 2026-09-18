@@ -739,6 +739,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <tr><th>के बदल्ने?</th><th>Setting Tab</th></tr>
         <tr><td>Website नाम, Logo, Favicon</td><td><a href="settings.php#branding">Settings → Branding</a></td></tr>
         <tr><td>Brand रङ (primary / secondary) — contact icon secondary सहित</td><td><a href="settings.php">Settings → Theme / Colours</a></td></tr>
+        <tr><td>Public site look (Soft / Sharp / Editorial / Compact) — Superadmin + PIN</td><td><a href="settings.php?panel=branding">Settings → Branding → Public Look</a></td></tr>
         <tr><td>Office ठेगाना, Phone, Email</td><td><a href="settings.php#contact">Settings → Contact</a></td></tr>
         <tr><td>Facebook, YouTube links</td><td><a href="settings.php#social">Settings → Social Media</a></td></tr>
         <tr><td>Google Map embed</td><td><a href="settings.php#map">Settings → Map</a></td></tr>
