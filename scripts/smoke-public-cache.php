@@ -291,5 +291,33 @@ if (strpos($pageBoot, 'simple-cache.php') !== false) {
     bad('admin-page-boot should require simple-cache.php');
 }
 
+$pushPhp = (string) file_get_contents($root . '/includes/push-helper.php');
+if (strpos($pushPhp, 'ORDER BY id ASC LIMIT') !== false && strpos($pushPhp, 'while (true)') !== false) {
+    ok('broadcastWebPush batches subscriptions');
+} else {
+    bad('broadcastWebPush should batch member_push_subscriptions reads');
+}
+
+$ipWelfare = (string) file_get_contents($root . '/includes/institutional-profile-welfare.php');
+if (strpos($ipWelfare, 'ORDER BY id DESC LIMIT 1000') !== false) {
+    ok('coopIpPreviousProfileRow bounds institutional_profile read');
+} else {
+    bad('coopIpPreviousProfileRow should LIMIT institutional_profile scan');
+}
+
+$honorPhp = (string) file_get_contents($root . '/includes/honor-tables.php');
+if (strpos($honorPhp, 'closes_at >= ?') !== false && preg_match('/honor_programs[\s\S]{0,200}LIMIT 50/', $honorPhp)) {
+    ok('honorFetchOpenPrograms is LIMIT-bounded');
+} else {
+    bad('honorFetchOpenPrograms should LIMIT open programs');
+}
+
+$desigPhp = (string) file_get_contents($root . '/includes/election-tables.php');
+if (substr_count($desigPhp, 'LIMIT 500') >= 2) {
+    ok('election designations queries are LIMIT-bounded');
+} else {
+    bad('designations selectors should use LIMIT 500');
+}
+
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);

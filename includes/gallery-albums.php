@@ -124,7 +124,7 @@ if (!function_exists('galleryMigrateLegacyVideos')) {
             }
 
             /* Respect an existing legacy album string when it matches a real album. */
-            $albums = $db->query('SELECT id, name_np, name_en FROM gallery_albums')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $albums = $db->query('SELECT id, name_np, name_en FROM gallery_albums ORDER BY id ASC LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
             $byName = [];
             foreach ($albums as $album) {
                 foreach (['name_np', 'name_en'] as $column) {
@@ -256,7 +256,7 @@ if (!function_exists('galleryMigrateLegacyAlbums')) {
 
         $existing = [];
         try {
-            $rows = $db->query('SELECT id, name_np, name_en FROM gallery_albums')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = $db->query('SELECT id, name_np, name_en FROM gallery_albums ORDER BY id ASC LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
             foreach ($rows as $row) {
                 foreach (['name_np', 'name_en'] as $col) {
                     $k = galleryAlbumNormalizeKey((string)($row[$col] ?? ''));
