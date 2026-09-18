@@ -22,7 +22,7 @@ if (!function_exists('coopPublicUiLooks')) {
             ],
             'sharp' => [
                 'label' => 'Sharp',
-                'hint'  => 'Square edges, rates then join CTA early, contact-first top bar — formal ledger feel.',
+                'hint'  => 'Square edges, why-us then join CTA under institutional, rates later — formal ledger feel.',
                 'best'  => 'Best for formal / office look. Same pages, text, and brand colors.',
             ],
             'editorial' => [

@@ -87,12 +87,26 @@ html[data-ui-look="sharp"] .hero-slider {
   box-shadow: none !important;
   border-bottom: 3px solid var(--primary-color, var(--primary));
 }
-html[data-ui-look="sharp"] .hero-overlay-modern {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 82%, #000) 0%,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 70%
-  ) !important;
+/* Soft-matching hero scrim — no left-side brand wash; photo + text stay clear */
+html[data-ui-look="sharp"] .hero-overlay-modern,
+html[data-ui-look="sharp"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
 }
 html[data-ui-look="sharp"] .hero-title-modern {
   letter-spacing: 0.03em;
@@ -338,12 +352,26 @@ html[data-ui-look="editorial"] .hero-carousel-modern {
   align-self: stretch;
   box-shadow: none;
 }
-html[data-ui-look="editorial"] .hero-overlay-modern {
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, #000 55%, transparent) 10%,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 100%
-  ) !important;
+html[data-ui-look="editorial"] .hero-overlay-modern,
+html[data-ui-look="editorial"] .slider-overlay {
+  /* Same Soft scrim — photo clear, light left darken for type only */
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
 }
 html[data-ui-look="editorial"] .hero-title-modern {
   font-weight: 600;
@@ -2346,16 +2374,20 @@ html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .hero-slider 
   margin-left: 0;
   margin-right: 0;
 }
-html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section),
-html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section),
-html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section) {
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
   order: 90;
 }
-/* Notice ticker is a <div> under <main> — keep it above hero, not at page bottom */
-html[data-ui-look="sharp"] #main-content > .notice-ticker,
-html[data-ui-look="editorial"] #main-content > .notice-ticker,
-html[data-ui-look="compact"] #main-content > .notice-ticker {
+/* Notice ticker = menu तल / hero-slider माथि (order 0 beats hero at 1; Soft stays DOM) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > .notice-ticker {
   order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
 }
 html[data-ui-look="sharp"] .pfl-quick-links,
 html[data-ui-look="editorial"] .pfl-quick-links,
@@ -2383,12 +2415,12 @@ html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
 html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
 html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2; }
 
-/* Sharp — formal info board: rates early, then CTA invite, app story later */
-html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 3; }
-html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after rates */
+/* Sharp — why-us under institutional, rates later; CTA after why-us */
+html[data-ui-look="sharp"] #main-content > .why-us-section { order: 3; } /* किन हामीलाई छान्ने? after institutional */
+html[data-ui-look="sharp"] #main-content > .cta-section { order: 4; } /* सदस्य बन्नुहोस् after why-us */
 html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 5; }
 html[data-ui-look="sharp"] #main-content > .services-section { order: 6; }
-html[data-ui-look="sharp"] #main-content > .why-us-section { order: 7; }
+html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 7; } /* ब्याज तथा सूचना where why-us was */
 html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 8; }
 html[data-ui-look="sharp"] #main-content > .news-section { order: 9; }
 html[data-ui-look="sharp"] #main-content > .awards-section { order: 10; }
