@@ -246,20 +246,18 @@ function render_report_actions(array $report): void {
         $siteName = isEnglish() ? 'Cooperative' : 'सहकारी';
     }
 
-    $type = preg_replace('/[^a-z_]/', '', (string) ($report['report_type'] ?? 'all')) ?: 'all';
-    $sharePage = rtrim((string) SITE_URL, '/') . '/reports.php?type=' . rawurlencode($type);
-    if ($year !== '' && preg_match('/^\d{4}\/\d{2}$/', $year)) {
-        $sharePage .= '&year=' . rawurlencode($year);
-    }
+    /* Deep-link by id only — avoid year=2081/82 in the URL (Facebook mobile often breaks on '/') */
+    $sharePage = rtrim((string) SITE_URL, '/') . '/reports.php';
     if ($reportId > 0) {
-        $sharePage .= '&id=' . $reportId;
+        $sharePage .= '?id=' . $reportId;
     }
 
-    /* Facebook destination: public → open the file; member-only → deep link (recipient must unlock) */
+    /*
+     * Facebook / in-app browsers: always share the HTML page, never the PDF proxy.
+     * Direct report-file.php links often spin forever inside the Facebook mobile app.
+     * Member-only recipients unlock on the page; public recipients tap View there.
+     */
     $fbUrl = $sharePage;
-    if (!$isMemberOnly && $fileUrl !== '') {
-        $fbUrl = $fileUrl;
-    }
 
     $shareText = $title . "\n" . $metaLine . "\n" . $siteName;
     if ($isMemberOnly) {
@@ -268,10 +266,7 @@ function render_report_actions(array $report): void {
             : 'सदस्य मात्र — लिंक खोलेर सदस्यता नम्बर हालेपछि हेर्न/डाउनलोड गर्न सकिन्छ।');
         $shareText .= "\n" . $sharePage;
     } elseif ($fileUrl !== '') {
-        $shareText .= "\n" . (isEnglish() ? 'File: ' : 'फाइल: ') . $fileUrl;
-        if ($sharePage !== $fileUrl) {
-            $shareText .= "\n" . (isEnglish() ? 'Page: ' : 'पेज: ') . $sharePage;
-        }
+        $shareText .= "\n" . (isEnglish() ? 'Open: ' : 'खोल्नुहोस्: ') . $sharePage;
     }
 
     $viewLabel = isEnglish() ? 'View' : 'हेर्नुहोस्';

@@ -67,6 +67,14 @@ if ((int) ($row['is_active'] ?? 0) !== 1 && !coopMemberAccessIsAdmin()) {
     exit;
 }
 
+/* Facebook / Instagram in-app browsers often hang on inline PDFs — send them to the page instead */
+$ua = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+if ($ua !== '' && preg_match('/FBAN|FBAV|FB_IAB|Instagram|Line\//i', $ua)) {
+    $to = rtrim((string) SITE_URL, '/') . '/reports.php?id=' . $id;
+    header('Location: ' . $to, true, 302);
+    exit;
+}
+
 $level = coopAccessLevelNormalize((string) ($row['access_level'] ?? 'none'));
 if ($level === 'member' && !coopMemberAccessCanOpen('member')) {
     http_response_code(403);

@@ -499,6 +499,9 @@ assertContains('reports.php', 'data-share-text', 'share includes report details 
 assertContains('reports.php', 'public-member-access.php', 'reports loads member access helper');
 assertContains('reports.php', 'report-file.php', 'member reports use file proxy');
 assertContains('reports.php', 'data-share-fb-url', 'reports Facebook uses dedicated file/page URL');
+assertContains('reports.php', "'?id=' . \$reportId", 'report share deep-link is id-only (no year slash)');
+assertContains('reports.php', 'never the PDF proxy', 'Facebook share avoids direct PDF');
+assertContains('report-file.php', 'FBAN|FBAV|FB_IAB|Instagram', 'report proxy redirects social in-app browsers to page');
 assertContains('reports.php', 'focusSharedReport', 'shared report deep-link focuses card');
 assertContains('institutional-profile.php', 'memberOnly', 'IP share marks member-only payloads');
 assertContains('institutional-profile.php', 'focusSharedIpProfile', 'shared IP deep-link focuses tile');
