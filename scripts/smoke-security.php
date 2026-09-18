@@ -867,7 +867,14 @@ assertFileContains('includes/member-ssot.php', 'name_np', 'SSOT knows members.na
 assertFileContains('includes/member-auth.php', "'name_np'", 'ensureMemberTables adds name_np');
 assertFileContains('admin/members.php', 'name="name_np"', 'admin members edit has Nepali name field');
 assertFileContains('admin/member-import-sample.php', "'name_np'", 'sample CSV includes name_np column');
+assertFileContains('admin/member-import-sample.php', "'2047-01-29'", 'sample dob uses बि.सं. example');
 assertFileContains('includes/member-import-helpers.php', "'name_np' => 'name_np'", 'import maps name_np column');
+assertFileContains('includes/member-import-helpers.php', "'dob_bs' => 'dob_bs'", 'import maps dob_bs column');
+assertFileContains('includes/member-import-helpers.php', "string \$calendar = 'auto'", 'import DOB accepts BS/AD calendar hint');
+assertFileContains('includes/member-import-helpers.php', "memberImportNormalizeDob(\$dobRawBs, 'bs')", 'import prefers dob_bs as BS');
+assertFileContains('includes/member-ssot.php', 'function memberSsotBsFromAd', 'KYM stub derives dob_bs from AD');
+assertFileContains('includes/member-ssot.php', 'dob_bs = CASE WHEN', 'KYM soft-fill writes dob_bs');
+assertFileContains('admin/member-import.php', 'बि.सं.', 'admin import UI documents BS dob');
 assertFileContains('includes/member-import-helpers.php', 'memberSsotNormalizeMobile', 'import mobile uses SSOT digit normalize');
 assertFileContains('tracker-id-card.php', "htmlspecialchars(\$siteUrl, ENT_QUOTES, 'UTF-8')", 'tracker id-card siteUrl escaped');
 assertFileContains('admin/includes/admin-page-boot.php', 'ADMIN_PAGE_BOOT_SKIP_LOGIN', 'thin boot supports login skip for AJAX');

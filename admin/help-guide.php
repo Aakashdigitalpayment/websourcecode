@@ -305,7 +305,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <ol class="hg-steps-list">
         <li><a href="member-import.php">Member Bulk Import</a> खोल्नुहोस् (वा <a href="members.php">Members</a> → <span class="kbd">Bulk Import</span>)।</li>
         <li><a href="member-import-sample.php">Sample CSV</a> download गर्नुहोस्।</li>
-        <li>Excel मा खोलेर सदस्य भर्नुहोस्। <b>Required:</b> <code>sadasyata_number</code>, <code>full_name</code> (English नाम, CVV का लागि), <code>mobile</code>। Optional: email, address, dob (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>), gender, branch, remarks।</li>
+        <li>Excel मा खोलेर सदस्य भर्नुहोस्। <b>Required:</b> <code>member_id</code> (वा <code>sadasyata_number</code>), <code>full_name</code> (English नाम, CVV का लागि)। <b>Optional:</b> <code>name_np</code>, <code>mobile</code>, email, address, <code>dob</code>/<code>dob_bs</code> (<b>बि.सं.</b> <code>YYYY-MM-DD</code> सिफारिस — DB मा AD), <code>dob_ad</code> (ई.सं. मात्र), gender, branch, remarks।</li>
         <li>Excel बाट <b>File → Save As → CSV UTF-8</b>। <code>full_name</code> मा English मात्र राख्नुहोस् (जस्तै <code>Ram Prasad Sharma</code>) — नेपाली नामले CVV बिग्रन्छ।</li>
         <li>CSV upload गर्नुहोस्। Duplicate मा <code>Skip</code> (सिफारिस) वा <code>Update</code> छान्नुहोस्।</li>
         <li>Import सुरु — ठूलो फाइल (१०–५० हजार) मा progress बारले chunk-chunk मा चल्छ; timeout हुँदैन। कार्ड auto-generate हुन्छ।</li>
