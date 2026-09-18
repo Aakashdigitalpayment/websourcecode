@@ -104,7 +104,7 @@ assertContains('assets/css/public-ui-looks.css', ':not(section):not(.notice-tick
 assertContains('assets/css/public-ui-looks.css', 'PASS 7 — Secondary public pages', 'PASS 7 secondary page look diffs');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .value-card', 'Sharp about value-card personality');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .gallery-card', 'Editorial gallery-card personality');
-assertContains('assets/css/public-ui-looks.css', 'do NOT add horizontal padding', 'Editorial since-badge keeps circular clip');
+assertContains('assets/css/public-ui-looks.css', 'Year-only circular seal', 'Editorial since-badge keeps circular clip');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .download-card', 'Compact download-card personality');
 assertContains('assets/css/public-ui-looks.css', 'letter-spacing: 0.04em !important', 'Sharp page-banner title beats late-bundle');
 assertContains('assets/css/public-ui-looks.css', 'PASS 8 — Brand-token + no-clip', 'PASS 8 brand/clip/icon safety');
@@ -516,6 +516,7 @@ assertContains('includes/public-member-access.php', "&nav=1", 'file proxy URLs m
 assertContains('includes/public-member-access.php', "\$_GET['nav']", 'bounce skips UI View/Download nav=1');
 assertContains('assets/css/final-ui-polish.css', 'Android sticky header: logo must not float', 'Android sticky opaque header fix');
 assertContains('assets/css/final-ui-polish.css', 'Om never steals View/Download', 'Om FAB below report action hit targets');
+assertContains('assets/css/final-ui-polish.css', 'Year-only seal', 'Since badge shows year only inside circle');
 assertContains('assets/js/scroll-accessibility.js', "z-index: 1025", 'SA panel z-index not above report actions');
 assertContains('assets/css/app-sections/app-public--header-v2.css', 'background: #fff;', 'header wrapper has opaque background');
 assertContains('includes/public-member-access.php', 'function coopMemberAccessCreateFileToken', 'signed file token for cookie-less Android opens');
