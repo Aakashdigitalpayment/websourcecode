@@ -163,10 +163,12 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <strong>Optional</strong> (खाली = OK / re-import मा पुरानो जोगिन्छ):
                     <code>name_np</code> (नेपाली नाम),
                     <code>mobile</code>/<code>phone</code>/<code>contact</code>,
-                    <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
+                    <code>email</code>, <code>address</code>,
+                    <code>dob</code> / <code>dob_bs</code> (<strong>बि.सं.</strong> <code>YYYY-MM-DD</code> सिफारिस — DB मा AD save),
+                    <code>dob_ad</code> (ई.सं. मात्र — पुरानो Excel),
                     <code>gender</code>
                     <div class="mt-1"><strong>full_name = English नाम</strong> (CVV) · <strong>name_np = नेपाली नाम</strong> (KYM पूरा नाम)।</div>
-                    <div class="mt-1">Member ID / mobile मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
+                    <div class="mt-1">Member ID / mobile / dob मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
                     <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम replace; खाली optional ले पुरानो मेटाउँदैन।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>

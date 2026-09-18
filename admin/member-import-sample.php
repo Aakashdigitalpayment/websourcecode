@@ -5,8 +5,9 @@
  *
  * SSOT key = member_id (= sadasyata_number).
  * Required: member_id, full_name (English)
- * Optional: name_np (Nepali), mobile, email, address, dob, gender
- * Nepali digits in member_id/mobile auto-convert to English 0–9.
+ * Optional: name_np (Nepali), mobile, email, address, dob (बि.सं. preferred), gender
+ * dob: वि.सं. YYYY-MM-DD (सिफारिस) — DB मा AD मा convert हुन्छ; AD पनि accept।
+ * Nepali digits in member_id/mobile/dob auto-convert to English 0–9.
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 
@@ -30,7 +31,7 @@ fputcsv($out, [
     'gender',
 ]);
 
-/* Row 1: EN + NP names filled */
+/* Row 1: EN + NP names; dob = बि.सं. (→ AD 1990-05-12 in DB) */
 fputcsv($out, [
     '2081-00123',
     'Ram Prasad Sharma',
@@ -38,7 +39,7 @@ fputcsv($out, [
     '9812345678',
     'ram@example.com',
     'Pokhara-8, Kaski',
-    '1990-05-12',
+    '2047-01-29',
     'male',
 ]);
 

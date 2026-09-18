@@ -147,7 +147,12 @@ if (!function_exists('memberImportNormalizeHeader')) {
             'e_mail' => 'email',
             'permanent_address' => 'address',
             'addr' => 'address',
-            'dob_ad' => 'dob',
+            /* DOB: dob/dob_bs = बि.सं. (सिफारिस); dob_ad = ई.सं. legacy — DB मा सधैं AD */
+            'dob' => 'dob',
+            'dob_bs' => 'dob_bs',
+            'जन्म_मिति' => 'dob_bs',
+            'janma_miti' => 'dob_bs',
+            'dob_ad' => 'dob_ad',
             'date_of_birth' => 'dob',
             'birth_date' => 'dob',
             'sex' => 'gender',
@@ -209,23 +214,83 @@ if (!function_exists('memberImportIsValidContact')) {
 
 if (!function_exists('memberImportNormalizeDob')) {
     /**
-     * Accept YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY, YYYY/MM/DD → YYYY-MM-DD or '' if empty, false if invalid.
-     * @return string|false
+     * DOB for import → Gregorian AD Y-m-d for members.dob.
+     *
+     * @param string $raw date string
+     * @param string $calendar 'bs' | 'ad' | 'auto'
+     *   - bs: always बि.सं. → AD (DOB years often 2000–2090, not only ≥2070)
+     *   - ad: Gregorian only
+     *   - auto: year ≥2000 → BS; year 1900–1999 → AD (CBS default = BS)
+     * @return string|false empty string if blank, false if invalid
      */
-    function memberImportNormalizeDob(string $raw) {
+    function memberImportNormalizeDob(string $raw, string $calendar = 'auto') {
         $raw = trim($raw);
-        if ($raw === '') return '';
-        if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $raw, $m)) {
-            $y = (int)$m[1]; $mo = (int)$m[2]; $d = (int)$m[3];
-            return checkdate($mo, $d, $y) ? sprintf('%04d-%02d-%02d', $y, $mo, $d) : false;
+        if ($raw === '') {
+            return '';
         }
-        if (preg_match('/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/', $raw, $m)) {
-            $y = (int)$m[1]; $mo = (int)$m[2]; $d = (int)$m[3];
-            return checkdate($mo, $d, $y) ? sprintf('%04d-%02d-%02d', $y, $mo, $d) : false;
+        if (function_exists('memberSsotDevanagariDigitsToLatin')) {
+            $raw = memberSsotDevanagariDigitsToLatin($raw);
+        } else {
+            $raw = strtr($raw, [
+                '०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4',
+                '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
+            ]);
         }
-        if (preg_match('/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/', $raw, $m)) {
-            $d = (int)$m[1]; $mo = (int)$m[2]; $y = (int)$m[3];
-            return checkdate($mo, $d, $y) ? sprintf('%04d-%02d-%02d', $y, $mo, $d) : false;
+
+        $y = 0;
+        $mo = 0;
+        $d = 0;
+        if (preg_match('/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/', $raw, $m)) {
+            $y = (int)$m[1];
+            $mo = (int)$m[2];
+            $d = (int)$m[3];
+        } elseif (preg_match('/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/', $raw, $m)) {
+            $d = (int)$m[1];
+            $mo = (int)$m[2];
+            $y = (int)$m[3];
+        } else {
+            return false;
+        }
+        /* BS months can have 32 days — do not Gregorian-checkdate before convert */
+        if ($mo < 1 || $mo > 12 || $d < 1 || $d > 32) {
+            return false;
+        }
+        $ymd = sprintf('%04d-%02d-%02d', $y, $mo, $d);
+        $calendar = strtolower(trim($calendar));
+        if (!in_array($calendar, ['bs', 'ad', 'auto'], true)) {
+            $calendar = 'auto';
+        }
+
+        $asBs = ($calendar === 'bs')
+            || ($calendar === 'auto' && $y >= 2000 && $y <= 2100);
+        $asAd = ($calendar === 'ad')
+            || ($calendar === 'auto' && $y >= 1900 && $y < 2000);
+
+        if ($asBs) {
+            if (!function_exists('nepali_bs_to_ad_string')) {
+                $conv = __DIR__ . '/nepali-bs-convert.php';
+                if (is_file($conv)) {
+                    require_once $conv;
+                }
+            }
+            if (function_exists('nepali_bs_to_ad_string')) {
+                $ad = nepali_bs_to_ad_string($ymd);
+                if (is_string($ad) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+                    return $ad;
+                }
+            }
+            if (function_exists('bsToAd')) {
+                $ad = bsToAd($ymd);
+                if (is_string($ad) && $ad !== $ymd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+                    return $ad;
+                }
+            }
+            /* Never store unconverted BS as MySQL DATE */
+            return false;
+        }
+
+        if ($asAd && checkdate($mo, $d, $y) && $y >= 1900 && $y <= 2100) {
+            return $ymd;
         }
         return false;
     }
@@ -598,8 +663,17 @@ if (!function_exists('_memberImportParseChunk')) {
             $mobile = memberImportNormalizeMobile($val('mobile'));
             $email = function_exists('clean_text') ? clean_text($val('email')) : $val('email');
             $address = function_exists('clean_text') ? clean_text($val('address')) : $val('address');
+            /* Prefer dob_bs; else dob (auto BS if year≥2000); else dob_ad (Gregorian) */
+            $dobRawBs = trim($val('dob_bs'));
+            $dobRawAd = trim($val('dob_ad'));
             $dobRaw = trim($val('dob'));
-            $dobNorm = memberImportNormalizeDob($dobRaw);
+            if ($dobRawBs !== '') {
+                $dobNorm = memberImportNormalizeDob($dobRawBs, 'bs');
+            } elseif ($dobRawAd !== '') {
+                $dobNorm = memberImportNormalizeDob($dobRawAd, 'ad');
+            } else {
+                $dobNorm = memberImportNormalizeDob($dobRaw, 'auto');
+            }
             $gender = memberImportNormalizeGender(
                 function_exists('clean_text') ? clean_text($val('gender')) : $val('gender')
             );
@@ -623,7 +697,7 @@ if (!function_exists('_memberImportParseChunk')) {
                 $failAdd++;
             } elseif ($dobNorm === false) {
                 $status = 'failed';
-                $message = 'dob AD format गलत (YYYY-MM-DD वा DD/MM/YYYY)। खाली छोड्न मिल्छ।';
+                $message = 'dob गलत — बि.सं. YYYY-MM-DD (सिफारिस; column dob/dob_bs) वा ई.सं. का लागि dob_ad। खाली छोड्न मिल्छ।';
                 $failAdd++;
             } else {
                 $dob = (string)$dobNorm;
