@@ -55,16 +55,16 @@ if (isset($_POST['update_status'])) {
     } catch (Exception $e) {}
 
     if ($newFile) {
-        $stmt = $db->prepare("UPDATE appointments SET status=?, remarks=?, admin_attachment=? WHERE id=?");
+        $stmt = $db->prepare("UPDATE appointments SET status=?, remarks=?, admin_attachment=? WHERE id=? LIMIT 1");
         $stmt->execute([$status, $remarks, $newFile, $id]);
     } else {
-        $stmt = $db->prepare("UPDATE appointments SET status=?, remarks=? WHERE id=?");
+        $stmt = $db->prepare("UPDATE appointments SET status=?, remarks=? WHERE id=? LIMIT 1");
         $stmt->execute([$status, $remarks, $id]);
     }
     /* Member लाई status notification — email/SMS */
     try {
         /* appointments table मा 'name' column छ, 'full_name' होइन */
-        $nRow = $db->prepare("SELECT name, email, phone FROM appointments WHERE id=?");
+        $nRow = $db->prepare("SELECT name, email, phone FROM appointments WHERE id=? LIMIT 1");
         $nRow->execute([$id]);
         $nData = $nRow->fetch();
         if ($nData) {
@@ -101,7 +101,7 @@ if (isset($_POST['delete'])) {
     checkCSRF();
     $id = intval($_POST['delete_id'] ?? 0);
     if ($id > 0) {
-        $db->prepare("DELETE FROM appointments WHERE id=?")->execute([$id]);
+        $db->prepare("DELETE FROM appointments WHERE id=? LIMIT 1")->execute([$id]);
         setFlash('success', 'भेटघाट मेटाइयो।');
     }
     redirect('appointments.php');
@@ -121,9 +121,9 @@ if (isset($_POST['quick_status'])) {
         $oldStatus = (string)($os->fetchColumn() ?: '');
     } catch (Exception $e) {}
     try {
-        $db->prepare("UPDATE appointments SET status=? WHERE id=?")->execute([$qst, $qid]);
+        $db->prepare("UPDATE appointments SET status=? WHERE id=? LIMIT 1")->execute([$qst, $qid]);
         try {
-            $nr = $db->prepare("SELECT name, email, phone, tracking_id FROM appointments WHERE id=?");
+            $nr = $db->prepare("SELECT name, email, phone, tracking_id FROM appointments WHERE id=? LIMIT 1");
             $nr->execute([$qid]); $nd = $nr->fetch();
             if ($nd) { sendMemberStatusUpdate('appointment', $nd['email']??'', $nd['phone']??'', $nd['name']??'', $qst, '', $nd['tracking_id']??''); $notifySent = true; }
         } catch (Throwable $e) { error_log("[appointments.php] " . $e->getMessage()); }
@@ -256,7 +256,7 @@ try {
 /* ─── Single view ─── */
 $viewApt = null;
 if (isset($_GET['view'])) {
-    $s = $db->prepare("SELECT * FROM appointments WHERE id=?");
+    $s = $db->prepare("SELECT * FROM appointments WHERE id=? LIMIT 1");
     $s->execute([(int)$_GET['view']]);
     $viewApt = $s->fetch();
     if (!$viewApt) { setFlash('error', 'भेटघाट फेला परेन।'); redirect('appointments.php'); }

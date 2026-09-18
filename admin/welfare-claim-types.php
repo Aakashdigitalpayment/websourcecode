@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $manageRows = [];
 try {
-    $manageRows = $db->query('SELECT * FROM welfare_claim_types ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $manageRows = $db->query('SELECT * FROM welfare_claim_types ORDER BY display_order ASC, id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     $manageRows = [];
 }

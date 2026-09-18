@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("UPDATE chatbot_faqs SET
                 question=?, question_en=?, answer=?, answer_en=?,
                 category=?, keywords=?, display_order=?, is_active=?
-                WHERE id=?")
+                WHERE id=? LIMIT 1")
                ->execute([
                     clean_text($_POST['question']      ?? ''),
                     clean_text($_POST['question_en']   ?? ''),
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($postAction === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
-            $db->prepare("DELETE FROM chatbot_faqs WHERE id=?")->execute([$id]);
+            $db->prepare("DELETE FROM chatbot_faqs WHERE id=? LIMIT 1")->execute([$id]);
             setFlash('success', 'सहायता प्रश्न मेटाइयो।');
             if (function_exists('clearHomepageCache')) clearHomepageCache();
             redirect('help-center.php');
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $editItem = null;
 if ($action === 'edit' && $editId > 0 && $tableExists) {
     try {
-        $s = $db->prepare("SELECT * FROM chatbot_faqs WHERE id=?");
+        $s = $db->prepare("SELECT * FROM chatbot_faqs WHERE id=? LIMIT 1");
         $s->execute([$editId]);
         $editItem = $s->fetch();
         if (!$editItem) { setFlash('error', 'प्रश्न फेला परेन।'); redirect('help-center.php'); }
