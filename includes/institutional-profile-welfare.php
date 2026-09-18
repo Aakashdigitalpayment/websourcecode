@@ -344,8 +344,9 @@ if (!function_exists('coopIpPreviousProfileRow')) {
             return null;
         }
         try {
+            /* Bound read — monthly IP rows stay well under this for decades */
             $rows = $db->query(
-                'SELECT * FROM institutional_profile WHERE is_active = 1 OR is_active = 0'
+                'SELECT * FROM institutional_profile WHERE is_active = 1 OR is_active = 0 ORDER BY id DESC LIMIT 1000'
             )->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable $e) {
             return null;

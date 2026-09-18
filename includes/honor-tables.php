@@ -173,7 +173,8 @@ if (!function_exists('honorFetchOpenPrograms')) {
             $now = honorNowSql();
             $stmt = $db->prepare('SELECT * FROM honor_programs
                 WHERE is_active = 1 AND opens_at <= ? AND closes_at >= ?
-                ORDER BY closes_at ASC, id DESC');
+                ORDER BY closes_at ASC, id DESC
+                LIMIT 50');
             $stmt->execute([$now, $now]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable $e) {
@@ -366,7 +367,8 @@ if (!function_exists('honorFetchProgramCategories')) {
             $stmt = $db->prepare('SELECT c.* FROM honor_categories c
                 INNER JOIN honor_program_categories pc ON pc.category_id = c.id
                 WHERE pc.program_id = ? AND c.is_active = 1
-                ORDER BY c.display_order ASC, c.id ASC');
+                ORDER BY c.display_order ASC, c.id ASC
+                LIMIT 100');
             $stmt->execute([$programId]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable $e) {

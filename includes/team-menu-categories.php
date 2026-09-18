@@ -288,7 +288,7 @@ if (!function_exists('healMigratedTeamNavData')) {
                 if ($fallbackId > 0) {
                     $boardMenuCatIds[$fallbackId] = true;
                 }
-                $aliasRows = $db->query('SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active=1')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                $aliasRows = $db->query('SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active=1 ORDER BY id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 foreach ($aliasRows as $row) {
                     if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($row)) {
                         $mcid = (int)($row['menu_category_id'] ?? 0);
@@ -320,7 +320,7 @@ if (!function_exists('healMigratedTeamNavData')) {
         } catch (Throwable $e) { /* best-effort */ }
 
         try {
-            $types = $db->query('SELECT id FROM committee_types WHERE is_active = 1')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $types = $db->query('SELECT id FROM committee_types WHERE is_active = 1 ORDER BY id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
             foreach ($types as $ct) {
                 $ctId = (int)($ct['id'] ?? 0);
                 if ($ctId <= 0) {

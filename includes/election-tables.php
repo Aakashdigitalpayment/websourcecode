@@ -616,7 +616,8 @@ if (!function_exists('fetchDesignations')) {
                     "SELECT id, title_np, title_en, category, display_order, is_active
                      FROM designations
                      WHERE is_active=1
-                     ORDER BY category, display_order, id"
+                     ORDER BY category, display_order, id
+                     LIMIT 500"
                 )->fetchAll(PDO::FETCH_ASSOC) ?: [];
             }
 
@@ -625,7 +626,8 @@ if (!function_exists('fetchDesignations')) {
                 "SELECT id, title_np, title_en, category, display_order, is_active
                  FROM designations
                  WHERE is_active=1 AND category IN ($placeholders)
-                 ORDER BY category, display_order, id"
+                 ORDER BY category, display_order, id
+                 LIMIT 500"
             );
             $stmt->execute($cats);
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];

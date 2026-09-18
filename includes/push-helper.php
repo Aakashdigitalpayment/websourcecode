@@ -179,18 +179,6 @@ function broadcastWebPush(PDO $db, ?int $memberId = null, ?int $notifId = null):
 {
     ensurePushTables($db);
 
-    if ($memberId !== null) {
-        $stmt = $db->prepare(
-            'SELECT id, member_id, endpoint FROM member_push_subscriptions WHERE member_id = ?'
-        );
-        $stmt->execute([$memberId]);
-    } else {
-        $stmt = $db->query(
-            'SELECT id, member_id, endpoint FROM member_push_subscriptions'
-        );
-    }
-    $subs = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
     $logStmt = $db->prepare(
         'INSERT INTO member_push_log (notif_id, member_id, endpoint, http_code, sent_at)
          VALUES (?, ?, ?, ?, NOW())'
@@ -198,28 +186,58 @@ function broadcastWebPush(PDO $db, ?int $memberId = null, ?int $notifId = null):
     $delStmt = $db->prepare('DELETE FROM member_push_subscriptions WHERE id = ?');
 
     $sent = $failed = $removed = 0;
-    foreach ($subs as $sub) {
-        $res = vapidSend((string) $sub['endpoint']);
+    $batchSize = 500;
+    $lastId = 0;
 
-        if ($res['ok']) {
-            $sent++;
-        } elseif ($res['code'] === 410) {
-            /* 410 Gone — subscription expired or revoked */
-            $delStmt->execute([(int) $sub['id']]);
-            $removed++;
-            continue;
+    while (true) {
+        if ($memberId !== null) {
+            $stmt = $db->prepare(
+                'SELECT id, member_id, endpoint FROM member_push_subscriptions
+                 WHERE member_id = ? AND id > ?
+                 ORDER BY id ASC LIMIT ' . (int) $batchSize
+            );
+            $stmt->execute([$memberId, $lastId]);
         } else {
-            $failed++;
+            $stmt = $db->prepare(
+                'SELECT id, member_id, endpoint FROM member_push_subscriptions
+                 WHERE id > ?
+                 ORDER BY id ASC LIMIT ' . (int) $batchSize
+            );
+            $stmt->execute([$lastId]);
+        }
+        $subs = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        if ($subs === []) {
+            break;
         }
 
-        try {
-            $logStmt->execute([
-                $notifId,
-                (int) $sub['member_id'],
-                substr((string) $sub['endpoint'], 0, 255),
-                $res['code'],
-            ]);
-        } catch (\Throwable $ignored) {}
+        foreach ($subs as $sub) {
+            $lastId = (int) ($sub['id'] ?? 0);
+            $res = vapidSend((string) $sub['endpoint']);
+
+            if ($res['ok']) {
+                $sent++;
+            } elseif ($res['code'] === 410) {
+                /* 410 Gone — subscription expired or revoked */
+                $delStmt->execute([(int) $sub['id']]);
+                $removed++;
+                continue;
+            } else {
+                $failed++;
+            }
+
+            try {
+                $logStmt->execute([
+                    $notifId,
+                    (int) $sub['member_id'],
+                    substr((string) $sub['endpoint'], 0, 255),
+                    $res['code'],
+                ]);
+            } catch (\Throwable $ignored) {}
+        }
+
+        if (count($subs) < $batchSize) {
+            break;
+        }
     }
 
     return ['sent' => $sent, 'failed' => $failed, 'removed' => $removed];
