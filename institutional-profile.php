@@ -716,7 +716,11 @@ if ($ipChartSeries['count'] >= 2):
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <a id="ipDocDlBtn" href="#" download target="_blank" rel="noopener noreferrer"
+        <?php
+        $_ipSocialApp = function_exists('coopMemberAccessIsSocialInAppBrowser') && coopMemberAccessIsSocialInAppBrowser();
+        $_ipDlAttrs = $_ipSocialApp ? '' : ' download target="_blank" rel="noopener noreferrer"';
+        ?>
+        <a id="ipDocDlBtn" href="#"<?php echo $_ipDlAttrs; ?>
            style="width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg-muted,#f0fdf4);color:var(--primary-ink,var(--primary-color,#1a5f2a));text-decoration:none;border:1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #fff);"
            title="<?php echo $isEn ? 'Download' : 'डाउनलोड'; ?>"
            data-testid="institutional-profile-document-download-link">

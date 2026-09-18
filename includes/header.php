@@ -522,8 +522,8 @@ if (isset($pageOgImage) && (string) $pageOgImage !== '') {
 } else {
     $__shareImg = function_exists('seo_default_share_image')
         ? seo_default_share_image()
-        : ['url' => rtrim(SITE_URL, '/') . '/share-og.php', 'width' => 1200, 'height' => 630];
-    $__seoOgImg = (string) ($__shareImg['url'] ?? (rtrim(SITE_URL, '/') . '/share-og.php'));
+        : ['url' => rtrim(SITE_URL, '/') . '/share-og.php?v=5', 'width' => 1200, 'height' => 630];
+    $__seoOgImg = (string) ($__shareImg['url'] ?? (rtrim(SITE_URL, '/') . '/share-og.php?v=5'));
     $__seoOgImgW = (int) ($__shareImg['width'] ?? 1200);
     $__seoOgImgH = (int) ($__shareImg['height'] ?? 630);
 }

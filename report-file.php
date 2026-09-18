@@ -22,17 +22,10 @@ if ($id < 1) {
 coopMemberAccessBounceSocialInAppToPage('reports.php', $id);
 
 /*
- * Facebook in-app WebView often cannot render inline PDFs (spinner / blank).
- * When the user came from our unlock UI (?nav=1), force attachment so the
- * system download / PDF app can open the file.
+ * Do NOT force Content-Disposition: attachment for Facebook View.
+ * On Android FB, attachment opens an external app without cookies → Access denied.
+ * Unlocked UI links carry a short-lived ?t= token so cookie-less opens still work.
  */
-if (!$wantDownload
-    && coopMemberAccessIsSocialInAppBrowser()
-    && isset($_GET['nav'])
-    && (string) $_GET['nav'] === '1'
-) {
-    $wantDownload = true;
-}
 
 try {
     $db = getDB();
@@ -84,7 +77,8 @@ if ((int) ($row['is_active'] ?? 0) !== 1 && !coopMemberAccessIsAdmin()) {
 }
 
 $level = coopAccessLevelNormalize((string) ($row['access_level'] ?? 'none'));
-if ($level === 'member' && !coopMemberAccessCanOpen('member')) {
+$tokenOk = coopMemberAccessCheckFileToken($id, isset($_GET['t']) ? (string) $_GET['t'] : null);
+if ($level === 'member' && !coopMemberAccessCanOpen('member') && !$tokenOk) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Access denied.';
