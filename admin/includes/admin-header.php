@@ -51,6 +51,13 @@ if (!defined('PORTAL')) {
     define('PORTAL', 'admin');
 }
 
+/* Public chrome cache helpers (idempotent) — CRUD pages can bust without per-file require */
+$__simpleCacheHdr = __DIR__ . '/../../includes/simple-cache.php';
+if (is_file($__simpleCacheHdr)) {
+    require_once $__simpleCacheHdr;
+}
+unset($__simpleCacheHdr);
+
 /* Notification system — email/SMS पठाउन — सबै admin pages मा available */
 require_once __DIR__ . '/../../includes/notifications.php';
 

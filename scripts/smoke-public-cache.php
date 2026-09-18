@@ -271,5 +271,18 @@ if ($bootPos !== false && $countPos !== false && $bootPos < $countPos) {
     bad('admin-header should load boot-shared before core_safe_count fallback');
 }
 
+if (strpos($adminHdr, 'simple-cache.php') !== false) {
+    ok('admin-header loads simple-cache for bust helpers');
+} else {
+    bad('admin-header should require simple-cache.php');
+}
+
+$pageBoot = (string) file_get_contents($root . '/admin/includes/admin-page-boot.php');
+if (strpos($pageBoot, 'simple-cache.php') !== false) {
+    ok('admin-page-boot loads simple-cache before POST handlers');
+} else {
+    bad('admin-page-boot should require simple-cache.php');
+}
+
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);
