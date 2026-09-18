@@ -311,7 +311,7 @@ $pageGroups = [
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
-    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','member-success-stories','about-settings','satisfaction-settings','settings','ai-settings'],
+    'sanstha'=> ['service-centers','institutional-profile','institutional-welfare-opening','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','member-success-stories','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','update-checklist','site-health','audit-log','error-log','help-guide','help-center'],
     /* Superadmin-only tools — one place in sidebar (not hideable via Menu Control) */
     'superadmin'=> ['manage-admins','menu-control','footer-settings','security-settings','backup-restore','site-license','site-setup','db-setup','run-migration'],
@@ -984,6 +984,9 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='institutional-profile' ? 'active' : ''; ?>">
                                 <a href="institutional-profile.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('संस्थागत प्रोफाइल', 'Institutional Profile'); ?></span></a>
+                            </li>
+                            <li class="<?php echo $currentPage=='institutional-welfare-opening' ? 'active' : ''; ?>">
+                                <a href="institutional-welfare-opening.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-heart"></i></span><span><?php echo $adminT('राहत Opening', 'Welfare Opening'); ?></span></a>
                             </li>
                             <li class="<?php echo in_array($currentPage, ['information-room','information-room-browse','information-room-logs'], true) ? 'active' : ''; ?>">
                                 <a href="information-room.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="archive"></i></span><span><?php echo $adminT('Information Room', 'Information Room'); ?></span></a>

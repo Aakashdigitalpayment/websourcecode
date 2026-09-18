@@ -475,6 +475,12 @@ function ensureAdminTables(): bool {
             foreach ($ipCols as $col => $def) {
                 safeAddColumn($db, 'institutional_profile', $col, $def);
             }
+            if (is_file(dirname(__DIR__, 2) . '/includes/institutional-profile-welfare.php')) {
+                require_once dirname(__DIR__, 2) . '/includes/institutional-profile-welfare.php';
+                if (function_exists('coopIpEnsureWelfareTables')) {
+                    coopIpEnsureWelfareTables($db);
+                }
+            }
             safeAddColumn($db, 'notices', 'popup_image', "VARCHAR(255) DEFAULT ''");
             safeAddColumn($db, 'notices', 'popup_photo_only', 'TINYINT(1) DEFAULT 0');
             safeAddColumn($db, 'gallery', 'media_type', "VARCHAR(20) DEFAULT 'photo'");

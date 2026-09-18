@@ -16,9 +16,11 @@
 /* ─── 1. Config + session + DB ─── */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
+require_once __DIR__ . '/../includes/institutional-profile-welfare.php';
 
 $db      = getDB();
 $selfUrl = 'institutional-profile.php';
+coopIpEnsureWelfareTables($db);
 
 /* ─── 2. Table existence check ─── */
 $tableExists = function_exists('dbTableExists')
@@ -72,6 +74,23 @@ if ($tableExists) {
     try {
         $db->exec("CREATE INDEX idx_ip_fy_month ON institutional_profile (fiscal_year, report_month)");
     } catch (Exception $e) { /* exists */ }
+}
+
+/* AJAX prefill — before HTML */
+if ($tableExists && isset($_GET['action']) && $_GET['action'] === 'welfare_prefill') {
+    header('Content-Type: application/json; charset=UTF-8');
+    $fy = clean_text($_GET['fiscal_year'] ?? '');
+    $rm = (int)($_GET['report_month'] ?? 0);
+    $ex = (int)($_GET['exclude_id'] ?? 0);
+    $bs = clean_text($_GET['report_date_bs'] ?? '');
+    $ad = clean_text($_GET['report_date_ad'] ?? '');
+    if ($fy === '' || $rm < 1 || $rm > 12) {
+        echo json_encode(['ok' => false, 'error' => 'आ.व. र महिना चाहिन्छ।', 'rows' => []], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $rows = coopIpWelfarePrefillForMonth($db, $fy, $rm, $bs, $ad, $ex, false);
+    echo json_encode(['ok' => true, 'rows' => $rows], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 /* ─── 4. POST handler (runs before HTML; config.php starts session) ─── */
@@ -184,6 +203,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $phs  = implode(', ', array_fill(0, count($fields), '?'));
                 $stmt = $db->prepare("INSERT INTO institutional_profile ({$cols}) VALUES ({$phs})");
                 $stmt->execute(array_values($fields));
+                $savedId = (int)$db->lastInsertId();
                 $_SESSION['flash_success'] = 'नयाँ प्रोफाइल सफलतापूर्वक थपियो।';
             } else {
                 $sets = implode(', ', array_map(function ($k) {
@@ -191,7 +211,11 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 }, array_keys($fields)));
                 $stmt = $db->prepare("UPDATE institutional_profile SET {$sets} WHERE id = ?");
                 $stmt->execute([...array_values($fields), $id]);
+                $savedId = $id;
                 $_SESSION['flash_success'] = 'प्रोफाइल अपडेट भयो।';
+            }
+            if ($savedId > 0) {
+                coopIpWelfareSaveProfileRows($db, $savedId, coopIpWelfareParsePostRows($_POST));
             }
         } catch (Exception $e) {
             error_log('[institutional-profile] ' . $e->getMessage());
@@ -352,6 +376,7 @@ echo adminPageHeader(
     adminStatLink($selfUrl, 'secondary', 'जम्मा', $totalRecords)
     . adminStatLink($selfUrl, 'success', 'Active', $activeCount, false)
     . adminAddBtn('नयाँ महिनाको प्रोफाइल', $selfUrl . '?action=add')
+    . '<a href="institutional-welfare-opening.php" class="btn btn-outline-warning btn-sm ms-1" data-testid="ip-welfare-opening-link"><i class="lucide-icon me-1" data-lucide="hand-heart" aria-hidden="true"></i>राहत Opening</a>'
 );
 ?>
 
@@ -770,6 +795,154 @@ echo adminPageHeader(
           </div>
         '); ?>
 
+        <!-- ── SECTION 8: सदस्य राहत (member-welfare types) ── -->
+        <?php
+        $welfareFormRows = [];
+        if ($isEdit && !empty($r['id'])) {
+            $storedW = coopIpWelfareLoadProfileRows($db, (int)$r['id']);
+            $typesW = coopIpWelfareTypesForAdmin($db);
+            if ($storedW) {
+                foreach ($typesW as $slug => $meta) {
+                    $lab = trim((string)(($meta['np'] ?? '') ?: ($meta['en'] ?? $slug)));
+                    $sv = $storedW[$slug] ?? ['month_count' => 0, 'month_amount' => 0, 'cum_count' => 0, 'cum_amount' => 0];
+                    $welfareFormRows[] = [
+                        'slug' => $slug,
+                        'label' => $lab !== '' ? $lab : $slug,
+                        'color' => (string)($meta['color'] ?? '#ff9800'),
+                        'prev_count' => 0,
+                        'prev_amount' => 0.0,
+                        'month_count' => (int)$sv['month_count'],
+                        'month_amount' => (float)$sv['month_amount'],
+                        'cum_count' => (int)$sv['cum_count'],
+                        'cum_amount' => (float)$sv['cum_amount'],
+                    ];
+                }
+                foreach ($storedW as $slug => $sv) {
+                    $found = false;
+                    foreach ($welfareFormRows as $wr) {
+                        if ($wr['slug'] === $slug) { $found = true; break; }
+                    }
+                    if (!$found) {
+                        $welfareFormRows[] = [
+                            'slug' => $slug,
+                            'label' => $slug,
+                            'color' => '#6b7280',
+                            'prev_count' => 0,
+                            'prev_amount' => 0.0,
+                            'month_count' => (int)$sv['month_count'],
+                            'month_amount' => (float)$sv['month_amount'],
+                            'cum_count' => (int)$sv['cum_count'],
+                            'cum_amount' => (float)$sv['cum_amount'],
+                        ];
+                    }
+                }
+            } else {
+                $welfareFormRows = coopIpWelfarePrefillForMonth(
+                    $db,
+                    (string)$v('fiscal_year', ''),
+                    (int)$editMonth,
+                    (string)$v('report_date_bs', ''),
+                    (string)$v('report_date_ad', ''),
+                    (int)($r['id'] ?? 0),
+                    false
+                );
+            }
+        } elseif (!$isEdit) {
+            $welfareFormRows = coopIpWelfarePrefillForMonth(
+                $db,
+                (string)$v('fiscal_year', ''),
+                (int)$editMonth,
+                '',
+                '',
+                0,
+                false
+            );
+            if (!$welfareFormRows) {
+                foreach (coopIpWelfareTypesForAdmin($db) as $slug => $meta) {
+                    $lab = trim((string)(($meta['np'] ?? '') ?: ($meta['en'] ?? $slug)));
+                    $welfareFormRows[] = [
+                        'slug' => $slug,
+                        'label' => $lab !== '' ? $lab : $slug,
+                        'color' => (string)($meta['color'] ?? '#ff9800'),
+                        'prev_count' => 0,
+                        'prev_amount' => 0.0,
+                        'month_count' => 0,
+                        'month_amount' => 0.0,
+                        'cum_count' => 0,
+                        'cum_amount' => 0.0,
+                    ];
+                }
+            }
+        }
+        ?>
+        <div class="card border-0 shadow-sm mb-3" data-testid="ip-welfare-section">
+          <div class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <h6 class="mb-0 fw-bold"><i class="lucide-icon me-1 text-danger" data-lucide="heart-handshake" aria-hidden="true"></i>सदस्य राहत / कल्याण</h6>
+              <small class="text-muted">प्रकार member-welfare बाट · create गर्दा auto-fill · नम्बर फेर्न मिल्छ</small>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <a href="institutional-welfare-opening.php" class="btn btn-sm btn-outline-warning" data-testid="ip-welfare-opening-from-form">Opening सेटअप</a>
+              <button type="button" class="btn btn-sm btn-outline-success" id="ipWelfareRefillBtn" data-testid="ip-welfare-refill-btn">
+                <i class="lucide-icon me-1" data-lucide="refresh-cw" aria-hidden="true"></i>पुन: भर्नुहोस्
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="small text-muted mb-2">
+              <strong>यो महिना नयाँ</strong> = portal मा यस महिना approved राहत ·
+              <strong>हालसम्म जम्मा</strong> = अघिल्लो महिनाको जम्मा (वा Opening) + यो महिना।
+              Public पेजमा <em>हालसम्म जम्मा</em> देखिन्छ।
+            </p>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0" id="ipWelfareTable">
+                <thead>
+                  <tr>
+                    <th>प्रकार</th>
+                    <th class="text-end">अघिल्लो जम्मा</th>
+                    <th class="text-end">यो महिना · संख्या</th>
+                    <th class="text-end">यो महिना · रकम</th>
+                    <th class="text-end">हालसम्म · संख्या</th>
+                    <th class="text-end">हालसम्म · रकम</th>
+                  </tr>
+                </thead>
+                <tbody id="ipWelfareTbody">
+                  <?php if (!$welfareFormRows): ?>
+                  <tr><td colspan="6" class="text-muted small">राहत प्रकार छैन — <a href="welfare-claim-types.php">प्रकार थप्नुहोस्</a> वा Opening सेट गर्नुहोस्।</td></tr>
+                  <?php else: foreach ($welfareFormRows as $wr): ?>
+                  <tr data-slug="<?php echo e($wr['slug']); ?>">
+                    <td>
+                      <input type="hidden" name="welfare_slug[]" value="<?php echo e($wr['slug']); ?>">
+                      <span class="fw-semibold"><?php echo e($wr['label']); ?></span>
+                    </td>
+                    <td class="text-end small text-muted ip-w-prev">
+                      <?php echo (int)$wr['prev_count']; ?> /
+                      रू. <?php echo number_format((float)$wr['prev_amount'], 2); ?>
+                    </td>
+                    <td class="text-end" style="width:7rem;">
+                      <input type="number" min="0" step="1" class="form-control form-control-sm text-end"
+                             name="welfare_month_count[]" value="<?php echo (int)$wr['month_count']; ?>">
+                    </td>
+                    <td class="text-end" style="width:8.5rem;">
+                      <input type="number" min="0" step="0.01" class="form-control form-control-sm text-end"
+                             name="welfare_month_amount[]" value="<?php echo e((string)$wr['month_amount']); ?>">
+                    </td>
+                    <td class="text-end" style="width:7rem;">
+                      <input type="number" min="0" step="1" class="form-control form-control-sm text-end"
+                             name="welfare_cum_count[]" value="<?php echo (int)$wr['cum_count']; ?>">
+                    </td>
+                    <td class="text-end" style="width:8.5rem;">
+                      <input type="number" min="0" step="0.01" class="form-control form-control-sm text-end"
+                             name="welfare_cum_amount[]" value="<?php echo e((string)$wr['cum_amount']); ?>">
+                    </td>
+                  </tr>
+                  <?php endforeach; endif; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- ── SECTION 6: Document Upload ── -->
         <?php
         /* Pre-build existing attachment HTML */
@@ -1076,6 +1249,68 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Bootstrap tooltip init */
     var tips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tips.forEach(function(el) { new bootstrap.Tooltip(el); });
+
+    /* Welfare राहत — refill from opening + claims */
+    (function () {
+        var btn = document.getElementById('ipWelfareRefillBtn');
+        var tbody = document.getElementById('ipWelfareTbody');
+        if (!btn || !tbody) return;
+        var excludeId = <?php echo (int)((isset($isEdit) && $isEdit && !empty($r['id'])) ? $r['id'] : 0); ?>;
+
+        function fmtAmt(n) {
+            return Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function renderRows(rows) {
+            if (!rows || !rows.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted small">कुनै राहत प्रकार / डाटा भेटिएन।</td></tr>';
+                return;
+            }
+            var html = '';
+            rows.forEach(function (wr) {
+                html += '<tr data-slug="' + String(wr.slug).replace(/"/g, '') + '">'
+                    + '<td><input type="hidden" name="welfare_slug[]" value="' + String(wr.slug).replace(/"/g, '') + '">'
+                    + '<span class="fw-semibold">' + String(wr.label || wr.slug) + '</span></td>'
+                    + '<td class="text-end small text-muted ip-w-prev">' + (wr.prev_count|0) + ' / रू. ' + fmtAmt(wr.prev_amount) + '</td>'
+                    + '<td class="text-end" style="width:7rem;"><input type="number" min="0" step="1" class="form-control form-control-sm text-end" name="welfare_month_count[]" value="' + (wr.month_count|0) + '"></td>'
+                    + '<td class="text-end" style="width:8.5rem;"><input type="number" min="0" step="0.01" class="form-control form-control-sm text-end" name="welfare_month_amount[]" value="' + Number(wr.month_amount || 0) + '"></td>'
+                    + '<td class="text-end" style="width:7rem;"><input type="number" min="0" step="1" class="form-control form-control-sm text-end" name="welfare_cum_count[]" value="' + (wr.cum_count|0) + '"></td>'
+                    + '<td class="text-end" style="width:8.5rem;"><input type="number" min="0" step="0.01" class="form-control form-control-sm text-end" name="welfare_cum_amount[]" value="' + Number(wr.cum_amount || 0) + '"></td>'
+                    + '</tr>';
+            });
+            tbody.innerHTML = html;
+        }
+        function refill() {
+            var fyEl = document.getElementById('fieldFiscalYear');
+            var moEl = document.getElementById('fieldReportMonth');
+            var bsEl = document.getElementById('fieldDateBs');
+            var adEl = document.getElementById('fieldDateAd');
+            var fy = fyEl ? fyEl.value : '';
+            var mo = moEl ? parseInt(moEl.value || '0', 10) : 0;
+            if (!fy || mo < 1) {
+                alert('पहिले आ.व. र रिपोर्ट महिना छान्नुहोस्।');
+                return;
+            }
+            btn.disabled = true;
+            var q = 'action=welfare_prefill'
+                + '&fiscal_year=' + encodeURIComponent(fy)
+                + '&report_month=' + encodeURIComponent(String(mo))
+                + '&exclude_id=' + encodeURIComponent(String(excludeId))
+                + '&report_date_bs=' + encodeURIComponent(bsEl ? bsEl.value : '')
+                + '&report_date_ad=' + encodeURIComponent(adEl ? adEl.value : '');
+            fetch('institutional-profile.php?' + q, { credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data || !data.ok) {
+                        alert((data && data.error) ? data.error : 'भर्न सकिएन।');
+                        return;
+                    }
+                    renderRows(data.rows || []);
+                })
+                .catch(function () { alert('नेटवर्क त्रुटि।'); })
+                .finally(function () { btn.disabled = false; });
+        }
+        btn.addEventListener('click', refill);
+    })();
 });
 </script>
 
