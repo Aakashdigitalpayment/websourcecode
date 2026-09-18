@@ -98,7 +98,7 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 | **Dates in UI** | Nepali lang → Nepali datepicker (BS); DB DATE columns stay Gregorian AD |
 | **Brand colours** | Admin Settings → `global-theme.php` tokens (`--primary-color`, `--secondary-color`, …). Contact panel icons use `--contact-icon-on-primary` (secondary hue, WCAG on green) |
 | **Welfare types** | `welfare_claim_types` / member-welfare catalog only — no duplicate type fields on IP |
-| **Institutional राहत** | Pre-portal totals: Admin → **राहत Opening**. Monthly IP form auto-fills month-new + cumulative (editable). Public prefers saved snapshot |
+| **Institutional राहत** | Pre-portal totals: Admin → **राहत Opening** (`admin/institutional-welfare-opening.php`). Monthly IP form auto-fills month-new + cumulative (editable). Public prefers saved snapshot |
 | **Reports / IP member gate** | `access_level` + `includes/public-member-access.php`; files via `report-file.php` / `institutional-profile-file.php` |
 
 Admin how-to: `admin/help-guide.php` (sections कल्याण, Members import, Settings → Institutional).
