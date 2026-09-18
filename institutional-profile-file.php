@@ -21,6 +21,15 @@ if ($id < 1) {
 /* Cold Facebook/Instagram taps: land on HTML page before any DB/PDF work */
 coopMemberAccessBounceSocialInAppToPage('institutional-profile.php', $id);
 
+/* FB in-app: force attachment for UI-originated opens (inline PDF often fails) */
+if (!$wantDownload
+    && coopMemberAccessIsSocialInAppBrowser()
+    && isset($_GET['nav'])
+    && (string) $_GET['nav'] === '1'
+) {
+    $wantDownload = true;
+}
+
 try {
     $db = getDB();
 } catch (Throwable $e) {
