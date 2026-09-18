@@ -326,6 +326,8 @@ assertContains('includes/institutional-profile-welfare.php', 'function coopIpWel
 assertContains('includes/institutional-profile-welfare.php', 'function coopIpWelfareResolveForProfile', 'IP welfare prefers stored snapshot');
 assertContains('README.md', 'Product SSOT notes', 'README documents product SSOT table');
 assertContains('README.md', 'institutional-welfare-opening', 'README mentions welfare opening');
+assertContains('README.md', 'popup_expires_at', 'README documents notice popup expiry');
+assertContains('README.md', 'Docs rule', 'README states single product MD SSOT');
 assertContains('admin/help-guide.php', 'institutional-welfare-opening.php', 'help guide documents राहत Opening');
 assertContains('admin/help-guide.php', 'सदस्य राहत', 'help guide documents monthly IP welfare section');
 assertContains('admin/institutional-welfare-opening.php', 'ip-welfare-opening-table', 'admin welfare opening setup page');
