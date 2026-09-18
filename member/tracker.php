@@ -98,7 +98,7 @@ if ($viewId > 0 && $viewTbl !== '') {
     ];
     if (in_array($viewTbl, $safeTables, true)) {
         try {
-            $st = $db->prepare("SELECT * FROM `$viewTbl` WHERE id=?");
+            $st = $db->prepare("SELECT * FROM `$viewTbl` WHERE id=? LIMIT 1");
             $st->execute([$viewId]);
             $viewApp = $st->fetch(PDO::FETCH_ASSOC);
             /* Security: only show if email/phone/member_id matches */
