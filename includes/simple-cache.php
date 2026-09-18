@@ -113,6 +113,8 @@ function clearHomepageCache(): void {
     clearCache('nav_career_badge_v1');
     clearCache('nav_career_badge_v3');
     clearCache('nav_notices_extra_v1');
+    clearCache('nav_notices_extra_v2_' . date('Y-m-d'));
+    clearCache('nav_notices_extra_v2_' . date('Y-m-d', strtotime('-1 day')));
     clearCache('nav_cms_pages_v1');
     clearCache('nav_cms_pages_v2');
 }
