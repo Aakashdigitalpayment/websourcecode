@@ -49,26 +49,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$csrf = generateCSRFToken();
+$pageTitle = 'राहत Opening';
+$currentPage = 'institutional-welfare-opening';
+require_once __DIR__ . '/includes/admin-header.php';
+require_once __DIR__ . '/includes/admin-ui.php';
+
+$csrf = $csrfToken ?? generateCSRFToken();
 $flashOk = (string)($_SESSION['flash_success'] ?? '');
 $flashErr = (string)($_SESSION['flash_error'] ?? '');
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+?>
 
+<div class="container-fluid py-4">
+<?php
 echo adminPageHeader(
     'राहत Opening',
     'fa-hand-holding-heart',
     'Portal सुरु हुनुअघिको सदस्य राहत कुल — प्रकार member-welfare बाट',
     adminBackBtn('institutional-profile.php')
 );
+echo adminAlert('success', $flashOk);
+echo adminAlert('danger', $flashErr);
 ?>
-
-<div class="admin-form-page">
-  <?php if ($flashOk !== ''): ?>
-    <div class="alert alert-success"><?php echo e($flashOk); ?></div>
-  <?php endif; ?>
-  <?php if ($flashErr !== ''): ?>
-    <div class="alert alert-danger"><?php echo e($flashErr); ?></div>
-  <?php endif; ?>
 
   <div class="alert alert-info small">
     <strong>के हो?</strong> सहकारीले portal राख्नुभन्दा पहिले दिएको राहत यहाँ <em>opening</em> का रूपमा राख्नुहोस्।
