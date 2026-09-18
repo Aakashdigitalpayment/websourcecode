@@ -510,6 +510,7 @@ assertContains('reports.php', 'never the PDF proxy', 'Facebook share avoids dire
 assertContains('reports.php', 'Share page link even while locked', 'locked member reports can still share page');
 assertContains('report-file.php', 'coopMemberAccessBounceSocialInAppToPage', 'report proxy bounces social in-app browsers');
 assertContains('institutional-profile-file.php', 'coopMemberAccessBounceSocialInAppToPage', 'IP proxy bounces social in-app browsers');
+assertContains('includes/public-member-access.php', 'facebookexternalhit|Facebot', 'file proxy also bounces preview crawlers');
 assertContains('includes/public-member-access.php', 'function coopMemberAccessIsSocialInAppBrowser', 'shared social in-app browser detector');
 assertContains('institutional-profile.php', 'var fbTarget = url || location.href', 'IP Facebook share uses page URL not file');
 assertContains('reports.php', 'focusSharedReport', 'shared report deep-link focuses card');

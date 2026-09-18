@@ -31,6 +31,37 @@ $pageTitle = isEnglish() ? 'Reports' : 'प्रतिवेदनहरू';
 $pageDescription = isEnglish()
     ? 'Monthly and annual reports published for members and the public.'
     : 'सदस्य तथा सर्वसाधारणका लागि प्रकाशित मासिक तथा वार्षिक प्रतिवेदनहरू।';
+
+/* Enrich Open Graph title when a shared report id is present */
+$__shareReportId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+if ($__shareReportId > 0) {
+    try {
+        $__dbOg = getDB();
+        $__stOg = $__dbOg->prepare('SELECT title, title_np, access_level FROM reports WHERE id = ? AND is_active = 1 LIMIT 1');
+        $__stOg->execute([$__shareReportId]);
+        $__ogRow = $__stOg->fetch(PDO::FETCH_ASSOC);
+        if (is_array($__ogRow)) {
+            $__ogTitle = trim((string) (function_exists('getLangField') ? getLangField($__ogRow, 'title') : ($__ogRow['title_np'] ?: $__ogRow['title'])));
+            if ($__ogTitle !== '') {
+                $pageTitle = $__ogTitle;
+            }
+            $__ogMember = function_exists('coopAccessLevelNormalize')
+                && coopAccessLevelNormalize((string) ($__ogRow['access_level'] ?? 'none')) === 'member';
+            if ($__ogMember) {
+                $pageDescription = isEnglish()
+                    ? 'Members-only report — open the link and enter your membership number to view or download.'
+                    : 'सदस्य-मात्र प्रतिवेदन — लिंक खोलेर सदस्यता नम्बर हालेपछि हेर्न/डाउनलोड गर्न सकिन्छ।';
+            } else {
+                $pageDescription = isEnglish()
+                    ? 'Official report from our cooperative. Open to view or download.'
+                    : 'हाम्रो सहकारीको आधिकारिक प्रतिवेदन। हेर्न वा डाउनलोड गर्न लिंक खोल्नुहोस्।';
+            }
+        }
+    } catch (Throwable $e) {
+        /* keep generic title */
+    }
+}
+
 $extraHead = (isset($extraHead) ? (string) $extraHead : '')
     . (function_exists('coopThemeLinkHtml')
         ? coopThemeLinkHtml('assets/css/reports-page.css')

@@ -492,17 +492,32 @@ function coopMemberAccessIsSocialInAppBrowser(?string $ua = null): bool
     if ($ua === '') {
         return false;
     }
-    /* FBAN/FBAV/FB_IAB = Facebook app WebView; exclude facebookexternalhit crawler */
+    /* FBAN/FBAV/FB_IAB = Facebook app WebView */
     return (bool) preg_match('/FBAN|FBAV|FB_IAB|Instagram|Line\//i', $ua);
 }
 
 /**
- * Bounce social in-app browsers to an HTML page before streaming a PDF/doc.
- * Call early (before DB) so cold Facebook taps never hang on a proxy 503/PDF.
+ * Social link-preview crawlers that should land on HTML (for OG), not PDF bytes.
+ */
+function coopMemberAccessIsSocialLinkCrawler(?string $ua = null): bool
+{
+    $ua = $ua ?? (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    if ($ua === '') {
+        return false;
+    }
+    return (bool) preg_match('/facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp/i', $ua);
+}
+
+/**
+ * Bounce social in-app browsers + preview crawlers to an HTML page before streaming a PDF/doc.
+ * Call early (before DB) so cold Facebook taps never hang, and crawlers get OG HTML.
  */
 function coopMemberAccessBounceSocialInAppToPage(string $pageScript, int $id): void
 {
-    if ($id < 1 || !coopMemberAccessIsSocialInAppBrowser()) {
+    if ($id < 1) {
+        return;
+    }
+    if (!coopMemberAccessIsSocialInAppBrowser() && !coopMemberAccessIsSocialLinkCrawler()) {
         return;
     }
     $page = basename(str_replace('\\', '/', $pageScript));
