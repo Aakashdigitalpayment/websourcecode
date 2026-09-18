@@ -21,7 +21,7 @@ try {
     $db = getDB();
 
     if ($noticeId > 0) {
-        $stmt = $db->prepare("SELECT * FROM notices WHERE id = ? AND is_active = 1");
+        $stmt = $db->prepare("SELECT * FROM notices WHERE id = ? AND is_active = 1 LIMIT 1");
         $stmt->execute([$noticeId]);
         $singleNotice = $stmt->fetch();
         if (!$singleNotice) {

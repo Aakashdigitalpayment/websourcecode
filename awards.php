@@ -20,7 +20,7 @@ try {
 $singleAward = null;
 if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
     try {
-        $stmt = $db->prepare("SELECT * FROM awards WHERE id = ? AND is_active = 1");
+        $stmt = $db->prepare("SELECT * FROM awards WHERE id = ? AND is_active = 1 LIMIT 1");
         $stmt->execute([(int)$_GET['id']]);
         $singleAward = $stmt->fetch();
     } catch (Throwable $e) {

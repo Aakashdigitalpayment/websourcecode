@@ -304,6 +304,33 @@ if (strpos($ipWelfare, 'ORDER BY id DESC LIMIT 1000') !== false) {
 } else {
     bad('coopIpPreviousProfileRow should LIMIT institutional_profile scan');
 }
+if (strpos($ipWelfare, 'FROM institutional_welfare_opening ORDER BY claim_type ASC LIMIT 200') !== false) {
+    ok('welfare opening map is LIMIT-bounded');
+} else {
+    bad('institutional_welfare_opening read should be LIMIT-bounded');
+}
+
+$tracker = (string) file_get_contents($root . '/application-tracker.php');
+if (substr_count($tracker, 'LIMIT 5') >= 10) {
+    ok('application-tracker tracking_id lookups are LIMIT-bounded');
+} else {
+    bad('application-tracker tracking_id queries should use LIMIT 5');
+}
+
+$pagePhp = (string) file_get_contents($root . '/page.php');
+if (substr_count($pagePhp, 'LIMIT 1') >= 3) {
+    ok('page.php slug/id lookups use LIMIT 1');
+} else {
+    bad('page.php should LIMIT 1 on page lookups');
+}
+
+$votePhp = (string) file_get_contents($root . '/member/election-vote.php');
+if (strpos($votePhp, 'election_positions WHERE cycle_id=? AND is_active=1 LIMIT 200') !== false
+    && strpos($votePhp, 'election_candidates WHERE cycle_id=? AND is_active=1 LIMIT 500') !== false) {
+    ok('election-vote validation queries are LIMIT-bounded');
+} else {
+    bad('election-vote submit validation should LIMIT positions/candidates');
+}
 
 $honorPhp = (string) file_get_contents($root . '/includes/honor-tables.php');
 if (strpos($honorPhp, 'closes_at >= ?') !== false && preg_match('/honor_programs[\s\S]{0,200}LIMIT 50/', $honorPhp)) {

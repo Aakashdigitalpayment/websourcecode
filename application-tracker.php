@@ -186,7 +186,8 @@ if ($trackerIsPost) {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE UPPER(TRIM(ja.tracking_id)) = UPPER(TRIM(?))");
+                                          WHERE UPPER(TRIM(ja.tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
@@ -208,7 +209,8 @@ if ($trackerIsPost) {
             // ऋण आवेदन खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -224,7 +226,8 @@ if ($trackerIsPost) {
             // खाता आवेदन खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -241,7 +244,8 @@ if ($trackerIsPost) {
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$rawSv]);
                     $grvResults = $stmt->fetchAll();
                 } elseif ($searchType === 'phone') {
@@ -260,7 +264,8 @@ if ($trackerIsPost) {
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$rawSv]);
                     $kycResults = $stmt->fetchAll();
                 } elseif ($searchType === 'phone') {
@@ -282,7 +287,8 @@ if ($trackerIsPost) {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
                                           LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE UPPER(TRIM(COALESCE(ab.tracking_id,''))) = UPPER(TRIM(?))");
+                                          WHERE UPPER(TRIM(COALESCE(ab.tracking_id,''))) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$rawBid]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
@@ -329,7 +335,8 @@ if ($trackerIsPost) {
             /* सदस्य सर्वेक्षण खोज्ने — FBK-YYYY-XXXXXX format को tracking_id बाट खोज्छु */
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -349,7 +356,8 @@ if ($trackerIsPost) {
                     if (preg_match('/WLF-?[\w-]+/i', $searchValue)) {
                         $wlfId = $searchValue;
                     }
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$wlfId]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -364,7 +372,8 @@ if ($trackerIsPost) {
 
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -379,7 +388,8 @@ if ($trackerIsPost) {
 
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE UPPER(a.tracking_id) = UPPER(?)");
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE UPPER(a.tracking_id) = UPPER(?)
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE " . trackerPhoneSqlExpr('a.phone') . " = ? ORDER BY a.created_at DESC LIMIT 20");
@@ -395,7 +405,8 @@ if ($trackerIsPost) {
             // Vendor enlistment खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
@@ -414,7 +425,8 @@ if ($trackerIsPost) {
                     membershipEnsureTable($db);
                 }
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))
+                                          LIMIT 5");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");

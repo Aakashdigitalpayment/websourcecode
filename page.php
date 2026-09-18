@@ -42,7 +42,7 @@ try {
     ];
     if ($slug && isset($defaultPolicies[$slug])) {
         try {
-            $exists = $db->prepare('SELECT id FROM pages WHERE slug = ?');
+            $exists = $db->prepare('SELECT id FROM pages WHERE slug = ? LIMIT 1');
             $exists->execute([$slug]);
             if (!$exists->fetch()) {
                 $d = $defaultPolicies[$slug];
@@ -55,10 +55,10 @@ try {
     }
 
     if ($slug) {
-        $stmt = $db->prepare('SELECT * FROM pages WHERE slug = ? AND is_active = 1');
+        $stmt = $db->prepare('SELECT * FROM pages WHERE slug = ? AND is_active = 1 LIMIT 1');
         $stmt->execute([$slug]);
     } elseif ($pageId) {
-        $stmt = $db->prepare('SELECT * FROM pages WHERE id = ? AND is_active = 1');
+        $stmt = $db->prepare('SELECT * FROM pages WHERE id = ? AND is_active = 1 LIMIT 1');
         $stmt->execute([$pageId]);
     } else {
         throw new Exception('Page not found');

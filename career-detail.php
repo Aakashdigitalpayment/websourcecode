@@ -13,7 +13,7 @@ if (!$jobId) {
 try {
     $db = getDB();
     ensureCareersTables($db);
-    $stmt = $db->prepare('SELECT * FROM careers WHERE id = ? AND is_active = 1');
+    $stmt = $db->prepare('SELECT * FROM careers WHERE id = ? AND is_active = 1 LIMIT 1');
     $stmt->execute([$jobId]);
     $job = $stmt->fetch(PDO::FETCH_ASSOC);
 
