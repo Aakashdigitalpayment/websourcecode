@@ -21,6 +21,19 @@ if ($id < 1) {
 /* Cold Facebook/Instagram taps: land on HTML page before any DB/PDF work */
 coopMemberAccessBounceSocialInAppToPage('reports.php', $id);
 
+/*
+ * Facebook in-app WebView often cannot render inline PDFs (spinner / blank).
+ * When the user came from our unlock UI (?nav=1), force attachment so the
+ * system download / PDF app can open the file.
+ */
+if (!$wantDownload
+    && coopMemberAccessIsSocialInAppBrowser()
+    && isset($_GET['nav'])
+    && (string) $_GET['nav'] === '1'
+) {
+    $wantDownload = true;
+}
+
 try {
     $db = getDB();
 } catch (Throwable $e) {

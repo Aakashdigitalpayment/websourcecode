@@ -947,6 +947,40 @@ function seo_absolute_asset_url(string $path): string
 }
 
 /**
+ * Default Facebook/Twitter share image URL.
+ * Prefer admin seo_og_image (1200×630); else landscape share-og.php card (not square logo).
+ *
+ * @return array{url:string,width:int,height:int,from_upload:bool}
+ */
+function seo_default_share_image(): array
+{
+    $seoOgPath = trim((string) (function_exists('getSetting') ? getSetting('seo_og_image', '') : ''));
+    $seoOgSafe = '';
+    if ($seoOgPath !== '') {
+        if (function_exists('safe_public_media_path')) {
+            $seoOgSafe = (string) safe_public_media_path($seoOgPath);
+        } elseif (function_exists('safe_public_upload_path')) {
+            $seoOgSafe = (string) safe_public_upload_path($seoOgPath);
+        }
+    }
+    if ($seoOgSafe !== '') {
+        return [
+            'url' => seo_absolute_asset_url($seoOgSafe),
+            'width' => 1200,
+            'height' => 630,
+            'from_upload' => true,
+        ];
+    }
+
+    return [
+        'url' => rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/share-og.php',
+        'width' => 1200,
+        'height' => 630,
+        'from_upload' => false,
+    ];
+}
+
+/**
  * Append ?v=filemtime so long-cached images (htaccess 1y + SW cache-first) refresh after replace.
  * Leaves absolute/data URLs unchanged. Preserves relative path style used in DB.
  */

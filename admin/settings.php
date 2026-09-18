@@ -1032,7 +1032,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <label for="stg_seo_og_image" class="form-label fw-semibold"><?php echo $__t('Default Share Image (SEO OG)', 'Default Share Image (SEO OG)'); ?></label>
                             <?php if (!empty($settings['seo_og_image'])): ?><img src="../<?php echo htmlspecialchars($settings['seo_og_image'], ENT_QUOTES, 'UTF-8'); ?>" alt="OG" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
                             <input type="file" name="seo_og_image" id="stg_seo_og_image" class="form-control" accept="image/jpeg,image/png,image/webp">
-                            <small class="stg-muted d-block mt-1"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 1200x630</small>
+                            <small class="stg-muted d-block mt-1"><?php echo $__t('अनुशंसित: 1200×630 px (Facebook/Instagram preview)। नराखे सिस्टमले logo बाट landscape share card बनाउँछ।', 'Recommended: 1200×630 px (Facebook/Instagram preview). If empty, a landscape share card is generated from your logo.'); ?></small>
                             <?php if (!empty($settings['seo_og_image'])): ?>
                             <div class="form-check mt-2">
                                 <input class="form-check-input" type="checkbox" name="clear_seo_og_image" value="1" id="clear_seo_og_image">

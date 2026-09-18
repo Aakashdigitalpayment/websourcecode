@@ -509,18 +509,23 @@ $__seoDocTitle = function_exists('seo_document_title')
 
 $__seoCanon = function_exists('seo_canonical_url') ? seo_canonical_url() : (rtrim(SITE_URL, '/') . '/');
 $__seoOgImg = '';
+$__seoOgImgW = 1200;
+$__seoOgImgH = 630;
 if (isset($pageOgImage) && (string) $pageOgImage !== '') {
     $__seoOgImg = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url((string) $pageOgImage) : (SITE_URL . ltrim((string) $pageOgImage, '/'));
-} else {
-    $seoOgPath = trim((string) getSetting('seo_og_image', ''));
-    $seoOgSafe = $seoOgPath !== '' && function_exists('safe_public_media_path')
-        ? safe_public_media_path($seoOgPath)
-        : ($seoOgPath !== '' && function_exists('safe_public_upload_path') ? safe_public_upload_path($seoOgPath) : '');
-    if ($seoOgSafe !== '' && function_exists('seo_absolute_asset_url')) {
-        $__seoOgImg = seo_absolute_asset_url($seoOgSafe);
-    } else {
-        $__seoOgImg = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($logo) : (SITE_URL . ltrim($logo, '/'));
+    if (isset($pageOgImageWidth) && (int) $pageOgImageWidth > 0) {
+        $__seoOgImgW = (int) $pageOgImageWidth;
     }
+    if (isset($pageOgImageHeight) && (int) $pageOgImageHeight > 0) {
+        $__seoOgImgH = (int) $pageOgImageHeight;
+    }
+} else {
+    $__shareImg = function_exists('seo_default_share_image')
+        ? seo_default_share_image()
+        : ['url' => rtrim(SITE_URL, '/') . '/share-og.php', 'width' => 1200, 'height' => 630];
+    $__seoOgImg = (string) ($__shareImg['url'] ?? (rtrim(SITE_URL, '/') . '/share-og.php'));
+    $__seoOgImgW = (int) ($__shareImg['width'] ?? 1200);
+    $__seoOgImgH = (int) ($__shareImg['height'] ?? 630);
 }
 $__seoOgType = (isset($pageOgType) && in_array((string) $pageOgType, ['website', 'article'], true))
     ? (string) $pageOgType
@@ -624,6 +629,8 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
     <meta property="og:title" content="<?php echo e($__seoDocTitle); ?>">
     <meta property="og:description" content="<?php echo e($__seoDesc); ?>">
     <meta property="og:image" content="<?php echo e($__seoOgImg); ?>">
+    <meta property="og:image:width" content="<?php echo (int) $__seoOgImgW; ?>">
+    <meta property="og:image:height" content="<?php echo (int) $__seoOgImgH; ?>">
     <meta property="og:image:alt" content="<?php echo e($__seoOgImgAlt); ?>">
     <meta property="og:locale" content="<?php echo e($__ogLocale); ?>">
     <meta property="og:locale:alternate" content="<?php echo e($__ogLocaleAlt); ?>">

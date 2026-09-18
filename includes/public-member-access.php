@@ -475,11 +475,12 @@ function coopMemberAccessStreamFile(string $absolutePath, string $downloadName, 
 
 /**
  * Proxy URL for a gated report/IP file.
+ * Always marks nav=1 so Facebook in-app View/Download is not bounced back to the HTML page.
  */
 function coopMemberAccessFileUrl(string $endpoint, int $id, bool $download = false): string
 {
     $base = rtrim((string) (defined('SITE_URL') ? SITE_URL : ''), '/');
-    $q = 'id=' . $id . ($download ? '&dl=1' : '');
+    $q = 'id=' . $id . ($download ? '&dl=1' : '') . '&nav=1';
     return $base . '/' . ltrim($endpoint, '/') . '?' . $q;
 }
 
@@ -492,19 +493,52 @@ function coopMemberAccessIsSocialInAppBrowser(?string $ua = null): bool
     if ($ua === '') {
         return false;
     }
-    /* FBAN/FBAV/FB_IAB = Facebook app WebView; exclude facebookexternalhit crawler */
+    /* FBAN/FBAV/FB_IAB = Facebook app WebView */
     return (bool) preg_match('/FBAN|FBAV|FB_IAB|Instagram|Line\//i', $ua);
 }
 
 /**
- * Bounce social in-app browsers to an HTML page before streaming a PDF/doc.
- * Call early (before DB) so cold Facebook taps never hang on a proxy 503/PDF.
+ * Social link-preview crawlers that should land on HTML (for OG), not PDF bytes.
+ */
+function coopMemberAccessIsSocialLinkCrawler(?string $ua = null): bool
+{
+    $ua = $ua ?? (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    if ($ua === '') {
+        return false;
+    }
+    return (bool) preg_match('/facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp/i', $ua);
+}
+
+/**
+ * Bounce cold social opens + preview crawlers to an HTML page before streaming a PDF/doc.
+ * UI View/Download links use ?nav=1 and must NOT bounce (else Facebook in-app loops back).
  */
 function coopMemberAccessBounceSocialInAppToPage(string $pageScript, int $id): void
 {
-    if ($id < 1 || !coopMemberAccessIsSocialInAppBrowser()) {
+    if ($id < 1) {
         return;
     }
+
+    $isCrawler = coopMemberAccessIsSocialLinkCrawler();
+    $isInApp = coopMemberAccessIsSocialInAppBrowser();
+    if (!$isCrawler && !$isInApp) {
+        return;
+    }
+
+    /* From our page (unlock → View/Download): allow the file through */
+    if (!$isCrawler && isset($_GET['nav']) && (string) $_GET['nav'] === '1') {
+        return;
+    }
+
+    /* Same-site referer backup (some WebViews omit nav on redirects) */
+    if (!$isCrawler) {
+        $ref = (string) ($_SERVER['HTTP_REFERER'] ?? '');
+        $site = rtrim((string) (defined('SITE_URL') ? SITE_URL : ''), '/');
+        if ($site !== '' && $ref !== '' && str_starts_with($ref, $site)) {
+            return;
+        }
+    }
+
     $page = basename(str_replace('\\', '/', $pageScript));
     $page = preg_replace('/[^a-zA-Z0-9._-]/', '', $page) ?: '';
     if ($page === '' || !str_ends_with(strtolower($page), '.php')) {

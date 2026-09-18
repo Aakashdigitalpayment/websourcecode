@@ -23,3 +23,6 @@ includes/database.php
 assets/uploads/member-imports/*
 !assets/uploads/member-imports/.htaccess
 !assets/uploads/member-imports/.gitkeep
+# Generated Open Graph landscape cards
+assets/uploads/og_cards/*
+!assets/uploads/og_cards/.gitkeep
