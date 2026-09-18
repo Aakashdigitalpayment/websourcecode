@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $icon]);
                 setFlash('success', 'समिति प्रकार थपियो।');
             } else {
-                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=?")
+                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=? LIMIT 1")
                    ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $icon, $id]);
                 setFlash('success', 'समिति प्रकार अपडेट भयो।');
             }
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$committee_type_id, $tenure_name, $tenure_name_np, $start_date, $end_date, $is_current, $is_active]);
                 setFlash('success', 'कार्यकाल थपियो।');
             } else {
-                $db->prepare("UPDATE committee_tenures SET committee_type_id=?, tenure_name=?, tenure_name_np=?, start_date=?, end_date=?, is_current=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE committee_tenures SET committee_type_id=?, tenure_name=?, tenure_name_np=?, start_date=?, end_date=?, is_current=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$committee_type_id, $tenure_name, $tenure_name_np, $start_date, $end_date, $is_current, $is_active, $id]);
                 setFlash('success', 'कार्यकाल अपडेट भयो।');
             }
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$tenure_id, $name, $name_en, $position, $position_en, $phone, $email, $address, $photo, $display_order, $is_active]);
                 setFlash('success', 'सदस्य थपियो।');
             } else {
-                $db->prepare("UPDATE committee_members SET tenure_id=?, name=?, name_en=?, position=?, position_en=?, phone=?, email=?, address=?, photo=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE committee_members SET tenure_id=?, name=?, name_en=?, position=?, position_en=?, phone=?, email=?, address=?, photo=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$tenure_id, $name, $name_en, $position, $position_en, $phone, $email, $address, $photo, $display_order, $is_active, $id]);
                 setFlash('success', 'सदस्य अपडेट भयो।');
             }
@@ -147,13 +147,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* ══ Delete ══ */
         elseif ($action === 'delete_type') {
-            $db->prepare("DELETE FROM committee_types WHERE id=?")->execute([$_POST['delete_id']]);
+            $db->prepare("DELETE FROM committee_types WHERE id=? LIMIT 1")->execute([$_POST['delete_id']]);
             setFlash('success', 'समिति प्रकार मेटाइयो।');
         } elseif ($action === 'delete_tenure') {
-            $db->prepare("DELETE FROM committee_tenures WHERE id=?")->execute([$_POST['delete_id']]);
+            $db->prepare("DELETE FROM committee_tenures WHERE id=? LIMIT 1")->execute([$_POST['delete_id']]);
             setFlash('success', 'कार्यकाल मेटाइयो।');
         } elseif ($action === 'delete_member') {
-            $db->prepare("DELETE FROM committee_members WHERE id=?")->execute([$_POST['delete_id']]);
+            $db->prepare("DELETE FROM committee_members WHERE id=? LIMIT 1")->execute([$_POST['delete_id']]);
             setFlash('success', 'सदस्य मेटाइयो।');
         }
 

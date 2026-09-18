@@ -37,12 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setFlash('success', 'सेवा कार्यालय थपियो।');
             } else {
                 $data[] = $id;
-                $db->prepare("UPDATE service_centers SET name=?, name_np=?, address=?, phone=?, email=?, province=?, opening_hours=?, map_url=?, is_main_branch=?, is_active=?, display_order=? WHERE id=?")
+                $db->prepare("UPDATE service_centers SET name=?, name_np=?, address=?, phone=?, email=?, province=?, opening_hours=?, map_url=?, is_main_branch=?, is_active=?, display_order=? WHERE id=? LIMIT 1")
                    ->execute($data);
                 setFlash('success', 'सेवा कार्यालय अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM service_centers WHERE id=?")->execute([$_POST['id']]);
+            $db->prepare("DELETE FROM service_centers WHERE id=? LIMIT 1")->execute([$_POST['id']]);
             setFlash('success', 'सेवा कार्यालय मेटाइयो।');
         }
     } catch (Exception $e) {

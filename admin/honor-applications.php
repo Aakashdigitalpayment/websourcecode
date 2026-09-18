@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $os->execute([$appId]);
             $oldStatus = (string)($os->fetchColumn() ?: '');
 
-            $stmt = $db->prepare('UPDATE honor_applications SET status=?, admin_remarks=?, reviewed_by=?, reviewed_at=NOW() WHERE id=?');
+            $stmt = $db->prepare('UPDATE honor_applications SET status=?, admin_remarks=?, reviewed_by=?, reviewed_at=NOW() WHERE id=? LIMIT 1');
             $stmt->execute([$status, $adminRemarks, $_SESSION['admin_name'] ?? 'Admin', $appId]);
 
             $notifyOptIn = !empty($_POST['notify_member']) && $_POST['notify_member'] === '1';
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'sms' => ['status' => 'not_attempted', 'reason' => '', 'to' => ''],
             ];
             try {
-                $nr = $db->prepare('SELECT applicant_name, email, phone, tracking_id FROM honor_applications WHERE id=?');
+                $nr = $db->prepare('SELECT applicant_name, email, phone, tracking_id FROM honor_applications WHERE id=? LIMIT 1');
                 $nr->execute([$appId]);
                 $nd = $nr->fetch(PDO::FETCH_ASSOC);
                 if ($nd && function_exists('sendMemberStatusUpdate')) {
@@ -176,8 +176,8 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
 
-$programs = $db->query('SELECT id, title_np, title_en FROM honor_programs ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
-$categories = $db->query('SELECT id, name_np, name_en FROM honor_categories WHERE is_active=1 ORDER BY display_order')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$programs = $db->query('SELECT id, title_np, title_en FROM honor_programs ORDER BY id DESC LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$categories = $db->query('SELECT id, name_np, name_en FROM honor_categories WHERE is_active=1 ORDER BY display_order LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 ?>
 

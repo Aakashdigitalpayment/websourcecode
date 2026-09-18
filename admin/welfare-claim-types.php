@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($tid > 0) {
                 $db->prepare(
-                    'UPDATE welfare_claim_types SET name_np=?, name_en=?, icon=?, color=?, form_profile=?, display_order=?, is_active=?, requires_document=? WHERE id=?'
+                    'UPDATE welfare_claim_types SET name_np=?, name_en=?, icon=?, color=?, form_profile=?, display_order=?, is_active=?, requires_document=? WHERE id=? LIMIT 1'
                 )->execute([$nameNp, $nameEn, $icon, $color, $profile, $order, $isActive, $requiresDocument, $tid]);
                 setFlash('success', $__t('दाबी प्रकार अद्यावधिक भयो।', 'Claim type updated.'));
             } else {

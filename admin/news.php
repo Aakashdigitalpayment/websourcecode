@@ -36,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$title, $title_np, $content, $content_np, $image, $is_active]);
                 setFlash('success', 'समाचार सफलतापूर्वक थपियो।');
             } else {
-                $db->prepare("UPDATE news SET title=?, title_np=?, content=?, content_np=?, image=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE news SET title=?, title_np=?, content=?, content_np=?, image=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$title, $title_np, $content, $content_np, $image, $is_active, $id]);
                 setFlash('success', 'समाचार सफलतापूर्वक अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM news WHERE id=?")->execute([$_POST['id']]);
+            $db->prepare("DELETE FROM news WHERE id=? LIMIT 1")->execute([$_POST['id']]);
             setFlash('success', 'समाचार मेटाइयो।');
         } elseif ($action === 'bulk_status') {
             $bulk = clean_text($_POST['bulk'] ?? '');

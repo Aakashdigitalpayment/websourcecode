@@ -77,25 +77,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $imgName = uploadImage($_FILES['image'], $slidersDir, 1920, 600, true);
                 if ($imgName) {
                     $imgPath = 'assets/uploads/sliders/' . $imgName;
-                    $db->prepare("UPDATE sliders SET title=?, subtitle=?, image=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE sliders SET title=?, subtitle=?, image=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$title, $subtitle, $imgPath, $btn_text, $btn_url, $order, $is_active, $id]);
                 } else {
-                    $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$title, $subtitle, $btn_text, $btn_url, $order, $is_active, $id]);
                     $error = 'छवि process/resize गर्न सकिएन तर अन्य जानकारी अपडेट भयो।';
                 }
             } elseif (isset($_FILES['image']) && (int)($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
                 // Edit मा image optional हो; तर file आएको छ भने exact कारण देखाउने
-                $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$title, $subtitle, $btn_text, $btn_url, $order, $is_active, $id]);
                 $error = sliderUploadErrorText((int)($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE)) . ' अन्य जानकारी अपडेट भयो।';
             } else {
-                $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE sliders SET title=?, subtitle=?, button_text=?, button_url=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$title, $subtitle, $btn_text, $btn_url, $order, $is_active, $id]);
             }
             if (empty($error)) $success = 'स्लाइडर सफलतापूर्वक अपडेट भयो।';
         } elseif ($act === 'delete') {
-            $db->prepare("DELETE FROM sliders WHERE id=?")->execute([(int)$_POST['id']]);
+            $db->prepare("DELETE FROM sliders WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
             $success = 'स्लाइडर मेटाइयो।';
         }
         if ($success !== '' && function_exists('clearHomepageCache')) {

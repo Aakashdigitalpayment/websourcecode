@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                          partner_name=?, partner_name_en=?, location=?, facility_type=?, discount_percent=?, discount_label=?,
                          description=?, description_en=?, terms_np=?, logo_path=?, contact_phone=?, contact_email=?, website_url=?,
                          partner_code=?, pin_hash=?, is_featured=?, display_order=?, is_active=?
-                         WHERE id=?'
+                         WHERE id=? LIMIT 1'
                     )->execute([
                         $pname, $pnameEn, $location, $ftype, $discount, $dlabel,
                         $desc, $descEn, $terms, $logo !== '' ? $logo : null, $phone, $email, $web,
@@ -108,17 +108,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } elseif ($act === 'deactivate') {
                 $id = (int)($_POST['id'] ?? 0);
                 if ($id > 0) {
-                    $db->prepare('UPDATE partner_facilities SET is_active=0 WHERE id=?')->execute([$id]);
+                    $db->prepare('UPDATE partner_facilities SET is_active=0 WHERE id=? LIMIT 1')->execute([$id]);
                     $success = 'साझेदार निष्क्रिय गरियो (अभिलेखमा सारियो)।';
                 }
             } elseif ($act === 'delete') {
                 $id = (int)($_POST['id'] ?? 0);
                 if ($id > 0) {
                     if (partnerHasServiceLogs($db, $id)) {
-                        $db->prepare('UPDATE partner_facilities SET is_active=0 WHERE id=?')->execute([$id]);
+                        $db->prepare('UPDATE partner_facilities SET is_active=0 WHERE id=? LIMIT 1')->execute([$id]);
                         $success = 'सेवा लग भएकाले मेटाउन सकिएन — निष्क्रिय गरियो।';
                     } else {
-                        $db->prepare('DELETE FROM partner_facilities WHERE id=?')->execute([$id]);
+                        $db->prepare('DELETE FROM partner_facilities WHERE id=? LIMIT 1')->execute([$id]);
                         $success = 'साझेदार सुविधा मेटाइयो।';
                     }
                 }

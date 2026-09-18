@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($id > 0) {
-                $db->prepare('UPDATE sahakari_calendar_events SET title_np=?, title_en=?, description_np=?, description_en=?, event_type=?, recurrence=?, bs_year=?, bs_month=?, bs_day=?, is_active=? WHERE id=?')
+                $db->prepare('UPDATE sahakari_calendar_events SET title_np=?, title_en=?, description_np=?, description_en=?, event_type=?, recurrence=?, bs_year=?, bs_month=?, bs_day=?, is_active=? WHERE id=? LIMIT 1')
                     ->execute([$titleNp, $titleEn, $descNp, $descEn, $eventType, $recurrence, $bsYear, $bsMonth, $bsDay, $isActive, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');
             } else {
@@ -89,13 +89,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'toggle') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE sahakari_calendar_events SET is_active = 1 - is_active WHERE id=?')->execute([$id]);
+                $db->prepare('UPDATE sahakari_calendar_events SET is_active = 1 - is_active WHERE id=? LIMIT 1')->execute([$id]);
                 setFlash('success', 'स्थिति परिवर्तन भयो।');
             }
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('DELETE FROM sahakari_calendar_events WHERE id=?')->execute([$id]);
+                $db->prepare('DELETE FROM sahakari_calendar_events WHERE id=? LIMIT 1')->execute([$id]);
                 setFlash('success', 'कार्यक्रम हटाइयो।');
             }
         }
@@ -112,7 +112,7 @@ $filterYear = max(1970, min(2100, $filterYear));
 $editId = (int)($_GET['edit'] ?? 0);
 $edit = null;
 if ($editId > 0) {
-    $st = $db->prepare('SELECT * FROM sahakari_calendar_events WHERE id=?');
+    $st = $db->prepare('SELECT * FROM sahakari_calendar_events WHERE id=? LIMIT 1');
     $st->execute([$editId]);
     $edit = $st->fetch(PDO::FETCH_ASSOC) ?: null;
     if ($edit) {

@@ -58,12 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                    ->execute([$title, $title_np, $desc, $desc_np, $awarded_by, $awarded_by_np, $award_date, $image, $order, $is_active]);
                 $success = 'पुरस्कार सफलतापूर्वक थपियो।';
             } else {
-                $db->prepare("UPDATE awards SET title=?, title_np=?, description=?, description_np=?, awarded_by=?, awarded_by_np=?, award_date=?, image=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE awards SET title=?, title_np=?, description=?, description_np=?, awarded_by=?, awarded_by_np=?, award_date=?, image=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$title, $title_np, $desc, $desc_np, $awarded_by, $awarded_by_np, $award_date, $image, $order, $is_active, (int)$_POST['id']]);
                 $success = 'पुरस्कार सफलतापूर्वक अपडेट भयो।';
             }
         } elseif ($act === 'delete') {
-            $db->prepare("DELETE FROM awards WHERE id=?")->execute([(int)$_POST['id']]);
+            $db->prepare("DELETE FROM awards WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
             $success = 'पुरस्कार मेटाइयो।';
         }
         if ($success !== '' && function_exists('clearHomepageCache')) {

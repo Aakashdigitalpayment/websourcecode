@@ -27,9 +27,9 @@ $allCategories = [];
 $manageCategories = [];
 try {
     /* Program form: active only */
-    $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
     /* Manage screen: all rows */
-    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     $allCategories = [];
     $manageCategories = [];
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     title_np=?, title_en=?, event_label=?, fiscal_year=?,
                     opens_at=?, closes_at=?, is_active=?, show_new_badge=?,
                     instructions_np=?, instructions_en=?
-                    WHERE id=?');
+                    WHERE id=? LIMIT 1');
                 $stmt->execute([$titleNp, $titleEn, $eventLabel, $fiscalYear, $opensNorm, $closesNorm, $isActive, $showNew, $instNp, $instEn, $id]);
                 $programId = $id;
             } else {
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($cid > 0) {
                 $db->prepare(
-                    'UPDATE honor_categories SET name_np=?, name_en=?, requires_nominee=?, requires_document=?, is_active=?, display_order=? WHERE id=?'
+                    'UPDATE honor_categories SET name_np=?, name_en=?, requires_nominee=?, requires_document=?, is_active=?, display_order=? WHERE id=? LIMIT 1'
                 )->execute([$nameNp, $nameEn, $reqNominee, $reqDoc, $isActive, $order, $cid]);
                 setFlash('success', $__t('कोटि अद्यावधिक भयो।', 'Category updated.'));
             } else {
@@ -242,8 +242,8 @@ if ($action === 'categories' && $editCatId > 0) {
 
 /* Refresh category lists after any schema/seed (and for manage screen) */
 try {
-    $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     $allCategories = $allCategories ?: [];
     $manageCategories = $manageCategories ?: [];

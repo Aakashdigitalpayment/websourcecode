@@ -168,10 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $success = $__t('टिम सदस्य सफलतापूर्वक थपियो।', 'Team member added successfully.');
                 } else {
                     if ($photo) {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=? LIMIT 1")
                            ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $chartRow, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     } else {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=? LIMIT 1")
                            ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $chartRow, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     }
                     $success = $__t('टिम सदस्य सफलतापूर्वक अपडेट भयो।', 'Team member updated successfully.');
@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             case 'delete':
-                $db->prepare("DELETE FROM team_members WHERE id=?")->execute([(int)$_POST['id']]);
+                $db->prepare("DELETE FROM team_members WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
                 $success = $__t('टिम सदस्य हटाइयो।', 'Team member deleted.');
                 break;
 
@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gIcon]);
                         $success = $__t('समिति समूह थपियो। अब सदस्य फारमको वर्गमा map गर्न सकिन्छ।', 'Committee group added. You can map members to it in the form.');
                     } else {
-                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=?")
+                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=? LIMIT 1")
                            ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gIcon, $gid]);
                         $success = $__t('समिति समूह अपडेट भयो।', 'Committee group updated.');
                     }
@@ -248,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            ->execute([$slug, $gNameNp, $gNameEn !== '' ? $gNameEn : $gName, $gOrder, $gActive, $gNav, $gMenuCat]);
                         $success = $__t('वर्ग/समूह थपियो। अब सदस्य फारममा map गर्न सकिन्छ।', 'Category/group added. You can map members in the form.');
                     } else {
-                        $db->prepare('UPDATE team_staff_groups SET name_np=?, name_en=?, display_order=?, is_active=?, show_in_nav=?, menu_category_id=? WHERE id=?')
+                        $db->prepare('UPDATE team_staff_groups SET name_np=?, name_en=?, display_order=?, is_active=?, show_in_nav=?, menu_category_id=? WHERE id=? LIMIT 1')
                            ->execute([$gNameNp, $gNameEn !== '' ? $gNameEn : $gName, $gOrder, $gActive, $gNav, $gMenuCat, $gid]);
                         $success = $__t('वर्ग/समूह अपडेट भयो।', 'Category/group updated.');
                     }
@@ -293,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        ->execute([$slug, $mNameNp, $mNameEn !== '' ? $mNameEn : $mNameNp, $mIcon, $mSource, $mContact, $mBoard, $mOrder, $mActive, $mNav]);
                     $success = $__t('मेनु श्रेणी थपियो। अब सार्वजनिक मानवीय श्रोत मेनुमा देखिन्छ।', 'Menu category added. It will appear under Human Resources.');
                 } else {
-                    $db->prepare('UPDATE team_menu_categories SET name_np=?, name_en=?, icon=?, source_type=?, include_contact_officers=?, include_board=?, display_order=?, is_active=?, show_in_nav=? WHERE id=?')
+                    $db->prepare('UPDATE team_menu_categories SET name_np=?, name_en=?, icon=?, source_type=?, include_contact_officers=?, include_board=?, display_order=?, is_active=?, show_in_nav=? WHERE id=? LIMIT 1')
                        ->execute([$mNameNp, $mNameEn !== '' ? $mNameEn : $mNameNp, $mIcon, $mSource, $mContact, $mBoard, $mOrder, $mActive, $mNav, $mid]);
                     $success = $__t('मेनु श्रेणी अपडेट भयो।', 'Menu category updated.');
                 }
@@ -309,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         $db->prepare('UPDATE committee_types SET menu_category_id = NULL WHERE menu_category_id=?')->execute([$mid]);
                     } catch (Throwable $e) {}
-                    $db->prepare('DELETE FROM team_menu_categories WHERE id=?')->execute([$mid]);
+                    $db->prepare('DELETE FROM team_menu_categories WHERE id=? LIMIT 1')->execute([$mid]);
                     $success = $__t('मेनु श्रेणी हटाइयो।', 'Menu category deleted.');
                 }
                 break;
@@ -339,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                     $db->prepare('UPDATE team_members SET category=? WHERE category=?')->execute([$fallback, $slug]);
-                    $db->prepare('DELETE FROM committee_types WHERE id=?')->execute([$gid]);
+                    $db->prepare('DELETE FROM committee_types WHERE id=? LIMIT 1')->execute([$gid]);
                     if ($fallback === 'board') {
                         $success = $__t('समिति समूह हटाइयो। त्यसमा map भएका सदस्य सञ्चालक समितिमा सारियो।', 'Group deleted. Mapped members moved to Board.');
                     } else {
@@ -360,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $fallback = (string)$fbRow['slug'];
                         }
                         $db->prepare('UPDATE team_members SET category=? WHERE category=?')->execute([$fallback, $oldSlug]);
-                        $db->prepare('DELETE FROM team_staff_groups WHERE id=?')->execute([$gid]);
+                        $db->prepare('DELETE FROM team_staff_groups WHERE id=? LIMIT 1')->execute([$gid]);
                         $success = $__t('वर्ग/समूह हटाइयो। map भएका सदस्य अर्को सक्रिय वर्गमा सारियो।', 'Group deleted. Mapped members moved to another active category.');
                     }
                 } else {

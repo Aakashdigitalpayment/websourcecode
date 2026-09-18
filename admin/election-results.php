@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     try {
         if ($action === 'finalize_results') {
-            $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=?')->execute([$cycleId]);
+            $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=? LIMIT 1')->execute([$cycleId]);
             setFlash('success', 'नतिजा अन्तिम (publish) गरियो। मतदान बन्द भयो।');
             if (function_exists('coop_bust_public_cache')) {
                 coop_bust_public_cache();
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $totalAdded++;
                 }
             }
-            $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=?')->execute([$cycleId]);
+            $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=? LIMIT 1')->execute([$cycleId]);
             $msg = $totalAdded . ' विजेता समिति सदस्यमा रूपान्तरण भयो। मतदान बन्द गरियो।';
             if ($skippedCount > 0) $msg .= ' (' . $skippedCount . ' पदमा committee तोकिएको छैन — skip गरियो।)';
             setFlash('success', $msg);

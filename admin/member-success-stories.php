@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                              profession=?, profession_en=?, headline_np=?, headline_en=?,
                              story_np=?, story_en=?, institution_help_np=?, institution_help_en=?,
                              display_order=?, is_active=?
-                             WHERE id=?"
+                             WHERE id=? LIMIT 1"
                         )->execute([
                             $memberName, $memberNameEn, $memberIdNo,
                             $photoPath, $photoPath, $memberSince, $location, $locationEn,
@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id = (int)($_POST['id'] ?? 0);
         $val = (int)($_POST['is_active'] ?? 0);
         if ($id > 0) {
-            $db->prepare('UPDATE member_success_stories SET is_active=? WHERE id=?')->execute([$val, $id]);
+            $db->prepare('UPDATE member_success_stories SET is_active=? WHERE id=? LIMIT 1')->execute([$val, $id]);
             if (function_exists('clearHomepageCache')) {
                 clearHomepageCache();
             }
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } elseif ($act === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
-            $st = $db->prepare('SELECT photo FROM member_success_stories WHERE id=?');
+            $st = $db->prepare('SELECT photo FROM member_success_stories WHERE id=? LIMIT 1');
             $st->execute([$id]);
             $rec = $st->fetch(PDO::FETCH_ASSOC);
             if ($rec && !empty($rec['photo'])) {
@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     @unlink(ROOT_PATH . $rel);
                 }
             }
-            $db->prepare('DELETE FROM member_success_stories WHERE id=?')->execute([$id]);
+            $db->prepare('DELETE FROM member_success_stories WHERE id=? LIMIT 1')->execute([$id]);
             if (function_exists('clearHomepageCache')) {
                 clearHomepageCache();
             }

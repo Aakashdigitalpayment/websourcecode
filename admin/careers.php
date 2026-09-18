@@ -73,12 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$title, $title_np, $dept, $loc, $jtype, $desc, $desc_np, $req, $deadline, $attachment, $vacancies, $min_qual, $exp_req, $salary, $allow_apply, $is_active]);
                 setFlash('success', $__t('रोजगारी थपियो।', 'Career added.'));
             } else {
-                $db->prepare("UPDATE careers SET title=?, title_np=?, department=?, location=?, job_type=?, description=?, description_np=?, requirements=?, deadline=?, attachment=?, vacancies=?, min_qualification=?, experience_required=?, salary_range=?, allow_online_apply=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE careers SET title=?, title_np=?, department=?, location=?, job_type=?, description=?, description_np=?, requirements=?, deadline=?, attachment=?, vacancies=?, min_qualification=?, experience_required=?, salary_range=?, allow_online_apply=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$title, $title_np, $dept, $loc, $jtype, $desc, $desc_np, $req, $deadline, $attachment, $vacancies, $min_qual, $exp_req, $salary, $allow_apply, $is_active, $id]);
                 setFlash('success', $__t('रोजगारी अपडेट भयो।', 'Career updated.'));
             }
         } elseif ($action === 'delete') {
-            $db->prepare("DELETE FROM careers WHERE id=?")->execute([$_POST['id']]);
+            $db->prepare("DELETE FROM careers WHERE id=? LIMIT 1")->execute([$_POST['id']]);
             setFlash('success', $__t('रोजगारी मेटाइयो।', 'Career deleted.'));
         }
     } catch (Exception $e) {

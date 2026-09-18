@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->beginTransaction();
                 $adminId = (int)($_SESSION['admin_id'] ?? 0);
                 $adminName = (string)($_SESSION['admin_name'] ?? 'Admin');
-                $db->prepare('UPDATE election_vote_submissions SET source=?, proof_type=?, verified_by_admin_id=?, verified_by_name=?, note=?, is_ballot=1 WHERE id=?')
+                $db->prepare('UPDATE election_vote_submissions SET source=?, proof_type=?, verified_by_admin_id=?, verified_by_name=?, note=?, is_ballot=1 WHERE id=? LIMIT 1')
                     ->execute([$source, $proofType, $adminId ?: null, $adminName, $note, (int)$old['id']]);
                 $ins = $db->prepare('INSERT INTO election_votes (cycle_id, position_id, candidate_id, member_id) VALUES (?,?,?,?)');
                 foreach ($normalizedPicks as $pid => $candList) {

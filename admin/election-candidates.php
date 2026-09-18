@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /* post master select गरिएको भए — auto-fill */
             if ($postId) {
-                $pst = $db->prepare('SELECT * FROM election_posts WHERE id=?');
+                $pst = $db->prepare('SELECT * FROM election_posts WHERE id=? LIMIT 1');
                 $pst->execute([$postId]);
                 if ($pm = $pst->fetch(PDO::FETCH_ASSOC)) {
                     if ($titleNp === '') $titleNp = (string)$pm['title_np'];

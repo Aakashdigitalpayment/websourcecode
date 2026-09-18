@@ -26,13 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id     = intval($_POST['id']);
             $status = clean_text($_POST['status'] ?? 'pending');
             if (!in_array($status, ['pending','accepted','rejected'], true)) $status = 'pending';
-            $oldSt = $db->prepare('SELECT status, tracking_id, bidder_name, bidder_email, bidder_phone FROM auction_bids WHERE id=?');
+            $oldSt = $db->prepare('SELECT status, tracking_id, bidder_name, bidder_email, bidder_phone FROM auction_bids WHERE id=? LIMIT 1');
             $oldSt->execute([$id]);
             $oldBid = $oldSt->fetch(PDO::FETCH_ASSOC) ?: [];
             $oldStatus = (string)($oldBid['status'] ?? '');
             if ($status === 'accepted') {
                 /* Exclusive winner: reject other bids for same auction (transactional) */
-                $stA = $db->prepare('SELECT auction_id FROM auction_bids WHERE id=?');
+                $stA = $db->prepare('SELECT auction_id FROM auction_bids WHERE id=? LIMIT 1');
                 $stA->execute([$id]);
                 $aid = (int)($stA->fetchColumn() ?: 0);
                 if ($aid > 0) {
@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     try {
                         $db->prepare("UPDATE auction_bids SET status='rejected' WHERE auction_id=? AND id<>? AND status<>'rejected'")
                             ->execute([$aid, $id]);
-                        $db->prepare("UPDATE auction_bids SET status='accepted' WHERE id=?")->execute([$id]);
-                        $db->prepare("UPDATE auction_notices SET status='completed', updated_at=NOW() WHERE id=?")->execute([$aid]);
+                        $db->prepare("UPDATE auction_bids SET status='accepted' WHERE id=? LIMIT 1")->execute([$id]);
+                        $db->prepare("UPDATE auction_notices SET status='completed', updated_at=NOW() WHERE id=? LIMIT 1")->execute([$aid]);
                         $db->commit();
                         setFlash('success', 'बोलपत्र स्वीकृत — अन्य बोलपत्र अस्वीकृत, लिलामी सम्पन्न।');
                     } catch (Throwable $e) {
@@ -51,15 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw $e;
                     }
                 } else {
-                    $db->prepare('UPDATE auction_bids SET status=? WHERE id=?')->execute([$status, $id]);
+                    $db->prepare('UPDATE auction_bids SET status=? WHERE id=? LIMIT 1')->execute([$status, $id]);
                     setFlash('success', 'बोलपत्र स्थिति अपडेट भयो।');
                 }
             } else {
                 /* If rejecting a previously accepted winner, reopen auction when no accepted left */
-                $stA = $db->prepare('SELECT auction_id, status FROM auction_bids WHERE id=?');
+                $stA = $db->prepare('SELECT auction_id, status FROM auction_bids WHERE id=? LIMIT 1');
                 $stA->execute([$id]);
                 $rowB = $stA->fetch(PDO::FETCH_ASSOC) ?: null;
-                $db->prepare('UPDATE auction_bids SET status=? WHERE id=?')->execute([$status, $id]);
+                $db->prepare('UPDATE auction_bids SET status=? WHERE id=? LIMIT 1')->execute([$status, $id]);
                 if ($rowB && ($rowB['status'] ?? '') === 'accepted' && $status === 'rejected') {
                     $aid = (int)$rowB['auction_id'];
                     $left = $db->prepare("SELECT COUNT(*) FROM auction_bids WHERE auction_id=? AND status='accepted'");

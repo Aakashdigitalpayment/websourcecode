@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$attCloseProvided) {
                     $attCloseAt = $prevRow['attendance_close_at'] ?? null;
                 }
-                $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=?");
+                $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=? LIMIT 1");
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');
             } else {
@@ -124,11 +124,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'toggle') {
             $id = (int)($_POST['id'] ?? 0);
-            $db->prepare("UPDATE upcoming_programs SET is_active = 1 - is_active WHERE id=?")->execute([$id]);
+            $db->prepare("UPDATE upcoming_programs SET is_active = 1 - is_active WHERE id=? LIMIT 1")->execute([$id]);
             setFlash('success', 'कार्यक्रम स्थिति परिवर्तन भयो।');
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
-            $db->prepare("DELETE FROM upcoming_programs WHERE id=?")->execute([$id]);
+            $db->prepare("DELETE FROM upcoming_programs WHERE id=? LIMIT 1")->execute([$id]);
             setFlash('success', 'कार्यक्रम हटाइयो।');
         } elseif ($action === 'gen_qr') {
             $id = (int)($_POST['id'] ?? 0);
@@ -153,17 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if ($expiresAt !== null) {
-                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql}, qr_expires_at=? WHERE id=?")
+                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql}, qr_expires_at=? WHERE id=? LIMIT 1")
                     ->execute([$token, $expiresAt, $id]);
             } else {
-                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql} WHERE id=?")
+                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql} WHERE id=? LIMIT 1")
                     ->execute([$token, $id]);
             }
             setFlash('success', 'QR लिंक तयार भयो। सदस्य scan गर्दा उपस्थिति अनुरोध Admin approve पछि गणना हुन्छ।');
         } elseif ($action === 'clear_qr') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE upcoming_programs SET qr_token=NULL, qr_enabled=0, qr_starts_at=NULL, qr_expires_at=NULL WHERE id=?')->execute([$id]);
+                $db->prepare('UPDATE upcoming_programs SET qr_token=NULL, qr_enabled=0, qr_starts_at=NULL, qr_expires_at=NULL WHERE id=? LIMIT 1')->execute([$id]);
                 setFlash('success', 'QR हटाइयो।');
             }
         }

@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
 checkCSRF();
         if (!empty($_POST['rate_id'])) {
             $rateId = (int)$_POST['rate_id'];
-            $db->prepare("UPDATE interest_rates SET category=?, name=?, name_np=?, rate=?, description=?, is_active=?, display_order=? WHERE id=?")
+            $db->prepare("UPDATE interest_rates SET category=?, name=?, name_np=?, rate=?, description=?, is_active=?, display_order=? WHERE id=? LIMIT 1")
                ->execute([$cat, $name, $nameNp, $rate, $description, $isActive, $displayOrder, $rateId]);
             setFlash('success', 'ब्याज दर अपडेट भयो।');
         } else {
@@ -55,7 +55,7 @@ if ($action === 'delete' && $id && $_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     try {
         $db = getDB();
-        $db->prepare("DELETE FROM interest_rates WHERE id=?")->execute([$id]);
+        $db->prepare("DELETE FROM interest_rates WHERE id=? LIMIT 1")->execute([$id]);
         setFlash('success', 'ब्याज दर मेटाइयो।');
         if (function_exists('clearHomepageCache')) clearHomepageCache();
     } catch (Exception $e) { setFlash('error', 'मेटाउन सकिएन।'); }

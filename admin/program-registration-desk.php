@@ -18,7 +18,7 @@ $error = '';
 $existingInfo = null;
 $memberPreview = null;
 
-$programs = $db->query("SELECT id, title, is_multi_location FROM upcoming_programs WHERE is_active=1 ORDER BY title ASC")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$programs = $db->query("SELECT id, title, is_multi_location FROM upcoming_programs WHERE is_active=1 ORDER BY title ASC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $occurrences = [];
 $desks = [];
 $prog = $programId > 0 ? programFetchById($db, $programId) : null;

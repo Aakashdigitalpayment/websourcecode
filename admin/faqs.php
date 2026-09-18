@@ -36,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                    ->execute([$question, $question_np, $answer, $answer_np, $category, $order, $is_active]);
                 $success = 'प्रश्नोत्तर सफलतापूर्वक थपियो।';
             } else {
-                $db->prepare("UPDATE faqs SET question=?, question_np=?, answer=?, answer_np=?, category=?, display_order=?, is_active=? WHERE id=?")
+                $db->prepare("UPDATE faqs SET question=?, question_np=?, answer=?, answer_np=?, category=?, display_order=?, is_active=? WHERE id=? LIMIT 1")
                    ->execute([$question, $question_np, $answer, $answer_np, $category, $order, $is_active, (int)$_POST['id']]);
                 $success = 'प्रश्नोत्तर सफलतापूर्वक अपडेट भयो।';
             }
         } elseif ($act === 'delete') {
-            $db->prepare("DELETE FROM faqs WHERE id=?")->execute([(int)$_POST['id']]);
+            $db->prepare("DELETE FROM faqs WHERE id=? LIMIT 1")->execute([(int)$_POST['id']]);
             $success = 'प्रश्नोत्तर मेटाइयो।';
         } elseif ($act === 'bulk_status') {
             $bulk = clean_text($_POST['bulk'] ?? '');

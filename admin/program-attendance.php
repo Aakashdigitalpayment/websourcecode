@@ -314,11 +314,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'staff_admin_id' => $adminId,
                     ]);
                     if (!empty($rec['ok'])) {
-                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=?")
+                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=? LIMIT 1")
                             ->execute([$adminId ?: null, $reqId]);
                         setFlash('success', 'उपस्थिति अनुरोध स्वीकृत भयो — सूचीमा थपियो।');
                     } elseif (!empty($rec['duplicate'])) {
-                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=?")
+                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=? LIMIT 1")
                             ->execute([$adminId ?: null, $reqId]);
                         setFlash('success', 'सदस्य पहिले नै उपस्थिति सूचीमा छ — अनुरोध बन्द गरियो।');
                     } else {
@@ -384,7 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             VALUES (?,?,?,?, 'approved', 1, NOW())");
                         $insM->execute([$cardNo, $name, $phone, $address]);
                         $newMemberId = (int)$db->lastInsertId();
-                        $db->prepare("UPDATE member_program_attendance_requests SET member_id=?, member_card_no=? WHERE id=?")
+                        $db->prepare("UPDATE member_program_attendance_requests SET member_id=?, member_card_no=? WHERE id=? LIMIT 1")
                             ->execute([$newMemberId, $cardNo, $reqId]);
                         setFlash('success', 'नयाँ सदस्य बन्यो र request link भयो। अब approve गर्न सकिन्छ।');
                     }

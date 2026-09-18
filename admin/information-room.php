@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'UPDATE information_room_items SET
                      title=?, title_np=?, description=?, description_np=?, category=?, file_path=?, file_type=?,
                      meeting_date=?, reference_no=?, allow_download=?, restrict_copy=?, display_order=?, is_active=?
-                     WHERE id=?'
+                     WHERE id=? LIMIT 1'
                 )->execute([
                     $title, $titleNp, $description, $descriptionNp, $category, $filePath, $fileType,
                     $meetingDate !== '' ? $meetingDate : null,
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($id > 0) {
                 $row = irFetchItem($db, $id, false);
                 $db->prepare('DELETE FROM information_room_access_log WHERE item_id=?')->execute([$id]);
-                $db->prepare('DELETE FROM information_room_items WHERE id=?')->execute([$id]);
+                $db->prepare('DELETE FROM information_room_items WHERE id=? LIMIT 1')->execute([$id]);
                 if ($row && !empty($row['file_path'])) {
                     irDeleteStoredFile((string) $row['file_path']);
                 }

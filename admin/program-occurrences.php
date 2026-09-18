@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('program-occurrences.php' . ($parentId > 0 ? ('?parent_id=' . $parentId) : ''));
 }
 
-$multiPrograms = $db->query("SELECT id, title, program_type FROM upcoming_programs WHERE is_active=1 AND is_multi_location=1 ORDER BY title ASC")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$multiPrograms = $db->query("SELECT id, title, program_type FROM upcoming_programs WHERE is_active=1 AND is_multi_location=1 ORDER BY title ASC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $parent = $parentId > 0 ? programFetchById($db, $parentId) : null;
 $occurrences = [];
 if ($parent && (int)($parent['is_multi_location'] ?? 0) === 1) {
