@@ -667,7 +667,8 @@ if (!function_exists('programFetchValidAttendanceByScope')) {
                             FROM member_program_attendance a
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.attendance_scope_key=? AND a.attendance_status='VALID'
-                            ORDER BY a.attended_at DESC");
+                            ORDER BY a.attended_at DESC
+                            LIMIT 2000");
         $st->execute([$scopeId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
@@ -683,7 +684,8 @@ if (!function_exists('programFetchValidAttendanceByOccurrence')) {
                             FROM member_program_attendance a
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.occurrence_id=? AND a.attendance_status='VALID'
-                            ORDER BY a.attended_at DESC");
+                            ORDER BY a.attended_at DESC
+                            LIMIT 2000");
         $st->execute([$occurrenceId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
@@ -699,7 +701,8 @@ if (!function_exists('programFetchValidAttendanceByProgram')) {
                             FROM member_program_attendance a
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.program_id=? AND a.attendance_status='VALID'
-                            ORDER BY a.attended_at DESC");
+                            ORDER BY a.attended_at DESC
+                            LIMIT 2000");
         $st->execute([$programId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }

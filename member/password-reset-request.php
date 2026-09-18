@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $channel  = $_SESSION['pr_channel'] ?? 'auto';
         if ($memberId) {
             $db   = getDB();
-            $stmt = $db->prepare("SELECT id,name,email,phone FROM members WHERE id=?");
+            $stmt = $db->prepare("SELECT id,name,email,phone FROM members WHERE id=? LIMIT 1");
             $stmt->execute([$memberId]);
             $member = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($member) {

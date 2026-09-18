@@ -455,7 +455,7 @@ function currentMember() {
     if (!memberIsLoggedIn()) return null;
     global $db;
     if (!$db) return null;
-    $st = $db->prepare("SELECT * FROM members WHERE id=? AND is_active=1 AND approval_status='approved'");
+    $st = $db->prepare("SELECT * FROM members WHERE id=? AND is_active=1 AND approval_status='approved' LIMIT 1");
     $st->execute([$_SESSION['member_id']]);
     $row = $st->fetch(PDO::FETCH_ASSOC) ?: null;
     /* Never keep 2FA secrets in request-scoped member blob (profile/list pages) */
@@ -625,14 +625,14 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
 
     /* Unique email check */
     if ($email) {
-        $chk = $db->prepare("SELECT id FROM members WHERE email=?");
+        $chk = $db->prepare("SELECT id FROM members WHERE email=? LIMIT 1");
         $chk->execute([$email]);
         if ($chk->fetch()) return ['error' => 'यो इमेल पहिले नै दर्ता छ। लगिन गर्नुहोस्।'];
     }
 
     /* Unique phone check */
     if ($phone) {
-        $chk = $db->prepare("SELECT id FROM members WHERE phone=?");
+        $chk = $db->prepare("SELECT id FROM members WHERE phone=? LIMIT 1");
         $chk->execute([$phone]);
         if ($chk->fetch()) return ['error' => 'यो मोबाइल नम्बर पहिले नै दर्ता छ। लगिन गर्नुहोस् वा सम्पर्क गर्नुहोस्।'];
     }
@@ -649,7 +649,7 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
         if (function_exists('memberSsotFindBySadasyata') && memberSsotFindBySadasyata($db, $sadasyataNumber)) {
             return ['error' => 'यो सदस्यता नम्बर पहिले नै दर्ता छ। लगिन गर्नुहोस् वा सम्पर्क गर्नुहोस्।'];
         }
-        $chk = $db->prepare("SELECT id FROM members WHERE sadasyata_number=?");
+        $chk = $db->prepare("SELECT id FROM members WHERE sadasyata_number=? LIMIT 1");
         $chk->execute([$sadasyataNumber]);
         if ($chk->fetch()) return ['error' => 'यो सदस्यता नम्बर पहिले नै दर्ता छ। लगिन गर्नुहोस् वा सम्पर्क गर्नुहोस्।'];
     }
@@ -832,12 +832,12 @@ function memberOAuthLogin($provider, $providerId, $name, $email, $avatarUrl = ''
     $name  = strip_tags(trim($name));
     $avatarUrl = memberSafeAvatarUrl($avatarUrl);
 
-    $st = $db->prepare("SELECT * FROM members WHERE $col=? AND is_active=1");
+    $st = $db->prepare("SELECT * FROM members WHERE $col=? AND is_active=1 LIMIT 1");
     $st->execute([$providerId]);
     $m = $st->fetch(PDO::FETCH_ASSOC);
 
     if (!$m && $email) {
-        $st = $db->prepare("SELECT * FROM members WHERE email=? AND is_active=1");
+        $st = $db->prepare("SELECT * FROM members WHERE email=? AND is_active=1 LIMIT 1");
         $st->execute([$email]);
         $m = $st->fetch(PDO::FETCH_ASSOC);
         if ($m) {
@@ -937,7 +937,7 @@ function adminApproveMember($memberId, $adminId = null) {
 
     /* SMS + Email notification */
     try {
-        $stmt = $db->prepare("SELECT name, email, phone FROM members WHERE id=?");
+        $stmt = $db->prepare("SELECT name, email, phone FROM members WHERE id=? LIMIT 1");
         $stmt->execute([$memberId]);
         $m = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($m) {
@@ -987,7 +987,7 @@ function adminRejectMember($memberId, $reason = '', $adminId = null) {
 
     /* SMS notification */
     try {
-        $stmt = $db->prepare("SELECT name, phone FROM members WHERE id=?");
+        $stmt = $db->prepare("SELECT name, phone FROM members WHERE id=? LIMIT 1");
         $stmt->execute([$memberId]);
         $m = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($m) {
@@ -1341,13 +1341,13 @@ function findMemberByContact($email, $phone) {
     global $db;
     if (!$db) return null;
     if ($email) {
-        $st = $db->prepare("SELECT * FROM members WHERE email=? AND is_active=1");
+        $st = $db->prepare("SELECT * FROM members WHERE email=? AND is_active=1 LIMIT 1");
         $st->execute([strtolower(trim($email))]);
         $m = $st->fetch(PDO::FETCH_ASSOC);
         if ($m) return $m;
     }
     if ($phone) {
-        $st = $db->prepare("SELECT * FROM members WHERE phone=? AND is_active=1");
+        $st = $db->prepare("SELECT * FROM members WHERE phone=? AND is_active=1 LIMIT 1");
         $st->execute([$phone]);
         $m = $st->fetch(PDO::FETCH_ASSOC);
         if ($m) return $m;
