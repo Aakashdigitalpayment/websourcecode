@@ -513,6 +513,8 @@ assertContains('institutional-profile-file.php', 'coopMemberAccessBounceSocialIn
 assertContains('includes/public-member-access.php', 'facebookexternalhit|Facebot', 'file proxy also bounces preview crawlers');
 assertContains('includes/public-member-access.php', "&nav=1", 'file proxy URLs mark UI navigation');
 assertContains('includes/public-member-access.php', "\$_GET['nav']", 'bounce skips UI View/Download nav=1');
+assertContains('assets/css/final-ui-polish.css', 'Android sticky header: logo must not float', 'Android sticky opaque header fix');
+assertContains('assets/css/app-sections/app-public--header-v2.css', 'background: #fff;', 'header wrapper has opaque background');
 assertContains('includes/public-member-access.php', 'function coopMemberAccessCreateFileToken', 'signed file token for cookie-less Android opens');
 assertContains('includes/public-member-access.php', 'function coopMemberAccessCheckFileToken', 'file proxy validates signed token');
 assertContains('report-file.php', 'coopMemberAccessCheckFileToken', 'report proxy accepts signed token');
