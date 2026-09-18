@@ -37,15 +37,23 @@ $__shareReportId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($__shareReportId > 0) {
     try {
         $__dbOg = getDB();
-        $__stOg = $__dbOg->prepare('SELECT title, title_np, access_level FROM reports WHERE id = ? AND is_active = 1 LIMIT 1');
-        $__stOg->execute([$__shareReportId]);
-        $__ogRow = $__stOg->fetch(PDO::FETCH_ASSOC);
+        $__ogRow = false;
+        try {
+            $__stOg = $__dbOg->prepare('SELECT title, title_np, access_level FROM reports WHERE id = ? AND is_active = 1 LIMIT 1');
+            $__stOg->execute([$__shareReportId]);
+            $__ogRow = $__stOg->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $eOgCol) {
+            $__stOg = $__dbOg->prepare('SELECT title, title_np FROM reports WHERE id = ? AND is_active = 1 LIMIT 1');
+            $__stOg->execute([$__shareReportId]);
+            $__ogRow = $__stOg->fetch(PDO::FETCH_ASSOC);
+        }
         if (is_array($__ogRow)) {
             $__ogTitle = trim((string) (function_exists('getLangField') ? getLangField($__ogRow, 'title') : ($__ogRow['title_np'] ?: $__ogRow['title'])));
             if ($__ogTitle !== '') {
                 $pageTitle = $__ogTitle;
             }
             $__ogMember = function_exists('coopAccessLevelNormalize')
+                && array_key_exists('access_level', $__ogRow)
                 && coopAccessLevelNormalize((string) ($__ogRow['access_level'] ?? 'none')) === 'member';
             if ($__ogMember) {
                 $pageDescription = isEnglish()
