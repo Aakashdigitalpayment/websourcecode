@@ -8,6 +8,7 @@
  */
 require_once 'includes/config.php';
 require_once __DIR__ . '/includes/institutional-profile-helpers.php';
+require_once __DIR__ . '/includes/institutional-profile-welfare.php';
 require_once __DIR__ . '/includes/public-member-access.php';
 if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
     require_once __DIR__ . '/includes/nepali-bs-convert.php';
@@ -130,10 +131,12 @@ foreach ($profiles as &$_pRow) {
     if ($_pRow['_month'] > 0) $monthSet[$_pRow['_month']] = true;
     $upto = coopIpProfileUptoAdDate($_pRow);
     $_pRow['_upto_ad'] = $upto;
-    if (!isset($ipWelfareByUpto[$upto]) && isset($db) && $db instanceof PDO) {
-        $ipWelfareByUpto[$upto] = coopIpWelfareReliefByType($db, $upto, $isEn);
+    $_pid = (int)($_pRow['id'] ?? 0);
+    $cacheKey = $_pid > 0 ? ('id:' . $_pid) : ('upto:' . $upto);
+    if (!isset($ipWelfareByUpto[$cacheKey]) && isset($db) && $db instanceof PDO) {
+        $ipWelfareByUpto[$cacheKey] = coopIpWelfareResolveForProfile($db, $_pRow, $isEn);
     }
-    $_pRow['_welfare'] = $ipWelfareByUpto[$upto] ?? [];
+    $_pRow['_welfare'] = $ipWelfareByUpto[$cacheKey] ?? [];
 }
 unset($_pRow);
 $fiscalYears = array_keys($fiscalYears);
@@ -590,7 +593,7 @@ if ($ipChartSeries['count'] >= 2):
             <div class="ip-relief-block" data-testid="institutional-profile-relief-<?php echo $rowNo; ?>">
                 <div class="ip-relief-head">
                     <strong><i class="lucide-icon" data-lucide="heart-handshake" aria-hidden="true"></i> <?php echo $isEn ? 'Member welfare facilities' : 'सदस्य राहत / कल्याण सुविधा'; ?></strong>
-                    <span><?php echo $isEn ? 'From member-welfare (upto this report)' : 'member-welfare बाट (यो प्रतिवेदनसम्म)'; ?></span>
+                    <span><?php echo $isEn ? 'Published report + opening / member-welfare' : 'प्रकाशित प्रोफाइल / Opening + member-welfare'; ?></span>
                 </div>
                 <div class="ip-relief-table-wrap">
                     <table class="ip-relief-table">
@@ -694,7 +697,7 @@ if ($ipChartSeries['count'] >= 2):
           </table>
           <p class="ip-poster-note"><?php echo $isEn
             ? 'Welfare types & totals come from Member Welfare (single source).'
-            : 'राहत प्रकार तथा रकम सदस्य कल्याण (member-welfare) बाट — एउटै स्रोत।'; ?></p>
+            : 'प्रकाशित मासिक प्रोफाइलमा सुरक्षित राहत (Opening + portal) — प्रकार सदस्य कल्याण बाट।'; ?></p>
         </section>
       </article>
     </div>
