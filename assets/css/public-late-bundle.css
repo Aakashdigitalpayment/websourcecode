@@ -7569,18 +7569,38 @@ body.dark-mode .job-detail-footer {
 
   /* Keep a11y FAB clear of profile/report chips + bottom nav */
   #scrollAccessibilityPanel.sa-panel {
-    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
-    left: 10px !important;
-    z-index: 1040 !important;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    left: 8px !important;
+    /* Below report/IP action buttons so Om never steals View/Download taps */
+    z-index: 1025 !important;
   }
 
   #scrollAccessibilityPanel .sa-toggle-btn {
-    width: 42px !important;
-    height: 42px !important;
+    width: 38px !important;
+    height: 38px !important;
   }
 
   .qh-launcher {
-    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 1025 !important;
+  }
+
+  /* Report / IP action row wins over floating Om + Quick Actions when overlapping */
+  .report-actions,
+  .report-actions-icons,
+  .report-action-btn,
+  .ip-month-tile [data-testid],
+  .ip-month-tile .btn,
+  a.report-action-view,
+  a.report-action-download,
+  button.report-action-share {
+    position: relative;
+    z-index: 1035;
+  }
+
+  body.has-bottomnav #main-content,
+  body:has(.mob-bottomnav) #main-content {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
