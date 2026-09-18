@@ -10,6 +10,9 @@
    bold      = punchy / join-CTA early / recruitment
    airy      = roomy / people-first / leadership early
    cascade   = services→tools→rates waterfall
+   pulse     = rates+news early / fresh updates
+   summit    = awards+leadership early / prestige
+   harbor    = why→services→CTA / warm welcome
 
    Brand colors stay in global-theme.php (--primary-color, etc.).
    Admin / member portals do not load this personality path.
@@ -57,6 +60,26 @@ html[data-ui-look="cascade"] {
   --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 2%, #fff);
   --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f3f6f4);
   --look-ink-rail: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 70%, #64748b);
+}
+html[data-ui-look="pulse"] {
+  --look-radius: 0.55rem;
+  --look-radius-lg: 0.75rem;
+  --look-paper: #fff;
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f5f7f6);
+  --look-ink-rail: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary)));
+}
+html[data-ui-look="summit"] {
+  --look-radius: 0.75rem;
+  --look-radius-lg: 1rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 3%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #f7f8f7);
+  --look-ink-rail: 3px solid var(--primary-color, var(--primary));
+}
+html[data-ui-look="harbor"] {
+  --look-radius: 0.95rem;
+  --look-radius-lg: 1.25rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 3%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #f6f9f7);
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -3862,6 +3885,821 @@ html[data-ui-look="airy"] .public-form-shell .form-select {
     border-radius: var(--look-radius) !important;
   }
   html[data-ui-look="airy"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 999px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 10 — Pulse / Summit / Harbor (new looks; Soft–Harbor-1 untouched)
+   Same pages / text / brand tokens. Distinct chrome + flex rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+html[data-ui-look="pulse"] body,
+html[data-ui-look="summit"] body,
+html[data-ui-look="harbor"] body {
+  background-color: var(--look-wash);
+}
+
+/* ───────────── PULSE — rates+news first ───────────── */
+html[data-ui-look="pulse"] .pfl-main-header {
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 45%, var(--primary-color, var(--primary))) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="pulse"] .pfl-header-wrapper,
+html[data-ui-look="pulse"] .pfl-drop,
+html[data-ui-look="pulse"] .pfl-login-menu,
+html[data-ui-look="pulse"] .mobile-nav-drawer,
+html[data-ui-look="pulse"] .mobile-nav-panel,
+html[data-ui-look="pulse"] .pfl-mobile-toggle,
+html[data-ui-look="pulse"] .close-menu {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="pulse"] .pfl-quick-links > li > a {
+  font-weight: 700;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  padding: 0.45rem 0.65rem !important;
+}
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 70%, #fff) !important;
+}
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary))) !important;
+}
+html[data-ui-look="pulse"] .hero-slider,
+html[data-ui-look="pulse"] .hero-carousel-modern,
+html[data-ui-look="pulse"] .hero-slide-modern,
+html[data-ui-look="pulse"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="pulse"] .hero-title-modern {
+  font-weight: 800 !important;
+  max-width: min(34rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="pulse"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="pulse"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="pulse"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="pulse"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="pulse"] .hero-btn-modern,
+html[data-ui-look="pulse"] .btn,
+html[data-ui-look="pulse"] .btn-primary,
+html[data-ui-look="pulse"] .home-btn-primary,
+html[data-ui-look="pulse"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+}
+html[data-ui-look="pulse"] .hero-slider .carousel-indicators button {
+  border-radius: 2px !important;
+  width: 14px !important;
+  height: 4px !important;
+}
+html[data-ui-look="pulse"] .card,
+html[data-ui-look="pulse"] .service-card,
+html[data-ui-look="pulse"] .service-card-modern,
+html[data-ui-look="pulse"] .notice-card,
+html[data-ui-look="pulse"] .news-card,
+html[data-ui-look="pulse"] .feature-card,
+html[data-ui-look="pulse"] .why-choose-card,
+html[data-ui-look="pulse"] .award-card,
+html[data-ui-look="pulse"] .rate-card,
+html[data-ui-look="pulse"] .rate-card-enhanced,
+html[data-ui-look="pulse"] .coop-card,
+html[data-ui-look="pulse"] .ds-coop-card,
+html[data-ui-look="pulse"] .tools-category-card,
+html[data-ui-look="pulse"] .feature-box,
+html[data-ui-look="pulse"] .value-card,
+html[data-ui-look="pulse"] .gallery-card,
+html[data-ui-look="pulse"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 50%, var(--primary-color, var(--primary))) !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+}
+html[data-ui-look="pulse"] .rates-box-enhanced,
+html[data-ui-look="pulse"] .notices-box-enhanced,
+html[data-ui-look="pulse"] .institutional-profile-bar {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary)));
+  background: var(--look-paper);
+}
+html[data-ui-look="pulse"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="pulse"] .tools-mini-link > svg.lucide,
+html[data-ui-look="pulse"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="pulse"] .section-padding,
+html[data-ui-look="pulse"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) - 8px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) - 8px) !important;
+}
+html[data-ui-look="pulse"] .section-header h2,
+html[data-ui-look="pulse"] .section-header-unified h2 {
+  font-weight: 800 !important;
+}
+html[data-ui-look="pulse"] .page-banner {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="pulse"] .page-banner h1,
+html[data-ui-look="pulse"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+  font-weight: 800 !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="pulse"] .qh-fab,
+html[data-ui-look="pulse"] .section-badge {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="pulse"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+html[data-ui-look="pulse"] .pfl-since-badge .since-text { display: none !important; }
+
+/* ───────────── SUMMIT — prestige / awards+leadership ───────────── */
+html[data-ui-look="summit"] .pfl-main-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+html[data-ui-look="summit"] .pfl-header-wrapper,
+html[data-ui-look="summit"] .pfl-drop,
+html[data-ui-look="summit"] .pfl-login-menu,
+html[data-ui-look="summit"] .mobile-nav-drawer,
+html[data-ui-look="summit"] .mobile-nav-panel,
+html[data-ui-look="summit"] .pfl-mobile-toggle,
+html[data-ui-look="summit"] .close-menu {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="summit"] .pfl-quick-links > li > a {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 0.7rem !important;
+}
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 35%, #000) !important;
+  transform: none !important;
+}
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  border-top: var(--look-ink-rail) !important;
+}
+html[data-ui-look="summit"] .hero-slider,
+html[data-ui-look="summit"] .hero-carousel-modern,
+html[data-ui-look="summit"] .hero-slide-modern,
+html[data-ui-look="summit"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="summit"] .hero-title-modern {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  border-bottom: 3px solid color-mix(in srgb, #fff 55%, transparent);
+  padding-bottom: 0.35rem;
+  max-width: min(36rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="summit"] .hero-title-modern::after,
+html[data-ui-look="summit"] .hero-title-modern::before {
+  display: none !important;
+}
+html[data-ui-look="summit"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="summit"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="summit"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="summit"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="summit"] .hero-btn-modern,
+html[data-ui-look="summit"] .btn,
+html[data-ui-look="summit"] .btn-primary,
+html[data-ui-look="summit"] .home-btn-primary,
+html[data-ui-look="summit"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 30%, #000) !important;
+}
+html[data-ui-look="summit"] .card,
+html[data-ui-look="summit"] .service-card,
+html[data-ui-look="summit"] .service-card-modern,
+html[data-ui-look="summit"] .notice-card,
+html[data-ui-look="summit"] .news-card,
+html[data-ui-look="summit"] .feature-card,
+html[data-ui-look="summit"] .why-choose-card,
+html[data-ui-look="summit"] .award-card,
+html[data-ui-look="summit"] .rate-card,
+html[data-ui-look="summit"] .rate-card-enhanced,
+html[data-ui-look="summit"] .coop-card,
+html[data-ui-look="summit"] .ds-coop-card,
+html[data-ui-look="summit"] .tools-category-card,
+html[data-ui-look="summit"] .feature-box,
+html[data-ui-look="summit"] .value-card,
+html[data-ui-look="summit"] .gallery-card,
+html[data-ui-look="summit"] .download-card,
+html[data-ui-look="summit"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #dce3df) !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary)) !important;
+  background: var(--look-paper) !important;
+  box-shadow: none !important;
+}
+html[data-ui-look="summit"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="summit"] .tools-mini-link > svg.lucide,
+html[data-ui-look="summit"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="summit"] .section-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.7rem !important;
+}
+html[data-ui-look="summit"] .section-header h2,
+html[data-ui-look="summit"] .section-header-unified h2 {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+html[data-ui-look="summit"] .institutional-profile-bar,
+html[data-ui-look="summit"] .rates-box-enhanced,
+html[data-ui-look="summit"] .notices-box-enhanced,
+html[data-ui-look="summit"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary));
+  background: var(--look-paper);
+}
+html[data-ui-look="summit"] .page-banner {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="summit"] .page-banner h1,
+html[data-ui-look="summit"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+  font-weight: 700 !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+}
+html[data-ui-look="summit"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="summit"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+html[data-ui-look="summit"] .pfl-since-badge .since-text { display: none !important; }
+html[data-ui-look="summit"] .main-footer .footer-widget h4 {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+/* ───────────── HARBOR — warm welcome why→services→CTA ───────────── */
+html[data-ui-look="harbor"] .pfl-main-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent) !important;
+  box-shadow: none !important;
+  padding-block: 0.45rem !important;
+}
+html[data-ui-look="harbor"] .pfl-header-wrapper,
+html[data-ui-look="harbor"] .pfl-drop,
+html[data-ui-look="harbor"] .pfl-login-menu,
+html[data-ui-look="harbor"] .mobile-nav-drawer,
+html[data-ui-look="harbor"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+html[data-ui-look="harbor"] .pfl-mobile-toggle,
+html[data-ui-look="harbor"] .close-menu {
+  border-radius: 999px !important;
+}
+html[data-ui-look="harbor"] .pfl-quick-links > li > a {
+  border-radius: 999px !important;
+  font-weight: 600;
+}
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: 999px !important;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem !important;
+  background: transparent !important;
+}
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #fff) !important;
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg {
+  color: var(--primary-color, var(--primary)) !important;
+  stroke: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: 1rem !important;
+  border: 0 !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+html[data-ui-look="harbor"] .hero-slider,
+html[data-ui-look="harbor"] .hero-carousel-modern,
+html[data-ui-look="harbor"] .hero-slide-modern,
+html[data-ui-look="harbor"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+html[data-ui-look="harbor"] .hero-title-modern {
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+  max-width: min(38rem, 100%);
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="harbor"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="harbor"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="harbor"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="harbor"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="harbor"] .hero-btn-modern,
+html[data-ui-look="harbor"] .btn,
+html[data-ui-look="harbor"] .btn-primary,
+html[data-ui-look="harbor"] .home-btn-primary,
+html[data-ui-look="harbor"] .view-all-btn {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.25rem !important;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+html[data-ui-look="harbor"] .hero-slider .carousel-indicators button {
+  border-radius: 999px !important;
+  width: 9px !important;
+  height: 9px !important;
+}
+html[data-ui-look="harbor"] .card,
+html[data-ui-look="harbor"] .service-card,
+html[data-ui-look="harbor"] .service-card-modern,
+html[data-ui-look="harbor"] .notice-card,
+html[data-ui-look="harbor"] .news-card,
+html[data-ui-look="harbor"] .feature-card,
+html[data-ui-look="harbor"] .why-choose-card,
+html[data-ui-look="harbor"] .award-card,
+html[data-ui-look="harbor"] .rate-card,
+html[data-ui-look="harbor"] .rate-card-enhanced,
+html[data-ui-look="harbor"] .coop-card,
+html[data-ui-look="harbor"] .ds-coop-card,
+html[data-ui-look="harbor"] .tools-category-card,
+html[data-ui-look="harbor"] .feature-box,
+html[data-ui-look="harbor"] .value-card,
+html[data-ui-look="harbor"] .gallery-card,
+html[data-ui-look="harbor"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  overflow: hidden !important;
+}
+html[data-ui-look="harbor"] .tools-mini-link {
+  border-radius: 0.85rem !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color, var(--primary)) 6%, transparent);
+}
+html[data-ui-look="harbor"] .tools-mini-link > svg.lucide,
+html[data-ui-look="harbor"] .tools-mini-link .lucide-icon {
+  border-radius: 0.85rem !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+html[data-ui-look="harbor"] .section-padding,
+html[data-ui-look="harbor"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) + 10px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) + 10px) !important;
+}
+html[data-ui-look="harbor"] .section-header h2,
+html[data-ui-look="harbor"] .section-header-unified h2 {
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+html[data-ui-look="harbor"] .section-badge {
+  border-radius: 999px !important;
+  padding-inline: 0.85rem !important;
+}
+html[data-ui-look="harbor"] .institutional-profile-bar,
+html[data-ui-look="harbor"] .rates-box-enhanced,
+html[data-ui-look="harbor"] .notices-box-enhanced,
+html[data-ui-look="harbor"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+html[data-ui-look="harbor"] .why-us-section {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 4%, #fff);
+}
+html[data-ui-look="harbor"] .cta-section {
+  padding-block: 2.5rem !important;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff) !important;
+}
+html[data-ui-look="harbor"] .page-banner {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+html[data-ui-look="harbor"] .page-banner h1,
+html[data-ui-look="harbor"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+  font-weight: 600 !important;
+  overflow-wrap: anywhere;
+}
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="harbor"] .qh-fab,
+html[data-ui-look="harbor"] .footer-social a,
+html[data-ui-look="harbor"] .whatsapp-float,
+html[data-ui-look="harbor"] #wa-float-btn {
+  border-radius: 999px !important;
+}
+html[data-ui-look="harbor"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+html[data-ui-look="harbor"] .pfl-since-badge .since-text { display: none !important; }
+html[data-ui-look="harbor"] .breadcrumb {
+  border-radius: 999px !important;
+  padding: 0.35rem 0.85rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+html[data-ui-look="harbor"] .form-control,
+html[data-ui-look="harbor"] .form-select,
+html[data-ui-look="harbor"] .public-form-shell .form-control,
+html[data-ui-look="harbor"] .public-form-shell .form-select {
+  border-radius: 999px !important;
+}
+
+/* Shared Soft-matching hero scrim */
+html[data-ui-look="pulse"] .hero-overlay-modern,
+html[data-ui-look="pulse"] .slider-overlay,
+html[data-ui-look="summit"] .hero-overlay-modern,
+html[data-ui-look="summit"] .slider-overlay,
+html[data-ui-look="harbor"] .hero-overlay-modern,
+html[data-ui-look="harbor"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+html[data-ui-look="pulse"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="summit"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="harbor"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* ── PASS 10 flex shells + homepage serial ── */
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider),
+html[data-ui-look="summit"] #main-content:has(> .hero-slider),
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+html[data-ui-look="pulse"] .pfl-quick-links,
+html[data-ui-look="summit"] .pfl-quick-links,
+html[data-ui-look="harbor"] .pfl-quick-links,
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu,
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu,
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu,
+html[data-ui-look="pulse"] .main-footer .footer-top .row,
+html[data-ui-look="summit"] .main-footer .footer-top .row,
+html[data-ui-look="harbor"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+html[data-ui-look="pulse"] #main-content > .hero-slider,
+html[data-ui-look="summit"] #main-content > .hero-slider,
+html[data-ui-look="harbor"] #main-content > .hero-slider { order: 1; }
+html[data-ui-look="pulse"] #main-content > .institutional-profile-section,
+html[data-ui-look="summit"] #main-content > .institutional-profile-section,
+html[data-ui-look="harbor"] #main-content > .institutional-profile-section { order: 2; }
+
+/* Pulse — rates+news early, then join CTA */
+html[data-ui-look="pulse"] #main-content > .rates-notices-section { order: 3; } /* ब्याज तथा सूचना early */
+html[data-ui-look="pulse"] #main-content > .news-section { order: 4; }
+html[data-ui-look="pulse"] #main-content > .cta-section { order: 5; } /* सदस्य बन्नुहोस् after news */
+html[data-ui-look="pulse"] #main-content > .services-section { order: 6; }
+html[data-ui-look="pulse"] #main-content > .tools-widget-section { order: 7; }
+html[data-ui-look="pulse"] #main-content > .why-us-section { order: 8; }
+html[data-ui-look="pulse"] #main-content > .leadership-messages-section { order: 9; }
+html[data-ui-look="pulse"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="pulse"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="pulse"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="pulse"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Summit — awards+leadership early, then why+CTA */
+html[data-ui-look="summit"] #main-content > .awards-section { order: 3; } /* पुरस्कार early */
+html[data-ui-look="summit"] #main-content > .leadership-messages-section { order: 4; }
+html[data-ui-look="summit"] #main-content > .why-us-section { order: 5; }
+html[data-ui-look="summit"] #main-content > .cta-section { order: 6; } /* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="summit"] #main-content > .services-section { order: 7; }
+html[data-ui-look="summit"] #main-content > .rates-notices-section { order: 8; }
+html[data-ui-look="summit"] #main-content > .tools-widget-section { order: 9; }
+html[data-ui-look="summit"] #main-content > .news-section { order: 10; }
+html[data-ui-look="summit"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="summit"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="summit"] #main-content > .member-spotlight-section { order: 13; }
+
+/* Harbor — why then services then join CTA */
+html[data-ui-look="harbor"] #main-content > .why-us-section { order: 3; } /* किन हामीलाई छान्ने? early welcome */
+html[data-ui-look="harbor"] #main-content > .services-section { order: 4; }
+html[data-ui-look="harbor"] #main-content > .cta-section { order: 5; } /* सदस्य बन्नुहोस् after services */
+html[data-ui-look="harbor"] #main-content > .tools-widget-section { order: 6; }
+html[data-ui-look="harbor"] #main-content > .rates-notices-section { order: 7; }
+html[data-ui-look="harbor"] #main-content > .leadership-messages-section { order: 8; }
+html[data-ui-look="harbor"] #main-content > .news-section { order: 9; }
+html[data-ui-look="harbor"] #main-content > .awards-section { order: 10; }
+html[data-ui-look="harbor"] #main-content > .mobile-app-section { order: 11; }
+html[data-ui-look="harbor"] #main-content > .app-features-section { order: 12; }
+html[data-ui-look="harbor"] #main-content > .member-spotlight-section { order: 13; }
+
+/* —— Top utility serial —— */
+html[data-ui-look="pulse"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="summit"] .pfl-quick-links > li.has-drop { order: 20; }
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 1; }
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2; }
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 3; }
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4; }
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 5; }
+
+html[data-ui-look="summit"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 1; }
+html[data-ui-look="summit"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 2; }
+html[data-ui-look="summit"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 3; }
+html[data-ui-look="summit"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 4; }
+html[data-ui-look="summit"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 5; }
+
+html[data-ui-look="harbor"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 1; }
+html[data-ui-look="harbor"] .pfl-quick-links > li.has-drop { order: 2; }
+html[data-ui-look="harbor"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 3; }
+html[data-ui-look="harbor"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 4; }
+html[data-ui-look="harbor"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 5; }
+html[data-ui-look="harbor"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 6; }
+
+/* —— Main nav serial —— */
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 2; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 4; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 2; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 3; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 4; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 5; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 6; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 7; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8; }
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9; }
+
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 2; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 3; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 4; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 5; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 6; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 7; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 8; }
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 9; }
+
+/* —— Footer column serial —— */
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-3 { order: 1; }
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-5 { order: 2; }
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 { order: 3; }
+
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 { order: 1; }
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-3 { order: 2; }
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-5 { order: 3; }
+
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-5 { order: 1; }
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-3 { order: 2; }
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 { order: 3; }
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  justify-content: center;
+}
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Dark mode + wrap safety */
+html[data-ui-look="pulse"] body.dark-mode,
+html[data-ui-look="summit"] body.dark-mode,
+html[data-ui-look="harbor"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #1a1f1c);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #121512);
+}
+html[data-ui-look="pulse"] .hero-title-modern,
+html[data-ui-look="summit"] .hero-title-modern,
+html[data-ui-look="harbor"] .hero-title-modern,
+html[data-ui-look="pulse"] .tools-mini-link span,
+html[data-ui-look="summit"] .tools-mini-link span,
+html[data-ui-look="harbor"] .tools-mini-link span,
+html[data-ui-look="pulse"] .value-card h5,
+html[data-ui-look="summit"] .value-card h5,
+html[data-ui-look="harbor"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+html[data-ui-look="pulse"] .form-control,
+html[data-ui-look="pulse"] .form-select,
+html[data-ui-look="summit"] .form-control,
+html[data-ui-look="summit"] .form-select {
+  border-radius: var(--look-radius) !important;
+}
+
+@media (max-width: 991.98px) {
+  html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a,
+  html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: var(--look-radius) !important;
+  }
+  html[data-ui-look="harbor"] body.header-v2 #mainNavV2 .nav-menu > li > a {
     border-radius: 999px !important;
   }
 }

@@ -50,6 +50,21 @@ if (!function_exists('coopPublicUiLooks')) {
                 'hint'  => 'Services→tools→rates then why+join CTA — clear utility waterfall.',
                 'best'  => 'Best for a services-then-tools path. Same pages, text, and brand colors.',
             ],
+            'pulse' => [
+                'label' => 'Pulse',
+                'hint'  => 'Rates+news early, then join CTA — fresh updates first.',
+                'best'  => 'Best when members check rates and news often. Same pages, text, and brand colors.',
+            ],
+            'summit' => [
+                'label' => 'Summit',
+                'hint'  => 'Awards+leadership early, then why+join CTA — prestige trust feel.',
+                'best'  => 'Best for a leadership-led prestige look. Same pages, text, and brand colors.',
+            ],
+            'harbor' => [
+                'label' => 'Harbor',
+                'hint'  => 'Why-us then services then join CTA — warm welcome rhythm.',
+                'best'  => 'Best for a friendly neighborhood coop feel. Same pages, text, and brand colors.',
+            ],
         ];
     }
 }

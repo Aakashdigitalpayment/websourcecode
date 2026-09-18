@@ -1736,6 +1736,18 @@ if (function_exists('coopThemeLink')) {
             .look-mini--cascade .bar{width:50%;height:5px;top:16%;left:10%;background:var(--primary-color,#1a5f2a);}
             .look-mini--cascade .bar2{width:36%;height:5px;top:28%;left:10%;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 40%,#111);opacity:.7;}
             .look-mini--cascade .card{border-radius:.5rem;width:32%;right:8%;bottom:12%;background:#fff;box-shadow:inset 2px 0 0 var(--primary-color,#1a5f2a);}
+            .look-mini--pulse{border-radius:.55rem;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 22%,#0f172a);}
+            .look-mini--pulse .bar{width:58%;height:5px;top:14%;left:10%;background:color-mix(in srgb,var(--secondary-color,#c0392b) 70%,#fff);}
+            .look-mini--pulse .bar2{width:44%;height:5px;top:28%;left:10%;background:#fff;opacity:.75;}
+            .look-mini--pulse .card{border-radius:.4rem;width:30%;right:8%;bottom:12%;background:#fff;box-shadow:0 0 0 2px color-mix(in srgb,var(--secondary-color,#c0392b) 40%,transparent);}
+            .look-mini--summit{border-radius:.75rem;background:linear-gradient(160deg,color-mix(in srgb,var(--primary-color,#1a5f2a) 55%,#0f172a),color-mix(in srgb,var(--primary-color,#1a5f2a) 18%,#f8faf9));}
+            .look-mini--summit .bar{width:40%;height:7px;top:18%;left:12%;background:#fff;opacity:.9;}
+            .look-mini--summit .bar2{width:28%;top:38%;left:12%;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 25%,#fff);opacity:.8;}
+            .look-mini--summit .card{border-radius:.55rem;width:34%;height:44%;right:8%;bottom:12%;background:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--primary-color,#1a5f2a) 35%,transparent);}
+            .look-mini--harbor{border-radius:.95rem;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 12%,#f3f7f4);}
+            .look-mini--harbor .bar{width:46%;height:6px;top:20%;left:12%;border-radius:999px;background:var(--primary-color,#1a5f2a);}
+            .look-mini--harbor .bar2{width:32%;top:40%;left:12%;border-radius:999px;background:color-mix(in srgb,var(--primary-color,#1a5f2a) 35%,#111);opacity:.55;}
+            .look-mini--harbor .card{border-radius:.85rem;width:34%;height:46%;right:8%;bottom:12%;background:#fff;box-shadow:0 8px 18px color-mix(in srgb,var(--primary-color,#1a5f2a) 12%,transparent);}
             </style>
             <script>
             (function(){
