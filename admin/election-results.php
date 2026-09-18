@@ -7,6 +7,7 @@ $pageTitle = 'निर्वाचन नतिजा';
 $currentPage = 'election-results';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 require_once __DIR__ . '/../includes/election-tables.php';
 $db = getDB();
@@ -36,6 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'finalize_results') {
             $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=?')->execute([$cycleId]);
             setFlash('success', 'नतिजा अन्तिम (publish) गरियो। मतदान बन्द भयो।');
+            if (function_exists('coop_bust_public_cache')) {
+                coop_bust_public_cache();
+            } elseif (function_exists('clearHomepageCache')) {
+                clearHomepageCache();
+            }
             redirect('election-results.php?cycle=' . $cycleId);
         }
         if ($action === 'convert_winners') {
@@ -98,6 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg = $totalAdded . ' विजेता समिति सदस्यमा रूपान्तरण भयो। मतदान बन्द गरियो।';
             if ($skippedCount > 0) $msg .= ' (' . $skippedCount . ' पदमा committee तोकिएको छैन — skip गरियो।)';
             setFlash('success', $msg);
+            /* Winners land in committee_members — must refresh nav_committees cache */
+            if (function_exists('coop_bust_public_cache')) {
+                coop_bust_public_cache();
+            } elseif (function_exists('clearHomepageCache')) {
+                clearHomepageCache();
+            }
             redirect('election-results.php?cycle=' . $cycleId);
         }
     } catch (Throwable $e) {
