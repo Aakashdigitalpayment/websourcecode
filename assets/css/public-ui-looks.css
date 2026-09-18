@@ -87,12 +87,26 @@ html[data-ui-look="sharp"] .hero-slider {
   box-shadow: none !important;
   border-bottom: 3px solid var(--primary-color, var(--primary));
 }
-html[data-ui-look="sharp"] .hero-overlay-modern {
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 82%, #000) 0%,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 70%
-  ) !important;
+/* Soft-matching hero scrim — no left-side brand wash; photo + text stay clear */
+html[data-ui-look="sharp"] .hero-overlay-modern,
+html[data-ui-look="sharp"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
 }
 html[data-ui-look="sharp"] .hero-title-modern {
   letter-spacing: 0.03em;
@@ -338,12 +352,26 @@ html[data-ui-look="editorial"] .hero-carousel-modern {
   align-self: stretch;
   box-shadow: none;
 }
-html[data-ui-look="editorial"] .hero-overlay-modern {
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, #000 55%, transparent) 10%,
-    color-mix(in srgb, var(--primary-color, var(--primary)) 35%, transparent) 100%
-  ) !important;
+html[data-ui-look="editorial"] .hero-overlay-modern,
+html[data-ui-look="editorial"] .slider-overlay {
+  /* Same Soft scrim — photo clear, light left darken for type only */
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
 }
 html[data-ui-look="editorial"] .hero-title-modern {
   font-weight: 600;

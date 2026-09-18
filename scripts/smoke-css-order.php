@@ -88,7 +88,10 @@ assertContains('assets/css/public-ui-looks.css', 'PASS 5 — Glanceable diffs', 
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .tools-widget-section', 'Sharp tools band ledger rail');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .tools-widget-section', 'Editorial tools magazine inset');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .tools-links-grid', 'Compact tools denser grid');
-assertContains('assets/css/public-ui-looks.css', 'PASS 6 — Soft-preserving flow serial', 'PASS 6 home/menu flow serial');
+assertContains('assets/css/public-ui-looks.css', 'Soft-matching hero scrim', 'Sharp hero uses Soft-like scrim');
+assertContains('assets/css/public-ui-looks.css', 'Same Soft scrim', 'Editorial hero uses Soft-like scrim');
+assertNotContains('assets/css/public-ui-looks.css', '82%, #000', 'Sharp no longer washes hero with heavy primary');
+assertNotContains('assets/css/public-ui-looks.css', 'html[data-ui-look="soft"] .hero-overlay', 'Soft Soft: no soft hero-overlay overrides');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] #main-content > .why-us-section', 'Editorial why-us early in flow');
 assertContains('assets/css/public-ui-looks.css', 'किन हामीलाई छान्ने? after institutional', 'Sharp why-us under institutional');
 assertContains('assets/css/public-ui-looks.css', 'ब्याज तथा सूचना where why-us was', 'Sharp rates takes former why-us slot');
