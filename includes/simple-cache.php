@@ -141,4 +141,13 @@ function clearHomepageCache(): void {
     }
 }
 
+/**
+ * Bust public chrome cache after admin content changes.
+ * Prefer this over bare clearHomepageCache() in new admin code.
+ */
+function coop_bust_public_cache(): void
+{
+    clearHomepageCache();
+}
+
 ?>
