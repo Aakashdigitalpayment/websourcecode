@@ -21,14 +21,7 @@ if ($id < 1) {
 /* Cold Facebook/Instagram taps: land on HTML page before any DB/PDF work */
 coopMemberAccessBounceSocialInAppToPage('institutional-profile.php', $id);
 
-/* FB in-app: force attachment for UI-originated opens (inline PDF often fails) */
-if (!$wantDownload
-    && coopMemberAccessIsSocialInAppBrowser()
-    && isset($_GET['nav'])
-    && (string) $_GET['nav'] === '1'
-) {
-    $wantDownload = true;
-}
+/* Keep inline for View — Android FB attachment handoff drops cookies (Access denied). */
 
 try {
     $db = getDB();
@@ -85,7 +78,8 @@ if ((int) ($row['is_active'] ?? 0) !== 1 && !coopMemberAccessIsAdmin()) {
 }
 
 $level = coopAccessLevelNormalize((string) ($row['access_level'] ?? 'none'));
-if ($level === 'member' && !coopMemberAccessCanOpen('member')) {
+$tokenOk = coopMemberAccessCheckFileToken($id, isset($_GET['t']) ? (string) $_GET['t'] : null);
+if ($level === 'member' && !coopMemberAccessCanOpen('member') && !$tokenOk) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Access denied.';

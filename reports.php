@@ -352,7 +352,14 @@ function render_report_actions(array $report): void {
     if ($fileUrl !== '') {
         $safe = htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8');
         $safeDl = htmlspecialchars($dlUrl !== '' ? $dlUrl : $fileUrl, ENT_QUOTES, 'UTF-8');
-        echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="report-action-btn report-action-view"'
+        /*
+         * Android Facebook in-app: target=_blank triggers “leaving our app” and opens
+         * Chrome/external without the unlock cookie → Access denied. Stay in-app there.
+         */
+        $inSocialApp = function_exists('coopMemberAccessIsSocialInAppBrowser')
+            && coopMemberAccessIsSocialInAppBrowser();
+        $viewTarget = $inSocialApp ? '' : ' target="_blank" rel="noopener noreferrer"';
+        echo '<a href="' . $safe . '"' . $viewTarget . ' class="report-action-btn report-action-view"'
             . ' title="' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($viewLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>';
@@ -361,7 +368,8 @@ function render_report_actions(array $report): void {
         if ($dlName === '') {
             $dlName = 'report';
         }
-        echo '<a href="' . $safeDl . '" download="' . htmlspecialchars($dlName, ENT_QUOTES, 'UTF-8') . '" class="report-action-btn report-action-download"'
+        $dlAttr = $inSocialApp ? '' : (' download="' . htmlspecialchars($dlName, ENT_QUOTES, 'UTF-8') . '"');
+        echo '<a href="' . $safeDl . '"' . $dlAttr . ' class="report-action-btn report-action-download"'
             . ' title="' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '"'
             . ' aria-label="' . htmlspecialchars($dlLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i></a>';

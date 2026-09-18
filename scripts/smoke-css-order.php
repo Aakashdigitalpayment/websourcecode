@@ -513,8 +513,13 @@ assertContains('institutional-profile-file.php', 'coopMemberAccessBounceSocialIn
 assertContains('includes/public-member-access.php', 'facebookexternalhit|Facebot', 'file proxy also bounces preview crawlers');
 assertContains('includes/public-member-access.php', "&nav=1", 'file proxy URLs mark UI navigation');
 assertContains('includes/public-member-access.php', "\$_GET['nav']", 'bounce skips UI View/Download nav=1');
-assertContains('report-file.php', 'force attachment', 'FB in-app forces download for UI opens');
-assertContains('institutional-profile-file.php', 'force attachment', 'IP proxy forces download for FB UI opens');
+assertContains('includes/public-member-access.php', 'function coopMemberAccessCreateFileToken', 'signed file token for cookie-less Android opens');
+assertContains('includes/public-member-access.php', 'function coopMemberAccessCheckFileToken', 'file proxy validates signed token');
+assertContains('report-file.php', 'coopMemberAccessCheckFileToken', 'report proxy accepts signed token');
+assertContains('institutional-profile-file.php', 'coopMemberAccessCheckFileToken', 'IP proxy accepts signed token');
+assertContains('reports.php', 'leaving our app', 'Android FB View avoids target=_blank');
+assertContains('share-og.php', 'getLocalizedLogoPath', 'OG card uses resolved site logo');
+assertContains('share-og.php', 'image/jpeg', 'OG card served as JPEG for Facebook');
 assertContains('includes/public-member-access.php', 'function coopMemberAccessIsSocialInAppBrowser', 'shared social in-app browser detector');
 assertContains('institutional-profile.php', 'var fbTarget = url || location.href', 'IP Facebook share uses page URL not file');
 assertContains('reports.php', 'focusSharedReport', 'shared report deep-link focuses card');

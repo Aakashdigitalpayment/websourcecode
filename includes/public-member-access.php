@@ -474,13 +474,70 @@ function coopMemberAccessStreamFile(string $absolutePath, string $downloadName, 
 }
 
 /**
+ * Short-lived HMAC token so Android Facebook can hand a PDF URL to an external
+ * viewer without cookies (session would otherwise be lost → Access denied).
+ */
+function coopMemberAccessCreateFileToken(int $id, int $ttlSeconds = 1200): string
+{
+    $id = max(0, $id);
+    $ttlSeconds = max(60, min(86400, $ttlSeconds));
+    $exp = time() + $ttlSeconds;
+    $payload = 'pma-file-v1|' . $id . '|' . $exp;
+    $secret = function_exists('coopAuthSecret') ? coopAuthSecret() : hash('sha256', 'pma-fallback');
+    $sig = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+    return $exp . '.' . $sig;
+}
+
+/**
+ * Validate a file-proxy token for this report/IP id.
+ */
+function coopMemberAccessCheckFileToken(int $id, ?string $token): bool
+{
+    $token = trim((string) $token);
+    if ($id < 1 || $token === '' || !preg_match('/^(\d{9,12})\.([a-f0-9]{32})$/', $token, $m)) {
+        return false;
+    }
+    $exp = (int) $m[1];
+    $now = time();
+    if ($exp < $now || $exp > ($now + 86400)) {
+        return false;
+    }
+    $payload = 'pma-file-v1|' . $id . '|' . $exp;
+    $sig = (string) $m[2];
+    if (function_exists('coopVerifyHmac')) {
+        /* coopVerifyHmac expects full hmac; compare truncated form against current + legacy secrets */
+        $secrets = [function_exists('coopAuthSecret') ? coopAuthSecret() : ''];
+        if (defined('COOP_HMAC_LEGACY_SECRET') && is_string(COOP_HMAC_LEGACY_SECRET) && COOP_HMAC_LEGACY_SECRET !== '') {
+            $secrets[] = COOP_HMAC_LEGACY_SECRET;
+        }
+        foreach ($secrets as $secret) {
+            if ($secret === '') {
+                continue;
+            }
+            $expect = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+            if (hash_equals($expect, $sig)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    $secret = function_exists('coopAuthSecret') ? coopAuthSecret() : hash('sha256', 'pma-fallback');
+    $expect = substr(hash_hmac('sha256', $payload, $secret), 0, 32);
+    return hash_equals($expect, $sig);
+}
+
+/**
  * Proxy URL for a gated report/IP file.
  * Always marks nav=1 so Facebook in-app View/Download is not bounced back to the HTML page.
+ * When the visitor is unlocked, also attach a short-lived token for cookie-less opens.
  */
 function coopMemberAccessFileUrl(string $endpoint, int $id, bool $download = false): string
 {
     $base = rtrim((string) (defined('SITE_URL') ? SITE_URL : ''), '/');
     $q = 'id=' . $id . ($download ? '&dl=1' : '') . '&nav=1';
+    if ($id > 0 && coopMemberAccessUnlocked()) {
+        $q .= '&t=' . rawurlencode(coopMemberAccessCreateFileToken($id));
+    }
     return $base . '/' . ltrim($endpoint, '/') . '?' . $q;
 }
 

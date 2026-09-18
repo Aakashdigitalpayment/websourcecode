@@ -973,7 +973,7 @@ function seo_default_share_image(): array
     }
 
     return [
-        'url' => rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/share-og.php',
+        'url' => rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/share-og.php?v=5',
         'width' => 1200,
         'height' => 630,
         'from_upload' => false,
