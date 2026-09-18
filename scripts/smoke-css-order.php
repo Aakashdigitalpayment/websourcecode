@@ -528,6 +528,8 @@ assertContains('assets/css/final-ui-polish.css', 'Career hero', 'career join-us 
 assertContains('assets/css/sahakari-patro.css', 'justify-content:center', 'patro datebar/festival list centered');
 assertContains('assets/css/sahakari-patro.css', 'sp-selday-hero', 'patro selected-day hero styles');
 assertContains('assets/css/final-ui-polish.css', 'Homepage news cards', 'news read-more centered on homepage');
+assertContains('assets/css/final-ui-polish.css', 'hover fill मा सेतो टेक्स्ट स्पष्ट', 'service learn-more hover text contrast');
+assertContains('assets/css/public-late-bundle.css', 'hover fill मा सेतो टेक्स्ट स्पष्ट', 'late bundle includes service hover contrast');
 assertContains('assets/css/public-late-bundle.css', 'Homepage news cards', 'public late bundle has news read-more center');
 assertContains('assets/css/reports-page.css', '.report-section-header', 'reports section header centered styles');
 assertContains('assets/css/reports-page.css', 'justify-content: center', 'reports cards/unlock row center');
