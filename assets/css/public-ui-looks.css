@@ -2346,16 +2346,20 @@ html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .hero-slider 
   margin-left: 0;
   margin-right: 0;
 }
-html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section),
-html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section),
-html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section) {
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
   order: 90;
 }
-/* Notice ticker is a <div> under <main> — keep it above hero, not at page bottom */
-html[data-ui-look="sharp"] #main-content > .notice-ticker,
-html[data-ui-look="editorial"] #main-content > .notice-ticker,
-html[data-ui-look="compact"] #main-content > .notice-ticker {
+/* Notice ticker = menu तल / hero-slider माथि (order 0 beats hero at 1; Soft stays DOM) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > .notice-ticker {
   order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
 }
 html[data-ui-look="sharp"] .pfl-quick-links,
 html[data-ui-look="editorial"] .pfl-quick-links,
