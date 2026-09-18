@@ -15260,7 +15260,8 @@ body.dark-mode .scroll-btn.down {
     text-transform: uppercase; line-height: 1;
 }
 .pfl-since-badge .since-year {
-    font-size: 13px; color: #fff; font-weight: 800; line-height: 1.2;
+    font-size: 13px; color: #fff; font-weight: 800; line-height: 1;
+    white-space: nowrap;
 }
 
 /* ════════════════════════════════════════════════════

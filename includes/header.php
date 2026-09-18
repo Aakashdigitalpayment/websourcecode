@@ -1174,8 +1174,8 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                 $estYear = getSetting('established_year', '');
                 if ($estYear):
                 ?>
-                <div class="pfl-since-badge">
-                    <span class="since-text">Since</span>
+                <div class="pfl-since-badge" title="<?php echo htmlspecialchars((isEnglish() ? 'Since ' : 'स्थापना ') . $estYear, ENT_QUOTES, 'UTF-8'); ?>">
+                    <span class="since-text"><?php echo isEnglish() ? 'Since' : 'स्था.'; ?></span>
                     <span class="since-year"><?php echo htmlspecialchars($estYear); ?></span>
                 </div>
                 <?php endif; ?>

@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-public.css — do not edit app-* for polish.
- * Source bytes=36301 sha256=d847c66961b84ecc
+ * Source bytes=36324 sha256=e17d59e4b0a67920
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -501,7 +501,8 @@
     text-transform: uppercase; line-height: 1;
 }
 .pfl-since-badge .since-year {
-    font-size: 13px; color: #fff; font-weight: 800; line-height: 1.2;
+    font-size: 13px; color: #fff; font-weight: 800; line-height: 1;
+    white-space: nowrap;
 }
 
 /* ════════════════════════════════════════════════════
