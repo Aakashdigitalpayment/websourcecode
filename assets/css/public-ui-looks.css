@@ -1420,8 +1420,25 @@ html[data-ui-look="editorial"] .pfl-main-header {
   padding-block: 0.55rem !important;
 }
 html[data-ui-look="editorial"] .pfl-since-badge {
-  border-radius: 999px !important;
-  padding-inline: 0.75rem !important;
+  /* Keep a true circle — do NOT add horizontal padding (wraps Since/year vertically) */
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  box-sizing: border-box !important;
+}
+html[data-ui-look="editorial"] .pfl-since-badge .since-text {
+  font-size: 6.5px !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+html[data-ui-look="editorial"] .pfl-since-badge .since-year {
+  font-size: 12px !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
 }
 html[data-ui-look="editorial"] .pfl-brand-logo {
   border-radius: 0.85rem !important;
@@ -1609,8 +1626,9 @@ html[data-ui-look="compact"] .pfl-brand-slogan {
 html[data-ui-look="compact"] .pfl-since-badge {
   transform: scale(0.88);
   transform-origin: left center;
-  border-radius: var(--look-radius) !important;
-  padding: 0.15rem 0.4rem !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 html[data-ui-look="compact"] .pfl-mobile-toggle {
   width: 36px !important;

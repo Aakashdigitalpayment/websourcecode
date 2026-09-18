@@ -474,6 +474,9 @@
     z-index: 13;
     flex-shrink: 0;
     margin-left: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0;
 }
 
 /* Soft halo pulse for eye-catching badge */

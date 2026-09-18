@@ -104,6 +104,7 @@ assertContains('assets/css/public-ui-looks.css', ':not(section):not(.notice-tick
 assertContains('assets/css/public-ui-looks.css', 'PASS 7 — Secondary public pages', 'PASS 7 secondary page look diffs');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="sharp"] .value-card', 'Sharp about value-card personality');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="editorial"] .gallery-card', 'Editorial gallery-card personality');
+assertContains('assets/css/public-ui-looks.css', 'do NOT add horizontal padding', 'Editorial since-badge keeps circular clip');
 assertContains('assets/css/public-ui-looks.css', 'html[data-ui-look="compact"] .download-card', 'Compact download-card personality');
 assertContains('assets/css/public-ui-looks.css', 'letter-spacing: 0.04em !important', 'Sharp page-banner title beats late-bundle');
 assertContains('assets/css/public-ui-looks.css', 'PASS 8 — Brand-token + no-clip', 'PASS 8 brand/clip/icon safety');
