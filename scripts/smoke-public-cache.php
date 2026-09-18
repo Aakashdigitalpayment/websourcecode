@@ -144,6 +144,7 @@ $navWriters = [
     'admin/useful-links.php',
     'admin/help-center.php',
     'admin/election-information.php',
+    'admin/election-results.php',
 ];
 foreach ($navWriters as $rel) {
     $src = (string) @file_get_contents($root . '/' . $rel);
@@ -156,6 +157,15 @@ foreach ($navWriters as $rel) {
     } else {
         bad($rel . ' missing cache bust (nav/footer stale risk)');
     }
+}
+
+$elRes = (string) file_get_contents($root . '/admin/election-results.php');
+if (strpos($elRes, 'simple-cache.php') !== false
+    && strpos($elRes, 'convert_winners') !== false
+    && strpos($elRes, 'coop_bust_public_cache') !== false) {
+    ok('election-results busts cache after convert_winners');
+} else {
+    bad('election-results should require simple-cache and bust after convert_winners');
 }
 
 $rpt = (string) file_get_contents($root . '/admin/reports.php');
