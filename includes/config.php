@@ -1618,13 +1618,17 @@ function getLoggedInMemberProfile(): ?array {
 
 // Select dropdown option — match भएमा 'selected' print गर्छ
 // Usage in HTML option tag: call selected($currentValue, 'expectedValue')
-function selected($current, $value) {
-    if ((string)$current === (string)$value) echo 'selected';
+if (!function_exists('selected')) {
+    function selected($current, $value) {
+        if ((string)$current === (string)$value) echo 'selected';
+    }
 }
 
 // Checked radio/checkbox — match भएमा 'checked' print गर्छ
-function checked($current, $value) {
-    if ((string)$current === (string)$value) echo 'checked';
+if (!function_exists('checked')) {
+    function checked($current, $value) {
+        if ((string)$current === (string)$value) echo 'checked';
+    }
 }
 
 /**
@@ -2667,32 +2671,34 @@ function getCurrentPage() {
 }
 
 // Truncate text — UTF-8 safe (Nepali/multibyte must not use byte substr)
-function truncateText($text, $length = 100, $suffix = '...') {
-    if ($text === null) {
-        return '';
-    }
-    $text = trim(preg_replace('/\s+/u', ' ', (string)$text) ?? '');
-    // Drop already-broken replacement chars from bad prior truncations / encoding
-    $text = str_replace(["\u{FFFD}", '�'], '', $text);
-    if ($text === '') {
-        return '';
-    }
-    $length = max(1, (int)$length);
-    if (function_exists('mb_strlen') && function_exists('mb_substr')) {
-        if (mb_strlen($text, 'UTF-8') <= $length) {
+if (!function_exists('truncateText')) {
+    function truncateText($text, $length = 100, $suffix = '...') {
+        if ($text === null) {
+            return '';
+        }
+        $text = trim(preg_replace('/\s+/u', ' ', (string)$text) ?? '');
+        // Drop already-broken replacement chars from bad prior truncations / encoding
+        $text = str_replace(["\u{FFFD}", '�'], '', $text);
+        if ($text === '') {
+            return '';
+        }
+        $length = max(1, (int)$length);
+        if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+            if (mb_strlen($text, 'UTF-8') <= $length) {
+                return $text;
+            }
+            return rtrim(mb_substr($text, 0, $length, 'UTF-8')) . $suffix;
+        }
+        if (strlen($text) <= $length) {
             return $text;
         }
-        return rtrim(mb_substr($text, 0, $length, 'UTF-8')) . $suffix;
+        // Last-resort byte cut: back up to avoid splitting a UTF-8 sequence
+        $cut = substr($text, 0, $length);
+        if (preg_match('/^([\x00-\x7F]|[\xC2-\xF4][\x80-\xBF]*)*/', $cut, $m)) {
+            $cut = $m[0];
+        }
+        return rtrim($cut) . $suffix;
     }
-    if (strlen($text) <= $length) {
-        return $text;
-    }
-    // Last-resort byte cut: back up to avoid splitting a UTF-8 sequence
-    $cut = substr($text, 0, $length);
-    if (preg_match('/^([\x00-\x7F]|[\xC2-\xF4][\x80-\xBF]*)*/', $cut, $m)) {
-        $cut = $m[0];
-    }
-    return rtrim($cut) . $suffix;
 }
 
 // Start session if not started - with proper error handling

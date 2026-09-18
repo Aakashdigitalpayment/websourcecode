@@ -100,7 +100,7 @@ foreach ($staticPhp as [$path, $prio, $freq]) {
 
 try {
     $db = getDB();
-    $st = $db->query("SELECT slug, updated_at FROM pages WHERE is_active = 1 AND slug <> ''");
+    $st = $db->query("SELECT slug, updated_at FROM pages WHERE is_active = 1 AND slug <> '' ORDER BY id ASC LIMIT 500");
     if ($st) {
         foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $p) {
             $slug = (string) ($p['slug'] ?? '');

@@ -100,6 +100,8 @@ assertFileContains('admin/settings.php', 'seo_tagline', 'admin can save seo_tagl
 assertFileContains('admin/settings.php', 'site_city', 'admin can save site_city');
 assertFileContains('admin/settings.php', 'sitemap.xml', 'GSC tip uses sitemap.xml');
 assertFileContains('sitemap.php', 'filemtime', 'static sitemap lastmod from filemtime');
+assertFileContains('sitemap.php', 'FROM pages WHERE is_active = 1', 'sitemap includes CMS pages');
+assertFileContains('sitemap.php', 'LIMIT 500', 'sitemap CMS pages query is bounded');
 assertFileContains('committees.php', '$pageDescription', 'committees unique meta description');
 assertFileContains('loan-apply.php', '$pageDescription', 'loan-apply unique meta description');
 assertFileContains('emi-calculator.php', '$pageDescription', 'emi-calculator unique meta description');

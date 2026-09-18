@@ -188,6 +188,13 @@ if (preg_match("/if\s*\(\s*!function_exists\s*\(\s*'getNepaliMonthName'\s*\)\s*\
 } else {
     bad('getNepaliMonthName should use function_exists');
 }
+foreach (['truncateText', 'selected', 'checked', 'e'] as $fn) {
+    if (preg_match("/if\s*\(\s*!function_exists\s*\(\s*'" . $fn . "'\s*\)\s*\)/", $cfgPhp)) {
+        ok($fn . ' guarded with function_exists');
+    } else {
+        bad($fn . ' should use function_exists');
+    }
+}
 
 $hdr = (string) file_get_contents($root . '/includes/header.php');
 if (strpos($hdr, 'coop_versioned_asset_url') !== false) {
