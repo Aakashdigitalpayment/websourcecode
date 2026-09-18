@@ -119,7 +119,7 @@ switch ($type) {
 
 /* ════════════════════════════ KYC ════════════════════════════ */
 case 'kyc':
-    $st = $db->prepare("SELECT * FROM kyc_applications WHERE id=?");
+    $st = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
     $st->execute([$id]);  $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
     $formTitle   = 'व्यक्तिगत सदस्य पहिचान फारम (केवाइएम / KYM)';
@@ -331,7 +331,7 @@ case 'kyc':
 
 /* ════════════════════════════ LOAN ════════════════════════════ */
 case 'loan':
-    $st = $db->prepare("SELECT * FROM loan_applications WHERE id=?");
+    $st = $db->prepare("SELECT * FROM loan_applications WHERE id=? LIMIT 1");
     $st->execute([$id]);  $data = $st->fetch();
     if (!$data) goto NOT_FOUND;
     $formTitle   = 'ऋण आवेदन फारम';
@@ -390,7 +390,7 @@ case 'loan':
     }
     break;
 case 'welfare':
-    $st = $db->prepare("SELECT * FROM member_welfare_claims WHERE id=?");
+    $st = $db->prepare("SELECT * FROM member_welfare_claims WHERE id=? LIMIT 1");
     $st->execute([$id]);  $data = $st->fetch();
     if (!$data) goto NOT_FOUND;
     $ctLabels    = ['maternity'=>'सुत्केरी सुविधा','death'=>'मृत्यु सुविधा','insurance'=>'बीमा दाबी','medical'=>'उपचार खर्च','accident'=>'दुर्घटना सुविधा','other'=>'अन्य सुविधा'];
@@ -462,7 +462,7 @@ case 'welfare':
 
 /* ════════════════════════════ DIGITAL ════════════════════════════ */
 case 'digital':
-    $st = $db->prepare("SELECT * FROM digital_service_requests WHERE id=?");
+    $st = $db->prepare("SELECT * FROM digital_service_requests WHERE id=? LIMIT 1");
     $st->execute([$id]);  $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
     $svcMap = [
@@ -578,7 +578,7 @@ case 'honor':
 
 /* ════════════════════════════ ACCOUNT ════════════════════════════ */
 case 'account':
-    $st = $db->prepare("SELECT * FROM account_applications WHERE id=?");
+    $st = $db->prepare("SELECT * FROM account_applications WHERE id=? LIMIT 1");
     $st->execute([$id]);  $data = $st->fetch();
     if (!$data) goto NOT_FOUND;
     $accMap      = ['saving'=>'बचत','current'=>'चल्ती','fixed'=>'मुद्दती','recurring'=>'आवधिक','child'=>'बाल बचत'];
@@ -650,7 +650,7 @@ case 'account':
 
 /* ════════════════════════════ APPOINTMENT ════════════════════════════ */
 case 'appointment':
-    $st = $db->prepare('SELECT * FROM appointments WHERE id=?');
+    $st = $db->prepare('SELECT * FROM appointments WHERE id=? LIMIT 1');
     $st->execute([$id]);
     $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
@@ -692,7 +692,7 @@ case 'appointment':
 
 /* ════════════════════════════ GRIEVANCE ════════════════════════════ */
 case 'grievance':
-    $st = $db->prepare('SELECT * FROM grievances WHERE id=?');
+    $st = $db->prepare('SELECT * FROM grievances WHERE id=? LIMIT 1');
     $st->execute([$id]);
     $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;

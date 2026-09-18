@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /* Member portal notification */
             try {
-                $nr = $db->prepare("SELECT member_name, full_name, email, phone FROM member_welfare_claims WHERE id=?");
+                $nr = $db->prepare("SELECT member_name, full_name, email, phone FROM member_welfare_claims WHERE id=? LIMIT 1");
                 $nr->execute([$claim_id]); $nd = $nr->fetch();
                 if ($nd && function_exists('sendMemberStatusUpdate')) {
                     $r = sendMemberStatusUpdate('welfare', $nd['email']??'', $nd['phone']??'', $nd['full_name'] ?? $nd['member_name'] ?? '', $status, $admin_remarks, '', !$notifyOptIn);

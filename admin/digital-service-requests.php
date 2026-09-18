@@ -59,15 +59,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             /* File upload — admin ले letter/document attach गर्न सक्छ */
             $newFile = adminUploadFile('admin_attachment');
             if ($newFile) {
-                $stmt = $db->prepare("UPDATE digital_service_requests SET status=?, admin_remarks=?, admin_attachment=?, reviewed_by=?, reviewed_at=NOW() WHERE id=?");
+                $stmt = $db->prepare("UPDATE digital_service_requests SET status=?, admin_remarks=?, admin_attachment=?, reviewed_by=?, reviewed_at=NOW() WHERE id=? LIMIT 1");
                 $stmt->execute([$status, $remarks, $newFile, $_SESSION['admin_name'] ?? 'Admin', $requestId]);
             } else {
-                $stmt = $db->prepare("UPDATE digital_service_requests SET status=?, admin_remarks=?, reviewed_by=?, reviewed_at=NOW() WHERE id=?");
+                $stmt = $db->prepare("UPDATE digital_service_requests SET status=?, admin_remarks=?, reviewed_by=?, reviewed_at=NOW() WHERE id=? LIMIT 1");
                 $stmt->execute([$status, $remarks, $_SESSION['admin_name'] ?? 'Admin', $requestId]);
             }
             /* Member लाई status notification — email/SMS */
             try {
-                $nRow = $db->prepare("SELECT requester_name, email, phone, tracking_id FROM digital_service_requests WHERE id=?");
+                $nRow = $db->prepare("SELECT requester_name, email, phone, tracking_id FROM digital_service_requests WHERE id=? LIMIT 1");
                 $nRow->execute([$requestId]);
                 $nData = $nRow->fetch();
                 if ($nData) {

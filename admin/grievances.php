@@ -66,16 +66,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {}
         try {
             if ($newFile) {
-                $stmt = $db->prepare("UPDATE grievances SET status=?, admin_response=?, admin_note=?, resolved_at=?, admin_attachment=?, updated_at=NOW() WHERE id=?");
+                $stmt = $db->prepare("UPDATE grievances SET status=?, admin_response=?, admin_note=?, resolved_at=?, admin_attachment=?, updated_at=NOW() WHERE id=? LIMIT 1");
                 $stmt->execute([$status, $adminResp, $adminNote, $resolvedAt, $newFile, $id]);
             } else {
-                $stmt = $db->prepare("UPDATE grievances SET status=?, admin_response=?, admin_note=?, resolved_at=?, updated_at=NOW() WHERE id=?");
+                $stmt = $db->prepare("UPDATE grievances SET status=?, admin_response=?, admin_note=?, resolved_at=?, updated_at=NOW() WHERE id=? LIMIT 1");
                 $stmt->execute([$status, $adminResp, $adminNote, $resolvedAt, $id]);
             }
 
             /* Member लाई notification — fail भए पनि main काम रोकिँदैन */
             try {
-                $nRow = $db->prepare("SELECT name, email, phone FROM grievances WHERE id=?");
+                $nRow = $db->prepare("SELECT name, email, phone FROM grievances WHERE id=? LIMIT 1");
                 $nRow->execute([$id]);
                 $nData = $nRow->fetch();
                 if ($nData) {
@@ -117,14 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['remove_attachment'])) {
         $id = (int)$_POST['id'];
         try {
-            $row = $db->prepare("SELECT admin_attachment FROM grievances WHERE id=?");
+            $row = $db->prepare("SELECT admin_attachment FROM grievances WHERE id=? LIMIT 1");
             $row->execute([$id]);
             $r = $row->fetch();
             if ($r && !empty($r['admin_attachment'])) {
                 $fp = ROOT_PATH . $r['admin_attachment'];
                 if (file_exists($fp)) @unlink($fp);
             }
-            $db->prepare("UPDATE grievances SET admin_attachment='' WHERE id=?")->execute([$id]);
+            $db->prepare("UPDATE grievances SET admin_attachment='' WHERE id=? LIMIT 1")->execute([$id]);
             setFlash('success', $__t('फाइल हटाइयो।', 'File removed.'));
         } catch (Exception $e) {}
         redirect('grievances.php?view=' . $id);
@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* ── Delete ── */
     if (isset($_POST['delete'])) {
         $id = (int)$_POST['id'];
-        $db->prepare("DELETE FROM grievances WHERE id=?")->execute([$id]);
+        $db->prepare("DELETE FROM grievances WHERE id=? LIMIT 1")->execute([$id]);
         setFlash('success', $__t('गुनासो मेटाइयो।', 'Grievance deleted.'));
         redirect('grievances.php');
     }
@@ -151,9 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $oldStatus = (string)($oldQ->fetchColumn() ?: '');
         } catch (Exception $e) {}
         try {
-            $db->prepare("UPDATE grievances SET status=? WHERE id=?")->execute([$qst, $qid]);
+            $db->prepare("UPDATE grievances SET status=? WHERE id=? LIMIT 1")->execute([$qst, $qid]);
             try {
-                $nr = $db->prepare("SELECT name, email, phone, tracking_id FROM grievances WHERE id=?");
+                $nr = $db->prepare("SELECT name, email, phone, tracking_id FROM grievances WHERE id=? LIMIT 1");
                 $nr->execute([$qid]);
                 $nd = $nr->fetch();
                 if ($nd) {
@@ -274,7 +274,7 @@ $total = array_sum($counts);
 /* ── Single view ── */
 $viewGrv = null;
 if (isset($_GET['view'])) {
-    $s = $db->prepare("SELECT * FROM grievances WHERE id=?");
+    $s = $db->prepare("SELECT * FROM grievances WHERE id=? LIMIT 1");
     $s->execute([(int)$_GET['view']]);
     $viewGrv = $s->fetch();
 }

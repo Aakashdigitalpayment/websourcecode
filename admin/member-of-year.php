@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        ->execute([$spotlightYear, $memberName, $memberNameEn, $memberId, $photoPath, $memberSince, $quote, $quoteEn, $achievement, $achievementEn, $isActive]);
                     setFlash('success', $spotlightYear . ' को Member of the Year थपियो! Homepage मा देखिनेछ।');
                 } else {
-                    $db->prepare("UPDATE member_of_year SET spotlight_year=?, member_name=?, member_name_en=?, member_id=?, photo=IF(?='',photo,?), member_since=?, quote=?, quote_en=?, achievement=?, achievement_en=?, is_active=? WHERE id=?")
+                    $db->prepare("UPDATE member_of_year SET spotlight_year=?, member_name=?, member_name_en=?, member_id=?, photo=IF(?='',photo,?), member_since=?, quote=?, quote_en=?, achievement=?, achievement_en=?, is_active=? WHERE id=? LIMIT 1")
                        ->execute([$spotlightYear, $memberName, $memberNameEn, $memberId, $photoPath, $photoPath, $memberSince, $quote, $quoteEn, $achievement, $achievementEn, $isActive, $id]);
                     setFlash('success', 'Record अपडेट भयो।');
                 }
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'toggle') {
         $id  = (int)($_POST['id'] ?? 0);
         $val = (int)($_POST['is_active'] ?? 0);
-        if ($id) $db->prepare("UPDATE member_of_year SET is_active=? WHERE id=?")->execute([$val, $id]);
+        if ($id) $db->prepare("UPDATE member_of_year SET is_active=? WHERE id=? LIMIT 1")->execute([$val, $id]);
         if (function_exists('clearHomepageCache')) clearHomepageCache();
         setFlash('success', $val ? 'Homepage मा देखाइयो।' : 'Homepage बाट हटाइयो।');
         redirect('member-of-year.php');
@@ -93,11 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id) {
-            $row = $db->prepare("SELECT photo FROM member_of_year WHERE id=?");
+            $row = $db->prepare("SELECT photo FROM member_of_year WHERE id=? LIMIT 1");
             $row->execute([$id]);
             $rec = $row->fetch();
             if ($rec && $rec['photo'] && file_exists(ROOT_PATH . $rec['photo'])) @unlink(ROOT_PATH . $rec['photo']);
-            $db->prepare("DELETE FROM member_of_year WHERE id=?")->execute([$id]);
+            $db->prepare("DELETE FROM member_of_year WHERE id=? LIMIT 1")->execute([$id]);
         }
         if (function_exists('clearHomepageCache')) clearHomepageCache();
         setFlash('success', 'Record हटाइयो।');

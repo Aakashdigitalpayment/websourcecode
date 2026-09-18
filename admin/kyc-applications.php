@@ -271,7 +271,7 @@ if ($db instanceof PDO) {
 function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail = '', string $kycMobile = ''): void {
     try {
         if (!function_exists('adminGenerateMemberIdCard')) return;
-        $row = $db->prepare('SELECT want_id_card, member_id FROM kyc_applications WHERE id=?');
+        $row = $db->prepare('SELECT want_id_card, member_id FROM kyc_applications WHERE id=? LIMIT 1');
         $row->execute([$kycId]);
         $kyc = $row->fetch(PDO::FETCH_ASSOC);
         if (!$kyc || empty($kyc['want_id_card'])) return;
@@ -413,7 +413,7 @@ if (isset($_POST['update_kyc_profile'])) {
                 father_name=?, mother_name=?, grandfather_name=?, spouse_name=?,
                 occupation=?, organization_name=?, monthly_income=?,
                 updated_at=NOW()
-             WHERE id=?"
+             WHERE id=? LIMIT 1"
         )->execute([
             $fullName,
             $fullNameEn !== '' ? $fullNameEn : null,
@@ -518,7 +518,7 @@ if (isset($_POST['update_status'])) {
                                               WHEN DATE_ADD(DATE(COALESCE(kyc_verified_at, NOW())), INTERVAL (CASE WHEN ?='high' THEN 1 WHEN ?='low' THEN 3 ELSE 2 END) YEAR) <= CURDATE()
                                               THEN 'due_review' ELSE 'normal' END)
                                           ELSE 'normal' END
-                                  WHERE id=?");
+                                  WHERE id=? LIMIT 1");
             $stmt->execute([$status, $remarks, $editMemberId, $riskCategory, $newFile, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
         } else {
             $stmt = $db->prepare("UPDATE kyc_applications
@@ -532,12 +532,12 @@ if (isset($_POST['update_status'])) {
                                               WHEN DATE_ADD(DATE(COALESCE(kyc_verified_at, NOW())), INTERVAL (CASE WHEN ?='high' THEN 1 WHEN ?='low' THEN 3 ELSE 2 END) YEAR) <= CURDATE()
                                               THEN 'due_review' ELSE 'normal' END)
                                           ELSE 'normal' END
-                                  WHERE id=?");
+                                  WHERE id=? LIMIT 1");
             $stmt->execute([$status, $remarks, $editMemberId, $riskCategory, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
         }
         /* Member लाई status notification — email/SMS */
         try {
-            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=?");
+            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=? LIMIT 1");
             $nRow->execute([$id]);
             $nData = $nRow->fetch();
             if ($nData) {
@@ -594,7 +594,7 @@ if (isset($_POST['update_status'])) {
 /* ─── Delete ─── */
 if (isset($_POST['delete'])) {
     $id = (int)($_POST['delete_id'] ?? 0);
-    try { $db->prepare("DELETE FROM kyc_applications WHERE id=?")->execute([$id]); setFlash('success', 'आवेदन मेटाइयो।'); } catch (Exception $e) {}
+    try { $db->prepare("DELETE FROM kyc_applications WHERE id=? LIMIT 1")->execute([$id]); setFlash('success', 'आवेदन मेटाइयो।'); } catch (Exception $e) {}
     redirect('kyc-applications.php');
 }
 
@@ -622,9 +622,9 @@ if (isset($_POST['quick_status'])) {
                                   WHEN DATE_ADD(DATE(COALESCE(kyc_verified_at, NOW())), INTERVAL (CASE WHEN risk_category='high' THEN 1 WHEN risk_category='low' THEN 3 ELSE 2 END) YEAR) <= CURDATE()
                                   THEN 'due_review' ELSE 'normal' END)
                               ELSE 'normal' END
-                      WHERE id=?")->execute([$qst, $qst, $qst, $qst, $qst, $qid]);
+                      WHERE id=? LIMIT 1")->execute([$qst, $qst, $qst, $qst, $qst, $qid]);
         try {
-            $nr = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=?");
+            $nr = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=? LIMIT 1");
             $nr->execute([$qid]); $nd = $nr->fetch();
             if ($nd) {
                 sendMemberStatusUpdate('kyc', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??'');
@@ -783,7 +783,7 @@ if ($db instanceof PDO) {
 /* ─── Single view ─── */
 $viewApp = null;
 if (isset($_GET['view'])) {
-    $s = $db->prepare("SELECT * FROM kyc_applications WHERE id=?");
+    $s = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
     $s->execute([(int)$_GET['view']]);
     $viewApp = $s->fetch();
     if (!$viewApp) { setFlash('error', 'आवेदन फेला परेन।'); redirect('kyc-applications.php'); }

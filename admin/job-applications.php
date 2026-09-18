@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             /* Member portal notification — outcome capture, channel-wise */
             try {
-                $nr = $db->prepare("SELECT full_name, email, phone FROM job_applications WHERE id=?");
+                $nr = $db->prepare("SELECT full_name, email, phone FROM job_applications WHERE id=? LIMIT 1");
                 $nr->execute([$id]); $nd = $nr->fetch();
                 if ($nd && function_exists('sendMemberStatusUpdate')) {
                     $r = sendMemberStatusUpdate(

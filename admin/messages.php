@@ -23,7 +23,7 @@ if (!in_array($action, ['list', 'view'], true)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $id = (int)$_POST['delete_id'];
     try {
-        $db->prepare("DELETE FROM contact_messages WHERE id=?")->execute([$id]);
+        $db->prepare("DELETE FROM contact_messages WHERE id=? LIMIT 1")->execute([$id]);
         setFlash('success', 'सन्देश सफलतापूर्वक मेटियो।');
     } catch (Exception $e) {
         setFlash('error', 'मेटाउन सकिएन।');
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
 /* ── Mark as read ── */
 if (isset($_GET['read']) && is_numeric($_GET['read'])) {
     $id = (int)$_GET['read'];
-    try { $db->prepare("UPDATE contact_messages SET is_read=1 WHERE id=?")->execute([$id]); } catch (Exception $e) {}
+    try { $db->prepare("UPDATE contact_messages SET is_read=1 WHERE id=? LIMIT 1")->execute([$id]); } catch (Exception $e) {}
     redirect('messages.php?action=view&id=' . $id);
 }
 
@@ -45,7 +45,7 @@ if (isset($_GET['read']) && is_numeric($_GET['read'])) {
    ═══════════════════════════════════════════════════ */
 if ($action === 'view' && isset($_GET['id'])) {
     $id   = (int)$_GET['id'];
-    $stmt = $db->prepare("SELECT * FROM contact_messages WHERE id=?");
+    $stmt = $db->prepare("SELECT * FROM contact_messages WHERE id=? LIMIT 1");
     $stmt->execute([$id]);
     $message = $stmt->fetch();
 
@@ -56,7 +56,7 @@ if ($action === 'view' && isset($_GET['id'])) {
 
     /* Auto-mark as read */
     if (!$message['is_read']) {
-        $db->prepare("UPDATE contact_messages SET is_read=1 WHERE id=?")->execute([$id]);
+        $db->prepare("UPDATE contact_messages SET is_read=1 WHERE id=? LIMIT 1")->execute([$id]);
     }
 
     /* Page header */

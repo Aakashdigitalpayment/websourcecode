@@ -55,15 +55,15 @@ if (isset($_POST['update_status'])) {
 
     try {
         if ($newFile) {
-            $stmt = $db->prepare("UPDATE loan_applications SET status=?, remarks=?, admin_attachment=?, updated_at=NOW() WHERE id=?");
+            $stmt = $db->prepare("UPDATE loan_applications SET status=?, remarks=?, admin_attachment=?, updated_at=NOW() WHERE id=? LIMIT 1");
             $stmt->execute([$status, $remarks, $newFile, $id]);
         } else {
-            $stmt = $db->prepare("UPDATE loan_applications SET status=?, remarks=?, updated_at=NOW() WHERE id=?");
+            $stmt = $db->prepare("UPDATE loan_applications SET status=?, remarks=?, updated_at=NOW() WHERE id=? LIMIT 1");
             $stmt->execute([$status, $remarks, $id]);
         }
         /* Member लाई status notification — email/SMS, channel-wise audit */
         try {
-            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM loan_applications WHERE id=?");
+            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM loan_applications WHERE id=? LIMIT 1");
             $nRow->execute([$id]);
             $nData = $nRow->fetch();
             if ($nData) {
@@ -101,7 +101,7 @@ if (isset($_POST['update_status'])) {
 /* ─── Delete ─── */
 if (isset($_POST['delete'])) {
     $id = (int)($_POST['delete_id'] ?? 0);
-    try { $db->prepare("DELETE FROM loan_applications WHERE id=?")->execute([$id]); setFlash('success', $__t('आवेदन मेटाइयो।', 'Application deleted.')); } catch (Exception $e) {}
+    try { $db->prepare("DELETE FROM loan_applications WHERE id=? LIMIT 1")->execute([$id]); setFlash('success', $__t('आवेदन मेटाइयो।', 'Application deleted.')); } catch (Exception $e) {}
     redirect('loan-applications.php');
 }
 
@@ -118,9 +118,9 @@ if (isset($_POST['quick_status'])) {
         $oldStatus = (string)($os->fetchColumn() ?: '');
     } catch (Exception $e) {}
     try {
-        $db->prepare("UPDATE loan_applications SET status=?, updated_at=NOW() WHERE id=?")->execute([$qst, $qid]);
+        $db->prepare("UPDATE loan_applications SET status=?, updated_at=NOW() WHERE id=? LIMIT 1")->execute([$qst, $qid]);
         try {
-            $nr = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM loan_applications WHERE id=?");
+            $nr = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM loan_applications WHERE id=? LIMIT 1");
             $nr->execute([$qid]); $nd = $nr->fetch();
             if ($nd) { sendMemberStatusUpdate('loan', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??''); $notifySent = true; }
         } catch (Exception $e) {}
@@ -229,7 +229,7 @@ if ($db instanceof PDO) {
 /* ─── Single view ─── */
 $viewApp = null;
 if (isset($_GET['view'])) {
-    $s = $db->prepare("SELECT * FROM loan_applications WHERE id=?");
+    $s = $db->prepare("SELECT * FROM loan_applications WHERE id=? LIMIT 1");
     $s->execute([(int)$_GET['view']]);
     $viewApp = $s->fetch();
     if (!$viewApp) { setFlash('error', $__t('आवेदन फेला परेन।', 'Application not found.')); redirect('loan-applications.php'); }

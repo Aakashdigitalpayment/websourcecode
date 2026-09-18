@@ -125,7 +125,7 @@ if (isset($_POST['toggle_information_room'])) {
     if ($mid > 0) {
         ensureInformationRoomMemberColumn($db);
         try {
-            $db->prepare('UPDATE members SET information_room_enabled = 1 - COALESCE(information_room_enabled, 0) WHERE id=?')->execute([$mid]);
+            $db->prepare('UPDATE members SET information_room_enabled = 1 - COALESCE(information_room_enabled, 0) WHERE id=? LIMIT 1')->execute([$mid]);
             setFlash('success', 'Information Room access बदलियो।');
             if (function_exists('writeAuditLog')) {
                 writeAuditLog('member_ir_access_toggle', "Toggled Information Room for member ID: {$mid}", 'member', $mid);
@@ -142,7 +142,7 @@ if (isset($_POST['toggle_active'])) {
     checkCSRF();
     $mid = (int)$_POST['member_id'];
     try {
-        $db->prepare("UPDATE members SET is_active = 1 - COALESCE(is_active, 0) WHERE id=?")->execute([$mid]);
+        $db->prepare("UPDATE members SET is_active = 1 - COALESCE(is_active, 0) WHERE id=? LIMIT 1")->execute([$mid]);
         setFlash('success', 'Member status बदलियो।');
         if (function_exists('writeAuditLog')) {
             writeAuditLog('member_status_toggle', "Toggled active status for member ID: {$mid}", 'member', $mid);
@@ -246,7 +246,7 @@ if (isset($_POST['update_member_profile'])) {
             safeAddColumn($db, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
         }
         try {
-            $db->prepare('UPDATE members SET name=?, name_np=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
+            $db->prepare('UPDATE members SET name=?, name_np=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=? LIMIT 1')
                 ->execute([
                     $name,
                     $nameNp,
@@ -258,7 +258,7 @@ if (isset($_POST['update_member_profile'])) {
                     $mid,
                 ]);
         } catch (Throwable $eCol) {
-            $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
+            $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=? LIMIT 1')
                 ->execute([
                     $name,
                     $phone,
@@ -298,7 +298,7 @@ $viewKyc    = null;
 $viewProgramAttendance = [];
 if ($viewId > 0) {
     try {
-        $st = $db->prepare("SELECT * FROM members WHERE id=?");
+        $st = $db->prepare("SELECT * FROM members WHERE id=? LIMIT 1");
         $st->execute([$viewId]);
         $viewMember = $st->fetch(PDO::FETCH_ASSOC) ?: null;
         if ($viewMember && function_exists('memberStripAuthSecrets')) {
