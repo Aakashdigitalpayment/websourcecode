@@ -96,27 +96,49 @@ function clearCache($key) {
 }
 
 /**
+ * Homepage / nav / footer public cache keys (static names).
+ * Date-stamped keys (notice popup, visitor counter) are cleared separately.
+ * When adding getCachedData('…') for public chrome, append here + smoke-public-cache.
+ *
+ * @return list<string>
+ */
+function coop_homepage_cache_keys(): array
+{
+    return [
+        'homepage_data',
+        'homepage_data_v2',
+        'footer_public_v1',
+        'nav_public_v1',
+        'nav_services_v1',
+        'nav_bell_notices_v1',
+        'nav_committees_v1',
+        'nav_committees_v2',
+        'nav_team_menu_v1',
+        'nav_team_menu_v2',
+        'nav_career_badge_v1',
+        'nav_career_badge_v3',
+        'nav_notices_extra_v1',
+        'nav_cms_pages_v1',
+        'nav_cms_pages_v2',
+    ];
+}
+
+/**
  * Homepage public blob (sliders, services, notices, rates, news).
  * Call after admin CRUD so updates show immediately.
  */
 function clearHomepageCache(): void {
-    clearCache('homepage_data');
-    clearCache('homepage_data_v2');
-    clearCache('footer_public_v1');
-    clearCache('nav_public_v1');
-    clearCache('nav_services_v1');
-    clearCache('nav_bell_notices_v1');
-    clearCache('nav_committees_v1');
-    clearCache('nav_committees_v2');
-    clearCache('nav_team_menu_v1');
-    clearCache('nav_team_menu_v2');
-    clearCache('nav_career_badge_v1');
-    clearCache('nav_career_badge_v3');
-    clearCache('nav_notices_extra_v1');
-    clearCache('nav_notices_extra_v2_' . date('Y-m-d'));
-    clearCache('nav_notices_extra_v2_' . date('Y-m-d', strtotime('-1 day')));
-    clearCache('nav_cms_pages_v1');
-    clearCache('nav_cms_pages_v2');
+    foreach (coop_homepage_cache_keys() as $key) {
+        clearCache($key);
+    }
+    /* Date-stamped notice popup cache (today ±1 for midnight / TZ edge) */
+    $day = strtotime('today');
+    if ($day === false) {
+        $day = time();
+    }
+    foreach ([-1, 0, 1] as $off) {
+        clearCache('nav_notices_extra_v2_' . date('Y-m-d', $day + ($off * 86400)));
+    }
 }
 
 ?>

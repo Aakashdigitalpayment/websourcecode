@@ -108,5 +108,80 @@ if (strpos($hdr, 'coop_versioned_asset_url') !== false) {
     bad('header favicon bust missing');
 }
 
+/* Inventory: every static getCachedData('key') must be cleared by clearHomepageCache (or listed ephemeral) */
+$cachePhp = (string) file_get_contents($root . '/includes/simple-cache.php');
+if (strpos($cachePhp, 'function coop_homepage_cache_keys') !== false) {
+    ok('coop_homepage_cache_keys SSOT present');
+} else {
+    bad('coop_homepage_cache_keys missing from simple-cache.php');
+}
+
+$scanFiles = [
+    'index.php',
+    'includes/header.php',
+    'includes/footer.php',
+    'includes/nav-menu-badges.php',
+];
+$usedKeys = [];
+foreach ($scanFiles as $rel) {
+    $src = (string) @file_get_contents($root . '/' . $rel);
+    if ($src === '') {
+        bad('missing scan file ' . $rel);
+        continue;
+    }
+    if (preg_match_all("/getCachedData\\(\\s*'([^']+)'/", $src, $m)) {
+        foreach ($m[1] as $k) {
+            $usedKeys[$k] = $rel;
+        }
+    }
+}
+
+$ephemeralPrefix = ['visitor_today_', 'nav_notices_extra_v2_'];
+$missing = [];
+foreach ($usedKeys as $key => $from) {
+    $isEphemeral = false;
+    foreach ($ephemeralPrefix as $pre) {
+        if (str_starts_with($key, $pre)) {
+            $isEphemeral = true;
+            break;
+        }
+    }
+    if ($isEphemeral) {
+        continue;
+    }
+    if (!preg_match("/['\"]" . preg_quote($key, '/') . "['\"]/", $cachePhp)
+        || strpos($cachePhp, 'coop_homepage_cache_keys') === false
+        || !preg_match('/function coop_homepage_cache_keys[\\s\\S]*?' . preg_quote($key, '/') . '/', $cachePhp)
+    ) {
+        /* Prefer exact membership in the keys() array body */
+        if (!preg_match('/function coop_homepage_cache_keys\\(\\)[\\s\\S]*?return \\[([\\s\\S]*?)\\];/', $cachePhp, $body)
+            || strpos($body[1], "'" . $key . "'") === false) {
+            $missing[] = $key . ' (from ' . $from . ')';
+        }
+    }
+}
+
+if ($missing === []) {
+    ok('all static getCachedData keys listed in coop_homepage_cache_keys (' . count($usedKeys) . ' scanned)');
+} else {
+    bad('cache keys missing from coop_homepage_cache_keys: ' . implode(', ', $missing));
+}
+
+if (strpos($cachePhp, "nav_notices_extra_v2_") !== false
+    && strpos($cachePhp, 'foreach ([-1, 0, 1]') !== false) {
+    ok('notice popup cache clears today±1');
+} else {
+    bad('clearHomepageCache should clear nav_notices_extra_v2_ for today±1');
+}
+
+$adminHdr = (string) file_get_contents($root . '/admin/includes/admin-header.php');
+$bootPos = strpos($adminHdr, 'coop_require_boot_shared');
+$countPos = strpos($adminHdr, "if (!function_exists('core_safe_count'))");
+if ($bootPos !== false && $countPos !== false && $bootPos < $countPos) {
+    ok('admin-header loads boot-shared before COUNT fallbacks');
+} else {
+    bad('admin-header should load boot-shared before core_safe_count fallback');
+}
+
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);

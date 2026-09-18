@@ -92,7 +92,8 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 ## Performance notes (current)
 
 - Homepage + navbar/footer data: short TTL file cache (`includes/simple-cache.php`); clear via `clearHomepageCache()` on admin CRUD.
-- Notice ticker/popup cache key is **date-stamped** (`nav_notices_extra_v2_YYYY-MM-DD`) so popup expiry rolls over at midnight.
+- **Cache key SSOT:** `coop_homepage_cache_keys()` in `simple-cache.php` — add new public `getCachedData('…')` keys there (smoke-public-cache enforces).
+- Notice ticker/popup cache key is **date-stamped** (`nav_notices_extra_v2_YYYY-MM-DD`); clear also covers yesterday/tomorrow for midnight/TZ edges.
 - Growing lists: public pagination (notices, news, gallery) + admin hard `LIMIT`s.
 - Public content pages skip unused jQuery/datepicker and form-validation JS where safe.
 - Schema helpers: `dbTableExists()` / `dbColumnExists()` avoid repeated `SHOW` probes.
