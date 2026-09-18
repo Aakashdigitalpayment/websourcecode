@@ -27,7 +27,7 @@ if (!function_exists('coopPublicUiLooks')) {
             ],
             'editorial' => [
                 'label' => 'Editorial',
-                'hint'  => 'Full-bleed hero, why-us then join CTA, app before rates — magazine rhythm.',
+                'hint'  => 'Full-bleed hero, why+app then join CTA, rates later — magazine rhythm.',
                 'best'  => 'Best for a calmer story-led look. Same pages, text, and brand colors.',
             ],
             'compact' => [
