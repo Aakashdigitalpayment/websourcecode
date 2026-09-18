@@ -10233,4 +10233,41 @@ body.admin-page-manage-admins .badge svg {
   border-radius: 0 !important;
   padding: 0.15rem 0.25rem 0.25rem !important;
 }
+
+/* ── Android sticky header: logo must not float over scrolling content ──
+ * Transparent sticky wrapper + brand ::before z-index:-1 fails on Android
+ * Chrome/WebView (FB in-app): logo stays painted while page scrolls under it.
+ */
+.pfl-header-wrapper {
+  background: #fff !important;
+  /* Promote a stable opaque compositing layer on mobile WebKit/Blink */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+body.dark-mode .pfl-header-wrapper {
+  background: #1c1c2e !important;
+}
+.pfl-brand-area::before {
+  z-index: 0 !important;
+}
+.pfl-brand-content {
+  position: relative;
+  z-index: 2 !important;
+}
+@media (max-width: 991.98px) {
+  .pfl-header-wrapper,
+  .pfl-main-header {
+    background: #fff !important;
+  }
+  body.dark-mode .pfl-header-wrapper,
+  body.dark-mode .pfl-main-header {
+    background: #1c1c2e !important;
+  }
+  .pfl-brand-area {
+    background: #fff !important;
+  }
+  body.dark-mode .pfl-brand-area {
+    background: #1c1c2e !important;
+  }
+}
 /* ===== END final-ui-polish.css ===== */
