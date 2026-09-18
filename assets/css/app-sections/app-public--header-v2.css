@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-public.css — do not edit app-* for polish.
- * Source bytes=36213 sha256=312a3795a053e00f
+ * Source bytes=36301 sha256=d847c66961b84ecc
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -474,6 +474,7 @@
     z-index: 13;
     flex-shrink: 0;
     margin-left: 0;
+
     overflow: hidden;
     box-sizing: border-box;
     padding: 0;
