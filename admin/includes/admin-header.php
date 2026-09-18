@@ -10,7 +10,17 @@ $__authRoles = __DIR__ . '/../../includes/auth-roles.php';
 if (is_file($__authRoles)) {
     require_once $__authRoles;
 }
-/* Safe COUNT helper — available even if older deploys skip core/init or safe-query.
+/* Shared modules (SSOT) — CSRF remains below; do not use admin/_bootstrap mass-migrate.
+   Load before local COUNT fallbacks so safe-query.php owns sqCount / core_safe_count. */
+$__bootSharedFile = __DIR__ . '/../../includes/boot-shared.php';
+if (is_file($__bootSharedFile)) {
+    require_once $__bootSharedFile;
+    if (function_exists('coop_require_boot_shared')) {
+        coop_require_boot_shared();
+    }
+}
+unset($__bootSharedFile);
+/* Safe COUNT fallback — only if older deploys skip boot-shared / safe-query.
    Data-safe: PHP function only, no schema / migration / DELETE. */
 if (!function_exists('core_safe_count')) {
     function core_safe_count(PDO $db, string $sql, string $logPrefix = '[core-safe-count]'): int
@@ -37,15 +47,6 @@ if (!function_exists('fa_to_lucide')) {
         return preg_replace('/^fa[srb]?\s+fa-|^fa-/', '', $fa) ?: 'circle';
     }
 }
-/* Shared modules (SSOT) — CSRF remains below; do not use admin/_bootstrap mass-migrate */
-$__bootSharedFile = __DIR__ . '/../../includes/boot-shared.php';
-if (is_file($__bootSharedFile)) {
-    require_once $__bootSharedFile;
-    if (function_exists('coop_require_boot_shared')) {
-        coop_require_boot_shared();
-    }
-}
-unset($__bootSharedFile);
 if (!defined('PORTAL')) {
     define('PORTAL', 'admin');
 }

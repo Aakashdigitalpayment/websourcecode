@@ -1847,6 +1847,7 @@ function getNepaliMonthName($monthKey) {
 
 // Format date in Nepali style (for display)
 // Uses accurate BS conversion via nepali_ad_to_bs_string() when available.
+// English UI → Latin BS month names (same contract as core/helpers.php).
 if (!function_exists('formatNepaliDate')) {
     function formatNepaliDate($date, $showTime = false) {
         if (empty($date)) return '';
@@ -1855,6 +1856,7 @@ if (!function_exists('formatNepaliDate')) {
         if ($timestamp === false) return $date;
 
         $adYmd = date('Y-m-d', $timestamp);
+        $isEn = function_exists('isEnglish') ? isEnglish() : false;
 
         static $_bsMonthNames = [
             1 => 'बैशाख', 2 => 'जेठ',    3 => 'असार',
@@ -1862,11 +1864,24 @@ if (!function_exists('formatNepaliDate')) {
             7 => 'कात्तिक', 8 => 'मंसिर', 9 => 'पुष',
             10 => 'माघ',  11 => 'फागुन', 12 => 'चैत्र',
         ];
+        static $_bsMonthNamesEn = [
+            1 => 'Baisakh', 2 => 'Jestha', 3 => 'Ashadh',
+            4 => 'Shrawan', 5 => 'Bhadra', 6 => 'Ashwin',
+            7 => 'Kartik',  8 => 'Mangsir', 9 => 'Poush',
+            10 => 'Magh',  11 => 'Falgun', 12 => 'Chaitra',
+        ];
 
         if (function_exists('nepali_ad_to_bs_string')) {
             $bsYmd = nepali_ad_to_bs_string($adYmd);
             if ($bsYmd) {
                 [$bsY, $bsM, $bsD] = array_map('intval', explode('-', $bsYmd));
+                if ($isEn) {
+                    $formatted = $bsY . ' ' . ($_bsMonthNamesEn[$bsM] ?? $bsM) . ' ' . $bsD;
+                    if ($showTime) {
+                        $formatted .= ' ' . date('H:i', $timestamp);
+                    }
+                    return $formatted;
+                }
                 $formatted = toNepaliNumeral($bsY) . ' ' . ($_bsMonthNames[$bsM] ?? $bsM) . ' ' . toNepaliNumeral($bsD);
                 if ($showTime) {
                     $formatted .= ' ' . toNepaliNumeral(date('H:i', $timestamp));
@@ -1876,6 +1891,9 @@ if (!function_exists('formatNepaliDate')) {
         }
 
         // Fallback: simple approximation (only used if converter not loaded)
+        if ($isEn) {
+            return date('d M Y', $timestamp) . ($showTime ? ' ' . date('H:i', $timestamp) : '');
+        }
         $year  = (int) date('Y', $timestamp);
         $month = (int) date('n', $timestamp);
         $day   = (int) date('j', $timestamp);
