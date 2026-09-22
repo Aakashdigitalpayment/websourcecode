@@ -254,7 +254,7 @@ $L = getLangStrings();
                                     <h1 class="hero-title-modern"><?php echo e($heroTitle); ?></h1>
                                     <p class="hero-subtitle-modern"><?php echo e($heroSubtitle); ?></p>
                                     <div class="hero-actions-modern">
-                                        <a href="about.php" class="btn hero-btn-modern">
+                                        <a href="about" class="btn hero-btn-modern">
                                             <span class="btn-content">
                                                 <?php echo isEnglish() ? 'Learn More' : 'थप जान्नुहोस्'; ?> <i class="lucide-icon btn-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                                             </span>
@@ -288,7 +288,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
 <section class="institutional-profile-section">
     <div class="container">
         <div class="institutional-profile-bar" data-aos="fade-up">
-            <a href="institutional-profile.php" class="profile-title profile-title-link">
+            <a href="institutional-profile" class="profile-title profile-title-link">
                 <i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i>
                 <span><?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></span>
                 <?php if ($hasInstitutionalProfile): ?>
@@ -296,21 +296,21 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                 <?php endif; ?>
             </a>
             <div class="profile-reports">
-                <a href="reports.php?type=monthly" class="report-quick-link monthly">
+                <a href="reports?type=monthly" class="report-quick-link monthly">
                     <i class="lucide-icon" data-lucide="sunrise" aria-hidden="true"></i>
                     <span><?php echo isEnglish() ? 'Monthly Reports' : 'मासिक प्रतिवेदन'; ?></span>
                     <?php if ($latestMonthlyReport): ?>
                     <small class="latest-badge"><?php echo isEnglish() ? 'Latest' : 'नयाँ'; ?></small>
                     <?php endif; ?>
                 </a>
-                <a href="reports.php?type=annual" class="report-quick-link annual">
+                <a href="reports?type=annual" class="report-quick-link annual">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="calendar"></i>
                     <span><?php echo isEnglish() ? 'Annual Reports' : 'वार्षिक प्रतिवेदन'; ?></span>
                     <?php if ($latestAnnualReport): ?>
                     <small class="latest-badge"><?php echo isEnglish() ? 'Latest' : 'नयाँ'; ?></small>
                     <?php endif; ?>
                 </a>
-                <a href="reports.php" class="report-quick-link all">
+                <a href="reports" class="report-quick-link all">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="folder-open"></i>
                     <span><?php echo isEnglish() ? 'All Reports' : 'सबै प्रतिवेदन'; ?></span>
                 </a>
@@ -326,24 +326,24 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                 <?php endif; ?>
             </div>
             <div class="ip-home-snapshot-grid">
-                <a href="institutional-profile.php" class="ip-home-stat">
+                <a href="institutional-profile" class="ip-home-stat">
                     <strong><?php echo number_format((int)($latestInstitutionalProfile['total_members'] ?? 0)); ?></strong>
                     <span><?php echo isEnglish() ? 'Members' : 'सदस्य'; ?></span>
                 </a>
-                <a href="institutional-profile.php" class="ip-home-stat">
+                <a href="institutional-profile" class="ip-home-stat">
                     <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['deposit'] ?? 0))); ?></strong>
                     <span><?php echo isEnglish() ? 'Deposits' : 'बचत'; ?></span>
                 </a>
-                <a href="institutional-profile.php" class="ip-home-stat">
+                <a href="institutional-profile" class="ip-home-stat">
                     <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['loan'] ?? 0))); ?></strong>
                     <span><?php echo isEnglish() ? 'Loans' : 'ऋण'; ?></span>
                 </a>
-                <a href="institutional-profile.php" class="ip-home-stat">
+                <a href="institutional-profile" class="ip-home-stat">
                     <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['total_assets'] ?? 0))); ?></strong>
                     <span><?php echo isEnglish() ? 'Total assets' : 'कुल सम्पत्ति'; ?></span>
                 </a>
             </div>
-            <a href="institutional-profile.php" class="ip-home-snapshot-link">
+            <a href="institutional-profile" class="ip-home-snapshot-link">
                 <?php echo isEnglish() ? 'View charts & full profile' : 'चार्ट र पूरा प्रोफाइल हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
             </a>
         </div>
@@ -375,7 +375,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     </div>
                     <h4 class="service-title-modern"><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
                     <p class="service-description-modern"><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
-                    <a href="services.php" class="service-link service-link-modern">
+                    <a href="services" class="service-link service-link-modern">
                         <span class="link-text"><?php echo isEnglish() ? 'Learn More' : 'थप जान्नुहोस्'; ?></span>
                         <i class="lucide-icon link-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                     </a>
@@ -389,7 +389,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <div class="service-icon"><i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i></div>
                     <h4>बचत खाता</h4>
                     <p>आकर्षक ब्याज दरमा बचत खाता खोल्नुहोस्।</p>
-                    <a href="services.php" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
+                    <a href="services" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
@@ -397,7 +397,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <div class="service-icon"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i></div>
                     <h4>ऋण सेवा</h4>
                     <p>विभिन्न आवश्यकताहरूको लागि सजिलो ऋण।</p>
-                    <a href="services.php" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
+                    <a href="services" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
@@ -405,7 +405,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <div class="service-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i></div>
                     <h4>मुद्दती निक्षेप</h4>
                     <p>उच्च प्रतिफलको लागि मुद्दती निक्षेप।</p>
-                    <a href="services.php" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
+                    <a href="services" class="service-link">थप जान्नुहोस् <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
             <?php endif; ?>
@@ -414,7 +414,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
         <?php if ($totalServices > count($services)): ?>
         <!-- सबै सेवाहरू हेर्नुहोस् बटन — जब database मा ३ भन्दा बढी सेवाहरू छन् -->
         <div class="text-center mt-4" data-aos="fade-up">
-            <a href="services.php" class="btn home-btn-primary btn-lg view-all-btn shadow-sm">
+            <a href="services" class="btn home-btn-primary btn-lg view-all-btn shadow-sm">
                 <i class="lucide-icon me-2" data-lucide="layout-grid" aria-hidden="true"></i>
                 <?php echo isEnglish()
                     ? 'View All Services (' . $totalServices . ')'
@@ -442,22 +442,22 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                 <div class="tools-category-card tools-cat-forms">
                     <h5 data-aos="fade-up"><i class="lucide-icon me-2" data-lucide="file-signature" aria-hidden="true"></i><?php echo isEnglish() ? 'Online Forms' : 'अनलाइन फारमहरू'; ?></h5>
                     <div class="tools-links-grid">
-                        <a href="online-kyc.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
+                        <a href="online-kyc" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i>
                             <span><?php echo isEnglish() ? 'Online KYM' : 'अनलाइन केवाइएम'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="loan-apply.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
+                        <a href="loan-apply" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
                             <i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i>
                             <span><?php echo isEnglish() ? 'Apply Loan' : 'ऋण आवेदन'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="online-account.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
+                        <a href="online-account" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i>
                             <span><?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="appointment.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
+                        <a href="appointment" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i>
                             <span><?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
@@ -469,23 +469,23 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                 <div class="tools-category-card tools-cat-tools">
                     <h5 data-aos="fade-up"><i class="lucide-icon me-2" data-lucide="calculator" aria-hidden="true"></i><?php echo isEnglish() ? 'Tools / Calculator' : 'टुल्स / क्याल्कुलेटर'; ?></h5>
                     <div class="tools-links-grid">
-                        <a href="emi-calculator.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
+                        <a href="emi-calculator" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
                             <i class="lucide-icon" data-lucide="calculator" aria-hidden="true"></i>
                             <span><?php echo $L['emi_calculator']; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="exchange-rate.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
+                        <a href="exchange-rate" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
                             <i class="lucide-icon" data-lucide="arrow-left-right" aria-hidden="true"></i>
                             <span><?php echo $L['exchange_rate']; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                             <small class="tools-link-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></small>
                         </a>
-                        <a href="date-converter.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
+                        <a href="date-converter" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
                             <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                             <span><?php echo $L['date_converter']; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="downloads.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
+                        <a href="downloads" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
                             <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i>
                             <span><?php echo $L['downloads']; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
@@ -498,24 +498,24 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                 <div class="tools-category-card tools-cat-member">
                     <h5 data-aos="fade-up"><i class="lucide-icon me-2" data-lucide="handshake" aria-hidden="true"></i><?php echo isEnglish() ? 'Member Services' : 'सदस्य सेवा / सहायता'; ?></h5>
                     <div class="tools-links-grid">
-                        <a href="digital-services.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
+                        <a href="digital-services" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
                             <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i>
                             <span><?php echo isEnglish() ? 'Digital Service' : 'डिजिटल सेवा'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                             <small class="tools-link-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></small>
                         </a>
-                        <a href="member-welfare.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
+                        <a href="member-welfare" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
                             <i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i>
                             <span><?php echo isEnglish() ? 'Member Welfare' : 'सदस्य सुविधा'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                             <small class="tools-link-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></small>
                         </a>
-                        <a href="grievance.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
+                        <a href="grievance" class="tools-mini-link" data-aos="fade-up" data-aos-delay="140">
                             <i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i>
                             <span><?php echo isEnglish() ? 'Grievance' : 'गुनासो'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
-                        <a href="auction.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
+                        <a href="auction" class="tools-mini-link" data-aos="fade-up" data-aos-delay="190">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="gavel"></i>
                             <span><?php echo isEnglish() ? 'Auction' : 'लिलामी'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
@@ -566,7 +566,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                                         <?php endif; ?>
                                     <?php else: ?>
                                     <div class="text-center py-3">
-                                        <a href="interest-rates.php" class="home-link-primary"><?php echo isEnglish() ? 'View all rates' : 'सबै दरहरू हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
+                                        <a href="interest-rates" class="home-link-primary"><?php echo isEnglish() ? 'View all rates' : 'सबै दरहरू हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
                                     </div>
                                     <?php endif; ?>
                                 </div>
@@ -590,7 +590,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                                         <?php endif; ?>
                                     <?php else: ?>
                                     <div class="text-center py-3">
-                                        <a href="interest-rates.php" class="home-link-primary"><?php echo isEnglish() ? 'View all rates' : 'सबै दरहरू हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
+                                        <a href="interest-rates" class="home-link-primary"><?php echo isEnglish() ? 'View all rates' : 'सबै दरहरू हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></a>
                                     </div>
                                     <?php endif; ?>
                                 </div>
@@ -598,7 +598,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                         </div>
 
                         <div class="text-center mt-3">
-                            <a href="interest-rates.php" class="btn home-btn-primary">
+                            <a href="interest-rates" class="btn home-btn-primary">
                                 <i class="lucide-icon me-2" data-lucide="arrow-right" aria-hidden="true"></i><?php echo isEnglish() ? 'View All Rates' : 'सबै ब्याज दरहरू हेर्नुहोस्'; ?>
                             </a>
                         </div>
@@ -627,7 +627,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                                     <span class="month"><?php echo $month; ?></span>
                                 </div>
                                 <div class="notice-content">
-                                    <h6><a href="notices.php?id=<?php echo (int)$notice['id']; ?>"><?php echo e($notice['title']); ?></a></h6>
+                                    <h6><a href="notices?id=<?php echo (int)$notice['id']; ?>"><?php echo e($notice['title']); ?></a></h6>
                                     <span class="notice-meta"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?></span>
                                 </div>
                             </div>
@@ -637,7 +637,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                             <div class="text-center py-4">
                                 <i class="lucide-icon lucide-3x home-muted-icon mb-3" aria-hidden="true" data-lucide="inbox"></i>
                                 <p class="text-muted mb-2"><?php echo isEnglish() ? 'No notices available' : 'कुनै सूचना छैन'; ?></p>
-                                <a href="notices.php" class="btn btn-sm home-btn-outline-primary">
+                                <a href="notices" class="btn btn-sm home-btn-outline-primary">
                                     <?php echo isEnglish() ? 'View All Notices' : 'सबै सूचनाहरू हेर्नुहोस्'; ?>
                                 </a>
                             </div>
@@ -645,7 +645,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                         </div>
                     </div>
                     <div class="notices-footer">
-                        <a href="notices.php" class="btn home-btn-outline-primary btn-sm">
+                        <a href="notices" class="btn home-btn-outline-primary btn-sm">
                             <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo isEnglish() ? 'View All Notices' : 'सबै सूचनाहरू हेर्नुहोस्'; ?>
                         </a>
                     </div>
@@ -692,7 +692,7 @@ if (empty($whyFeatures)) {
         <?php endforeach; ?>
         </div>
         <div class="text-center mt-2" data-aos="fade-up">
-            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php" class="btn btn-outline-primary">
+            <a href="<?php echo htmlspecialchars(coop_url('why-choose.php'), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary">
                 <i class="lucide-icon me-1" data-lucide="arrow-right" aria-hidden="true"></i><?php echo isEnglish() ? 'View all reasons' : 'सबै कारणहरू हेर्नुहोस्'; ?>
             </a>
         </div>
@@ -761,7 +761,7 @@ if ($ceoMember) {
                         <span class="profile-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
                         <p class="profile-message"><?php echo e(truncateText(strip_tags($chairmanMessage), 120)); ?></p>
                     </div>
-                    <a href="chairman-message.php" class="profile-btn">
+                    <a href="chairman-message" class="profile-btn">
                         <?php echo isEnglish() ? 'Read More' : 'थप विवरण'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -785,7 +785,7 @@ if ($ceoMember) {
                         <span class="profile-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
                         <p class="profile-message"><?php echo e(truncateText(strip_tags($ceoMessage), 120)); ?></p>
                     </div>
-                    <a href="ceo-message.php" class="profile-btn">
+                    <a href="ceo-message" class="profile-btn">
                         <?php echo isEnglish() ? 'Read More' : 'थप विवरण'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -817,7 +817,7 @@ if ($ceoMember) {
                             <?php endif; ?>
                         </div>
                     </div>
-                    <a href="team.php" class="profile-btn">
+                    <a href="team" class="profile-btn">
                         <?php echo isEnglish() ? 'View Details' : 'थप विवरण'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -849,7 +849,7 @@ if ($ceoMember) {
                             <?php endif; ?>
                         </div>
                     </div>
-                    <a href="grievance.php" class="profile-btn">
+                    <a href="grievance" class="profile-btn">
                         <?php echo isEnglish() ? 'File Grievance' : 'गुनासो दर्ता'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -991,7 +991,7 @@ if (empty($appFeatures)) {
         <?php endif; ?>
 
         <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="200">
-            <a href="services.php" class="btn home-btn-outline-primary btn-lg">
+            <a href="services" class="btn home-btn-outline-primary btn-lg">
                 <?php echo isEnglish() ? 'View All Services' : 'सबै सेवाहरू हेर्नुहोस्'; ?>
                 <i class="lucide-icon ms-2" data-lucide="arrow-right" aria-hidden="true"></i>
             </a>
@@ -1031,7 +1031,7 @@ if (empty($appFeatures)) {
                     <div class="news-content">
                         <h4><?php echo e(getLangField($news, 'title')); ?></h4>
                         <p><?php echo e(truncateText(strip_tags(getLangField($news, 'content')), 100)); ?></p>
-                        <a href="news-detail.php?id=<?php echo $news['id']; ?>" class="read-more">
+                        <a href="news-detail?id=<?php echo $news['id']; ?>" class="read-more">
                             <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                         </a>
                     </div>
@@ -1041,7 +1041,7 @@ if (empty($appFeatures)) {
         </div>
 
         <div class="text-center mt-4" data-aos="fade-up">
-            <a href="news.php" class="btn home-btn-primary btn-lg">
+            <a href="news" class="btn home-btn-primary btn-lg">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'View All News' : 'सबै समाचार हेर्नुहोस्'; ?>
             </a>
         </div>
@@ -1103,7 +1103,7 @@ if (empty($appFeatures)) {
                         ?>
                         <p class="award-desc"><?php echo e($awardDescTeaser); ?></p>
                         <?php if ($awardDescLong): ?>
-                        <a class="award-read-more" href="awards.php?id=<?php echo (int)($award['id'] ?? 0); ?>">
+                        <a class="award-read-more" href="awards?id=<?php echo (int)($award['id'] ?? 0); ?>">
                             <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?>
                             <i class="lucide-icon" aria-hidden="true" data-lucide="arrow-right"></i>
                         </a>
@@ -1117,7 +1117,7 @@ if (empty($appFeatures)) {
 
         <?php if ($totalAwards > 3): ?>
         <div class="text-center mt-4" data-aos="fade-up">
-            <a href="awards.php" class="btn home-btn-primary btn-lg">
+            <a href="awards" class="btn home-btn-primary btn-lg">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="trophy"></i> <?php echo isEnglish() ? 'View All Awards' : 'सबै सम्मान हेर्नुहोस्'; ?>
             </a>
         </div>
@@ -1281,10 +1281,10 @@ $hasPhoto = !empty($memberSpotlight['photo']) && file_exists(ROOT_PATH . $member
                 </div>
                 <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
                     <div class="cta-buttons">
-                        <a href="online-kyc.php" class="btn btn-light btn-lg me-2 mb-2">
+                        <a href="online-kyc" class="btn btn-light btn-lg me-2 mb-2">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i> <?php echo isEnglish() ? 'Fill KYM Form' : 'केवाइएम फारम भर्नुहोस्'; ?>
                         </a>
-                        <a href="contact.php" class="btn btn-outline-light btn-lg mb-2">
+                        <a href="contact" class="btn btn-outline-light btn-lg mb-2">
                             <i class="lucide-icon" data-lucide="phone-outgoing" aria-hidden="true"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>
                         </a>
                     </div>

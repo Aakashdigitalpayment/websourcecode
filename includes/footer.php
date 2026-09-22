@@ -161,16 +161,16 @@ try {
                         <div class="footer-widget">
                             <h4><?php echo isEnglish() ? 'Quick Links' : 'द्रुत लिंकहरू'; ?></h4>
                             <ul class="footer-links footer-links-cols">
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>reports.php"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>faqs.php"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-survey.php"><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-marketplace.php"><?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-skills.php"><?php echo isEnglish() ? 'Skill Workers' : 'सीप कामदार'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('about.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('career.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('reports.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('service-centers.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('faqs.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('news.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('member-survey.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('member-marketplace.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('member-skills.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Skill Workers' : 'सीप कामदार'; ?></a></li>
                             </ul>
                         </div>
                     </div>
@@ -214,17 +214,17 @@ try {
 
                 <!-- v10.3 (Issue #10): Footer policy links — admin बाट pages.php मा edit गर्न मिल्छ -->
                 <div class="footer-policy-links">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=privacy-policy">
+                        <a href="<?php echo htmlspecialchars(coop_url('page.php?slug=privacy-policy'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i>
                         <?php echo isEnglish() ? 'Privacy Policy' : 'गोपनीयता नीति'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=terms-of-service">
+                    <a href="<?php echo htmlspecialchars(coop_url('page.php?slug=terms-of-service'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i>
                         <?php echo isEnglish() ? 'Terms of Service' : 'सेवाका सर्तहरू'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=cookie-policy">
+                    <a href="<?php echo htmlspecialchars(coop_url('page.php?slug=cookie-policy'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="cookie"></i>
                         <?php echo isEnglish() ? 'Cookie Policy' : 'कुकी नीति'; ?>
                     </a>
@@ -336,20 +336,20 @@ try {
                 </div>
 
                 <div class="chatbot-quick-actions">
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>appointment.php" class="quick-action-btn">
+                    <a href="<?php echo htmlspecialchars(coop_url('appointment.php'), ENT_QUOTES, 'UTF-8'); ?>" class="quick-action-btn">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i>
                         <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                     </a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php" class="quick-action-btn">
+                    <a href="<?php echo htmlspecialchars(coop_url('online-account.php'), ENT_QUOTES, 'UTF-8'); ?>" class="quick-action-btn">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i>
                         <?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?>
                     </a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>grievance.php" class="quick-action-btn">
+                    <a href="<?php echo htmlspecialchars(coop_url('grievance.php'), ENT_QUOTES, 'UTF-8'); ?>" class="quick-action-btn">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="alert-circle"></i>
                         <?php echo isEnglish() ? 'File Grievance' : 'गुनासो दर्ता'; ?>
                     </a>
                     <!-- ट्र्याकर एप्लिकेसन button — अरू buttons जस्तै style -->
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php" class="quick-action-btn" target="_blank" rel="noopener noreferrer">
+                    <a href="<?php echo htmlspecialchars(coop_url('application-tracker.php'), ENT_QUOTES, 'UTF-8'); ?>" class="quick-action-btn" target="_blank" rel="noopener noreferrer">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="chart-no-axes-combined"></i>
                         <?php echo isEnglish() ? 'Track Application' : 'ट्र्याकर एप्लिकेसन'; ?>
                     </a>
@@ -372,7 +372,7 @@ try {
 
                 <div class="chatbot-contact">
                     <p><?php echo isEnglish() ? 'Need more help?' : 'थप सहायता चाहिन्छ?'; ?></p>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="btn btn-primary btn-sm">
+                    <a href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-primary btn-sm">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>
                     </a>
                 </div>
@@ -524,7 +524,7 @@ try {
                         : 'टाइप गर्नुहोस् वा माइकबाट बोल्नुहोस्'; ?>
                 </p>
 
-                <form action="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>search.php" method="GET" class="search-form" id="searchForm">
+                <form action="<?php echo htmlspecialchars(coop_url('search.php'), ENT_QUOTES, 'UTF-8'); ?>" method="GET" class="search-form" id="searchForm">
                     <div class="search-input-wrapper" id="searchInputWrapper">
                         <!-- Search text field -->
                         <input type="text" name="q" class="search-input" id="searchInput"
@@ -569,11 +569,11 @@ try {
                 <!-- Popular quick links -->
                 <div class="search-quick-links">
                     <span><?php echo isEnglish() ? 'Popular:' : 'लोकप्रिय:'; ?></span>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>interest-rates.php"><?php echo isEnglish() ? 'Interest Rates' : 'ब्याजदर'; ?></a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php"><?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?></a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>loan-apply.php"><?php echo isEnglish() ? 'Loan' : 'ऋण आवेदन'; ?></a>
+                    <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a>
+                    <a href="<?php echo htmlspecialchars(coop_url('interest-rates.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Interest Rates' : 'ब्याजदर'; ?></a>
+                    <a href="<?php echo htmlspecialchars(coop_url('online-account.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?></a>
+                    <a href="<?php echo htmlspecialchars(coop_url('career.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a>
+                    <a href="<?php echo htmlspecialchars(coop_url('loan-apply.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo isEnglish() ? 'Loan' : 'ऋण आवेदन'; ?></a>
                 </div>
             </div>
         </div>
@@ -989,9 +989,9 @@ try {
 <!-- v9.6 Mobile bottom-nav (public) -->
 <nav class="mob-bottomnav" aria-label="<?php echo isEnglish() ? 'Quick navigation' : 'छिटो नेभिगेसन'; ?>">
     <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"<?php echo ($currentPage??'')==='index'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
-    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"<?php echo ($currentPage??'')==='services'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
-    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"<?php echo ($currentPage??'')==='notices'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
-    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"<?php echo ($currentPage??'')==='contact'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"<?php echo ($currentPage??'')==='services'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"<?php echo ($currentPage??'')==='notices'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"<?php echo ($currentPage??'')==='contact'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
     <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/" class="mob-bn-item" aria-label="<?php echo isEnglish()?'Member portal':'सदस्य पोर्टल'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
 </nav>
 <script>document.body.classList.add('has-bottomnav');</script>
@@ -1222,42 +1222,42 @@ if ($__uiTestMode):
 
     <!-- Loan Apply -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php">
+       href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-loan"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i></span>
       <span>ऋण आवेदन</span>
     </a>
 
     <!-- Open Account -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php">
+       href="<?php echo htmlspecialchars(coop_url('online-account.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-account"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span>
       <span>खाता खोल्नुहोस्</span>
     </a>
 
     <!-- Contact -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php">
+       href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-contact"><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i></span>
       <span>सम्पर्क गर्नुहोस्</span>
     </a>
 
     <!-- Track Application -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php">
+       href="<?php echo htmlspecialchars(coop_url('application-tracker.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-track"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-no-axes-combined"></i></span>
       <span>आवेदन ट्र्याक</span>
     </a>
 
     <!-- Service Centers -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php">
+       href="<?php echo htmlspecialchars(coop_url('service-centers.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-branch"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span>
       <span><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
     </a>
 
     <!-- Member Login -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/login.php">
+       href="<?php echo htmlspecialchars(coop_url('member/login.php'), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic qh-login"><i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i></span>
       <span><?php echo isEnglish() ? 'Member login' : 'सदस्य लगइन'; ?></span>
     </a>

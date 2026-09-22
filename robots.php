@@ -44,14 +44,23 @@ echo "Disallow: /assets/uploads/member-imports/\n";
 echo "Disallow: /assets/uploads/hrm/\n\n";
 
 /* utility / token-gated / thin form flows (keep crawl budget for content) */
+echo "Disallow: /install\n";
 echo "Disallow: /install.php\n";
+echo "Disallow: /cron-cleanup\n";
 echo "Disallow: /cron-cleanup.php\n";
+echo "Disallow: /attend\n";
 echo "Disallow: /attend.php\n";
+echo "Disallow: /program-attendance-verify\n";
 echo "Disallow: /program-attendance-verify.php\n";
+echo "Disallow: /tracker-id-card\n";
 echo "Disallow: /tracker-id-card.php\n";
+echo "Disallow: /verify\n";
 echo "Disallow: /verify.php\n";
+echo "Disallow: /application-tracker\n";
 echo "Disallow: /application-tracker.php\n";
+echo "Disallow: /online-kyc\n";
 echo "Disallow: /online-kyc.php\n";
+echo "Disallow: /member-survey\n";
 echo "Disallow: /member-survey.php\n";
 echo "Disallow: /member/session-check.php\n\n";
 

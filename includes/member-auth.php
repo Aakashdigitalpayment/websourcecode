@@ -499,7 +499,10 @@ function requireMemberLogin($redirectBack = true) {
         }
         @session_destroy();
         $back = $redirectBack ? '?next=' . urlencode($_SERVER['REQUEST_URI']) : '';
-        header('Location: ' . SITE_URL . 'member/login.php' . $back);
+        $login = function_exists('coop_url')
+            ? coop_url('member/login.php')
+            : (rtrim((string) SITE_URL, '/') . '/member/login.php');
+        header('Location: ' . $login . $back);
         exit;
     }
 }

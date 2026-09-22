@@ -860,6 +860,70 @@ function seo_is_search_crawler(): bool
 }
 
 /**
+ * Strip a trailing .php from a URL path (pretty / extensionless URLs).
+ * Keeps ?query and #hash. index.php → / ; admin/index.php → admin/
+ */
+function coop_pretty_path(string $path): string
+{
+    $path = trim(str_replace('\\', '/', $path));
+    if ($path === '' || $path === '/') {
+        return '/';
+    }
+    $q = '';
+    $hash = '';
+    if (str_contains($path, '#')) {
+        [$path, $hashPart] = explode('#', $path, 2);
+        $hash = '#' . $hashPart;
+    }
+    if (str_contains($path, '?')) {
+        [$path, $qPart] = explode('?', $path, 2);
+        $q = '?' . $qPart;
+    }
+    $path = ltrim($path, '/');
+    if ($path === '' || strcasecmp($path, 'index.php') === 0 || strcasecmp($path, 'index') === 0) {
+        return '/' . ltrim($q . $hash, '/');
+    }
+    if (preg_match('#^(.+)/index\.php$#i', $path, $m) || preg_match('#^(.+)/index$#i', $path, $m)) {
+        return rtrim($m[1], '/') . '/' . (($q !== '' || $hash !== '') ? ltrim($q . $hash, '/') : '');
+    }
+    if (str_ends_with(strtolower($path), '.php')) {
+        $path = substr($path, 0, -4);
+    }
+    return $path . $q . $hash;
+}
+
+/**
+ * Absolute site URL without .php (e.g. contact.php → …/contact).
+ * Safe for nav/sitemap; forms may still POST to *.php (GET redirects only).
+ */
+function coop_url(string $path = '', ?array $query = null): string
+{
+    $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/');
+    $path = trim($path);
+    if ($path === '' || $path === '/' || $path === 'index.php' || $path === 'index') {
+        $url = $base . '/';
+    } else {
+        $pretty = coop_pretty_path($path);
+        if ($pretty === '/' || $pretty === '') {
+            $url = $base . '/';
+        } elseif (str_starts_with($pretty, '?') || str_starts_with($pretty, '#')) {
+            $url = $base . '/' . $pretty;
+        } elseif (str_starts_with($pretty, '/')) {
+            $url = $base . $pretty;
+        } else {
+            $url = $base . '/' . ltrim($pretty, '/');
+        }
+    }
+    if ($query) {
+        $qs = http_build_query($query);
+        if ($qs !== '') {
+            $url .= (str_contains($url, '?') ? '&' : '?') . $qs;
+        }
+    }
+    return $url;
+}
+
+/**
  * Canonical URL — keep SEO-significant query params (id/slug/menu/…);
  * strip tracking + lang noise so Google indexes the real content URL.
  */
@@ -869,8 +933,22 @@ function seo_canonical_url(): string
     $path = parse_url($uri, PHP_URL_PATH);
     $path = is_string($path) && $path !== '' ? $path : '/';
     $path = '/' . ltrim(preg_replace('#//+#', '/', $path), '/');
-    if ($path !== '/' && str_ends_with($path, '/')) {
+    $hadTrailingSlash = ($path !== '/' && str_ends_with($path, '/'));
+    if ($hadTrailingSlash) {
         $path = rtrim($path, '/');
+    }
+    /* Pretty canonical: /contact.php → /contact, /index.php → / */
+    if (strcasecmp($path, '/index.php') === 0 || strcasecmp($path, '/index') === 0) {
+        $path = '/';
+        $hadTrailingSlash = false;
+    } elseif (preg_match('#^(.+)/index\.php$#i', $path, $m) || preg_match('#^(.+)/index$#i', $path, $m)) {
+        $path = $m[1];
+        $hadTrailingSlash = true; /* directory index → trailing slash */
+    } elseif (str_ends_with(strtolower($path), '.php')) {
+        $path = substr($path, 0, -4);
+    }
+    if ($hadTrailingSlash && $path !== '/') {
+        $path .= '/';
     }
     $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/');
     $canon = $path === '/' ? $base . '/' : $base . $path;
@@ -2698,10 +2776,27 @@ if (!function_exists('adminSelfUrl')) {
     }
 }
 
-// Get current page name
+// Get current page name (works with pretty URLs + Apache/nginx rewrites)
 function getCurrentPage() {
-    $page = basename($_SERVER['PHP_SELF'], '.php');
-    return $page;
+    $candidates = [
+        (string) ($_SERVER['SCRIPT_FILENAME'] ?? ''),
+        (string) ($_SERVER['SCRIPT_NAME'] ?? ''),
+        (string) ($_SERVER['PHP_SELF'] ?? ''),
+    ];
+    foreach ($candidates as $self) {
+        if ($self === '') {
+            continue;
+        }
+        $base = basename(str_replace('\\', '/', $self));
+        if ($base === '' || $base === '.' || $base === '/' || strcasecmp($base, 'router.php') === 0) {
+            continue;
+        }
+        if (str_ends_with(strtolower($base), '.php')) {
+            return substr($base, 0, -4);
+        }
+        return $base;
+    }
+    return '';
 }
 
 // Truncate text — UTF-8 safe (Nepali/multibyte must not use byte substr)

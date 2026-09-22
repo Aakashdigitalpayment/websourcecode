@@ -3,6 +3,7 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
     # Block direct HTTP access to secrets / private PHP sources / file cache
     RewriteRule ^includes/ - [F,L]
     RewriteRule ^cache/ - [F,L]
@@ -13,16 +14,40 @@
     RewriteRule (^|/)\.cred - [F,L]
     RewriteRule \.cred-master\.key$ - [F,L]
     # Debug session dump — must not be web-accessible (live safety)
-    RewriteRule ^member/session-check\.php$ - [F,L]
+    # Block both .php and extensionless pretty path
+    RewriteRule ^member/session-check(\.php)?$ - [F,L]
     # Install wizard — block when lock or local DB config exists
     RewriteCond %{DOCUMENT_ROOT}/install.lock -f [OR]
     RewriteCond %{DOCUMENT_ROOT}/includes/database.local.php -f
-    RewriteRule ^install\.php$ - [F,L]
+    RewriteRule ^install(\.php)?$ - [F,L]
+
     # Crawlers expect /sitemap.xml and /robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
     RewriteRule ^robots\.txt$ robots.php [L,QSA]
     # Legacy PWA manifest path → dynamic manifest.php
     RewriteRule ^manifest\.json$ manifest.php [L,QSA]
+
+    # ── Pretty URLs (hide .php in the address bar) ─────────────────────────
+    # GET/HEAD only — never redirect POST form actions (would drop body).
+    # index.php → / and …/index.php → …/
+    RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
+    RewriteCond %{THE_REQUEST} \s/+index\.php[\s?] [NC]
+    RewriteRule ^index\.php$ / [R=301,L]
+    RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
+    RewriteCond %{THE_REQUEST} \s/+(.+)/index\.php[\s?] [NC]
+    RewriteRule ^(.+)/index\.php$ /$1/ [R=301,L]
+    # contact.php → /contact (query string preserved on external redirect)
+    # Skip share-og.php — social crawlers hit it often; avoid an extra 301 hop.
+    RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
+    RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
+    RewriteCond %1 !^share-og$ [NC]
+    RewriteRule ^ /%1 [R=301,L]
+
+    # /contact → internally serve contact.php (if that file exists)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.*)$ $1.php [L,QSA]
 </IfModule>
 
 # Long-cache fingerprinted static assets (?v=filemtime busts on change)
