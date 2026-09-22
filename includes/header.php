@@ -472,7 +472,9 @@ if (!function_exists('coop_nav_cms_page_li')) {
         $badge = $isNew
             ? '<span class="nav-new-badge">' . (isEnglish() ? 'New' : 'नयाँ') . '</span>'
             : '';
-        $href = rtrim((string) SITE_URL, '/') . '/page.php?slug=' . rawurlencode($slug);
+        $href = function_exists('coop_url')
+            ? coop_url('page.php?slug=' . rawurlencode($slug))
+            : (rtrim((string) SITE_URL, '/') . '/page.php?slug=' . rawurlencode($slug));
         $iconHtml = function_exists('coop_nav_icon_html')
             ? coop_nav_icon_html($icon, 'fas fa-file-lines')
             : '<i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i>';
@@ -613,7 +615,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="apple-touch-icon" href="<?php echo e($__appleIconUrl); ?>">
-    <link rel="manifest" href="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>manifest.php">
+    <link rel="manifest" href="<?= htmlspecialchars(function_exists('coop_url') ? coop_url('manifest.php') : (SITE_URL . 'manifest.php'), ENT_QUOTES, 'UTF-8') ?>">
     <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="pwa-short-name" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
     <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
@@ -815,32 +817,32 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
             <!-- Left: Quick Utility Links -->
             <ul class="pfl-quick-links">
                 <li>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>auction.php">
+                    <a href="<?php echo htmlspecialchars(coop_url('auction.php'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="gavel"></i>
                         <?php echo isEnglish() ? 'Auction Portal' : 'लिलामी पोर्टल'; ?>
                     </a>
                 </li>
                 <li>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>downloads.php">
+                    <a href="<?php echo htmlspecialchars(coop_url('downloads.php'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="download"></i>
                         <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?>
                     </a>
                 </li>
                 <li>
-                      <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php">
+                      <a href="<?php echo htmlspecialchars(coop_url('career.php'), ENT_QUOTES, 'UTF-8'); ?>">
                           <i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i>
                           <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?>
                           <?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?>
                       </a>
                 </li>
                 <li>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php">
+                    <a href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i>
                         <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क'; ?>
                     </a>
                 </li>
                 <li>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>digital-services.php">
+                    <a href="<?php echo htmlspecialchars(coop_url('digital-services.php'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="laptop"></i>
                         <?php echo isEnglish() ? 'Digital Services' : 'डिजिटल सेवा'; ?>
                     </a>
@@ -865,7 +867,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                 if ($__honorOpen):
                 ?>
                 <li>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>honor-apply.php">
+                    <a href="<?php echo htmlspecialchars(coop_url('honor-apply.php'), ENT_QUOTES, 'UTF-8'); ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="award"></i>
                         <?php echo isEnglish() ? 'Honor Application' : 'सम्मान आवेदन'; ?>
                         <?php if ($__honorNew): ?>
@@ -948,14 +950,14 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down" style="width:10px;height:10px;"></i>
                     </a>
                     <div class="pfl-drop">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>emi-calculator.php"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="calculator"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'EMI Calculator' : 'ईएमआई क्याल्कुलेटर'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>exchange-rate.php"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left-right"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Exchange Rate' : 'विनिमय दर'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>date-converter.php"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="calendar"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Date Converter' : 'मिति परिवर्तन'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="map-pin"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="bar-chart-3"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span></a>
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>faqs.php"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="help-circle"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('emi-calculator.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="calculator"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'EMI Calculator' : 'ईएमआई क्याल्कुलेटर'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('exchange-rate.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left-right"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Exchange Rate' : 'विनिमय दर'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('date-converter.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="calendar"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Date Converter' : 'मिति परिवर्तन'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('partner-facilities.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('application-tracker.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('service-centers.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="map-pin"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('reports.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="bar-chart-3"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('faqs.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="help-circle"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></span></a>
                     </div>
                 </li>
             </ul>
@@ -1027,7 +1029,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <li>
                             <?php
                             $isMemberLoggedIn = function_exists('memberIsLoggedIn') && memberIsLoggedIn();
-                            $memberPortalHref = $isMemberLoggedIn ? SITE_URL . 'member/' : SITE_URL . 'member/login.php';
+                            $memberPortalHref = $isMemberLoggedIn ? SITE_URL . 'member/' : coop_url('member/login.php');
                             ?>
                             <a href="<?php echo htmlspecialchars($memberPortalHref, ENT_QUOTES, 'UTF-8'); ?>">
                                 <span class="pfl-lm-icon pfl-lm-member"><i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i></span>
@@ -1043,7 +1045,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <li class="pfl-lm-divider"></li>
                         <!-- Member Verify (public card verification — for hospitals, vendors, etc.) -->
                         <li>
-                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>verify.php">
+                            <a href="<?php echo htmlspecialchars(coop_url('verify.php'), ENT_QUOTES, 'UTF-8'); ?>">
                                 <span class="pfl-lm-icon pfl-lm-verify"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'Member verify' : 'सदस्य परिचयपत्र जाँच'; ?></strong>
@@ -1089,7 +1091,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                             </li>
                         <?php else: foreach ($bellNotices as $bni => $bn): ?>
                             <li class="pfl-bell-item<?php echo $bni < 3 ? ' pfl-bell-item--new' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php?id=<?php echo (int)$bn['id']; ?>">
+                                <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo (int)$bn['id']; ?>">
                                     <span class="pfl-bell-item-icon">
                                         <?php if (function_exists('coop_stored_upload_exists') && coop_stored_upload_exists($bn['attachment'] ?? '')): ?>
                                             <i class="lucide-icon" aria-hidden="true" data-lucide="paperclip"></i>
@@ -1111,7 +1113,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <?php endforeach; endif; ?>
                         </ul>
                         <div class="pfl-bell-footer">
-                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php">
+                            <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>">
                                 <?php echo isEnglish() ? 'View All Notices' : 'सबै सूचना हेर्नुहोस्'; ?>
                                 <i class="lucide-icon ms-1" aria-hidden="true" data-lucide="arrow-right"></i>
                             </a>
@@ -1197,25 +1199,25 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                 </button>
                 <ul class="nav-menu">
                     <li class="<?php echo $currentPage == 'index' ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>index.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="landmark"></i><span class="mnav-main-label"><?php echo $L['home']; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('index.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="landmark"></i><span class="mnav-main-label"><?php echo $L['home']; ?></span></a>
                     </li>
                     <li class="has-dropdown <?php echo !empty($__aboutNavActive) ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="info"></i><span class="mnav-main-label"><?php echo $L['about']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('about.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="info"></i><span class="mnav-main-label"><?php echo $L['about']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#history"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#values"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('about.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('about.php#history'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('vision-mission.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('about.php#values'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('chairman-message.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('ceo-message.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('institutional-profile.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('why-choose.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
                             <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('success-stories.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <?php if (!empty($navServiceGroups)): ?>
                         <!-- Cascade: Menu → category submenu → hover shows mapped items -->
                         <ul class="dropdown">
@@ -1231,7 +1233,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                 <ul class="sub-menu">
                                     <?php foreach ($__gsvcs as $_gsvc): ?>
                                     <li>
-                                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
+                                        <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
                                             <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_gsvc['icon'] ?? '', 'fas fa-star') : '<i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>'; ?>
                                             <?php echo htmlspecialchars($_gsvc['title']); ?>
                                         </a>
@@ -1242,7 +1244,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                             <?php endforeach; ?>
                             <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                             <li>
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php">
+                                <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="list"></i>
                                     <?php echo isEnglish() ? 'All Services' : 'सबै सेवाहरू'; ?>
                                 </a>
@@ -1252,35 +1254,35 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <ul class="dropdown">
                             <?php if (!empty($navServiceLinks)): ?>
                                 <?php foreach ($navServiceLinks as $_svc): ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#<?php echo htmlspecialchars($_svc['anchor']); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_svc['icon'] ?? '', 'fas fa-star') : '<i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>'; ?> <?php echo htmlspecialchars($_svc['title']); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>#<?php echo htmlspecialchars($_svc['anchor']); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_svc['icon'] ?? '', 'fas fa-star') : '<i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>'; ?> <?php echo htmlspecialchars($_svc['title']); ?></a></li>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#saving"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i> <?php echo $L['saving']; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#loan"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i> <?php echo $L['loan']; ?></a></li>
-                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#remittance"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i> <?php echo $L['remittance']; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('services.php#saving'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i> <?php echo $L['saving']; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('services.php#loan'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i> <?php echo $L['loan']; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(coop_url('services.php#remittance'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i> <?php echo $L['remittance']; ?></a></li>
                             <?php endif; ?>
                             <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                         </ul>
                         <?php endif; ?>
                     </li>
                     <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>interest-rates.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="trending-up"></i><span class="mnav-main-label"><?php echo $L['interest_rates']; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('interest-rates.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="trending-up"></i><span class="mnav-main-label"><?php echo $L['interest_rates']; ?></span></a>
                     </li>
                     <li class="has-dropdown <?php echo in_array($currentPage, ['notices', 'cooperative-programs', 'election-information']) ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="bell"></i><span class="mnav-main-label"><?php echo $L['notices']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="bell"></i><span class="mnav-main-label"><?php echo $L['notices']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i> <?php echo isEnglish() ? 'Latest Notices' : 'नवीनतम सूचना'; ?><?php if ($hasRecentNotice): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>cooperative-programs.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम'; ?><?php if ($hasRecentProgram): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?><?php if ($activeProgramCount > 0): ?><span class="nav-new-badge"><?php echo (int)$activeProgramCount; ?></span><?php endif; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i> <?php echo isEnglish() ? 'Latest Notices' : 'नवीनतम सूचना'; ?><?php if ($hasRecentNotice): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('cooperative-programs.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम'; ?><?php if ($hasRecentProgram): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?><?php if ($activeProgramCount > 0): ?><span class="nav-new-badge"><?php echo (int)$activeProgramCount; ?></span><?php endif; ?></a></li>
                             <?php if ($electionNavOn): ?>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>election-information.php"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i> <?php echo htmlspecialchars($L['election_information'] ?? 'निर्वाचन जानकारी'); ?><?php if ($hasRecentElectionMilestone): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('election-information.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i> <?php echo htmlspecialchars($L['election_information'] ?? 'निर्वाचन जानकारी'); ?><?php if ($hasRecentElectionMilestone): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
                     <li class="<?php echo $currentPage == 'gallery' ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>gallery.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="image"></i><span class="mnav-main-label"><?php echo $L['gallery']; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('gallery.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="image"></i><span class="mnav-main-label"><?php echo $L['gallery']; ?></span></a>
                     </li>
                     <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <?php foreach ($navTeamMenuCategories as $_tmc):
                                 $_tmcId = (int)($_tmc['id'] ?? 0);
@@ -1293,7 +1295,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                 if ($_tmcSlug === '') $_tmcSlug = 'menu-' . $_tmcId;
                             ?>
                             <li class="has-sub">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>" aria-haspopup="true" aria-expanded="false">
+                                <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>" aria-haspopup="true" aria-expanded="false">
                                     <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_tmcIcon, 'fas fa-folder') : '<i class="lucide-icon" aria-hidden="true" data-lucide="folder"></i>'; ?>
                                     <span><?php echo htmlspecialchars($_tmcLabel); ?></span>
                                     <i class="lucide-icon nav-flyout-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
@@ -1302,7 +1304,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                     <?php if ($_tmcSource === 'staff'): ?>
                                         <?php if (!empty($_tmc['include_contact_officers']) && $navHasContactOfficers): ?>
                                         <li>
-                                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers">
+                                            <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i>
                                                 <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
                                             </a>
@@ -1320,7 +1322,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                             elseif ($_slug === 'staff') $_icon = 'fas fa-users';
                                         ?>
                                         <li>
-                                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=<?php echo urlencode($_anchor); ?>&cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>">
+                                            <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=<?php echo urlencode($_anchor); ?>&cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>">
                                                 <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_icon, 'fas fa-user-tie') : '<i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i>'; ?>
                                                 <?php echo htmlspecialchars($_label); ?>
                                             </a>
@@ -1344,7 +1346,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                         ?>
                                         <?php if ($_showBoardLink): ?>
                                         <li>
-                                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board">
+                                            <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i>
                                                 <?php echo htmlspecialchars($navBoardLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?>
                                             </a>
@@ -1355,7 +1357,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                             $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
                                         <li>
-                                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>">
+                                            <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>">
                                                 <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_ncIcon, 'fas fa-users-gear') : '<i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>'; ?>
                                                 <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
                                             </a>
@@ -1363,7 +1365,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                         <?php endforeach; ?>
                                         <?php if (empty($_catCommittees) && !$_showBoardLink): ?>
                                         <li>
-                                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>">
+                                            <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="network"></i>
                                                 <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?>
                                             </a>
@@ -1374,7 +1376,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                             </li>
                             <?php endforeach; ?>
                             <li>
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php">
+                                <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="list"></i>
                                     <?php echo isEnglish() ? 'All Team' : 'सम्पूर्ण टोली'; ?>
                                 </a>
@@ -1384,23 +1386,23 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                     <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro', 'member-marketplace', 'member-skills'], true) ? 'active' : ''; ?>">
                         <a href="#" onclick="event.preventDefault();"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>downloads.php"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>faqs.php"><i class="lucide-icon" aria-hidden="true" data-lucide="help-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-survey.php"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-marketplace.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shopping-basket"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-skills.php"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('news.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('career.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('reports.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('downloads.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('service-centers.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('faqs.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="help-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('member-survey.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('partner-facilities.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('application-tracker.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('sahakari-patro.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('member-marketplace.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="shopping-basket"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(coop_url('member-skills.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
                             <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                         </ul>
                     </li>
                     <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">
-                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="phone"></i><span class="mnav-main-label"><?php echo $L['contact']; ?></span></a>
+                        <a href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="phone"></i><span class="mnav-main-label"><?php echo $L['contact']; ?></span></a>
                     </li>
                 </ul>
             </nav>
@@ -1580,56 +1582,56 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         </button>
                         <ul class="nav-menu">
                             <li class="<?php echo $currentPage == 'index' ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>index.php"><?php echo $L['home']; ?></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('index.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a>
                             </li>
                             <li class="has-dropdown <?php echo !empty($__aboutNavActive) ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><?php echo $L['about']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('about.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['about']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#history"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#values"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('about.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('about.php#history'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('vision-mission.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('about.php#values'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('chairman-message.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('ceo-message.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('institutional-profile.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('why-choose.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
                                     <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('success-stories.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><?php echo $L['services']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['services']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <?php if (!empty($navServiceLinks)): ?>
                                         <?php foreach ($navServiceLinks as $_svc): ?>
-                                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#<?php echo htmlspecialchars($_svc['anchor']); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_svc['icon'] ?? '', 'fas fa-star') : '<i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>'; ?> <?php echo htmlspecialchars($_svc['title']); ?></a></li>
+                                            <li><a href="<?php echo htmlspecialchars(coop_url('services.php'), ENT_QUOTES, 'UTF-8'); ?>#<?php echo htmlspecialchars($_svc['anchor']); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_svc['icon'] ?? '', 'fas fa-star') : '<i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>'; ?> <?php echo htmlspecialchars($_svc['title']); ?></a></li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#saving"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i> <?php echo $L['saving']; ?></a></li>
-                                        <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#loan"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i> <?php echo $L['loan']; ?></a></li>
-                                        <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php#remittance"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i> <?php echo $L['remittance']; ?></a></li>
+                                        <li><a href="<?php echo htmlspecialchars(coop_url('services.php#saving'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i> <?php echo $L['saving']; ?></a></li>
+                                        <li><a href="<?php echo htmlspecialchars(coop_url('services.php#loan'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i> <?php echo $L['loan']; ?></a></li>
+                                        <li><a href="<?php echo htmlspecialchars(coop_url('services.php#remittance'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i> <?php echo $L['remittance']; ?></a></li>
                                     <?php endif; ?>
                                     <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>interest-rates.php"><?php echo $L['interest_rates']; ?></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('interest-rates.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['interest_rates']; ?></a>
                             </li>
                             <li class="has-dropdown <?php echo in_array($currentPage, ['notices', 'cooperative-programs', 'election-information']) ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php"><?php echo $L['notices']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['notices']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i> <?php echo isEnglish() ? 'Latest Notices' : 'नवीनतम सूचना'; ?><?php if ($hasRecentNotice): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>cooperative-programs.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम'; ?><?php if ($hasRecentProgram): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?><?php if ($activeProgramCount > 0): ?><span class="nav-new-badge"><?php echo (int)$activeProgramCount; ?></span><?php endif; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i> <?php echo isEnglish() ? 'Latest Notices' : 'नवीनतम सूचना'; ?><?php if ($hasRecentNotice): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('cooperative-programs.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम'; ?><?php if ($hasRecentProgram): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?><?php if ($activeProgramCount > 0): ?><span class="nav-new-badge"><?php echo (int)$activeProgramCount; ?></span><?php endif; ?></a></li>
                                     <?php if ($electionNavOn): ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>election-information.php"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i> <?php echo htmlspecialchars($L['election_information'] ?? 'निर्वाचन जानकारी'); ?><?php if ($hasRecentElectionMilestone): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('election-information.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i> <?php echo htmlspecialchars($L['election_information'] ?? 'निर्वाचन जानकारी'); ?><?php if ($hasRecentElectionMilestone): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
                                     <?php endif; ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'gallery' ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>gallery.php"><?php echo $L['gallery']; ?></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('gallery.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['gallery']; ?></a>
                             </li>
                             <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php"><?php echo $L['team']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['team']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <?php
                                     $_deskCatIdx = 0;
@@ -1650,7 +1652,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                     ?>
                                     <?php if ($_tmcSource === 'staff'): ?>
                                         <?php if (!empty($_tmc['include_contact_officers']) && $navHasContactOfficers): ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                                         <?php endif; ?>
                                         <?php foreach ($navStaffGroups as $_sg):
                                             if ($_tmcId > 0 && !teamStaffGroupBelongsToMenuCategory($_sg, $_tmcId, $navFallbackStaffMenuId)) continue;
@@ -1663,7 +1665,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                             if ($_slug === 'top_management' || $_slug === 'admin') $_icon = 'fas fa-user-shield';
                                             elseif ($_slug === 'staff') $_icon = 'fas fa-users';
                                         ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=<?php echo urlencode($_anchor); ?>&cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_icon, 'fas fa-user-tie') : '<i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i>'; ?> <?php echo htmlspecialchars($_label); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=<?php echo urlencode($_anchor); ?>&cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_icon, 'fas fa-user-tie') : '<i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i>'; ?> <?php echo htmlspecialchars($_label); ?></a></li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <?php
@@ -1681,16 +1683,16 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                         }
                                         ?>
                                         <?php if ($_showBoardLink): ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i> <?php echo htmlspecialchars($navBoardLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i> <?php echo htmlspecialchars($navBoardLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?></a></li>
                                         <?php endif; ?>
                                         <?php
                                         foreach ($_catCommittees as $_nc):
                                             $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_ncIcon, 'fas fa-users-gear') : '<i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>'; ?> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($_ncIcon, 'fas fa-users-gear') : '<i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>'; ?> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                         <?php endforeach; ?>
                                         <?php if (empty($_catCommittees) && !$_showBoardLink): ?>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="network"></i> <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('team.php'), ENT_QUOTES, 'UTF-8'); ?>?menu=<?php echo urlencode($_tmcSlug); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="network"></i> <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?></a></li>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     <?php endforeach; ?>
@@ -1699,23 +1701,23 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                             <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro', 'member-marketplace', 'member-skills'], true) ? 'active' : ''; ?>">
                                 <a href="#" onclick="event.preventDefault();"><?php echo isEnglish() ? 'More' : 'थप'; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन तथा प्रकाशनहरू'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>downloads.php"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>faqs.php"><i class="lucide-icon" aria-hidden="true" data-lucide="help-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-survey.php"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-marketplace.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shopping-basket"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-skills.php"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('news.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('career.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('reports.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन तथा प्रकाशनहरू'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('downloads.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('service-centers.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('faqs.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="help-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('member-survey.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('partner-facilities.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('application-tracker.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('sahakari-patro.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('member-marketplace.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="shopping-basket"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(coop_url('member-skills.php'), ENT_QUOTES, 'UTF-8'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
                                     <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">
-                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php"><?php echo $L['contact']; ?></a>
+                                <a href="<?php echo htmlspecialchars(coop_url('contact.php'), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['contact']; ?></a>
                             </li>
                         </ul>
                     </nav>
@@ -1932,7 +1934,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                 <div class="ticker-content">
                     <div class="ticker-scroll">
                         <?php foreach ($tickerNotices as $index => $tNotice): ?>
-                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php?id=<?php echo $tNotice['id']; ?>" class="ticker-item">
+                            <a href="<?php echo htmlspecialchars(coop_url('notices.php'), ENT_QUOTES, 'UTF-8'); ?>?id=<?php echo $tNotice['id']; ?>" class="ticker-item">
                                 <i class="lucide-icon" aria-hidden="true" data-lucide="circle"></i>
                                 <?php echo isEnglish() ? ($tNotice['title'] ?: $tNotice['title_np']) : ($tNotice['title_np'] ?: $tNotice['title']); ?>
                             </a>

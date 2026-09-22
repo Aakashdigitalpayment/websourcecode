@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (function_exists('logSecurityEvent')) {
                 logSecurityEvent('contact_honeypot', 'Contact honeypot tripped');
             }
-            header('Location: contact.php?sent=1');
+            header('Location: ' . (function_exists('coop_pretty_path') ? coop_pretty_path('contact.php?sent=1') : 'contact.php?sent=1'));
             exit;
         } elseif ($block) {
             $error = coop_public_form_guard_message($block, $__en);
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } catch (\Throwable $e) { error_log('contact notify: ' . $e->getMessage()); }
                 }
                 if (function_exists('auditLog')) auditLog('contact_submit', 'contact_messages', null, null, ['name'=>$name]);
-                header('Location: contact.php?sent=1');
+                header('Location: ' . (function_exists('coop_pretty_path') ? coop_pretty_path('contact.php?sent=1') : 'contact.php?sent=1'));
                 exit;
             } catch (Exception $e) {
                 error_log('[contact] ' . $e->getMessage());

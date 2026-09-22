@@ -46,7 +46,16 @@ assertFileContains('.htaccess', 'RewriteRule ^database/', 'block database');
 assertFileContains('.htaccess', 'RewriteRule ^core/', 'block core');
 assertFileContains('.htaccess', 'RewriteRule ^sitemap\\.xml$ sitemap.php', 'sitemap.xml rewrite');
 assertFileContains('.htaccess', 'RewriteRule ^robots\\.txt$ robots.php', 'robots.txt rewrite');
+assertFileContains('.htaccess', 'Pretty URLs', 'pretty URL section present');
+assertFileContains('.htaccess', 'REQUEST_FILENAME}.php -f', 'extensionless → .php internal rewrite');
+assertFileContains('.htaccess', 'RewriteRule ^ /%1 [R=301,L]', 'GET .php → extensionless 301');
+assertFileContains('.htaccess', 'member/session-check(\\.php)?', 'block session-check pretty+php');
+assertFileContains('.htaccess', '!^share-og$', 'skip share-og from .php strip');
 assertFileContains('admin/pages.php', 'tinymce@6.8.5/tinymce.min.js', 'TinyMCE pinned version');
+assertFileContains('includes/config.php', 'function coop_pretty_path', 'pretty path helper');
+assertFileContains('includes/config.php', 'function coop_url', 'pretty URL builder');
+assertFileContains('deploy/nginx-site.example.conf', '$uri.php', 'nginx extensionless try_files');
+assertFileContains('deploy/nginx-security.conf', 'location = /member/session-check', 'nginx blocks extensionless session-check');
 
 // robots.php policy
 $robotsNeedles = [

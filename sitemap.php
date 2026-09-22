@@ -21,9 +21,19 @@ $rows = [];
 
 $add = static function (string $path, string $priority, string $changefreq) use (&$rows, $base, $today): void {
     $path = ltrim($path, '/');
-    $loc = $path === '' ? $base . '/' : $base . '/' . $path;
+    /* File on disk (for lastmod) may still be *.php */
+    $fsPath = $path;
+    if ($path !== '' && !str_ends_with(strtolower($path), '.php') && !str_contains($path, '.')) {
+        $fsPath = $path . '.php';
+    }
+    $pretty = function_exists('coop_pretty_path') ? coop_pretty_path($path) : $path;
+    if ($pretty === '/' || $pretty === '') {
+        $loc = $base . '/';
+    } else {
+        $loc = $base . '/' . ltrim($pretty, '/');
+    }
     $lm = $today;
-    $fs = $path === '' ? (__DIR__ . '/index.php') : (__DIR__ . '/' . $path);
+    $fs = $path === '' ? (__DIR__ . '/index.php') : (__DIR__ . '/' . $fsPath);
     if (is_file($fs)) {
         $mt = @filemtime($fs);
         if ($mt) {
@@ -116,7 +126,7 @@ try {
             }
             $q = http_build_query(['slug' => $slug], '', '&', PHP_QUERY_RFC3986);
             $rows[] = [
-                'loc' => $base . '/page.php?' . $q,
+                'loc' => function_exists('coop_url') ? coop_url('page.php?' . $q) : ($base . '/page.php?' . $q),
                 'lastmod' => $lm,
                 'changefreq' => 'monthly',
                 'priority' => '0.7',
@@ -139,7 +149,7 @@ try {
                 }
             }
             $rows[] = [
-                'loc' => $base . '/news-detail.php?id=' . $id,
+                'loc' => function_exists('coop_url') ? coop_url('news-detail.php?id=' . $id) : ($base . '/news-detail.php?id=' . $id),
                 'lastmod' => $lm,
                 'changefreq' => 'weekly',
                 'priority' => '0.72',
@@ -163,7 +173,7 @@ try {
                 }
             }
             $rows[] = [
-                'loc' => $base . '/notices.php?id=' . $id,
+                'loc' => function_exists('coop_url') ? coop_url('notices.php?id=' . $id) : ($base . '/notices.php?id=' . $id),
                 'lastmod' => $lm,
                 'changefreq' => 'weekly',
                 'priority' => '0.74',
@@ -187,7 +197,7 @@ try {
                 }
             }
             $rows[] = [
-                'loc' => $base . '/career-detail.php?id=' . $id,
+                'loc' => function_exists('coop_url') ? coop_url('career-detail.php?id=' . $id) : ($base . '/career-detail.php?id=' . $id),
                 'lastmod' => $lm,
                 'changefreq' => 'weekly',
                 'priority' => '0.78',
