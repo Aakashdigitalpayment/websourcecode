@@ -85,17 +85,6 @@ if (getCurrentPage() === 'contact') {
 
 /* ── Static source checks ───────────────────────────────────────── */
 $ht = (string) file_get_contents($root . '/.htaccess');
-foreach ([
-    'REQUEST_FILENAME}.php -f' => 'internal rewrite',
-    'RewriteRule ^ /%1 [R=301,L]' => 'strip .php 301',
-    'REQUEST_METHOD} ^(GET|HEAD)$' => 'GET/HEAD only redirect',
-    'member/session-check(\\.php)?' => 'session-check block',
-    '!^share-og$' => 'share-og skip',
-] as $needle => $why) {
-    if (str_contains($ht, str_replace('\\', '', $needle)) || preg_match('/' . str_replace('/', '\\/', $needle) . '/', $ht)) {
-        // simpler contains for non-regex needles
-    }
-}
 if (str_contains($ht, 'REQUEST_FILENAME}.php -f')) {
     ok('.htaccess internal rewrite');
 } else {
@@ -106,10 +95,32 @@ if (str_contains($ht, 'RewriteRule ^ /%1 [R=301,L]')) {
 } else {
     fail('.htaccess 301 strip');
 }
+if (str_contains($ht, 'REQUEST_METHOD} ^(GET|HEAD)$')) {
+    ok('.htaccess GET|HEAD-only redirect (POST safe)');
+} else {
+    fail('.htaccess GET|HEAD-only redirect missing');
+}
 if (str_contains($ht, 'member/session-check')) {
     ok('.htaccess session-check');
 } else {
     fail('.htaccess session-check');
+}
+if (str_contains($ht, '!^share-og$')) {
+    ok('.htaccess share-og skip');
+} else {
+    fail('.htaccess share-og skip');
+}
+
+$nginx = (string) file_get_contents($root . '/deploy/nginx-site.example.conf');
+if (str_contains($nginx, '@extensionless') && str_contains($nginx, 'rewrite ^/(.*)$ /$1.php last')) {
+    ok('nginx extensionless via named location (not raw $uri.php serve)');
+} else {
+    fail('nginx extensionless named location missing');
+}
+if (!preg_match('/try_files\s+\$uri\s+\$uri\/\s+\$uri\.php/', $nginx)) {
+    ok('nginx avoids try_files $uri.php under location /');
+} else {
+    fail('nginx still uses unsafe try_files $uri.php');
 }
 
 $contact = (string) file_get_contents($root . '/contact.php');

@@ -54,7 +54,8 @@ assertFileContains('.htaccess', '!^share-og$', 'skip share-og from .php strip');
 assertFileContains('admin/pages.php', 'tinymce@6.8.5/tinymce.min.js', 'TinyMCE pinned version');
 assertFileContains('includes/config.php', 'function coop_pretty_path', 'pretty path helper');
 assertFileContains('includes/config.php', 'function coop_url', 'pretty URL builder');
-assertFileContains('deploy/nginx-site.example.conf', '$uri.php', 'nginx extensionless try_files');
+assertFileContains('deploy/nginx-site.example.conf', '@extensionless', 'nginx extensionless named location');
+assertFileContains('deploy/nginx-site.example.conf', 'rewrite ^/(.*)$ /$1.php last', 'nginx rewrite to .php then PHP location');
 assertFileContains('deploy/nginx-security.conf', 'location = /member/session-check', 'nginx blocks extensionless session-check');
 
 // robots.php policy

@@ -957,6 +957,7 @@ if (!function_exists('_memberImportParseChunk')) {
                             mb_substr($message, 0, 500),
                         ]);
                     } catch (Throwable $eRow2) {
+                        $insWithNp = false;
                         $ins = $pdo->prepare(
                             "INSERT INTO member_import_rows
                                 (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
