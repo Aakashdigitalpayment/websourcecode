@@ -183,7 +183,12 @@ assertFileContains('admin/grievances.php', 'echo e($initLetter)', 'grievance ini
 assertFileContains('admin/faqs.php', 'echo e($csrfToken)', 'admin CSRF token escaped');
 assertFileContains('contact.php', 'coop_safe_cta_url(getSetting(\'internet_banking_url\'', 'contact banking URL hardened');
 assertFileContains('includes/footer.php', "preg_replace('/[^0-9+]/', '', (string)\$whatsappNumber)", 'footer WhatsApp digits-only');
-assertFileContains('includes/footer.php', 'coop_safe_cta_url(getSetting(\'developer_url\'', 'footer developer URL hardened');
+assertFileContains('includes/footer.php', 'https://aakashdigital.com.np/', 'footer developer URL hard-coded to Aakash Digital');
+assertFileContains('includes/footer.php', 'Aakash Digital', 'footer developer name hard-coded');
+assertFileContains('includes/footer.php', 'Developed &amp; Design By', 'footer developed & design by label');
+assertFileContains('admin/footer-settings.php', 'readonly', 'developer fields read-only in admin');
+assertFileContains('admin/footer-settings.php', "'supported_name', 'supported_url'", 'POST saves supported-by only');
+
 assertFileContains('member/kyc-print.php', "coopThemeLink('assets/css/member-kyc-print-page.css')", 'kyc-print loads extracted CSS');
 assertFileContains('admin/settings.php', "coopThemeLink('assets/css/admin-settings-page.css')", 'settings loads extracted CSS');
 assertFileContains('admin/job-applications.php', "echo (int)\$app['id']", 'job app ids cast');
@@ -682,7 +687,7 @@ assertFileContains('includes/member-auth.php', 'function memberPasswordPolicyErr
 assertFileContains('member/profile.php', 'memberPasswordPolicyError', 'profile uses password policy');
 assertFileContains('member/login.php', 'memberPasswordPolicyError', 'register uses password policy');
 assertFileContains('member/password-reset-request.php', 'memberPasswordPolicyError', 'reset uses password policy');
-assertFileContains('contact.php', "Location: contact.php?sent=1", 'contact PRG redirect');
+assertFileContains('contact.php', "coop_pretty_path('contact.php?sent=1')", 'contact PRG redirect uses pretty path');
 assertFileContains('contact.php', "\$success = !empty(\$_GET['sent'])", 'contact success from GET');
 assertFileContains('honor-apply.php', 'honor-apply.php?submitted=1', 'honor PRG redirect');
 assertFileContains('honor-apply.php', "!empty(\$_GET['submitted'])", 'honor success from GET');

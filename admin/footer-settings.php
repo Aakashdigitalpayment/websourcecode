@@ -1,6 +1,7 @@
 <?php
 /**
- * Superadmin only — public footer credits (Developed By / Supported By).
+ * Superadmin only — public footer credits.
+ * Developed By is platform-fixed (read-only). Supported By remains editable.
  * Copyright text is derived from cooperative site_name (not free-edit).
  */
 $pageTitle = 'Footer Settings';
@@ -15,13 +16,14 @@ if (empty($_SESSION['is_superadmin'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     try {
-        $keys = ['developer_name', 'developer_url', 'supported_name', 'supported_url'];
+        /* developer_name / developer_url are hard-coded — ignore if posted */
+        $keys = ['supported_name', 'supported_url'];
         foreach ($keys as $key) {
             if (!isset($_POST[$key])) {
                 continue;
             }
             $value = trim((string) $_POST[$key]);
-            if (in_array($key, ['developer_url', 'supported_url'], true)) {
+            if ($key === 'supported_url') {
                 $value = function_exists('safe_http_url') ? safe_http_url($value) : $value;
             } else {
                 $value = function_exists('clean_text') ? clean_text($value, 120) : $value;
@@ -33,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             updateSetting('footer_text', coop_footer_copyright_text(false));
         }
         if (function_exists('writeAuditLog')) {
-            writeAuditLog('footer_settings_update', 'developer/supported credits', 'settings', 0);
+            writeAuditLog('footer_settings_update', 'supported-by credit', 'settings', 0);
         }
         setFlash('success', 'फुटर सेटिङ सेभ भयो।');
     } catch (Throwable $e) {
@@ -51,8 +53,8 @@ $t = static function (string $np, string $en) use ($adminIsEn): string {
     return $adminIsEn ? $en : $np;
 };
 
-$developerName = (string) getSetting('developer_name', 'Tanka Adhikari');
-$developerUrl = (string) getSetting('developer_url', 'https://www.tankaadhikari.com.np/');
+$developerName = 'Aakash Digital';
+$developerUrl = 'https://aakashdigital.com.np/';
 $supportedName = (string) getSetting('supported_name', '');
 $supportedUrl = (string) getSetting('supported_url', '');
 $copyrightPreview = function_exists('coop_footer_copyright_text')
@@ -65,8 +67,8 @@ echo adminPageHeader(
     $t('फुटर सेटिङ', 'Footer Settings'),
     'copyright',
     $t(
-        'सार्वजनिक फुटरको Developed By / Supported By — केवल Superadmin। Copyright सहकारीको नामबाट स्वतः बन्छ।',
-        'Public footer Developed By / Supported By — Superadmin only. Copyright is generated from the cooperative site name.'
+        'Supported By सम्पादन — केवल Superadmin। Developed By प्लेटफर्मबाट तय (बदल्न मिल्दैन)। Copyright सहकारीको नामबाट स्वतः बन्छ।',
+        'Edit Supported By — Superadmin only. Developed By is fixed by the platform. Copyright is generated from the cooperative site name.'
     ),
     '<a href="settings.php" class="btn btn-sm btn-outline-secondary">' . $t('साइट नाम', 'Site name') . '</a>'
 );
@@ -92,16 +94,22 @@ echo adminPageHeader(
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="developer_name" class="form-label">Developed By (Name)</label>
-                    <input type="text" name="developer_name" id="developer_name" class="form-control"
-                           value="<?php echo htmlspecialchars($developerName, ENT_QUOTES, 'UTF-8'); ?>" maxlength="120">
+                    <label for="developer_name" class="form-label">Developed &amp; Design By (Name)</label>
+                    <input type="text" id="developer_name" class="form-control" readonly
+                           value="<?php echo htmlspecialchars($developerName, ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="developer_url" class="form-label">Developed By URL</label>
-                    <input type="url" name="developer_url" id="developer_url" class="form-control"
-                           value="<?php echo htmlspecialchars($developerUrl, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://">
+                    <label for="developer_url" class="form-label">Developed &amp; Design By URL</label>
+                    <input type="url" id="developer_url" class="form-control" readonly
+                           value="<?php echo htmlspecialchars($developerUrl, ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
             </div>
+            <p class="small text-muted mb-3">
+                <?php echo $t(
+                    'यो क्रेडिट प्लेटफर्मबाट तय गरिएको छ — Superadmin ले देख्न सक्छ तर बदल्न मिल्दैन।',
+                    'This credit is fixed by the platform — Superadmin can view it but cannot change it.'
+                ); ?>
+            </p>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
