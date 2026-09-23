@@ -4,15 +4,9 @@ $footerText = function_exists('coop_footer_copyright_text')
     ? coop_footer_copyright_text()
     : ('© ' . date('Y') . ' ' . getSetting('site_name', 'सहकारी') . '। सर्वाधिकार सुरक्षित।');
 $aboutShort = getSetting('about_short', 'आकाश बचत तथा ऋण सहकारी संस्था लि. एक अग्रणी वित्तीय संस्था हो।');
-$developerName = getSetting('developer_name', 'Tanka Adhikari');
-$developerUrl = function_exists('coop_safe_cta_url')
-    ? coop_safe_cta_url(getSetting('developer_url', 'https://www.tankaadhikari.com.np/'))
-    : (function_exists('safe_http_url')
-        ? safe_http_url(getSetting('developer_url', 'https://www.tankaadhikari.com.np/'))
-        : getSetting('developer_url', 'https://www.tankaadhikari.com.np/'));
-if ($developerUrl === '') {
-    $developerUrl = 'https://www.tankaadhikari.com.np/';
-}
+/* Platform credit — fixed (not superadmin-editable). Supported By remains settings-driven. */
+$developerName = 'Aakash Digital';
+$developerUrl = 'https://aakashdigital.com.np/';
 $supportedName = trim((string)getSetting('supported_name', ''));
 $supportedUrl = function_exists('coop_safe_cta_url')
     ? coop_safe_cta_url(getSetting('supported_url', ''))
@@ -266,8 +260,8 @@ try {
                 <?php endif; ?>
 
                 <p class="developer footer-developer-main">
-                    <?php echo isEnglish() ? 'Developed By' : 'विकास सहयोग'; ?>
-                    <a href="<?php echo e($developerUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo e($developerName); ?></a>
+                    Developed &amp; Design By
+                    <a href="<?php echo htmlspecialchars($developerUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo htmlspecialchars($developerName, ENT_QUOTES, 'UTF-8'); ?></a>
                 </p>
             </div>
         </div>
