@@ -64,8 +64,19 @@ if ($ajaxAction !== '') {
 
     if ($ajaxAction === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json; charset=UTF-8');
-        $mode = (($_POST['mode'] ?? 'update') === 'skip') ? 'skip' : 'update';
-        echo json_encode(memberImportCreateJob($pdo, $_FILES['csv_file'] ?? [], $adminId, $mode));
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        ob_start();
+        $prevEr = error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        try {
+            $mode = (($_POST['mode'] ?? 'update') === 'skip') ? 'skip' : 'update';
+            $payload = memberImportCreateJob($pdo, $_FILES['csv_file'] ?? [], $adminId, $mode);
+        } finally {
+            error_reporting($prevEr);
+            ob_end_clean();
+        }
+        echo json_encode($payload);
         exit;
     }
 
@@ -76,7 +87,19 @@ if ($ajaxAction !== '') {
             echo json_encode(['ok' => false, 'error' => 'job_id required']);
             exit;
         }
-        echo json_encode(memberImportProcessTick($pdo, $jobId));
+        /* Discard notices/deprecations so tick JSON stays valid */
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        ob_start();
+        $prevEr = error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        try {
+            $payload = memberImportProcessTick($pdo, $jobId);
+        } finally {
+            error_reporting($prevEr);
+            ob_end_clean();
+        }
+        echo json_encode($payload);
         exit;
     }
 
@@ -238,10 +261,11 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
                     <li>Sample CSV download → Excel मा खोल्नुहोस्।</li>
+                    <li>Excel / Numbers होइन — <strong>File → Export/Save As → CSV UTF-8</strong> मात्र। Desktop को <code>.numbers</code> सीधै upload हुँदैन।</li>
                     <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile / <code>father_name</code> / <code>citizenship_no</code> / <code>membership_date</code> optional।</li>
-                    <li><strong>File → Save As → CSV UTF-8</strong>।</li>
-                    <li>Upload → Update/Replace (default) → Start।</li>
-                    <li>उही Member ID फेरि आउँदा पुरानो members row update हुन्छ।</li>
+                    <li>मिति (dob / membership_date): <strong>बि.सं. YYYY-MM-DD वा YYYY/MM/DD</strong> (२०४०–२०८३ जस्तो) — DB मा AD convert हुन्छ।</li>
+                    <li>३० हजार+ row भए progress बार बिस्तारै बढ्छ — <strong>पेज refresh/बन्द नगर्नुहोस्</strong>; अड्किए Resume बाट फेरि।</li>
+                    <li>Upload → <strong>Update/Replace</strong> → Start। उही Member ID फेरि आउँदा update हुन्छ।</li>
                 </ol>
             </div>
         </div>
@@ -397,7 +421,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         errBox.classList.add('d-none');
         bar.classList.add('progress-bar-animated');
         startBtn.disabled = true;
-        phaseEl.textContent = 'CSV parse गर्दै…';
+        phaseEl.textContent = 'Processing… (ठूलो CSV — ३० हजार+ row मा केही मिनेट लाग्न सक्छ; पेज बन्द नगर्नुहोस्)';
         pctEl.textContent = '1%';
         bar.style.width = '1%';
         tick();

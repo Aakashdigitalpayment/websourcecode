@@ -11,7 +11,8 @@ if (!defined('MEMBER_IMPORT_PARSE_CHUNK')) {
     define('MEMBER_IMPORT_PARSE_CHUNK', 800);
 }
 if (!defined('MEMBER_IMPORT_IMPORT_CHUNK')) {
-    define('MEMBER_IMPORT_IMPORT_CHUNK', 250);
+    /* Smaller chunks: ID-card gen + KYC stub per row; avoids shared-host timeouts on 10k–50k CSVs */
+    define('MEMBER_IMPORT_IMPORT_CHUNK', 80);
 }
 
 if (!function_exists('ensureMemberImportTables')) {
@@ -657,13 +658,25 @@ if (!function_exists('memberImportProcessTick')) {
     }
 }
 
+if (!function_exists('memberImportFgetcsv')) {
+    /**
+     * PHP 8.4+ requires explicit $escape; omitting it emits Deprecated and can
+     * corrupt AJAX JSON when display_errors is on (import looks "stuck" on Processing).
+     * @param resource $fh
+     * @return list<string>|array{0:null}|false
+     */
+    function memberImportFgetcsv($fh) {
+        return fgetcsv($fh, 0, ',', '"', '');
+    }
+}
+
 if (!function_exists('_memberImportCountDataRows')) {
     function _memberImportCountDataRows(string $path): int {
         $fh = fopen($path, 'r');
         if (!$fh) return 0;
         $n = 0;
         $first = true;
-        while (($row = fgetcsv($fh)) !== false) {
+        while (($row = memberImportFgetcsv($fh)) !== false) {
             if ($first) { $first = false; continue; }
             if (!is_array($row)) continue;
             if (count(array_filter($row, static fn($v) => trim((string)$v) !== '')) === 0) continue;
@@ -719,7 +732,7 @@ if (!function_exists('_memberImportParseChunk')) {
             $idx = null;
             // Header already validated; re-read names from job start for column map
             $fhMeta = fopen($path, 'r');
-            $headerRow = $fhMeta ? fgetcsv($fhMeta) : false;
+            $headerRow = $fhMeta ? memberImportFgetcsv($fhMeta) : false;
             if ($fhMeta) fclose($fhMeta);
             if (!$headerRow || !is_array($headerRow)) {
                 fclose($fh);
@@ -733,7 +746,7 @@ if (!function_exists('_memberImportParseChunk')) {
             }
             $idx = array_flip($headers);
         } else {
-            $headerRow = fgetcsv($fh);
+            $headerRow = memberImportFgetcsv($fh);
             if (!$headerRow || !is_array($headerRow)) {
                 fclose($fh);
                 $pdo->prepare("UPDATE member_import_jobs SET status='failed', error_message=? WHERE id=?")
@@ -792,7 +805,7 @@ if (!function_exists('_memberImportParseChunk')) {
         $rowNumBase = (int)($job['parsed_rows'] ?? 0); // data rows already parsed
         $rowNum = $rowNumBase + 1; // 1-based data index for display (+ header conceptually)
 
-        while ($chunk < $limit && ($row = fgetcsv($fh)) !== false) {
+        while ($chunk < $limit && ($row = memberImportFgetcsv($fh)) !== false) {
             if (!is_array($row) || count(array_filter($row, static fn($v) => trim((string)$v) !== '')) === 0) {
                 $byteOffset = (int)ftell($fh);
                 continue;
