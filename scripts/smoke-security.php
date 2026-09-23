@@ -871,7 +871,7 @@ assertFileContains('admin/member-import.php', 'parseJsonResponse', 'import UI ha
 assertFileContains('admin/member-import.php', 'job id आएन', 'import UI guards missing job_id');
 assertFileContains('includes/member-import-helpers.php', "foreach (['sadasyata_number', 'full_name'] as \$req)", 'import CSV requires only member_id + name');
 assertFileContains('includes/member-import-helpers.php', "phone=COALESCE(NULLIF(?, ''), phone)", 'import keeps old phone when CSV mobile empty');
-assertFileContains('admin/member-import.php', 'mobile optional', 'admin import UI marks mobile optional');
+assertFileContains('admin/member-import.php', 'membership_date</code> optional', 'admin import UI marks optional columns including membership_date');
 assertFileContains('includes/member-ssot.php', 'memberSsotDevanagariDigitsToLatin', 'Nepali digits normalize helper');
 assertFileContains('includes/member-ssot.php', 'name_np', 'SSOT knows members.name_np');
 assertFileContains('includes/member-auth.php', "'name_np'", 'ensureMemberTables adds name_np');
