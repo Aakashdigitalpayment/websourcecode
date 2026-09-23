@@ -5,9 +5,9 @@
  *
  * SSOT key = member_id (= sadasyata_number).
  * Required: member_id, full_name (English)
- * Optional: name_np (Nepali), mobile, email, address, dob (बि.सं. preferred), gender
- * dob: वि.सं. YYYY-MM-DD (सिफारिस) — DB मा AD मा convert हुन्छ; AD पनि accept।
- * Nepali digits in member_id/mobile/dob auto-convert to English 0–9.
+ * Optional: name_np, mobile, email, address, dob, gender,
+ *           father_name, citizenship_no, membership_date (→ KYM soft-fill + members.membership_date)
+ * Dates: वि.सं. YYYY-MM-DD सिफारिस (DB मा AD); membership_date_ad / dob_ad = ई.सं.
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 
@@ -29,9 +29,12 @@ fputcsv($out, [
     'address',
     'dob',
     'gender',
+    'father_name',
+    'citizenship_no',
+    'membership_date',
 ]);
 
-/* Row 1: EN + NP names; dob = बि.सं. (→ AD 1990-05-12 in DB) */
+/* Row 1: full optional profile; dates = बि.सं. */
 fputcsv($out, [
     '2081-00123',
     'Ram Prasad Sharma',
@@ -41,9 +44,12 @@ fputcsv($out, [
     'Pokhara-8, Kaski',
     '2047-01-29',
     'male',
+    'Hari Sharma',
+    '40-01-70-01234',
+    '2075-04-15',
 ]);
 
-/* Row 2: Nepali digits in Member ID (auto → Latin) */
+/* Row 2: Nepali digits; father/citizenship/date optional blank OK */
 fputcsv($out, [
     '२०८१-००१२४',
     'Sita Adhikari',
@@ -53,12 +59,18 @@ fputcsv($out, [
     'Lekhnath-12, Kaski',
     '',
     'female',
+    'कृष्ण अधिकारी',
+    '४१-०२-७१-०५६७८',
+    '',
 ]);
 
 /* Row 3: compulsory EN name only */
 fputcsv($out, [
     '2081-00125',
     'Hari Bahadur Thapa',
+    '',
+    '',
+    '',
     '',
     '',
     '',

@@ -59,7 +59,7 @@ if (!function_exists('ensureMembersListSchema')) {
             return;
         }
 
-        $flagKey = 'migration_members_list_schema_v2';
+        $flagKey = 'migration_members_list_schema_v3';
         try {
             $st = $db->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1');
             $st->execute([$flagKey]);
@@ -89,6 +89,7 @@ if (!function_exists('ensureMembersListSchema')) {
             'member_card_no' => 'VARCHAR(50) NULL',
             'card_expires_at' => 'TIMESTAMP NULL DEFAULT NULL',
             'created_at' => 'TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP',
+            'membership_date' => 'DATE NULL DEFAULT NULL',
         ];
         foreach ($cols as $col => $def) {
             if (function_exists('safeAddColumn')) {

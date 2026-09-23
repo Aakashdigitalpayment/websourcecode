@@ -420,12 +420,16 @@ if (!function_exists('verifyCardCredentials')) {
             $memberNameExpr = $hasMemberFullName
                 ? "COALESCE(NULLIF(TRIM(m.name), ''), NULLIF(TRIM(m.full_name), '')) AS name"
                 : "m.name";
+            $hasMembershipDate = function_exists('safeColumnExists') && safeColumnExists('members', 'membership_date');
+            $memberSinceExpr = $hasMembershipDate
+                ? 'COALESCE(m.membership_date, m.created_at) AS member_since'
+                : 'm.created_at AS member_since';
             return "SELECT c.id AS card_id, c.card_no, c.verification_code, c.cvv,
                            c.issued_date, c.status, c.verify_count, {$failedExpr} AS failed_verify_count,
                            m.id AS member_pk,
                            m.sadasyata_number, m.member_card_no, {$memberNameExpr}, m.phone AS member_phone,
                            m.avatar_url, m.kyc_application_id,
-                           m.approval_status, m.created_at AS member_since,
+                           m.approval_status, {$memberSinceExpr},
                            m.card_expires_at,
                            k.full_name AS kyc_full_name, k.photo AS kyc_photo,
                            k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name,
@@ -668,13 +672,17 @@ if (!function_exists('verifyCardCredentials')) {
                 $nameSelect = $hasMemberFullName
                     ? "COALESCE(NULLIF(TRIM(m.name), ''), NULLIF(TRIM(m.full_name), '')) AS name"
                     : "m.name";
+                $hasMembershipDate = function_exists('safeColumnExists') && safeColumnExists('members', 'membership_date');
+                $sinceSelect = $hasMembershipDate
+                    ? 'COALESCE(m.membership_date, m.created_at) AS member_since'
+                    : 'm.created_at AS member_since';
                 $mst = $pdo->prepare(
                     "SELECT 0 AS card_id, NULL AS card_no, NULL AS verification_code, NULL AS cvv,
                             NULL AS issued_date, 'active' AS status, 0 AS verify_count, 0 AS failed_verify_count,
                             m.id AS member_pk,
                             m.sadasyata_number, m.member_card_no, {$nameSelect}, m.phone AS member_phone,
                             m.avatar_url, m.kyc_application_id,
-                            m.approval_status, m.created_at AS member_since,
+                            m.approval_status, {$sinceSelect},
                             m.card_expires_at,
                             k.full_name AS kyc_full_name, k.photo AS kyc_photo,
                             k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name,

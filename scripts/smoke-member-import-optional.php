@@ -1,0 +1,92 @@
+<?php
+/**
+ * Smoke: member import optional KYC columns (father, citizenship, membership_date).
+ * Run: php scripts/smoke-member-import-optional.php
+ */
+declare(strict_types=1);
+
+$root = dirname(__DIR__);
+$failed = 0;
+$passed = 0;
+
+function ok(string $m): void { global $passed; $passed++; echo "OK  {$m}\n"; }
+function fail(string $m): void { global $failed; $failed++; echo "FAIL {$m}\n"; }
+
+require_once $root . '/includes/member-import-helpers.php';
+
+$headers = [
+    'father_name' => 'father_name',
+    'Father' => 'father_name',
+    'citizenship_no' => 'citizenship_no',
+    'Citizenship Number' => 'citizenship_no',
+    'नागरिकता_नं' => 'citizenship_no',
+    'membership_date' => 'membership_date',
+    'membership_date_bs' => 'membership_date_bs',
+    'join_date' => 'membership_date',
+    'सदस्यता_मिति' => 'membership_date_bs',
+];
+foreach ($headers as $in => $want) {
+    $got = memberImportNormalizeHeader($in);
+    if ($got === $want) {
+        ok("alias `{$in}` → {$got}");
+    } else {
+        fail("alias `{$in}` → {$got} want {$want}");
+    }
+}
+
+$cit = memberImportNormalizeCitizenship('४१-०२-७१-०५६७८');
+if ($cit === '41-02-71-05678') {
+    ok("citizenship Devanagari → {$cit}");
+} else {
+    fail("citizenship Devanagari → {$cit}");
+}
+
+$md = memberImportNormalizeDob('2075-04-15', 'bs');
+if (is_string($md) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $md)) {
+    ok("membership_date BS convert → {$md}");
+} else {
+    fail('membership_date BS convert failed');
+}
+
+$sample = (string) file_get_contents($root . '/admin/member-import-sample.php');
+foreach (['father_name', 'citizenship_no', 'membership_date'] as $col) {
+    if (str_contains($sample, "'{$col}'")) {
+        ok("sample CSV has {$col}");
+    } else {
+        fail("sample CSV missing {$col}");
+    }
+}
+
+$helpers = (string) file_get_contents($root . '/includes/member-import-helpers.php');
+if (str_contains($helpers, 'function memberImportApplyOptionalExtras')) {
+    ok('apply optional extras helper');
+} else {
+    fail('apply optional extras helper missing');
+}
+if (str_contains($helpers, 'kyc_applications SET') && str_contains($helpers, 'father_name = CASE')) {
+    ok('KYM soft-fill father/citizenship');
+} else {
+    fail('KYM soft-fill missing');
+}
+
+$ui = (string) file_get_contents($root . '/admin/member-import.php');
+if (str_contains($ui, 'father_name') && str_contains($ui, 'citizenship_no') && str_contains($ui, 'membership_date')) {
+    ok('admin import UI documents new columns');
+} else {
+    fail('admin import UI docs');
+}
+
+foreach (['includes/member-import-helpers.php', 'admin/member-import-sample.php', 'admin/member-import.php', 'includes/member-auth.php', 'includes/card-verify-helpers.php'] as $f) {
+    $cmd = 'php -l ' . escapeshellarg($root . '/' . $f) . ' 2>&1';
+    $out = [];
+    $code = 0;
+    exec($cmd, $out, $code);
+    if ($code === 0) {
+        ok("php -l {$f}");
+    } else {
+        fail("php -l {$f}: " . implode(' ', $out));
+    }
+}
+
+echo "\n{$passed} passed, {$failed} failed\n";
+exit($failed > 0 ? 1 : 0);
