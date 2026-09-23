@@ -66,11 +66,19 @@ if (!function_exists('ensureMemberImportTables')) {
         if (function_exists('safeAddColumn')) {
             safeAddColumn($pdo, 'member_import_jobs', 'parse_byte_offset', 'INT NOT NULL DEFAULT 0');
             safeAddColumn($pdo, 'member_import_rows', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'member_import_rows', 'father_name', "VARCHAR(100) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'member_import_rows', 'citizenship_no', "VARCHAR(50) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'member_import_rows', 'membership_date', "VARCHAR(20) NOT NULL DEFAULT ''");
             safeAddColumn($pdo, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'members', 'membership_date', 'DATE NULL DEFAULT NULL');
         } else {
             try { $pdo->exec("ALTER TABLE member_import_jobs ADD COLUMN parse_byte_offset INT NOT NULL DEFAULT 0"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN father_name VARCHAR(100) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN citizenship_no VARCHAR(50) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN membership_date VARCHAR(20) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE members ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE members ADD COLUMN membership_date DATE NULL DEFAULT NULL"); } catch (Throwable $e) {}
         }
         // Helpful lookup index for duplicate checks
         if (function_exists('safeAddIndex')) {
@@ -156,6 +164,35 @@ if (!function_exists('memberImportNormalizeHeader')) {
             'date_of_birth' => 'dob',
             'birth_date' => 'dob',
             'sex' => 'gender',
+            /* Optional KYC / membership profile (soft-fill into KYM + members) */
+            'father' => 'father_name',
+            'father_name' => 'father_name',
+            'fathers_name' => 'father_name',
+            'father_s_name' => 'father_name',
+            'बुबाको_नाम' => 'father_name',
+            'baba_ko_nam' => 'father_name',
+            'citizenship' => 'citizenship_no',
+            'citizenship_no' => 'citizenship_no',
+            'citizenship_number' => 'citizenship_no',
+            'citizenship number' => 'citizenship_no',
+            'citizenship_num' => 'citizenship_no',
+            'citizen_no' => 'citizenship_no',
+            'नागरिकता_नं' => 'citizenship_no',
+            'nagarikta_no' => 'citizenship_no',
+            /* Membership date: BS preferred (same convert rules as dob); membership_date_ad = Gregorian */
+            'membership_date' => 'membership_date',
+            'membership date' => 'membership_date',
+            'membership_date_bs' => 'membership_date_bs',
+            'membership_date_ad' => 'membership_date_ad',
+            'member_since' => 'membership_date',
+            'member since' => 'membership_date',
+            'join_date' => 'membership_date',
+            'joined_date' => 'membership_date',
+            'father name' => 'father_name',
+            'father\'s name' => 'father_name',
+            'fathers name' => 'father_name',
+            'सदस्यता_मिति' => 'membership_date_bs',
+            'sadasyata_miti' => 'membership_date_bs',
         ];
         return $aliases[$h] ?? $h;
     }
@@ -293,6 +330,108 @@ if (!function_exists('memberImportNormalizeDob')) {
             return $ymd;
         }
         return false;
+    }
+}
+
+if (!function_exists('memberImportNormalizeCitizenship')) {
+    /** Digits/letters kept; Devanagari digits → Latin; trim length. */
+    function memberImportNormalizeCitizenship(string $raw): string {
+        if (function_exists('memberSsotDevanagariDigitsToLatin')) {
+            $raw = memberSsotDevanagariDigitsToLatin($raw);
+        } else {
+            $raw = strtr($raw, [
+                '०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4',
+                '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
+            ]);
+        }
+        $raw = trim(preg_replace('/\s+/u', ' ', $raw) ?? '');
+        return mb_substr($raw, 0, 50);
+    }
+}
+
+if (!function_exists('memberImportApplyOptionalExtras')) {
+    /**
+     * Soft-fill optional import fields into members + linked KYM.
+     * - membership_date → members.membership_date (empty CSV keeps old; non-empty sets)
+     * - father_name / citizenship_no → kyc_applications soft-fill only (never clobber filled KYM)
+     */
+    function memberImportApplyOptionalExtras(
+        PDO $pdo,
+        int $memberPk,
+        string $fatherName,
+        string $citizenshipNo,
+        string $membershipDateAd
+    ): void {
+        if ($memberPk < 1) {
+            return;
+        }
+        $fatherName = function_exists('clean_text') ? clean_text($fatherName, 100) : mb_substr(trim($fatherName), 0, 100);
+        $citizenshipNo = memberImportNormalizeCitizenship($citizenshipNo);
+        $membershipDateAd = trim($membershipDateAd);
+        if ($membershipDateAd !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $membershipDateAd)) {
+            $membershipDateAd = '';
+        }
+
+        if ($membershipDateAd !== '') {
+            try {
+                if (function_exists('safeAddColumn')) {
+                    safeAddColumn($pdo, 'members', 'membership_date', 'DATE NULL DEFAULT NULL');
+                }
+                $pdo->prepare(
+                    'UPDATE members SET membership_date = COALESCE(?, membership_date) WHERE id = ?'
+                )->execute([$membershipDateAd, $memberPk]);
+            } catch (Throwable $eMem) {
+                /* column missing on very old DB — non-fatal */
+            }
+        }
+
+        if ($fatherName === '' && $citizenshipNo === '') {
+            return;
+        }
+
+        try {
+            if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                memberSsotEnsureKycStubFromMember($pdo, $memberPk);
+            }
+        } catch (Throwable $eStub) { /* continue */ }
+
+        $kycId = 0;
+        $sid = '';
+        try {
+            $st = $pdo->prepare('SELECT kyc_application_id, sadasyata_number FROM members WHERE id = ? LIMIT 1');
+            $st->execute([$memberPk]);
+            $m = $st->fetch(PDO::FETCH_ASSOC) ?: [];
+            $kycId = (int)($m['kyc_application_id'] ?? 0);
+            $sid = function_exists('memberSsotNormalizeId')
+                ? memberSsotNormalizeId((string)($m['sadasyata_number'] ?? ''))
+                : strtoupper(trim((string)($m['sadasyata_number'] ?? '')));
+        } catch (Throwable $eFind) {
+            return;
+        }
+        if ($kycId < 1 && $sid !== '' && function_exists('memberSsotFindKycByMemberId')) {
+            try {
+                $kyc = memberSsotFindKycByMemberId($pdo, $sid);
+                $kycId = (int)($kyc['id'] ?? 0);
+                if ($kycId > 0 && function_exists('memberSsotLinkMemberToKyc')) {
+                    memberSsotLinkMemberToKyc($pdo, $memberPk, $kycId);
+                }
+            } catch (Throwable $eLink) { /* ignore */ }
+        }
+        if ($kycId < 1) {
+            return;
+        }
+
+        try {
+            $pdo->prepare(
+                "UPDATE kyc_applications SET
+                    father_name = CASE WHEN TRIM(COALESCE(father_name,'')) = '' AND ? <> '' THEN ? ELSE father_name END,
+                    citizenship_no = CASE WHEN TRIM(COALESCE(citizenship_no,'')) = '' AND ? <> '' THEN ? ELSE citizenship_no END,
+                    updated_at = NOW()
+                 WHERE id = ?"
+            )->execute([$fatherName, $fatherName, $citizenshipNo, $citizenshipNo, $kycId]);
+        } catch (Throwable $eKyc) {
+            error_log('[member-import] optional KYM soft-fill: ' . $eKyc->getMessage());
+        }
     }
 }
 
@@ -619,20 +758,31 @@ if (!function_exists('_memberImportParseChunk')) {
             $byteOffset = (int)ftell($fh);
         }
 
+        $insWithExtras = true;
         $insWithNp = true;
         try {
             $ins = $pdo->prepare(
                 "INSERT INTO member_import_rows
-                    (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                    (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks,
+                     father_name, citizenship_no, membership_date, status, message)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             );
         } catch (Throwable $ePrep) {
-            $insWithNp = false;
-            $ins = $pdo->prepare(
-                "INSERT INTO member_import_rows
-                    (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            );
+            $insWithExtras = false;
+            try {
+                $ins = $pdo->prepare(
+                    "INSERT INTO member_import_rows
+                        (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                );
+            } catch (Throwable $ePrep2) {
+                $insWithNp = false;
+                $ins = $pdo->prepare(
+                    "INSERT INTO member_import_rows
+                        (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                );
+            }
         }
 
         $chunk = 0;
@@ -679,10 +829,24 @@ if (!function_exists('_memberImportParseChunk')) {
             );
             $branch = function_exists('clean_text') ? clean_text($val('branch')) : $val('branch');
             $remarks = function_exists('clean_text') ? clean_text($val('remarks')) : $val('remarks');
+            $fatherName = function_exists('clean_text') ? clean_text($val('father_name'), 100) : mb_substr($val('father_name'), 0, 100);
+            $citizenshipNo = memberImportNormalizeCitizenship($val('citizenship_no'));
+            /* Membership date: same BS/AD rules as DOB */
+            $mdRawBs = trim($val('membership_date_bs'));
+            $mdRawAd = trim($val('membership_date_ad'));
+            $mdRaw = trim($val('membership_date'));
+            if ($mdRawBs !== '') {
+                $mdNorm = memberImportNormalizeDob($mdRawBs, 'bs');
+            } elseif ($mdRawAd !== '') {
+                $mdNorm = memberImportNormalizeDob($mdRawAd, 'ad');
+            } else {
+                $mdNorm = memberImportNormalizeDob($mdRaw, 'auto');
+            }
 
             $status = 'queued';
             $message = '';
             $dob = '';
+            $membershipDate = '';
             if ($sid === '' || $name === '') {
                 $status = 'failed';
                 $message = 'member_id र full_name अनिवार्य — खाली छ।';
@@ -699,12 +863,37 @@ if (!function_exists('_memberImportParseChunk')) {
                 $status = 'failed';
                 $message = 'dob गलत — बि.सं. YYYY-MM-DD (सिफारिस; column dob/dob_bs) वा ई.सं. का लागि dob_ad। खाली छोड्न मिल्छ।';
                 $failAdd++;
+            } elseif ($mdNorm === false) {
+                $status = 'failed';
+                $message = 'membership_date गलत — बि.सं. YYYY-MM-DD (सिफारिस) वा membership_date_ad (ई.सं.)। खाली छोड्न मिल्छ।';
+                $failAdd++;
             } else {
                 $dob = (string)$dobNorm;
+                $membershipDate = (string)$mdNorm;
             }
 
             try {
-                if ($insWithNp) {
+                if ($insWithExtras) {
+                    $ins->execute([
+                        $jobId,
+                        $rowNum,
+                        mb_substr($sid, 0, 50),
+                        mb_substr($name, 0, 255),
+                        mb_substr($nameNp, 0, 255),
+                        mb_substr($mobile, 0, 20),
+                        mb_substr($email, 0, 255),
+                        $address,
+                        mb_substr($dob, 0, 20),
+                        mb_substr($gender, 0, 20),
+                        mb_substr($branch, 0, 100),
+                        mb_substr($remarks, 0, 500),
+                        mb_substr($fatherName, 0, 100),
+                        mb_substr($citizenshipNo, 0, 50),
+                        mb_substr($membershipDate, 0, 20),
+                        $status,
+                        mb_substr($message, 0, 500),
+                    ]);
+                } elseif ($insWithNp) {
                     $ins->execute([
                         $jobId,
                         $rowNum,
@@ -739,28 +928,56 @@ if (!function_exists('_memberImportParseChunk')) {
                     ]);
                 }
             } catch (Throwable $eRow) {
-                if ($insWithNp && (stripos($eRow->getMessage(), 'name_np') !== false || stripos($eRow->getMessage(), 'Unknown column') !== false)) {
-                    $insWithNp = false;
+                if ($insWithExtras && (stripos($eRow->getMessage(), 'Unknown column') !== false
+                    || stripos($eRow->getMessage(), 'father_name') !== false
+                    || stripos($eRow->getMessage(), 'citizenship_no') !== false
+                    || stripos($eRow->getMessage(), 'membership_date') !== false
+                    || stripos($eRow->getMessage(), 'name_np') !== false)) {
+                    $insWithExtras = false;
                     $ins = $pdo->prepare(
                         "INSERT INTO member_import_rows
-                            (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
-                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                            (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks, status, message)
+                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
                     );
-                    $ins->execute([
-                        $jobId,
-                        $rowNum,
-                        mb_substr($sid, 0, 50),
-                        mb_substr($name, 0, 255),
-                        mb_substr($mobile, 0, 20),
-                        mb_substr($email, 0, 255),
-                        $address,
-                        mb_substr($dob, 0, 20),
-                        mb_substr($gender, 0, 20),
-                        mb_substr($branch, 0, 100),
-                        mb_substr($remarks, 0, 500),
-                        $status,
-                        mb_substr($message, 0, 500),
-                    ]);
+                    try {
+                        $ins->execute([
+                            $jobId,
+                            $rowNum,
+                            mb_substr($sid, 0, 50),
+                            mb_substr($name, 0, 255),
+                            mb_substr($nameNp, 0, 255),
+                            mb_substr($mobile, 0, 20),
+                            mb_substr($email, 0, 255),
+                            $address,
+                            mb_substr($dob, 0, 20),
+                            mb_substr($gender, 0, 20),
+                            mb_substr($branch, 0, 100),
+                            mb_substr($remarks, 0, 500),
+                            $status,
+                            mb_substr($message, 0, 500),
+                        ]);
+                    } catch (Throwable $eRow2) {
+                        $ins = $pdo->prepare(
+                            "INSERT INTO member_import_rows
+                                (job_id, row_num, sadasyata_number, full_name, mobile, email, address, dob, gender, branch, remarks, status, message)
+                             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                        );
+                        $ins->execute([
+                            $jobId,
+                            $rowNum,
+                            mb_substr($sid, 0, 50),
+                            mb_substr($name, 0, 255),
+                            mb_substr($mobile, 0, 20),
+                            mb_substr($email, 0, 255),
+                            $address,
+                            mb_substr($dob, 0, 20),
+                            mb_substr($gender, 0, 20),
+                            mb_substr($branch, 0, 100),
+                            mb_substr($remarks, 0, 500),
+                            $status,
+                            mb_substr($message, 0, 500),
+                        ]);
+                    }
                 } else {
                     throw $eRow;
                 }
@@ -874,6 +1091,9 @@ if (!function_exists('_memberImportImportChunk')) {
             $address = trim((string)($r['address'] ?? ''));
             $dob = trim((string)$r['dob']);
             $gender = memberImportNormalizeGender(trim((string)$r['gender']));
+            $fatherName = trim((string)($r['father_name'] ?? ''));
+            $citizenshipNo = trim((string)($r['citizenship_no'] ?? ''));
+            $membershipDate = trim((string)($r['membership_date'] ?? ''));
 
             try {
                 if ($sid === '' || $name === '') {
@@ -1028,6 +1248,9 @@ if (!function_exists('_memberImportImportChunk')) {
                         if (function_exists('memberSsotSyncKycFromMember')) {
                             /* Import: soft-fill only — never clobber existing KYM fields */
                             memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
+                        }
+                        if (function_exists('memberImportApplyOptionalExtras')) {
+                            memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
                         }
                         $mark->execute([
                             'ok',
@@ -1211,6 +1434,9 @@ if (!function_exists('_memberImportImportChunk')) {
                             if (function_exists('memberSsotSyncKycFromMember')) {
                                 memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                             }
+                            if (function_exists('memberImportApplyOptionalExtras')) {
+                                memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
+                            }
                             $mark->execute([
                                 'ok',
                                 'Updated by Member ID (duplicate key → replace)',
@@ -1253,6 +1479,9 @@ if (!function_exists('_memberImportImportChunk')) {
                     if (!empty($kr['ok'])) {
                         $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
                     }
+                }
+                if ($memberPk > 0 && function_exists('memberImportApplyOptionalExtras')) {
+                    memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
                 }
 
                 $mark->execute([

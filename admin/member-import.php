@@ -166,9 +166,14 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <code>email</code>, <code>address</code>,
                     <code>dob</code> / <code>dob_bs</code> (<strong>बि.सं.</strong> <code>YYYY-MM-DD</code> सिफारिस — DB मा AD save),
                     <code>dob_ad</code> (ई.सं. मात्र — पुरानो Excel),
-                    <code>gender</code>
+                    <code>gender</code>,
+                    <code>father_name</code> (बुबाको नाम → KYM soft-fill),
+                    <code>citizenship_no</code> (नागरिकता नं. → KYM soft-fill),
+                    <code>membership_date</code> / <code>membership_date_bs</code> (सदस्यता मिति बि.सं. → members),
+                    <code>membership_date_ad</code> (ई.सं.)
                     <div class="mt-1"><strong>full_name = English नाम</strong> (CVV) · <strong>name_np = नेपाली नाम</strong> (KYM पूरा नाम)।</div>
-                    <div class="mt-1">Member ID / mobile / dob मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
+                    <div class="mt-1"><code>father_name</code> / <code>citizenship_no</code> KYM मा खाली भए मात्र भरिन्छ — पहिले भरिएको KYM overwrite हुँदैन।</div>
+                    <div class="mt-1">Member ID / mobile / dob / नागरिकता मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
                     <div class="mt-1"><strong>Member ID = SSOT</strong> — उही ID फेरि import → नाम replace; खाली optional ले पुरानो मेटाउँदैन।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>
@@ -233,7 +238,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>कसरी गर्ने?</h2>
                 <ol class="small mb-0 ps-3">
                     <li>Sample CSV download → Excel मा खोल्नुहोस्।</li>
-                    <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile optional।</li>
+                    <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile / <code>father_name</code> / <code>citizenship_no</code> / <code>membership_date</code> optional।</li>
                     <li><strong>File → Save As → CSV UTF-8</strong>।</li>
                     <li>Upload → Update/Replace (default) → Start।</li>
                     <li>उही Member ID फेरि आउँदा पुरानो members row update हुन्छ।</li>
