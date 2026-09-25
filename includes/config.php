@@ -142,7 +142,11 @@ define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']); // Im
 
 // Session Settings
 define('SESSION_NAME', 'coop_session');
-define('SESSION_LIFETIME', 3600); // 1 hour
+define('SESSION_LIFETIME', 3600); // 1 hour (PHP session cookie / gc)
+/** Admin idle logout — inactivity seconds (min 5 min). Import/long forms need headroom. */
+if (!defined('ADMIN_SESSION_IDLE')) {
+    define('ADMIN_SESSION_IDLE', 1800); // 30 minutes
+}
 
 // Timezone - Nepal
 date_default_timezone_set('Asia/Kathmandu');
