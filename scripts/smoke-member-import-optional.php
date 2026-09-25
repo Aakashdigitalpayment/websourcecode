@@ -129,10 +129,25 @@ if (function_exists('memberImportClearOutputBuffers')) {
 } else {
     fail('clear output buffers missing');
 }
-if (function_exists('memberImportReconcileJobCounts')) {
-    ok('reconcile job counts helper');
+if (function_exists('memberImportFinishJob')) {
+    ok('finish job helper (reconcile + temp CSV cleanup)');
 } else {
-    fail('reconcile helper missing');
+    fail('finish job helper missing');
+}
+if (function_exists('memberImportStripUtf8BomFile')) {
+    ok('stream-safe BOM strip');
+} else {
+    fail('BOM strip helper missing');
+}
+$tmpBom = sys_get_temp_dir() . '/mi_bom_' . bin2hex(random_bytes(4)) . '.csv';
+file_put_contents($tmpBom, "\xEF\xBB\xBFmember_id,full_name\n1,Test\n");
+memberImportStripUtf8BomFile($tmpBom);
+$after = (string) file_get_contents($tmpBom);
+@unlink($tmpBom);
+if (str_starts_with($after, 'member_id')) {
+    ok('BOM stripped without full-file rewrite bug');
+} else {
+    fail('BOM still present or file broken');
 }
 if (function_exists('memberImportExportErrors')) {
     ok('export errors helper');

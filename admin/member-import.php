@@ -1,7 +1,7 @@
 <?php
 /**
  * Admin: Bulk Member Import (CSV / Excel-friendly)
- * Chunked jobs for 10k–50k members + auto ID cards.
+ * Chunked jobs for 10k–50k members. Large jobs defer ID cards.
  */
 $GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN'] = true;
 require_once __DIR__ . '/includes/admin-page-boot.php';
@@ -64,8 +64,10 @@ if ($ajaxAction !== '') {
 
     if ($ajaxAction === 'upload' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json; charset=UTF-8');
-        while (ob_get_level() > 0) {
-            ob_end_clean();
+        if (function_exists('memberImportClearOutputBuffers')) {
+            memberImportClearOutputBuffers();
+        } else {
+            while (ob_get_level() > 0) { @ob_end_clean(); }
         }
         ob_start();
         $prevEr = error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
@@ -74,7 +76,7 @@ if ($ajaxAction !== '') {
             $payload = memberImportCreateJob($pdo, $_FILES['csv_file'] ?? [], $adminId, $mode);
         } finally {
             error_reporting($prevEr);
-            ob_end_clean();
+            while (ob_get_level() > 0) { @ob_end_clean(); }
         }
         echo json_encode($payload);
         exit;
@@ -87,9 +89,10 @@ if ($ajaxAction !== '') {
             echo json_encode(['ok' => false, 'error' => 'job_id required']);
             exit;
         }
-        /* Discard notices/deprecations so tick JSON stays valid */
-        while (ob_get_level() > 0) {
-            ob_end_clean();
+        if (function_exists('memberImportClearOutputBuffers')) {
+            memberImportClearOutputBuffers();
+        } else {
+            while (ob_get_level() > 0) { @ob_end_clean(); }
         }
         ob_start();
         $prevEr = error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
@@ -97,7 +100,7 @@ if ($ajaxAction !== '') {
             $payload = memberImportProcessTick($pdo, $jobId);
         } finally {
             error_reporting($prevEr);
-            ob_end_clean();
+            while (ob_get_level() > 0) { @ob_end_clean(); }
         }
         echo json_encode($payload);
         exit;
@@ -165,7 +168,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         <p class="text-muted small mb-0">
             CBS Excel/CSV बाट Members मा <strong>Member ID (SSOT)</strong> अनुसार import।
             उही Member ID फेरि आउँदा <strong>पुरानो data replace</strong> (खाली optional field जोगिन्छ)।
-            CSV → <strong>UTF-8</strong> · ~40MB / 50k+ rows सम्म chunked।
+            CSV → <strong>UTF-8</strong> · ~40MB / 50k+ rows · ठूलो job मा ID card पछि (Members बाट)।
         </p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
