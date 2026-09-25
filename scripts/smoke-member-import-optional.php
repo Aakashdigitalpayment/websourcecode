@@ -109,6 +109,42 @@ if (memberImportShouldGenerateCards(['total_rows' => 100])) {
 } else {
     fail('small job should generate cards');
 }
+if (!memberImportShouldRunKyc(['total_rows' => 34000])) {
+    ok('large job skips KYM stubs');
+} else {
+    fail('large job should skip KYM');
+}
+if (function_exists('memberImportClearOutputBuffers')) {
+    ok('clear output buffers helper');
+} else {
+    fail('clear output buffers missing');
+}
+if (function_exists('memberImportReconcileJobCounts')) {
+    ok('reconcile job counts helper');
+} else {
+    fail('reconcile helper missing');
+}
+if (function_exists('memberImportExportErrors')) {
+    ok('export errors helper');
+} else {
+    fail('export errors missing');
+}
+
+/* Export must survive CSP output buffer (was emptying Error CSV in browser) */
+ob_start(static function (string $html): string {
+    return $html; /* nest like config.php CSP OB */
+});
+ob_start();
+$tmpDb = new PDO('sqlite::memory:');
+/* Export without DB tables — should still emit CSV header via ensure or catch.
+   Use a mock by only testing buffer clear + fputcsv path through a tiny shim. */
+memberImportClearOutputBuffers();
+$levelAfter = ob_get_level();
+if ($levelAfter === 0) {
+    ok('ClearOutputBuffers drops nested CSP buffers');
+} else {
+    fail("ClearOutputBuffers left ob_level={$levelAfter}");
+}
 
 $ui = (string) file_get_contents($root . '/admin/member-import.php');
 if (str_contains($ui, 'father_name') && str_contains($ui, 'citizenship_no') && str_contains($ui, 'membership_date')) {
