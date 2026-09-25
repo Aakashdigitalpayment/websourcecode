@@ -18,6 +18,10 @@ if (!defined('MEMBER_IMPORT_IMPORT_CHUNK')) {
 if (!defined('MEMBER_IMPORT_CARD_ROW_LIMIT')) {
     define('MEMBER_IMPORT_CARD_ROW_LIMIT', 400);
 }
+/** Same threshold: skip per-row KYM stubs on large CBS dumps (soft-fill later if needed). */
+if (!defined('MEMBER_IMPORT_KYC_ROW_LIMIT')) {
+    define('MEMBER_IMPORT_KYC_ROW_LIMIT', 400);
+}
 
 if (!function_exists('ensureMemberImportTables')) {
     function ensureMemberImportTables(?PDO $pdo = null): void {
@@ -331,6 +335,57 @@ if (!function_exists('memberImportShouldGenerateCards')) {
     function memberImportShouldGenerateCards(array $job): bool {
         $total = (int)($job['total_rows'] ?? 0);
         return $total > 0 && $total <= (int)MEMBER_IMPORT_CARD_ROW_LIMIT;
+    }
+}
+
+if (!function_exists('memberImportShouldRunKyc')) {
+    /** Large imports: skip per-row KYM stub/sync (same size gate as cards). */
+    function memberImportShouldRunKyc(array $job): bool {
+        $total = (int)($job['total_rows'] ?? 0);
+        return $total > 0 && $total <= (int)MEMBER_IMPORT_KYC_ROW_LIMIT;
+    }
+}
+
+if (!function_exists('memberImportClearOutputBuffers')) {
+    /** Drop CSP/php.ini buffers so CSV/JSON downloads are not wrapped or emptied. */
+    function memberImportClearOutputBuffers(): void {
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+    }
+}
+
+if (!function_exists('memberImportReconcileJobCounts')) {
+    /**
+     * Sync job counters from row statuses (fixes UI fail=N with empty error CSV).
+     */
+    function memberImportReconcileJobCounts(PDO $pdo, int $jobId): void {
+        if ($jobId <= 0) {
+            return;
+        }
+        try {
+            $st = $pdo->prepare(
+                "SELECT
+                    SUM(CASE WHEN status='ok' THEN 1 ELSE 0 END) AS ok_c,
+                    SUM(CASE WHEN status='skipped' THEN 1 ELSE 0 END) AS skip_c,
+                    SUM(CASE WHEN status='failed' THEN 1 ELSE 0 END) AS fail_c
+                 FROM member_import_rows WHERE job_id=?"
+            );
+            $st->execute([$jobId]);
+            $row = $st->fetch(PDO::FETCH_ASSOC) ?: [];
+            $pdo->prepare(
+                "UPDATE member_import_jobs
+                    SET ok_count=?, skip_count=?, fail_count=?
+                  WHERE id=?"
+            )->execute([
+                (int)($row['ok_c'] ?? 0),
+                (int)($row['skip_c'] ?? 0),
+                (int)($row['fail_c'] ?? 0),
+                $jobId,
+            ]);
+        } catch (Throwable $e) {
+            error_log('[member-import] reconcile: ' . $e->getMessage());
+        }
     }
 }
 
@@ -669,17 +724,19 @@ if (!function_exists('memberImportProcessTick')) {
      */
     function memberImportProcessTick(PDO $pdo, int $jobId): array {
         ensureMemberImportTables($pdo);
-        if (function_exists('ensureMemberTables')) {
-            try { ensureMemberTables(); } catch (Throwable $e) {}
-        }
-        if (function_exists('ensureMembersListSchema')) {
-            try { ensureMembersListSchema($pdo); } catch (Throwable $e) {}
-        }
-        if (function_exists('ensurePublicTables')) {
-            try { ensurePublicTables(); } catch (Throwable $e) {}
-        }
-        if (file_exists(__DIR__ . '/member-ssot.php')) {
-            require_once __DIR__ . '/member-ssot.php';
+        /* Schema heal once per PHP request — not every logical step inside the tick */
+        static $schemaReady = false;
+        if (!$schemaReady) {
+            if (function_exists('ensureMemberTables')) {
+                try { ensureMemberTables(); } catch (Throwable $e) {}
+            }
+            if (function_exists('ensureMembersListSchema')) {
+                try { ensureMembersListSchema($pdo); } catch (Throwable $e) {}
+            }
+            if (file_exists(__DIR__ . '/member-ssot.php')) {
+                require_once __DIR__ . '/member-ssot.php';
+            }
+            $schemaReady = true;
         }
 
         @set_time_limit(90);
@@ -1132,6 +1189,7 @@ if (!function_exists('_memberImportImportChunk')) {
         } catch (Throwable $e) {}
 
         $genCards = memberImportShouldGenerateCards($job);
+        $genKyc = memberImportShouldRunKyc($job);
         $chunkLimit = $genCards ? 40 : (int)MEMBER_IMPORT_IMPORT_CHUNK;
 
         $st = $pdo->prepare(
@@ -1144,6 +1202,7 @@ if (!function_exists('_memberImportImportChunk')) {
         $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         if (!$rows) {
+            memberImportReconcileJobCounts($pdo, $jobId);
             $pdo->prepare("UPDATE member_import_jobs SET status='done' WHERE id=?")->execute([$jobId]);
             return ['finished' => true, 'tick' => 'import', 'rows_this_tick' => 0];
         }
@@ -1226,7 +1285,8 @@ if (!function_exists('_memberImportImportChunk')) {
                 $findBySid->execute([$sid]);
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
 
-                /* Phone collisions on a *different* Member ID must not hijack SSOT row */
+                /* Phone collisions on a *different* Member ID: soft-clear phone (do not fail row) */
+                $softNotes = [];
                 if (!$existing && $mobile !== '') {
                     $findByPhone->execute([$mobile]);
                     $byPhone = $findByPhone->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -1235,30 +1295,17 @@ if (!function_exists('_memberImportImportChunk')) {
                             ? memberSsotNormalizeId((string)($byPhone['sadasyata_number'] ?? ''))
                             : strtoupper(trim((string)($byPhone['sadasyata_number'] ?? '')));
                         if ($otherSid !== '' && $otherSid !== $sid) {
-                            $mark->execute([
-                                'failed',
-                                'यो mobile अर्को Member ID (' . $otherSid . ') सँग जोडिएको छ।',
-                                (int)$byPhone['id'],
-                                $rowId,
-                            ]);
-                            $failAdd++;
-                            continue;
-                        }
-                        if ($otherSid === $sid) {
+                            $softNotes[] = 'mobile अर्को ID (' . $otherSid . ') सँग थियो — खाली राखियो';
+                            $mobile = '';
+                        } elseif ($otherSid === $sid) {
                             $existing = $byPhone;
                         } elseif ($otherSid === '') {
                             /* Empty Member ID on phone-matched row: fill in update mode only */
                             if ($mode === 'update') {
                                 $existing = $byPhone;
                             } else {
-                                $mark->execute([
-                                    'failed',
-                                    'यो mobile मा Member ID खाली भएको पुरानो row छ। Update mode प्रयोग गरी Member ID भर्नुहोस्।',
-                                    (int)$byPhone['id'],
-                                    $rowId,
-                                ]);
-                                $failAdd++;
-                                continue;
+                                $softNotes[] = 'mobile मा Member ID खाली पुरानो row — phone खाली राखियो';
+                                $mobile = '';
                             }
                         }
                     }
@@ -1344,13 +1391,13 @@ if (!function_exists('_memberImportImportChunk')) {
                             $cardsAdd++;
                         }
                         $kymMsg = '';
-                        if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                        if ($genKyc && function_exists('memberSsotEnsureKycStubFromMember')) {
                             $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk);
                             if (!empty($kr['ok'])) {
                                 $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
                             }
                         }
-                        if (function_exists('memberSsotSyncKycFromMember')) {
+                        if ($genKyc && function_exists('memberSsotSyncKycFromMember')) {
                             /* Import: soft-fill only — never clobber existing KYM fields */
                             memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                         }
@@ -1362,7 +1409,8 @@ if (!function_exists('_memberImportImportChunk')) {
                             'Updated by Member ID (पुरानो data replace; खाली optional जोगियो)'
                                 . ($sidParams ? ' + Member ID filled' : '')
                                 . ($cardOk ? ' + card' : ($genCards ? '' : ' (card deferred)'))
-                                . $kymMsg,
+                                . $kymMsg
+                                . ($softNotes ? ' · ' . implode('; ', $softNotes) : ''),
                             $memberPk,
                             $rowId,
                         ]);
@@ -1382,9 +1430,8 @@ if (!function_exists('_memberImportImportChunk')) {
                 if ($email !== '') {
                     $findByEmail->execute([$email]);
                     if ($findByEmail->fetchColumn()) {
-                        $mark->execute(['failed', 'Email पहिले नै प्रयोग भइसकेको छ।', null, $rowId]);
-                        $failAdd++;
-                        continue;
+                        $softNotes[] = 'email पहिले नै प्रयोगमा — खाली राखियो';
+                        $email = '';
                     }
                 }
 
@@ -1533,10 +1580,10 @@ if (!function_exists('_memberImportImportChunk')) {
                             if ($cardOk) {
                                 $cardsAdd++;
                             }
-                            if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                            if ($genKyc && function_exists('memberSsotEnsureKycStubFromMember')) {
                                 memberSsotEnsureKycStubFromMember($pdo, $memberPk);
                             }
-                            if (function_exists('memberSsotSyncKycFromMember')) {
+                            if ($genKyc && function_exists('memberSsotSyncKycFromMember')) {
                                 memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                             }
                             if (function_exists('memberImportApplyOptionalExtras')) {
@@ -1544,7 +1591,8 @@ if (!function_exists('_memberImportImportChunk')) {
                             }
                             $mark->execute([
                                 'ok',
-                                'Updated by Member ID (duplicate key → replace)',
+                                'Updated by Member ID (duplicate key → replace)'
+                                    . ($softNotes ? ' · ' . implode('; ', $softNotes) : ''),
                                 $memberPk,
                                 $rowId,
                             ]);
@@ -1566,7 +1614,7 @@ if (!function_exists('_memberImportImportChunk')) {
                 }
 
                 $kymMsg = '';
-                if ($memberPk > 0 && function_exists('memberSsotEnsureKycStubFromMember')) {
+                if ($genKyc && $memberPk > 0 && function_exists('memberSsotEnsureKycStubFromMember')) {
                     $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk, [
                         'id' => $memberPk,
                         'name' => $name,
@@ -1593,7 +1641,8 @@ if (!function_exists('_memberImportImportChunk')) {
                     'ok',
                     'Imported'
                         . ($cardOk ? ' + card generated' : ($genCards ? ' (card pending)' : ' (card deferred — large import)'))
-                        . $kymMsg,
+                        . $kymMsg
+                        . ($softNotes ? ' · ' . implode('; ', $softNotes) : ''),
                     $memberPk > 0 ? $memberPk : null,
                     $rowId,
                 ]);
@@ -1619,11 +1668,26 @@ if (!function_exists('_memberImportImportChunk')) {
               WHERE id=?"
         )->execute([$okAdd, $skipAdd, $failAdd, $cardsAdd, $jobId]);
 
-        // More queued?
-        $left = $pdo->prepare("SELECT COUNT(*) FROM member_import_rows WHERE job_id=? AND status='queued'");
+        // More queued / leftover processing?
+        $left = $pdo->prepare(
+            "SELECT
+                SUM(CASE WHEN status='queued' THEN 1 ELSE 0 END) AS q,
+                SUM(CASE WHEN status='processing' THEN 1 ELSE 0 END) AS p
+             FROM member_import_rows WHERE job_id=?"
+        );
         $left->execute([$jobId]);
-        $remaining = (int)$left->fetchColumn();
+        $leftRow = $left->fetch(PDO::FETCH_ASSOC) ?: [];
+        $remaining = (int)($leftRow['q'] ?? 0);
+        $stuck = (int)($leftRow['p'] ?? 0);
+        if ($stuck > 0) {
+            try {
+                $pdo->prepare("UPDATE member_import_rows SET status='queued' WHERE job_id=? AND status='processing'")
+                    ->execute([$jobId]);
+            } catch (Throwable $e) {}
+            $remaining += $stuck;
+        }
         if ($remaining <= 0) {
+            memberImportReconcileJobCounts($pdo, $jobId);
             $pdo->prepare("UPDATE member_import_jobs SET status='done' WHERE id=?")->execute([$jobId]);
             return ['finished' => true, 'tick' => 'import', 'rows_this_tick' => count($rows)];
         }
@@ -1633,30 +1697,66 @@ if (!function_exists('_memberImportImportChunk')) {
 }
 
 if (!function_exists('memberImportExportErrors')) {
-    /** Stream failed/skipped rows as CSV to output */
+    /**
+     * Stream problem rows as CSV (failed / skipped / stuck processing).
+     * Clears output buffers so CSP/HTML wrappers cannot empty the file.
+     */
     function memberImportExportErrors(PDO $pdo, int $jobId): void {
+        memberImportClearOutputBuffers();
         ensureMemberImportTables($pdo);
+        memberImportReconcileJobCounts($pdo, $jobId);
+
+        $job = memberImportGetJob($pdo, $jobId);
         $st = $pdo->prepare(
             "SELECT row_num, sadasyata_number, full_name, mobile, email, status, message
                FROM member_import_rows
-              WHERE job_id=? AND status IN ('failed','skipped')
-              ORDER BY row_num ASC"
+              WHERE job_id=? AND status IN ('failed','skipped','processing')
+              ORDER BY
+                FIELD(status, 'failed', 'skipped', 'processing'),
+                row_num ASC,
+                id ASC"
         );
         $st->execute([$jobId]);
+        $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-        echo "\xEF\xBB\xBF";
+        if (!headers_sent()) {
+            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="member-import-errors-' . $jobId . '.csv"');
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+            header('Pragma: no-cache');
+            header('X-Content-Type-Options: nosniff');
+        }
+
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['row_num', 'sadasyata_number', 'full_name', 'mobile', 'email', 'status', 'message']);
-        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($out, [
-                $row['row_num'],
-                $row['sadasyata_number'],
-                $row['full_name'],
-                $row['mobile'],
-                $row['email'],
-                $row['status'],
-                $row['message'],
-            ]);
+        if ($out === false) {
+            echo "row_num,sadasyata_number,full_name,mobile,email,status,message\n";
+            echo "0,,, ,,failed,Could not open output stream\n";
+            return;
+        }
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['row_num', 'sadasyata_number', 'full_name', 'mobile', 'email', 'status', 'message'], ',', '"', '');
+        if (!$rows) {
+            $failN = (int)($job['fail_count'] ?? 0);
+            $skipN = (int)($job['skip_count'] ?? 0);
+            $note = ($failN + $skipN) > 0
+                ? "Job counters show fail={$failN} skip={$skipN} but no problem rows left in DB (already cleared or reconciled to 0)."
+                : 'No failed or skipped rows for this job.';
+            fputcsv($out, [0, '', '', '', '', 'info', $note], ',', '"', '');
+            if (!empty($job['error_message'])) {
+                fputcsv($out, [0, '', '', '', '', 'job_error', (string)$job['error_message']], ',', '"', '');
+            }
+        } else {
+            foreach ($rows as $row) {
+                fputcsv($out, [
+                    $row['row_num'],
+                    $row['sadasyata_number'],
+                    $row['full_name'],
+                    $row['mobile'],
+                    $row['email'],
+                    $row['status'],
+                    $row['message'],
+                ], ',', '"', '');
+            }
         }
         fclose($out);
     }

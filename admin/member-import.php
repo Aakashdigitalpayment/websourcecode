@@ -119,10 +119,16 @@ if ($ajaxAction !== '') {
         $jobId = (int)($_GET['job_id'] ?? 0);
         if ($jobId <= 0) {
             http_response_code(400);
+            header('Content-Type: text/plain; charset=UTF-8');
             exit('Invalid job');
         }
-        header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="member-import-errors-' . $jobId . '.csv"');
+        if (function_exists('memberImportClearOutputBuffers')) {
+            memberImportClearOutputBuffers();
+        } else {
+            while (ob_get_level() > 0) {
+                @ob_end_clean();
+            }
+        }
         memberImportExportErrors($pdo, $jobId);
         exit;
     }
@@ -265,7 +271,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile / <code>father_name</code> / <code>citizenship_no</code> / <code>membership_date</code> optional।</li>
                     <li>मिति (dob / membership_date): <strong>बि.सं. YYYY-MM-DD वा YYYY/MM/DD</strong> (२०४०–२०८३ जस्तो) — DB मा AD convert हुन्छ।</li>
                     <li>३० हजार+ row भए progress बार बिस्तारै बढ्छ — <strong>पेज refresh/बन्द नगर्नुहोस्</strong>; अड्किए Resume बाट फेरि। ठूलो import मा ID card अहिले बन्द (पछि Members बाट) — timeout कम।</li>
-                    <li>दोहोरो mobile (`98…, 98…`) वा email `NULL`/`0` भए खाली राखिन्छ — row fail हुँदैन।</li>
+                    <li>दोहोरो mobile (`98…, 98…`) वा email `NULL`/`0` भए खाली राखिन्छ — row fail हुँदैन। Mobile/email अरू Member सँग conflict भए पनि खाली राखेर import चल्छ।</li>
+                    <li><strong>Error CSV</strong> मा fail/skip row + कारण आउँछ (Excel मा खोल्दा खाली देखिए पुरानो bug थियो — अहिले fix)।</li>
                     <li>Upload → <strong>Update/Replace</strong> → Start। उही Member ID फेरि आउँदा update हुन्छ।</li>
                 </ol>
             </div>
@@ -298,8 +305,9 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                             <td>
                                 <?php if (!in_array($j['status'], ['done', 'failed'], true)): ?>
                                 <a class="btn btn-xs btn-outline-primary btn-sm py-0" href="member-import.php?job=<?php echo (int)$j['id']; ?>">Resume</a>
-                                <?php else: ?>
-                                <a class="btn btn-xs btn-outline-secondary btn-sm py-0" href="member-import.php?ajax=errors&amp;job_id=<?php echo (int)$j['id']; ?>">Errors</a>
+                                <?php endif; ?>
+                                <?php if (((int)$j['fail_count'] + (int)$j['skip_count']) > 0 || $j['status'] === 'failed'): ?>
+                                <a class="btn btn-xs btn-outline-danger btn-sm py-0" href="member-import.php?ajax=errors&amp;job_id=<?php echo (int)$j['id']; ?>">Error CSV</a>
                                 <?php endif; ?>
                             </td>
                         </tr>

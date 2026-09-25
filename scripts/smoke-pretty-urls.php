@@ -100,6 +100,11 @@ if (str_contains($ht, 'DOCUMENT_ROOT}/%1 !-d')) {
 } else {
     fail('.htaccess directory conflict guard missing');
 }
+if (str_contains($ht, 'QUERY_STRING} !(^|&)ajax=')) {
+    ok('.htaccess skip strip for ajax= downloads');
+} else {
+    fail('.htaccess ajax= download guard missing');
+}
 if (str_contains($ht, 'REQUEST_METHOD} ^(GET|HEAD)$')) {
     ok('.htaccess GET|HEAD-only redirect (POST safe)');
 } else {
