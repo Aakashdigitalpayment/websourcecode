@@ -225,7 +225,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="mode" id="miModeSkip" value="skip">
-                            <label class="form-check-label" for="miModeSkip">Skip — पहिले नै भएको Member ID छोडी नयाँ मात्र</label>
+                            <label class="form-check-label" for="miModeSkip">Skip — पहिले नै भएको Member ID छोडी नयाँ मात्र <span class="text-muted">(छिटो; progress मा Skipped बढ्छ)</span></label>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-success" id="miStartBtn">
@@ -374,9 +374,13 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         var label = 'Processing…';
         if (p.phase === 'parsing') label = 'CSV parse गर्दै…';
         else if (p.phase === 'importing') {
-            label = p.cards_deferred
-                ? 'Members बनाउँदै… (cards पछि — ठूलो import)'
-                : 'Members + cards बनाउँदै…';
+            if ((p.mode || '') === 'skip') {
+                label = 'Skip mode — भएका ID छाड्दै, नयाँ मात्र…';
+            } else if (p.cards_deferred) {
+                label = 'Members बनाउँदै… (cards पछि — ठूलो import)';
+            } else {
+                label = 'Members + cards बनाउँदै…';
+            }
         }
         else if (p.phase === 'done') label = 'सकियो';
         else if (p.phase === 'failed') label = 'असफल';

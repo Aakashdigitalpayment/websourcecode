@@ -1253,7 +1253,12 @@ if (!function_exists('_memberImportImportChunk')) {
 
         $genCards = memberImportShouldGenerateCards($job);
         $genKyc = memberImportShouldRunKyc($job);
-        $chunkLimit = $genCards ? 40 : (int)MEMBER_IMPORT_IMPORT_CHUNK;
+        /* Skip mode is cheap (mark only) — larger chunks so progress moves visibly */
+        if ($mode === 'skip') {
+            $chunkLimit = 400;
+        } else {
+            $chunkLimit = $genCards ? 40 : (int)MEMBER_IMPORT_IMPORT_CHUNK;
+        }
 
         $st = $pdo->prepare(
             "SELECT * FROM member_import_rows
@@ -1289,15 +1294,73 @@ if (!function_exists('_memberImportImportChunk')) {
             }
         } catch (Throwable $e) {}
 
-        $findBySid = $pdo->prepare(
-            "SELECT id, name, phone, email, address, sadasyata_number
-             FROM members
-             WHERE sadasyata_number = ?
-                OR UPPER(TRIM(sadasyata_number)) = ?
-             ORDER BY (sadasyata_number = ?) DESC, id ASC
-             LIMIT 1"
-        );
+        /* Batch-load existing Member IDs for this chunk (avoids N slow table scans — Skip mode was stuck) */
+        $existingBySid = [];
+        $chunkSids = [];
+        foreach ($rows as $r0) {
+            $s0 = function_exists('memberSsotNormalizeId')
+                ? memberSsotNormalizeId((string)$r0['sadasyata_number'])
+                : strtoupper(trim((string)$r0['sadasyata_number']));
+            if ($s0 !== '') {
+                $chunkSids[$s0] = $s0;
+            }
+        }
+        $chunkSids = array_values($chunkSids);
+        if ($chunkSids) {
+            foreach (array_chunk($chunkSids, 200) as $sidBatch) {
+                $ph = implode(',', array_fill(0, count($sidBatch), '?'));
+                try {
+                    $stMap = $pdo->prepare(
+                        "SELECT id, name, phone, email, address, sadasyata_number
+                           FROM members WHERE sadasyata_number IN ({$ph})"
+                    );
+                    $stMap->execute($sidBatch);
+                    while ($m = $stMap->fetch(PDO::FETCH_ASSOC)) {
+                        $k = function_exists('memberSsotNormalizeId')
+                            ? memberSsotNormalizeId((string)($m['sadasyata_number'] ?? ''))
+                            : strtoupper(trim((string)($m['sadasyata_number'] ?? '')));
+                        if ($k !== '') {
+                            $existingBySid[$k] = $m;
+                        }
+                    }
+                } catch (Throwable $eMap) {
+                    error_log('[member-import] batch sid map: ' . $eMap->getMessage());
+                }
+            }
+            /* Legacy rows with different casing/spaces — only for sids still missing */
+            $missing = [];
+            foreach ($chunkSids as $s1) {
+                if (!isset($existingBySid[$s1])) {
+                    $missing[] = $s1;
+                }
+            }
+            if ($missing) {
+                foreach (array_chunk($missing, 100) as $missBatch) {
+                    $ph2 = implode(',', array_fill(0, count($missBatch), '?'));
+                    try {
+                        $stLoose = $pdo->prepare(
+                            "SELECT id, name, phone, email, address, sadasyata_number
+                               FROM members WHERE UPPER(TRIM(sadasyata_number)) IN ({$ph2})"
+                        );
+                        $stLoose->execute($missBatch);
+                        while ($m = $stLoose->fetch(PDO::FETCH_ASSOC)) {
+                            $k = function_exists('memberSsotNormalizeId')
+                                ? memberSsotNormalizeId((string)($m['sadasyata_number'] ?? ''))
+                                : strtoupper(trim((string)($m['sadasyata_number'] ?? '')));
+                            if ($k !== '' && !isset($existingBySid[$k])) {
+                                $existingBySid[$k] = $m;
+                            }
+                        }
+                    } catch (Throwable $eLoose) { /* non-fatal */ }
+                }
+            }
+        }
+
         $findByEmail = $pdo->prepare("SELECT id FROM members WHERE email=? AND email<>'' LIMIT 1");
+        $findBySidExact = $pdo->prepare(
+            "SELECT id, name, phone, email, address, sadasyata_number
+             FROM members WHERE sadasyata_number = ? LIMIT 1"
+        );
 
         $okAdd = 0;
         $skipAdd = 0;
@@ -1345,9 +1408,7 @@ if (!function_exists('_memberImportImportChunk')) {
 
                 /* Match only by Member ID — same mobile on family members is allowed (CBS) */
                 $softNotes = [];
-                $existing = null;
-                $findBySid->execute([$sid, $sid, $sid]);
-                $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
+                $existing = $existingBySid[$sid] ?? null;
 
                 if ($existing) {
                     $memberPk = (int)$existing['id'];
@@ -1456,7 +1517,7 @@ if (!function_exists('_memberImportImportChunk')) {
                     } else {
                         $mark->execute([
                             'skipped',
-                            'Duplicate Member ID — Skip mode। Update mode मा re-import गर्नुहोस्।',
+                            'Skip mode — Member ID पहिले नै छ, छाडियो।',
                             $memberPk,
                             $rowId,
                         ]);
@@ -1566,9 +1627,10 @@ if (!function_exists('_memberImportImportChunk')) {
                     if ($insEx !== null) {
                     /* Race / unique: same Member ID appeared — upsert when update mode */
                     if ($mode === 'update' && stripos($insEx->getMessage(), 'Duplicate') !== false) {
-                        $findBySid->execute([$sid]);
-                        $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
+                        $findBySidExact->execute([$sid]);
+                        $existing = $findBySidExact->fetch(PDO::FETCH_ASSOC) ?: null;
                         if ($existing) {
+                            $existingBySid[$sid] = $existing;
                             $memberPk = (int)$existing['id'];
                             $up = $pdo->prepare(
                                 "UPDATE members SET
@@ -1637,6 +1699,18 @@ if (!function_exists('_memberImportImportChunk')) {
                             $okAdd++;
                             continue;
                         }
+                    }
+                    if ($mode === 'skip' && stripos($insEx->getMessage(), 'Duplicate') !== false) {
+                        $findBySidExact->execute([$sid]);
+                        $exRow = $findBySidExact->fetch(PDO::FETCH_ASSOC) ?: null;
+                        $mark->execute([
+                            'skipped',
+                            'Skip mode — Member ID पहिले नै छ, छाडियो।',
+                            $exRow ? (int)$exRow['id'] : null,
+                            $rowId,
+                        ]);
+                        $skipAdd++;
+                        continue;
                     }
                     throw $insEx;
                     } /* end if ($insEx !== null) */

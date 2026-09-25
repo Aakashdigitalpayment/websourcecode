@@ -63,10 +63,10 @@ if (str_contains($helpers, 'function memberImportApplyOptionalExtras')) {
 } else {
     fail('apply optional extras helper missing');
 }
-if (str_contains($helpers, 'Match only by Member ID')) {
-    ok('import allows shared family mobiles');
+if (str_contains($helpers, 'Batch-load existing Member IDs')) {
+    ok('batch Member ID lookup for Skip/Update speed');
 } else {
-    fail('shared mobile allow missing');
+    fail('batch sid lookup missing');
 }
 if (!str_contains($helpers, 'findByPhone') && !str_contains($helpers, 'WHERE phone=? ORDER BY id')) {
     ok('import no longer matches existing row by phone');
