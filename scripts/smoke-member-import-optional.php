@@ -81,6 +81,12 @@ if ($m1 === '9865707553') {
 } else {
     fail("dual mobile → {$m1}");
 }
+$m977 = memberImportNormalizeMobile('9779841234567');
+if ($m977 === '9841234567') {
+    ok("977 country code → {$m977}");
+} else {
+    fail("977 country code → {$m977} want 9841234567");
+}
 $m0 = memberImportNormalizeMobile('0');
 if ($m0 === '') {
     ok('mobile 0 → blank');

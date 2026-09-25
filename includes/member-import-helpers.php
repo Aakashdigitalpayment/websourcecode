@@ -244,11 +244,38 @@ if (!function_exists('memberImportNormalizeMobile')) {
                 '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
             ]);
         }
-        /* Prefer first 10-digit Nepal mobile (97/98) before stripping all separators */
-        if (preg_match('/9[78]\d{8}/', preg_replace('/[\s\-\/\.]/', '', $raw) ?? '', $nm)
-            || preg_match('/9[78]\d{8}/', $raw, $nm)) {
-            return $nm[0];
+
+        $candidates = preg_split('/[,;|\/]+/', $raw) ?: [$raw];
+        if (count($candidates) === 1 && str_contains($raw, '.')) {
+            /* "984….986…" sometimes uses dot as separator */
+            $dotParts = preg_split('/\.(?=9[78])/', $raw) ?: [$raw];
+            if (count($dotParts) > 1) {
+                $candidates = $dotParts;
+            }
         }
+
+        $fallback = '';
+        foreach ($candidates as $part) {
+            $digits = preg_replace('/\D+/', '', (string)$part) ?? '';
+            if ($digits === '' || $digits === '0') {
+                continue;
+            }
+            /* Strip country code BEFORE matching 97/98xxxxxxxx (else 977… steals the match) */
+            if (strlen($digits) > 10 && str_starts_with($digits, '977')) {
+                $digits = substr($digits, -10);
+            }
+            if (preg_match('/9[78]\d{8}/', $digits, $nm)) {
+                return $nm[0];
+            }
+            if ($fallback === '' && strlen($digits) >= 7 && strlen($digits) <= 15) {
+                $fallback = $digits;
+            }
+        }
+
+        if ($fallback !== '') {
+            return $fallback;
+        }
+
         if (function_exists('memberSsotNormalizeMobile')) {
             $mobile = memberSsotNormalizeMobile($raw);
         } else {
