@@ -95,6 +95,11 @@ if (str_contains($ht, 'RewriteRule ^ /%1 [R=301,L]')) {
 } else {
     fail('.htaccess 301 strip');
 }
+if (str_contains($ht, 'DOCUMENT_ROOT}/%1 !-d')) {
+    ok('.htaccess skip strip when directory exists (members.php vs members/)');
+} else {
+    fail('.htaccess directory conflict guard missing');
+}
 if (str_contains($ht, 'REQUEST_METHOD} ^(GET|HEAD)$')) {
     ok('.htaccess GET|HEAD-only redirect (POST safe)');
 } else {

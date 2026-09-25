@@ -38,9 +38,13 @@
     RewriteRule ^(.+)/index\.php$ /$1/ [R=301,L]
     # contact.php → /contact (query string preserved on external redirect)
     # Skip share-og.php — social crawlers hit it often; avoid an extra 301 hop.
+    # Skip when /path is also a real directory (e.g. admin/members.php vs admin/members/)
+    # — otherwise: members.php → /admin/members → DirectorySlash → /admin/members/
+    #   → index.php → members.php → infinite ERR_TOO_MANY_REDIRECTS.
     RewriteCond %{REQUEST_METHOD} ^(GET|HEAD)$ [NC]
     RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
     RewriteCond %1 !^share-og$ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/%1 !-d
     RewriteRule ^ /%1 [R=301,L]
 
     # /contact → internally serve contact.php (if that file exists)
