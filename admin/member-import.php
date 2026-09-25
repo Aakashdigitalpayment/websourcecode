@@ -264,7 +264,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <li>Excel / Numbers होइन — <strong>File → Export/Save As → CSV UTF-8</strong> मात्र। Desktop को <code>.numbers</code> सीधै upload हुँदैन।</li>
                     <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile / <code>father_name</code> / <code>citizenship_no</code> / <code>membership_date</code> optional।</li>
                     <li>मिति (dob / membership_date): <strong>बि.सं. YYYY-MM-DD वा YYYY/MM/DD</strong> (२०४०–२०८३ जस्तो) — DB मा AD convert हुन्छ।</li>
-                    <li>३० हजार+ row भए progress बार बिस्तारै बढ्छ — <strong>पेज refresh/बन्द नगर्नुहोस्</strong>; अड्किए Resume बाट फेरि।</li>
+                    <li>३० हजार+ row भए progress बार बिस्तारै बढ्छ — <strong>पेज refresh/बन्द नगर्नुहोस्</strong>; अड्किए Resume बाट फेरि। ठूलो import मा ID card अहिले बन्द (पछि Members बाट) — timeout कम।</li>
+                    <li>दोहोरो mobile (`98…, 98…`) वा email `NULL`/`0` भए खाली राखिन्छ — row fail हुँदैन।</li>
                     <li>Upload → <strong>Update/Replace</strong> → Start। उही Member ID फेरि आउँदा update हुन्छ।</li>
                 </ol>
             </div>
@@ -323,6 +324,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     var startBtn = document.getElementById('miStartBtn');
     var csrfInput = form ? form.querySelector('[name="csrf_token"]') : null;
     var running = false;
+    var tickRetries = 0;
     var jobId = <?php echo (int)$resumeJobId; ?>;
 
     function parseJsonResponse(r) {
@@ -360,7 +362,11 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         document.getElementById('miCards').textContent = p.cards_count || 0;
         var label = 'Processing…';
         if (p.phase === 'parsing') label = 'CSV parse गर्दै…';
-        else if (p.phase === 'importing') label = 'Members + cards बनाउँदै…';
+        else if (p.phase === 'importing') {
+            label = p.cards_deferred
+                ? 'Members बनाउँदै… (cards पछि — ठूलो import)'
+                : 'Members + cards बनाउँदै…';
+        }
         else if (p.phase === 'done') label = 'सकियो';
         else if (p.phase === 'failed') label = 'असफल';
         phaseEl.textContent = label + (p.filename ? ' — ' + p.filename : '');
@@ -379,6 +385,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         fetch('member-import.php', { method: 'POST', body: fd, credentials: 'same-origin' })
             .then(parseJsonResponse)
             .then(function (data) {
+                tickRetries = 0;
                 if (!data || !data.ok) {
                     running = false;
                     showError((data && data.error) ? data.error : 'Import error');
@@ -397,14 +404,28 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                         showError(data.progress.error_message || data.error || 'Import failed');
                     } else {
                         doneBox.classList.remove('d-none');
+                        if (data.progress && data.progress.cards_deferred && !doneBox.querySelector('.mi-card-deferred')) {
+                            var note = document.createElement('div');
+                            note.className = 'mt-2 small text-muted mi-card-deferred';
+                            note.textContent = 'ठूलो import — ID cards अहिले बनाइएन। Members list बाट पछि generate गर्न सकिन्छ।';
+                            doneBox.appendChild(note);
+                        }
                     }
                     return;
                 }
-                setTimeout(tick, 80);
+                setTimeout(tick, 60);
             })
             .catch(function (err) {
+                tickRetries++;
+                if (tickRetries <= 10 && running) {
+                    phaseEl.textContent = 'Network/timeout — retry ' + tickRetries + '/10… (पेज नछोड्नुहोस्)';
+                    setTimeout(tick, Math.min(800 * tickRetries, 5000));
+                    return;
+                }
                 running = false;
-                showError((err && err.message) ? err.message : 'Network/server error — Resume बाट फेरि प्रयास गर्नुहोस्।');
+                showError((err && err.message)
+                    ? (err.message + ' — Resume बाट फेरि प्रयास गर्नुहोस्।')
+                    : 'Network/server error — Resume बाट फेरि प्रयास गर्नुहोस्।');
             });
     }
 
@@ -416,12 +437,13 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         }
         jobId = id;
         running = true;
+        tickRetries = 0;
         wrap.classList.remove('d-none');
         doneBox.classList.add('d-none');
         errBox.classList.add('d-none');
         bar.classList.add('progress-bar-animated');
         startBtn.disabled = true;
-        phaseEl.textContent = 'Processing… (ठूलो CSV — ३० हजार+ row मा केही मिनेट लाग्न सक्छ; पेज बन्द नगर्नुहोस्)';
+        phaseEl.textContent = 'Processing… (ठूलो CSV — ३० हजार+ row मा केही मिनेट; पेज बन्द नगर्नुहोस् · timeout भए auto-retry)';
         pctEl.textContent = '1%';
         bar.style.width = '1%';
         tick();
