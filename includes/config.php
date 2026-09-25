@@ -2710,8 +2710,11 @@ function logSecurityEvent($event, $details = '') {
 function isAdminLoggedIn() {
     if (empty($_SESSION['admin_id'])) return false;
 
-    // Admin session hardening: 10-minute inactivity timeout
-    $adminIdleLimit = 600;
+    // Admin idle timeout (floor 5 minutes — never shorter than user-requested minimum)
+    $adminIdleLimit = defined('ADMIN_SESSION_IDLE') ? (int)ADMIN_SESSION_IDLE : 1800;
+    if ($adminIdleLimit < 300) {
+        $adminIdleLimit = 300;
+    }
     $last = (int)($_SESSION['admin_last_activity'] ?? 0);
     if ($last > 0 && (time() - $last) > $adminIdleLimit) {
         return false;

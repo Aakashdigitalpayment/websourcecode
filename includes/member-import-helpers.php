@@ -11,8 +11,8 @@ if (!defined('MEMBER_IMPORT_PARSE_CHUNK')) {
     define('MEMBER_IMPORT_PARSE_CHUNK', 800);
 }
 if (!defined('MEMBER_IMPORT_IMPORT_CHUNK')) {
-    /* Default without per-row cards; card-heavy jobs use a smaller limit below */
-    define('MEMBER_IMPORT_IMPORT_CHUNK', 120);
+    /* Default without per-row cards/KYM; card-heavy jobs use a smaller limit below */
+    define('MEMBER_IMPORT_IMPORT_CHUNK', 150);
 }
 /** Jobs larger than this skip ID-card generation during import (cards stay pending). */
 if (!defined('MEMBER_IMPORT_CARD_ROW_LIMIT')) {
@@ -25,6 +25,10 @@ if (!defined('MEMBER_IMPORT_KYC_ROW_LIMIT')) {
 
 if (!function_exists('ensureMemberImportTables')) {
     function ensureMemberImportTables(?PDO $pdo = null): void {
+        static $done = false;
+        if ($done) {
+            return;
+        }
         if (!$pdo) {
             try { $pdo = getDB(); } catch (Throwable $e) { return; }
         }
@@ -89,7 +93,7 @@ if (!function_exists('ensureMemberImportTables')) {
             try { $pdo->exec("ALTER TABLE members ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE members ADD COLUMN membership_date DATE NULL DEFAULT NULL"); } catch (Throwable $e) {}
         }
-        // Helpful lookup index for duplicate checks
+        // Helpful lookup index for Member ID (phone is intentionally non-unique — family share)
         if (function_exists('safeAddIndex')) {
             safeAddIndex($pdo, 'members', 'idx_members_sadasyata', ['sadasyata_number']);
             safeAddIndex($pdo, 'members', 'idx_members_phone', ['phone']);
@@ -97,6 +101,7 @@ if (!function_exists('ensureMemberImportTables')) {
             try { $pdo->exec("CREATE INDEX idx_members_sadasyata ON members (sadasyata_number)"); } catch (Throwable $e) {}
             try { $pdo->exec("CREATE INDEX idx_members_phone ON members (phone)"); } catch (Throwable $e) {}
         }
+        $done = true;
     }
 }
 
@@ -389,6 +394,57 @@ if (!function_exists('memberImportReconcileJobCounts')) {
     }
 }
 
+if (!function_exists('memberImportFinishJob')) {
+    /**
+     * Mark job done: reconcile counters + drop uploaded CSV (rows stay for Error CSV).
+     */
+    function memberImportFinishJob(PDO $pdo, int $jobId): void {
+        memberImportReconcileJobCounts($pdo, $jobId);
+        $job = memberImportGetJob($pdo, $jobId);
+        $path = (string)($job['stored_path'] ?? '');
+        if ($path !== '' && is_file($path)) {
+            $dir = rtrim(str_replace('\\', '/', memberImportUploadDir()), '/');
+            $real = realpath($path);
+            $dirReal = realpath($dir);
+            if ($real && $dirReal && str_starts_with(str_replace('\\', '/', $real), str_replace('\\', '/', $dirReal) . '/')) {
+                @unlink($real);
+            }
+        }
+        try {
+            $pdo->prepare("UPDATE member_import_jobs SET status='done', stored_path='' WHERE id=?")->execute([$jobId]);
+        } catch (Throwable $e) {
+            $pdo->prepare("UPDATE member_import_jobs SET status='done' WHERE id=?")->execute([$jobId]);
+        }
+    }
+}
+
+if (!function_exists('memberImportStripUtf8BomFile')) {
+    /** Stream-safe BOM strip — never load whole CSV into memory. */
+    function memberImportStripUtf8BomFile(string $path): void {
+        $fh = @fopen($path, 'rb');
+        if (!$fh) {
+            return;
+        }
+        $bom = fread($fh, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            fclose($fh);
+            return;
+        }
+        $tmp = $path . '.nobom.' . bin2hex(random_bytes(3));
+        $out = @fopen($tmp, 'wb');
+        if (!$out) {
+            fclose($fh);
+            return;
+        }
+        stream_copy_to_stream($fh, $out);
+        fclose($out);
+        fclose($fh);
+        if (!@rename($tmp, $path)) {
+            @unlink($tmp);
+        }
+    }
+}
+
 if (!function_exists('memberImportNormalizeDob')) {
     /**
      * DOB for import → Gregorian AD Y-m-d for members.dob.
@@ -584,9 +640,19 @@ if (!function_exists('memberImportCreateJob')) {
         $mode = ($mode === 'skip') ? 'skip' : 'update';
 
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return ['ok' => false, 'error' => 'CSV file upload असफल भयो।'];
+            $err = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
+            $msg = match ($err) {
+                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'फाइल php.ini upload limit भन्दा ठूलो छ। CSV सानो पार्टमा बाँड्नुहोस् वा सर्भर limit बढाउनुहोस्।',
+                UPLOAD_ERR_PARTIAL => 'फाइल आधा मात्र upload भयो — फेरि प्रयास गर्नुहोस्।',
+                UPLOAD_ERR_NO_FILE => 'CSV फाइल छान्नुहोस्।',
+                default => 'CSV file upload असफल भयो (code ' . $err . ')।',
+            };
+            return ['ok' => false, 'error' => $msg];
         }
         $ext = strtolower(pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
+        if ($ext === 'numbers' || $ext === 'xlsx' || $ext === 'xls') {
+            return ['ok' => false, 'error' => 'Excel/Numbers होइन — File → Save As → CSV UTF-8 (.csv) मात्र।'];
+        }
         if ($ext !== 'csv') {
             return ['ok' => false, 'error' => 'Excel लाई CSV (UTF-8) मा Save गरेर मात्र upload गर्नुहोस्।'];
         }
@@ -611,12 +677,9 @@ if (!function_exists('memberImportCreateJob')) {
             return ['ok' => false, 'error' => 'सर्भरमा फाइल सुरक्षित गर्न सकिएन।'];
         }
 
-        /* Strip UTF-8 BOM at file start so first header parses cleanly */
+        /* Strip UTF-8 BOM without loading entire file into memory */
         try {
-            $raw = file_get_contents($dest);
-            if (is_string($raw) && strncmp($raw, "\xEF\xBB\xBF", 3) === 0) {
-                file_put_contents($dest, substr($raw, 3));
-            }
+            memberImportStripUtf8BomFile($dest);
         } catch (Throwable $eBom) { /* non-fatal */ }
 
         try {
@@ -1202,8 +1265,7 @@ if (!function_exists('_memberImportImportChunk')) {
         $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         if (!$rows) {
-            memberImportReconcileJobCounts($pdo, $jobId);
-            $pdo->prepare("UPDATE member_import_jobs SET status='done' WHERE id=?")->execute([$jobId]);
+            memberImportFinishJob($pdo, $jobId);
             return ['finished' => true, 'tick' => 'import', 'rows_this_tick' => 0];
         }
 
@@ -1229,7 +1291,11 @@ if (!function_exists('_memberImportImportChunk')) {
 
         $findBySid = $pdo->prepare(
             "SELECT id, name, phone, email, address, sadasyata_number
-             FROM members WHERE UPPER(TRIM(sadasyata_number)) = ? LIMIT 1"
+             FROM members
+             WHERE sadasyata_number = ?
+                OR UPPER(TRIM(sadasyata_number)) = ?
+             ORDER BY (sadasyata_number = ?) DESC, id ASC
+             LIMIT 1"
         );
         $findByEmail = $pdo->prepare("SELECT id FROM members WHERE email=? AND email<>'' LIMIT 1");
 
@@ -1280,7 +1346,7 @@ if (!function_exists('_memberImportImportChunk')) {
                 /* Match only by Member ID — same mobile on family members is allowed (CBS) */
                 $softNotes = [];
                 $existing = null;
-                $findBySid->execute([$sid]);
+                $findBySid->execute([$sid, $sid, $sid]);
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
 
                 if ($existing) {
@@ -1659,8 +1725,7 @@ if (!function_exists('_memberImportImportChunk')) {
             $remaining += $stuck;
         }
         if ($remaining <= 0) {
-            memberImportReconcileJobCounts($pdo, $jobId);
-            $pdo->prepare("UPDATE member_import_jobs SET status='done' WHERE id=?")->execute([$jobId]);
+            memberImportFinishJob($pdo, $jobId);
             return ['finished' => true, 'tick' => 'import', 'rows_this_tick' => count($rows)];
         }
 
@@ -1684,7 +1749,12 @@ if (!function_exists('memberImportExportErrors')) {
                FROM member_import_rows
               WHERE job_id=? AND status IN ('failed','skipped','processing')
               ORDER BY
-                FIELD(status, 'failed', 'skipped', 'processing'),
+                CASE status
+                  WHEN 'failed' THEN 0
+                  WHEN 'skipped' THEN 1
+                  WHEN 'processing' THEN 2
+                  ELSE 9
+                END,
                 row_num ASC,
                 id ASC"
         );
