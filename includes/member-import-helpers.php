@@ -1231,10 +1231,6 @@ if (!function_exists('_memberImportImportChunk')) {
             "SELECT id, name, phone, email, address, sadasyata_number
              FROM members WHERE UPPER(TRIM(sadasyata_number)) = ? LIMIT 1"
         );
-        $findByPhone = $pdo->prepare(
-            "SELECT id, name, phone, email, address, sadasyata_number
-             FROM members WHERE phone=? ORDER BY id ASC LIMIT 1"
-        );
         $findByEmail = $pdo->prepare("SELECT id FROM members WHERE email=? AND email<>'' LIMIT 1");
 
         $okAdd = 0;
@@ -1281,35 +1277,11 @@ if (!function_exists('_memberImportImportChunk')) {
                     $email = '';
                 }
 
+                /* Match only by Member ID — same mobile on family members is allowed (CBS) */
+                $softNotes = [];
                 $existing = null;
                 $findBySid->execute([$sid]);
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
-
-                /* Phone collisions on a *different* Member ID: soft-clear phone (do not fail row) */
-                $softNotes = [];
-                if (!$existing && $mobile !== '') {
-                    $findByPhone->execute([$mobile]);
-                    $byPhone = $findByPhone->fetch(PDO::FETCH_ASSOC) ?: null;
-                    if ($byPhone) {
-                        $otherSid = function_exists('memberSsotNormalizeId')
-                            ? memberSsotNormalizeId((string)($byPhone['sadasyata_number'] ?? ''))
-                            : strtoupper(trim((string)($byPhone['sadasyata_number'] ?? '')));
-                        if ($otherSid !== '' && $otherSid !== $sid) {
-                            $softNotes[] = 'mobile अर्को ID (' . $otherSid . ') सँग थियो — खाली राखियो';
-                            $mobile = '';
-                        } elseif ($otherSid === $sid) {
-                            $existing = $byPhone;
-                        } elseif ($otherSid === '') {
-                            /* Empty Member ID on phone-matched row: fill in update mode only */
-                            if ($mode === 'update') {
-                                $existing = $byPhone;
-                            } else {
-                                $softNotes[] = 'mobile मा Member ID खाली पुरानो row — phone खाली राखियो';
-                                $mobile = '';
-                            }
-                        }
-                    }
-                }
 
                 if ($existing) {
                     $memberPk = (int)$existing['id'];

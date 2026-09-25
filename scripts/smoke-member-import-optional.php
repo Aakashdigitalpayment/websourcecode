@@ -63,6 +63,16 @@ if (str_contains($helpers, 'function memberImportApplyOptionalExtras')) {
 } else {
     fail('apply optional extras helper missing');
 }
+if (str_contains($helpers, 'Match only by Member ID')) {
+    ok('import allows shared family mobiles');
+} else {
+    fail('shared mobile allow missing');
+}
+if (!str_contains($helpers, 'findByPhone') && !str_contains($helpers, 'WHERE phone=? ORDER BY id')) {
+    ok('import no longer matches existing row by phone');
+} else {
+    fail('phone-based member match still present');
+}
 if (str_contains($helpers, 'kyc_applications SET') && str_contains($helpers, 'father_name = CASE')) {
     ok('KYM soft-fill father/citizenship');
 } else {

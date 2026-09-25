@@ -271,7 +271,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <li><strong>member_id + full_name (EN)</strong> अनिवार्य; <code>name_np</code> / mobile / <code>father_name</code> / <code>citizenship_no</code> / <code>membership_date</code> optional।</li>
                     <li>मिति (dob / membership_date): <strong>बि.सं. YYYY-MM-DD वा YYYY/MM/DD</strong> (२०४०–२०८३ जस्तो) — DB मा AD convert हुन्छ।</li>
                     <li>३० हजार+ row भए progress बार बिस्तारै बढ्छ — <strong>पेज refresh/बन्द नगर्नुहोस्</strong>; अड्किए Resume बाट फेरि। ठूलो import मा ID card अहिले बन्द (पछि Members बाट) — timeout कम।</li>
-                    <li>दोहोरो mobile (`98…, 98…`) वा email `NULL`/`0` भए खाली राखिन्छ — row fail हुँदैन। Mobile/email अरू Member सँग conflict भए पनि खाली राखेर import चल्छ।</li>
+                    <li>दोहोरो mobile (`98…, 98…`) वा email `NULL`/`0` भए खाली राखिन्छ — row fail हुँदैन। <strong>एउटै mobile धेरै Member ID मा राख्न मिल्छ</strong> (परिवार साझा नम्बर) — duplicate भनेर block हुँदैन।</li>
                     <li><strong>Error CSV</strong> मा fail/skip row + कारण आउँछ (Excel मा खोल्दा खाली देखिए पुरानो bug थियो — अहिले fix)।</li>
                     <li>Upload → <strong>Update/Replace</strong> → Start। उही Member ID फेरि आउँदा update हुन्छ।</li>
                 </ol>
