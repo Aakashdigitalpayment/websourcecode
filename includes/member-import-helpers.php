@@ -4,15 +4,19 @@
  * ─────────────────────────────────────────────────────
  * Phases: uploaded → parsing → importing → done|failed
  * Temp portal password: last4(mobile) + last4(sadasyata digits)
- * Cards via adminGenerateMemberIdCard(..., silent: true)
+ * Cards via adminGenerateMemberIdCard(..., silent: true) — skipped on large jobs (>400 rows).
  */
 
 if (!defined('MEMBER_IMPORT_PARSE_CHUNK')) {
     define('MEMBER_IMPORT_PARSE_CHUNK', 800);
 }
 if (!defined('MEMBER_IMPORT_IMPORT_CHUNK')) {
-    /* Smaller chunks: ID-card gen + KYC stub per row; avoids shared-host timeouts on 10k–50k CSVs */
-    define('MEMBER_IMPORT_IMPORT_CHUNK', 80);
+    /* Default without per-row cards; card-heavy jobs use a smaller limit below */
+    define('MEMBER_IMPORT_IMPORT_CHUNK', 120);
+}
+/** Jobs larger than this skip ID-card generation during import (cards stay pending). */
+if (!defined('MEMBER_IMPORT_CARD_ROW_LIMIT')) {
+    define('MEMBER_IMPORT_CARD_ROW_LIMIT', 400);
 }
 
 if (!function_exists('ensureMemberImportTables')) {
@@ -222,20 +226,63 @@ if (!function_exists('memberImportNormalizeGender')) {
 if (!function_exists('memberImportNormalizeMobile')) {
     /**
      * Digits only; strip leading 977 → last 10 when longer.
+     * CBS dumps often have dual numbers ("98…, 98…") or "0" / "NULL" — take first Nepal mobile or blank.
      * @return string
      */
     function memberImportNormalizeMobile(string $raw): string {
-        if (function_exists('memberSsotNormalizeMobile')) {
-            return memberSsotNormalizeMobile($raw);
+        $raw = trim($raw);
+        if ($raw === '' || $raw === '0' || $raw === '-' || $raw === '.'
+            || strcasecmp($raw, 'null') === 0 || strcasecmp($raw, 'n/a') === 0
+            || strcasecmp($raw, 'na') === 0) {
+            return '';
         }
         if (function_exists('memberSsotDevanagariDigitsToLatin')) {
             $raw = memberSsotDevanagariDigitsToLatin($raw);
+        } else {
+            $raw = strtr($raw, [
+                '०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4',
+                '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9',
+            ]);
         }
-        $mobile = preg_replace('/[^0-9]/', '', $raw) ?? '';
-        if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
-            $mobile = substr($mobile, -10);
+        /* Prefer first 10-digit Nepal mobile (97/98) before stripping all separators */
+        if (preg_match('/9[78]\d{8}/', preg_replace('/[\s\-\/\.]/', '', $raw) ?? '', $nm)
+            || preg_match('/9[78]\d{8}/', $raw, $nm)) {
+            return $nm[0];
+        }
+        if (function_exists('memberSsotNormalizeMobile')) {
+            $mobile = memberSsotNormalizeMobile($raw);
+        } else {
+            $mobile = preg_replace('/[^0-9]/', '', $raw) ?? '';
+            if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
+                $mobile = substr($mobile, -10);
+            }
+        }
+        if ($mobile === '0' || strlen($mobile) < 7) {
+            return '';
+        }
+        if (strlen($mobile) > 15) {
+            if (preg_match('/9[78]\d{8}/', $mobile, $nm)) {
+                return $nm[0];
+            }
+            return '';
         }
         return $mobile;
+    }
+}
+
+if (!function_exists('memberImportNormalizeEmail')) {
+    /** Blank placeholders (NULL, N/A, -) → empty; otherwise trimmed. */
+    function memberImportNormalizeEmail(string $raw): string {
+        $email = trim($raw);
+        if ($email === '' || $email === '-' || $email === '.'
+            || strcasecmp($email, 'null') === 0 || strcasecmp($email, 'n/a') === 0
+            || strcasecmp($email, 'na') === 0 || strcasecmp($email, 'none') === 0) {
+            return '';
+        }
+        if (function_exists('clean_text')) {
+            $email = clean_text($email);
+        }
+        return $email;
     }
 }
 
@@ -247,6 +294,16 @@ if (!function_exists('memberImportIsValidContact')) {
         }
         $len = strlen($mobile);
         return $len >= 7 && $len <= 15;
+    }
+}
+
+if (!function_exists('memberImportShouldGenerateCards')) {
+    /**
+     * Large CBS imports: skip per-row ID cards (timeouts). Cards remain pending for later.
+     */
+    function memberImportShouldGenerateCards(array $job): bool {
+        $total = (int)($job['total_rows'] ?? 0);
+        return $total > 0 && $total <= (int)MEMBER_IMPORT_CARD_ROW_LIMIT;
     }
 }
 
@@ -570,6 +627,7 @@ if (!function_exists('memberImportJobProgress')) {
             'skip_count'  => (int)($job['skip_count'] ?? 0),
             'fail_count'  => (int)($job['fail_count'] ?? 0),
             'cards_count' => (int)($job['cards_count'] ?? 0),
+            'cards_deferred' => ((int)($job['total_rows'] ?? 0) > (int)MEMBER_IMPORT_CARD_ROW_LIMIT),
             'processed'   => $done,
             'error_message' => (string)($job['error_message'] ?? ''),
             'temp_password_hint' => 'मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क',
@@ -593,9 +651,6 @@ if (!function_exists('memberImportProcessTick')) {
         if (function_exists('ensurePublicTables')) {
             try { ensurePublicTables(); } catch (Throwable $e) {}
         }
-        if (file_exists(__DIR__ . '/card-verify-helpers.php')) {
-            require_once __DIR__ . '/card-verify-helpers.php';
-        }
         if (file_exists(__DIR__ . '/member-ssot.php')) {
             require_once __DIR__ . '/member-ssot.php';
         }
@@ -609,6 +664,11 @@ if (!function_exists('memberImportProcessTick')) {
         $status = (string)$job['status'];
         if ($status === 'done' || $status === 'failed') {
             return ['ok' => true, 'finished' => true, 'progress' => memberImportJobProgress($job)];
+        }
+
+        /* Card helpers only when this job will generate cards (small imports) */
+        if (memberImportShouldGenerateCards($job) && file_exists(__DIR__ . '/card-verify-helpers.php')) {
+            require_once __DIR__ . '/card-verify-helpers.php';
         }
 
         // Prevent overlapping ticks (double tab / slow network)
@@ -824,7 +884,9 @@ if (!function_exists('_memberImportParseChunk')) {
             $name = function_exists('clean_text') ? clean_text($val('full_name')) : $val('full_name');
             $nameNp = function_exists('clean_text') ? clean_text($val('name_np')) : $val('name_np');
             $mobile = memberImportNormalizeMobile($val('mobile'));
-            $email = function_exists('clean_text') ? clean_text($val('email')) : $val('email');
+            $email = function_exists('memberImportNormalizeEmail')
+                ? memberImportNormalizeEmail($val('email'))
+                : (function_exists('clean_text') ? clean_text($val('email')) : $val('email'));
             $address = function_exists('clean_text') ? clean_text($val('address')) : $val('address');
             /* Prefer dob_bs; else dob (auto BS if year≥2000); else dob_ad (Gregorian) */
             $dobRawBs = trim($val('dob_bs'));
@@ -856,6 +918,14 @@ if (!function_exists('_memberImportParseChunk')) {
                 $mdNorm = memberImportNormalizeDob($mdRaw, 'auto');
             }
 
+            /* Optional contact/email: bad values → blank (do not fail the whole row) */
+            if ($mobile !== '' && !memberImportIsValidContact($mobile)) {
+                $mobile = '';
+            }
+            if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $email = '';
+            }
+
             $status = 'queued';
             $message = '';
             $dob = '';
@@ -863,14 +933,6 @@ if (!function_exists('_memberImportParseChunk')) {
             if ($sid === '' || $name === '') {
                 $status = 'failed';
                 $message = 'member_id र full_name अनिवार्य — खाली छ।';
-                $failAdd++;
-            } elseif ($mobile !== '' && !memberImportIsValidContact($mobile)) {
-                $status = 'failed';
-                $message = 'mobile/contact अमान्य (७–१५ अङ्क)। खाली छोड्न मिल्छ।';
-                $failAdd++;
-            } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $status = 'failed';
-                $message = 'अमान्य email।';
                 $failAdd++;
             } elseif ($dobNorm === false) {
                 $status = 'failed';
@@ -1042,11 +1104,14 @@ if (!function_exists('_memberImportImportChunk')) {
                 ->execute([$jobId]);
         } catch (Throwable $e) {}
 
+        $genCards = memberImportShouldGenerateCards($job);
+        $chunkLimit = $genCards ? 40 : (int)MEMBER_IMPORT_IMPORT_CHUNK;
+
         $st = $pdo->prepare(
             "SELECT * FROM member_import_rows
               WHERE job_id=? AND status='queued'
               ORDER BY id ASC
-              LIMIT " . (int)MEMBER_IMPORT_IMPORT_CHUNK
+              LIMIT " . (int)$chunkLimit
         );
         $st->execute([$jobId]);
         $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -1101,7 +1166,9 @@ if (!function_exists('_memberImportImportChunk')) {
             $name = trim((string)$r['full_name']);
             $nameNp = trim((string)($r['name_np'] ?? ''));
             $mobile = memberImportNormalizeMobile((string)$r['mobile']);
-            $email = trim((string)$r['email']);
+            $email = function_exists('memberImportNormalizeEmail')
+                ? memberImportNormalizeEmail((string)$r['email'])
+                : trim((string)$r['email']);
             $address = trim((string)($r['address'] ?? ''));
             $dob = trim((string)$r['dob']);
             $gender = memberImportNormalizeGender(trim((string)$r['gender']));
@@ -1120,15 +1187,12 @@ if (!function_exists('_memberImportImportChunk')) {
                     $failAdd++;
                     continue;
                 }
+                /* Optional: invalid contact/email → blank, keep importing */
                 if ($mobile !== '' && !memberImportIsValidContact($mobile)) {
-                    $mark->execute([
-                        'failed',
-                        'mobile/contact अमान्य। खाली छोड्न मिल्छ।',
-                        null,
-                        $rowId,
-                    ]);
-                    $failAdd++;
-                    continue;
+                    $mobile = '';
+                }
+                if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $email = '';
                 }
 
                 $existing = null;
@@ -1246,7 +1310,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             ]));
                         }
                         $cardOk = false;
-                        if (function_exists('adminGenerateMemberIdCard')) {
+                        if ($genCards && function_exists('adminGenerateMemberIdCard')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                         }
                         if ($cardOk) {
@@ -1270,7 +1334,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             'ok',
                             'Updated by Member ID (पुरानो data replace; खाली optional जोगियो)'
                                 . ($sidParams ? ' + Member ID filled' : '')
-                                . ($cardOk ? ' + card' : '')
+                                . ($cardOk ? ' + card' : ($genCards ? '' : ' (card deferred)'))
                                 . $kymMsg,
                             $memberPk,
                             $rowId,
@@ -1436,7 +1500,7 @@ if (!function_exists('_memberImportImportChunk')) {
                                     $memberPk,
                                 ]);
                             }
-                            $cardOk = function_exists('adminGenerateMemberIdCard')
+                            $cardOk = ($genCards && function_exists('adminGenerateMemberIdCard'))
                                 ? (bool)adminGenerateMemberIdCard($memberPk, $adminId, true)
                                 : false;
                             if ($cardOk) {
@@ -1467,7 +1531,7 @@ if (!function_exists('_memberImportImportChunk')) {
 
                 $memberPk = (int)$pdo->lastInsertId();
                 $cardOk = false;
-                if ($memberPk > 0 && function_exists('adminGenerateMemberIdCard')) {
+                if ($genCards && $memberPk > 0 && function_exists('adminGenerateMemberIdCard')) {
                     $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                 }
                 if ($cardOk) {
@@ -1501,7 +1565,7 @@ if (!function_exists('_memberImportImportChunk')) {
                 $mark->execute([
                     'ok',
                     'Imported'
-                        . ($cardOk ? ' + card generated' : ' (card pending)')
+                        . ($cardOk ? ' + card generated' : ($genCards ? ' (card pending)' : ' (card deferred — large import)'))
                         . $kymMsg,
                     $memberPk > 0 ? $memberPk : null,
                     $rowId,

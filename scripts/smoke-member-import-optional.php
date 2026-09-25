@@ -68,6 +68,41 @@ if (str_contains($helpers, 'kyc_applications SET') && str_contains($helpers, 'fa
 } else {
     fail('KYM soft-fill missing');
 }
+if (str_contains($helpers, 'function memberImportShouldGenerateCards')) {
+    ok('bulk card defer helper');
+} else {
+    fail('bulk card defer helper missing');
+}
+
+/* Soft mobile / email from messy CBS cells */
+$m1 = memberImportNormalizeMobile('9865707553, 9861436227');
+if ($m1 === '9865707553') {
+    ok("dual mobile → first {$m1}");
+} else {
+    fail("dual mobile → {$m1}");
+}
+$m0 = memberImportNormalizeMobile('0');
+if ($m0 === '') {
+    ok('mobile 0 → blank');
+} else {
+    fail("mobile 0 → {$m0}");
+}
+$e1 = memberImportNormalizeEmail('NULL');
+if ($e1 === '') {
+    ok('email NULL → blank');
+} else {
+    fail("email NULL → {$e1}");
+}
+if (!memberImportShouldGenerateCards(['total_rows' => 34000])) {
+    ok('large job defers cards');
+} else {
+    fail('large job should defer cards');
+}
+if (memberImportShouldGenerateCards(['total_rows' => 100])) {
+    ok('small job generates cards');
+} else {
+    fail('small job should generate cards');
+}
 
 $ui = (string) file_get_contents($root . '/admin/member-import.php');
 if (str_contains($ui, 'father_name') && str_contains($ui, 'citizenship_no') && str_contains($ui, 'membership_date')) {
