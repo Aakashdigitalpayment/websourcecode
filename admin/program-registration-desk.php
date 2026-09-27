@@ -18,7 +18,7 @@ $error = '';
 $existingInfo = null;
 $memberPreview = null;
 
-$programs = $db->query("SELECT id, title, is_multi_location FROM upcoming_programs WHERE is_active=1 ORDER BY title ASC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$programs = $db->query("SELECT id, title, program_type, event_date, location, is_multi_location FROM upcoming_programs WHERE is_active=1 ORDER BY COALESCE(event_date,'9999-12-31') ASC, title ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $occurrences = [];
 $desks = [];
 $prog = $programId > 0 ? programFetchById($db, $programId) : null;
@@ -180,7 +180,15 @@ if (function_exists('coopThemeLink')) {
         <div class="col-md-6"><label class="form-label" for="deskProgram">कार्यक्रम *</label>
           <select name="program_id" id="deskProgram" class="form-select" required onchange="location.href='program-registration-desk.php?program_id='+this.value">
             <option value="">— छान्नुहोस् —</option>
-            <?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($p['title']); ?></option><?php endforeach; ?>
+            <?php foreach ($programs as $p):
+              $pLabel = (string)$p['title'];
+              $pMeta = array_filter([
+                  ($p['program_type'] ?? 'General') !== 'General' ? (string)$p['program_type'] : '',
+                  (string)($p['event_date'] ?? ''),
+                  (int)($p['is_multi_location'] ?? 0) === 1 ? 'Multi' : (string)($p['location'] ?? ''),
+              ]);
+              if ($pMeta) { $pLabel .= ' — ' . implode(' · ', $pMeta); }
+            ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($pLabel); ?> (#<?php echo (int)$p['id']; ?>)</option><?php endforeach; ?>
           </select>
         </div>
         <?php if (!empty($occurrences)): ?>
@@ -271,9 +279,21 @@ if (function_exists('coopThemeLink')) {
     if (!pid) { showInline('पहिले कार्यक्रम छान्नुहोस्।', true); return; }
     var oid = document.getElementById('deskOccurrence') ? document.getElementById('deskOccurrence').value : '0';
     lastLookup = q;
-    fetch('api/program-desk-lookup.php?member_id='+encodeURIComponent(q)+'&program_id='+pid+'&occurrence_id='+oid, {credentials:'same-origin'})
-      .then(function(r){ return r.json(); })
+    fetch('api/program-desk-lookup.php?member_id='+encodeURIComponent(q)+'&program_id='+pid+'&occurrence_id='+oid, {credentials:'same-origin', cache:'no-store'})
+      .then(function(r){
+        return r.text().then(function(t){
+          try { return JSON.parse(t); } catch (e) { return {ok:false, transport:true, error_np:'Lookup response मिलेन (HTTP ' + r.status + ')।'}; }
+        });
+      })
       .then(function(d){
+        if ((input.value || '').trim() !== q) return;
+        if (!d.ok && (d.transport || d.error === 'unauthorized')) {
+          if (preview) preview.classList.add('d-none');
+          showInline((d.error_np || 'Lookup असफल।') + ' Confirm थिच्दा server ले फेरि जाँच गर्छ।', true);
+          confirmBtn.disabled = false;
+          lookupReady = true;
+          return;
+        }
         if (!d.ok) {
           showInline(d.error_np || d.error || 'Not found', true);
           resetPreview();
@@ -306,8 +326,21 @@ if (function_exists('coopThemeLink')) {
           lookupReady = true;
         }
       })
-      .catch(function(){ showInline('Lookup असफल।', true); resetPreview(); });
+      .catch(function(){
+        if ((input.value || '').trim() !== q) return;
+        resetPreview();
+        showInline('Lookup असफल (network)। Confirm थिच्दा server ले फेरि जाँच गर्छ।', true);
+        confirmBtn.disabled = false;
+        lookupReady = true;
+      });
   }
+
+  var submitting = false;
+  if (form) form.addEventListener('submit', function(e){
+    if (submitting) { e.preventDefault(); return; }
+    submitting = true;
+    if (confirmBtn) confirmBtn.disabled = true;
+  });
 
   if (lookupBtn) lookupBtn.addEventListener('click', lookup);
   if (input) {
@@ -322,7 +355,7 @@ if (function_exists('coopThemeLink')) {
       if (e.key === 'Enter') {
         e.preventDefault();
         if (lookupReady && confirmBtn && !confirmBtn.disabled) {
-          form.submit();
+          if (form.requestSubmit) { form.requestSubmit(confirmBtn); } else { form.submit(); }
         } else {
           lookup();
         }

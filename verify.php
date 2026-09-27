@@ -187,13 +187,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$pg || (int)$pg['is_active'] !== 1 || (int)$pg['pre_registration_open'] !== 1) {
                     $preregError = $_t('यो कार्यक्रमको pre-registration अहिले खुला छैन।', 'Pre-registration is currently closed for this program.');
                 } else {
-                    $mst = $pdo->prepare("SELECT m.id, m.name, m.phone, m.sadasyata_number, m.member_card_no, m.kyc_application_id, m.approval_status, m.is_active
-                                          FROM members m
-                                          WHERE m.sadasyata_number = ? OR m.member_card_no = ? OR m.id = ?
-                                          LIMIT 1");
-                    $mst->execute([$memberIdInput, $memberIdInput, (int)$memberIdInput]);
-                    $member = $mst->fetch(PDO::FETCH_ASSOC) ?: null;
-                    if (!$member || (string)($member['approval_status'] ?? '') !== 'approved' || (int)($member['is_active'] ?? 0) !== 1) {
+                    if (!function_exists('memberSsotFindBySadasyata')) {
+                        require_once __DIR__ . '/includes/member-ssot.php';
+                    }
+                    $member = memberSsotFindBySadasyata($pdo, $memberIdInput);
+                    if (!$member) {
+                        $mst = $pdo->prepare("SELECT * FROM members WHERE member_card_no = ? LIMIT 1");
+                        $mst->execute([$memberIdInput]);
+                        $member = $mst->fetch(PDO::FETCH_ASSOC) ?: null;
+                    }
+                    if (!$member || !in_array((string)($member['approval_status'] ?? ''), ['approved', 'renewal_pending'], true) || (int)($member['is_active'] ?? 0) !== 1) {
                         $preregError = $_t('Not member. कृपया पहिला सदस्य बन्नुहोस्।', 'Not a member. Please become a member first.');
                     } else {
                         $kycOk = false;

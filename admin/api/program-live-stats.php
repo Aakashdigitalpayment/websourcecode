@@ -1,9 +1,8 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+header('Cache-Control: no-store');
+/* config.php starts the admin session (coop_session); a bare session_start() here opens PHPSESSID and loses the login */
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';

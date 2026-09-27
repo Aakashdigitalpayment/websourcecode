@@ -354,7 +354,8 @@ if (!function_exists('programValidateMemberEligible')) {
             return ['ok' => false, 'code' => 'INELIGIBLE', 'message_np' => 'सदस्य सक्रिय छैन।', 'message_en' => 'Member is not active.', 'member' => $member];
         }
         $status = strtolower(trim((string)($member['approval_status'] ?? '')));
-        if ($status !== '' && !in_array($status, ['approved', 'active', 'confirmed'], true)) {
+        /* renewal_pending = existing member whose card needs renewal — still a member for attendance */
+        if ($status !== '' && !in_array($status, ['approved', 'active', 'confirmed', 'renewal_pending'], true)) {
             return ['ok' => false, 'code' => 'INELIGIBLE', 'message_np' => 'सदस्य अनुमोदित छैन।', 'message_en' => 'Member is not approved.', 'member' => $member];
         }
         return ['ok' => true, 'member' => $member];

@@ -118,6 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');
             } else {
+                $dupSt = $db->prepare("SELECT id FROM upcoming_programs WHERE LOWER(TRIM(title)) = LOWER(TRIM(?)) AND event_date <=> ? ORDER BY is_active DESC, id ASC LIMIT 1");
+                $dupSt->execute([$title, $date]);
+                $dupId = (int)$dupSt->fetchColumn();
+                if ($dupId > 0) {
+                    setFlash('warning', 'यही शीर्षक र मितिको कार्यक्रम पहिले नै छ (#' . $dupId . ') — दोहोरो बनाइएन। आवश्यक भए यसैलाई सम्पादन गर्नुहोस्।');
+                    redirect('programs.php?edit=' . $dupId);
+                }
                 $st = $db->prepare("INSERT INTO upcoming_programs (title, program_type, is_multi_location, instant_attendance, shared_qr_mode, eligible_member_scope, description, event_date, event_time, location, is_active, pre_registration_open, qr_starts_at, qr_expires_at, attendance_open_at, attendance_close_at, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $_SESSION['admin_name'] ?? 'Admin']);
                 setFlash('success', 'नयाँ कार्यक्रम थपियो।');
@@ -128,8 +135,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'कार्यक्रम स्थिति परिवर्तन भयो।');
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
-            $db->prepare("DELETE FROM upcoming_programs WHERE id=? LIMIT 1")->execute([$id]);
-            setFlash('success', 'कार्यक्रम हटाइयो।');
+            $useSt = $db->prepare("SELECT COUNT(*) FROM member_program_attendance WHERE program_id=? OR parent_program_id=?");
+            $useSt->execute([$id, $id]);
+            if ((int)$useSt->fetchColumn() > 0) {
+                $db->prepare("UPDATE upcoming_programs SET is_active=0 WHERE id=? LIMIT 1")->execute([$id]);
+                setFlash('warning', 'यो कार्यक्रममा उपस्थिति record छ — रिपोर्ट नबिग्रियोस् भनेर हटाइएन, निष्क्रिय मात्र गरियो।');
+            } else {
+                $db->prepare("DELETE FROM program_occurrences WHERE parent_program_id=?")->execute([$id]);
+                $db->prepare("DELETE FROM program_registration_desks WHERE parent_program_id=?")->execute([$id]);
+                $db->prepare("DELETE FROM upcoming_programs WHERE id=? LIMIT 1")->execute([$id]);
+                setFlash('success', 'कार्यक्रम हटाइयो।');
+            }
         } elseif ($action === 'gen_qr') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id <= 0) {
@@ -169,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Throwable $e) {
         error_log('[programs] ' . $e->getMessage());
-        setFlash('error', 'कार्यक्रम सुरक्षित गर्न सकिएन।');
+        setFlash('error', get_class($e) === Exception::class ? $e->getMessage() : 'कार्यक्रम सुरक्षित गर्न सकिएन।');
     }
     if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('programs.php');
@@ -220,6 +236,12 @@ try {
     $pendingByProgram = [];
 }
 
+$dupKeyCount = [];
+foreach ($rows as $_r) {
+    $k = mb_strtolower(trim((string)($_r['title'] ?? ''))) . '|' . (string)($_r['event_date'] ?? '');
+    $dupKeyCount[$k] = ($dupKeyCount[$k] ?? 0) + 1;
+}
+
 $rowsActive = [];
 $rowsInactive = [];
 foreach ($rows as $_r) {
@@ -244,7 +266,7 @@ foreach ($rows as $_r) {
   <div class="card admin-table-card mb-3">
     <div class="card-header gradient-card-header"><h6 class="mb-0"><?php echo $edit ? 'कार्यक्रम सम्पादन' : 'नयाँ कार्यक्रम थप्नुहोस्'; ?></h6></div>
     <div class="card-body">
-      <form method="POST" class="row g-3">
+      <form method="POST" class="row g-3" id="programSaveForm">
         <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="save">
         <input type="hidden" name="id" value="<?php echo (int)($edit['id'] ?? 0); ?>">
@@ -343,8 +365,9 @@ foreach ($rows as $_r) {
 
   <?php
   $programTableHead = '<thead><tr><th>शीर्षक</th><th>प्रकार</th><th>मिति</th><th>स्थान</th><th>स्थिति</th><th>Pre-reg / उपस्थिति</th><th>QR</th><th>कार्य</th></tr></thead>';
-  $renderProgramRows = function (array $list) use ($preregByProgram, $attendByProgram, $pendingByProgram): void {
+  $renderProgramRows = function (array $list) use ($preregByProgram, $attendByProgram, $pendingByProgram, $dupKeyCount): void {
       foreach ($list as $r) {
+          $isDup = ($dupKeyCount[mb_strtolower(trim((string)($r['title'] ?? ''))) . '|' . (string)($r['event_date'] ?? '')] ?? 0) > 1;
           $prc = (int)($preregByProgram[(int)$r['id']] ?? 0);
           $atc = (int)($attendByProgram[(int)$r['id']] ?? 0);
           $pnc = (int)($pendingByProgram[(int)$r['id']] ?? 0);
@@ -356,7 +379,7 @@ foreach ($rows as $_r) {
           $dTitle = htmlspecialchars((string)($r['title'] ?? ''), ENT_QUOTES, 'UTF-8');
           ?>
           <tr>
-            <td><strong><?php echo htmlspecialchars($r['title']); ?></strong><?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><span class="badge bg-info ms-1">Multi</span><?php endif; ?><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
+            <td><strong><?php echo htmlspecialchars($r['title']); ?></strong><?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><span class="badge bg-info ms-1">Multi</span><?php endif; ?><?php if ($isDup): ?><span class="badge bg-warning text-dark ms-1" title="यही शीर्षक र मितिको अर्को कार्यक्रम पनि छ — एउटा मात्र राखी अरू निष्क्रिय गर्नुहोस्">दोहोरो? #<?php echo (int)$r['id']; ?></span><?php endif; ?><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
             <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars(programTypeLabel($r['program_type'] ?? 'General')); ?></span></td>
             <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?> <span class="small text-muted"><?php echo htmlspecialchars($r['event_time'] ?? ''); ?></span></td>
             <td><?php echo htmlspecialchars($r['location'] ?: '—'); ?></td>
@@ -542,6 +565,12 @@ function programQrModalSet(memberUrl, legacyUrl, title) {
   var bl = document.getElementById('programQrModalLegacyCopyBtn');
   if (b) b.addEventListener('click', function () { copyEl(document.getElementById('programQrModalUrlInput')); });
   if (bl) bl.addEventListener('click', function () { copyEl(document.getElementById('programQrModalLegacyInput')); });
+  var saveForm = document.getElementById('programSaveForm');
+  if (saveForm) saveForm.addEventListener('submit', function (e) {
+    if (saveForm.dataset.submitting === '1') { e.preventDefault(); return; }
+    saveForm.dataset.submitting = '1';
+    saveForm.querySelectorAll('button[type="submit"]').forEach(function (b) { b.disabled = true; });
+  });
 })();
 </script>
 

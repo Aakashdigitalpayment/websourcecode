@@ -1,16 +1,15 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+header('Cache-Control: no-store');
+/* config.php starts the admin session (coop_session); a bare session_start() here opens PHPSESSID and loses the login */
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';
 
 if (!isAdminLoggedIn()) {
     http_response_code(401);
-    echo json_encode(['ok' => false, 'error' => 'unauthorized']);
+    echo json_encode(['ok' => false, 'error' => 'unauthorized', 'error_np' => 'Admin session समाप्त भयो — पेज refresh गरी पुनः login गर्नुहोस्।'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

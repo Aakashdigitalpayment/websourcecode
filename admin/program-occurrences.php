@@ -42,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ->execute([$loc, $date, $start, $end, $attOpen, $attClose, $sort, $active, $id, $parentId]);
                 setFlash('success', 'Occurrence अपडेट भयो।');
             } else {
+                $dupSt = $db->prepare('SELECT id FROM program_occurrences WHERE parent_program_id=? AND LOWER(TRIM(location_name))=LOWER(TRIM(?)) AND event_date <=> ? LIMIT 1');
+                $dupSt->execute([$parentId, $loc, $date]);
+                if ((int)$dupSt->fetchColumn() > 0) {
+                    throw new Exception('यही स्थान र मितिको occurrence पहिले नै छ — दोहोरो बनाइएन।');
+                }
                 $db->prepare('INSERT INTO program_occurrences (parent_program_id, location_name, event_date, start_time, end_time, attendance_open_at, attendance_close_at, sort_order, is_active) VALUES (?,?,?,?,?,?,?,?,?)')
                     ->execute([$parentId, $loc, $date, $start, $end, $attOpen, $attClose, $sort, $active]);
                 setFlash('success', 'नयाँ occurrence थपियो।');
@@ -62,12 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
             $parentId = (int)($_POST['parent_id'] ?? 0);
-            $db->prepare('DELETE FROM program_occurrences WHERE id=? AND parent_program_id=?')->execute([$id, $parentId]);
-            setFlash('success', 'Occurrence हटाइयो।');
+            $useSt = $db->prepare('SELECT COUNT(*) FROM member_program_attendance WHERE occurrence_id=?');
+            $useSt->execute([$id]);
+            if ((int)$useSt->fetchColumn() > 0) {
+                $db->prepare('UPDATE program_occurrences SET is_active=0 WHERE id=? AND parent_program_id=?')->execute([$id, $parentId]);
+                setFlash('warning', 'यो स्थानमा उपस्थिति record छ — हटाइएन, निष्क्रिय मात्र गरियो।');
+            } else {
+                $db->prepare('DELETE FROM program_occurrences WHERE id=? AND parent_program_id=?')->execute([$id, $parentId]);
+                setFlash('success', 'Occurrence हटाइयो।');
+            }
         }
     } catch (Throwable $e) {
         error_log('[program-occurrences] ' . $e->getMessage());
-        setFlash('error', 'Occurrence सुरक्षित गर्न सकिएन।');
+        setFlash('error', get_class($e) === Exception::class ? $e->getMessage() : 'Occurrence सुरक्षित गर्न सकिएन।');
     }
     redirect('program-occurrences.php' . ($parentId > 0 ? ('?parent_id=' . $parentId) : ''));
 }
@@ -79,6 +91,17 @@ if ($parent && (int)($parent['is_multi_location'] ?? 0) === 1) {
     $st = $db->prepare('SELECT * FROM program_occurrences WHERE parent_program_id=? ORDER BY sort_order ASC, id ASC');
     $st->execute([$parentId]);
     $occurrences = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+$attCountByOcc = [];
+if ($occurrences) {
+    try {
+        $occIds = array_map(static fn($o) => (int)$o['id'], $occurrences);
+        $cst = $db->prepare("SELECT occurrence_id, COUNT(*) FROM member_program_attendance WHERE occurrence_id IN (" . implode(',', array_fill(0, count($occIds), '?')) . ") AND attendance_status='VALID' GROUP BY occurrence_id");
+        $cst->execute($occIds);
+        $attCountByOcc = array_map('intval', $cst->fetchAll(PDO::FETCH_KEY_PAIR) ?: []);
+    } catch (Throwable $e) {
+        $attCountByOcc = [];
+    }
 }
 $editId = (int)($_GET['edit'] ?? 0);
 $edit = null;
@@ -150,12 +173,7 @@ if ($editId > 0) {
           <?php if (empty($occurrences)): ?>
             <tr><td colspan="6" class="text-center text-muted py-3">अहिले occurrence छैन।</td></tr>
           <?php else: foreach ($occurrences as $o):
-            $attCount = 0;
-            try {
-              $cst = $db->prepare("SELECT COUNT(*) FROM member_program_attendance WHERE occurrence_id=? AND attendance_status='VALID'");
-              $cst->execute([(int)$o['id']]);
-              $attCount = (int)$cst->fetchColumn();
-            } catch (Throwable $e) {}
+            $attCount = (int)($attCountByOcc[(int)$o['id']] ?? 0);
             $qrUrl = !empty($o['qr_token']) ? rtrim(SITE_URL,'/').'/member/attend.php?qr_token='.rawurlencode($o['qr_token']) : '';
           ?>
             <tr>
