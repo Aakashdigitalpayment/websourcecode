@@ -47,8 +47,9 @@ if ($export && $prog) {
 ?>
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('Location / Occurrence-wise Report', 'fa-map', 'कुन स्थानमा कति सदस्य उपस्थित — विवरण।'); ?>
+  <?php echo programReportsTabs('program-reports-location', (int)($programId ?? 0)); ?>
   <div class="card admin-table-card mb-3"><div class="card-body">
-    <form method="GET" class="row g-2"><div class="col-md-8"><select name="program_id" class="form-select" onchange="this.form.submit()"><option value="">— कार्यक्रम —</option><?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($p['title']); ?></option><?php endforeach; ?></select></div><?php if($prog): ?><div class="col-md-4"><a class="btn btn-success" href="?program_id=<?php echo $programId; ?>&export=csv">CSV</a></div><?php endif; ?></form>
+    <form method="GET" class="row g-2"><div class="col-md-8"><select name="program_id" class="form-select" onchange="this.form.submit()"><option value="">— कार्यक्रम —</option><?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars(programReportsProgramLabel($p)); ?></option><?php endforeach; ?></select></div><?php if($prog): ?><div class="col-md-4"><a class="btn btn-success" href="?program_id=<?php echo $programId; ?>&export=csv">CSV</a></div><?php endif; ?></form>
   </div></div>
   <?php if ($prog && (int)($prog['is_multi_location']??0)===1): foreach ($occRows as $oc): ?>
     <div class="card admin-table-card mb-3"><div class="card-header d-flex justify-content-between"><strong><?php echo htmlspecialchars($oc['location_name']??''); ?></strong><span class="badge bg-success"><?php echo (int)($oc['attended_count']??0); ?> attended</span></div>

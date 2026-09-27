@@ -151,18 +151,6 @@ if ($selectedProgramId > 0) {
         </div>
       </div>
 
-      <div class="card admin-table-card mb-3">
-        <div class="card-header"><h6 class="mb-0"><?php echo adminLangT('Quick Links', 'Quick Links'); ?></h6></div>
-        <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action" href="programs.php"><i class="lucide-icon me-2 text-primary" data-lucide="calendar-plus" aria-hidden="true"></i><?php echo adminLangT('कार्यक्रम बनाउने / सूची', 'Create / List Programs'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-occurrences.php"><i class="lucide-icon me-2 text-info" data-lucide="map-pin" aria-hidden="true"></i><?php echo adminLangT('स्थान / सत्र', 'Locations / Sessions'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-registration-desk.php"><i class="lucide-icon me-2 text-success" data-lucide="monitor" aria-hidden="true"></i><?php echo adminLangT('दर्ता डेस्क (Staff)', 'Registration Desk (Staff)'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-attendance.php"><i class="lucide-icon me-2 text-warning" data-lucide="clipboard-check" aria-hidden="true"></i><?php echo adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-reports-consolidated.php"><i class="lucide-icon me-2 text-danger" data-lucide="bar-chart-3" aria-hidden="true"></i><?php echo adminLangT('समेकित रिपोर्ट', 'Consolidated Report'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-settings.php"><i class="lucide-icon me-2" data-lucide="settings" aria-hidden="true"></i><?php echo adminLangT('कार्यक्रम सेटिङ', 'Program Settings'); ?></a>
-        </div>
-      </div>
-
       <div class="card admin-table-card">
         <div class="card-header"><h6 class="mb-0"><?php echo adminLangT('सक्रिय कार्यक्रम', 'Active Programs'); ?></h6></div>
         <div class="list-group list-group-flush">

@@ -14,6 +14,8 @@ ensureProgramTables($db);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     $action = $_POST['action'] ?? '';
+    $redirectTo = 'programs.php';
+    $returnHub = ($_POST['return'] ?? '') === 'detail' && (int)($_POST['id'] ?? 0) > 0;
     try {
         if ($action === 'save') {
             $id = (int)($_POST['id'] ?? 0);
@@ -117,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=? LIMIT 1");
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');
+                $redirectTo = 'program-detail.php?id=' . $id;
             } else {
                 $dupSt = $db->prepare("SELECT id FROM upcoming_programs WHERE LOWER(TRIM(title)) = LOWER(TRIM(?)) AND event_date <=> ? ORDER BY is_active DESC, id ASC LIMIT 1");
                 $dupSt->execute([$title, $date]);
@@ -127,7 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $st = $db->prepare("INSERT INTO upcoming_programs (title, program_type, is_multi_location, instant_attendance, shared_qr_mode, eligible_member_scope, description, event_date, event_time, location, is_active, pre_registration_open, qr_starts_at, qr_expires_at, attendance_open_at, attendance_close_at, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $_SESSION['admin_name'] ?? 'Admin']);
-                setFlash('success', 'नयाँ कार्यक्रम थपियो।');
+                $newId = (int)$db->lastInsertId();
+                setFlash('success', $isMulti
+                    ? 'नयाँ कार्यक्रम थपियो। अब तल "स्थान" मा AGM का स्थानहरू थप्नुहोस्।'
+                    : 'नयाँ कार्यक्रम थपियो। अब QR बनाउनुहोस् वा दर्ता डेस्क खोल्नुहोस्।');
+                $redirectTo = 'program-detail.php?id=' . $newId;
             }
         } elseif ($action === 'toggle') {
             $id = (int)($_POST['id'] ?? 0);
@@ -188,7 +195,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('error', get_class($e) === Exception::class ? $e->getMessage() : 'कार्यक्रम सुरक्षित गर्न सकिएन।');
     }
     if (function_exists('clearHomepageCache')) clearHomepageCache();
-    redirect('programs.php');
+    if ($returnHub && in_array($action, ['gen_qr', 'clear_qr', 'toggle'], true)) {
+        $redirectTo = 'program-detail.php?id=' . (int)$_POST['id'];
+    }
+    redirect($redirectTo);
 }
 
 $editId = (int)($_GET['edit'] ?? 0);
@@ -329,6 +339,10 @@ foreach ($rows as $_r) {
           $qrEndBs = !empty($edit['qr_expires_at']) ? programMysqlDtToBsDate((string)$edit['qr_expires_at']) : '';
           $qrEndTime = !empty($edit['qr_expires_at']) ? programMysqlDtToTime((string)$edit['qr_expires_at'], '23:59') : '23:59';
         ?>
+        <div class="col-12">
+          <details class="border rounded px-3 py-2 bg-light" <?php echo ($qrStartBs !== '' || $qrEndBs !== '') ? 'open' : ''; ?>>
+            <summary class="small fw-semibold" style="cursor:pointer">Advanced — QR सुरु/समाप्त समय <span class="text-muted fw-normal">(प्रायः खाली छोड्नुहोस्; माथिको उपस्थिति Window नै पर्याप्त)</span></summary>
+            <div class="row g-3 mt-1">
         <div class="col-md-3">
           <label for="prog_qr_start_bs" class="form-label">QR सुरु मिति <span class="text-muted small">(वि.सं.)</span></label>
           <div class="input-group">
@@ -355,6 +369,9 @@ foreach ($rows as $_r) {
           <input type="time" name="qr_expires_at_time" id="prog_qr_exp_time" class="form-control" value="<?php echo htmlspecialchars($qrEndTime); ?>">
           <div class="form-text">खाली मिति = कार्यक्रम मिति + १ दिन</div>
         </div>
+            </div>
+          </details>
+        </div>
         <div class="col-12 d-flex gap-2">
           <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ</button>
           <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
@@ -379,7 +396,7 @@ foreach ($rows as $_r) {
           $dTitle = htmlspecialchars((string)($r['title'] ?? ''), ENT_QUOTES, 'UTF-8');
           ?>
           <tr>
-            <td><strong><?php echo htmlspecialchars($r['title']); ?></strong><?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><span class="badge bg-info ms-1">Multi</span><?php endif; ?><?php if ($isDup): ?><span class="badge bg-warning text-dark ms-1" title="यही शीर्षक र मितिको अर्को कार्यक्रम पनि छ — एउटा मात्र राखी अरू निष्क्रिय गर्नुहोस्">दोहोरो? #<?php echo (int)$r['id']; ?></span><?php endif; ?><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
+            <td><a href="program-detail.php?id=<?php echo (int)$r['id']; ?>" class="fw-bold text-decoration-none"><?php echo htmlspecialchars($r['title']); ?></a><?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><span class="badge bg-info ms-1">Multi</span><?php endif; ?><?php if ($isDup): ?><span class="badge bg-warning text-dark ms-1" title="यही शीर्षक र मितिको अर्को कार्यक्रम पनि छ — एउटा मात्र राखी अरू निष्क्रिय गर्नुहोस्">दोहोरो? #<?php echo (int)$r['id']; ?></span><?php endif; ?><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
             <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars(programTypeLabel($r['program_type'] ?? 'General')); ?></span></td>
             <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?> <span class="small text-muted"><?php echo htmlspecialchars($r['event_time'] ?? ''); ?></span></td>
             <td><?php echo htmlspecialchars($r['location'] ?: '—'); ?></td>

@@ -19,6 +19,9 @@ $existingInfo = null;
 $memberPreview = null;
 
 $programs = $db->query("SELECT id, title, program_type, event_date, location, is_multi_location FROM upcoming_programs WHERE is_active=1 ORDER BY COALESCE(event_date,'9999-12-31') ASC, title ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+if ($programId <= 0 && count($programs) === 1) {
+    $programId = (int)$programs[0]['id'];
+}
 $occurrences = [];
 $desks = [];
 $prog = $programId > 0 ? programFetchById($db, $programId) : null;
@@ -120,7 +123,9 @@ if (function_exists('coopThemeLink')) {
 ?>
 <div class="container-fluid desk-page-wrap">
 <?php echo adminPageHeader('Registration Desk', 'monitor', 'कार्डको Member ID (सदस्यता नं.) → lookup → Confirm · Staff को एक मात्र उपस्थिति दर्ता ठाउँ',
-    '<a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">← Dashboard</a>'); ?>
+    $programId > 0
+      ? '<a href="program-detail.php?id=' . (int)$programId . '" class="btn btn-sm btn-outline-secondary">← कार्यक्रम hub</a>'
+      : '<a href="programs.php" class="btn btn-sm btn-outline-secondary">← कार्यक्रमहरू</a>'); ?>
 <div class="desk-shell">
 <div class="desk-card">
   <div class="desk-header d-flex flex-wrap justify-content-between align-items-center gap-2">

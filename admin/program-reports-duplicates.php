@@ -27,8 +27,9 @@ $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 ?>
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('Duplicate / Blocked Attempts Log', 'fa-shield-alt', 'Duplicate attendance, window closed, वा ineligible प्रयासहरूको audit trail।'); ?>
+  <?php echo programReportsTabs('program-reports-duplicates', (int)($programId ?? 0)); ?>
   <div class="card admin-table-card mb-3"><div class="card-body">
-    <form method="GET"><select name="program_id" class="form-select" onchange="this.form.submit()"><option value="">— सबै कार्यक्रम —</option><?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars($p['title']); ?></option><?php endforeach; ?></select></form>
+    <form method="GET"><select name="program_id" class="form-select" onchange="this.form.submit()"><option value="">— सबै कार्यक्रम —</option><?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars(programReportsProgramLabel($p)); ?></option><?php endforeach; ?></select></form>
   </div></div>
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
     <thead><tr><th>Time</th><th>Member</th><th>Program</th><th>Method</th><th>Result</th><th>Previous</th><th>Message</th></tr></thead>

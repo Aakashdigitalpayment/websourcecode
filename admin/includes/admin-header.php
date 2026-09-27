@@ -829,46 +829,30 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('ड्यासबोर्ड', 'Dashboard'); ?></span>
                                 </a>
                             </li>
-                            <li class="<?php echo $currentPage=='programs' ? 'active' : ''; ?>">
+                            <li class="<?php echo in_array($currentPage, ['programs','program-detail','program-occurrences'], true) ? 'active' : ''; ?>">
                                 <a href="programs.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-plus"></i></span>
-                                    <span><?php echo $adminT('कार्यक्रम बनाउने / सूची', 'Program Create / List'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-occurrences' ? 'active' : ''; ?>">
-                                <a href="program-occurrences.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span>
-                                    <span><?php echo $adminT('स्थान / सत्र', 'Locations / Sessions'); ?></span>
+                                    <span><?php echo $adminT('कार्यक्रमहरू', 'Programs'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-registration-desk' ? 'active' : ''; ?>">
                                 <a href="program-registration-desk.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="monitor"></i></span>
-                                    <span><?php echo $adminT('दर्ता डेस्क', 'Registration Desk'); ?></span>
+                                    <span><?php echo $adminT('दर्ता डेस्क (उपस्थिति)', 'Registration Desk'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-attendance' ? 'active' : ''; ?>">
                                 <a href="program-attendance.php" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i></span>
-                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'); ?></span>
+                                    <span class="sidebar-link-label"><?php echo $adminT('अनुरोध / Pre-reg', 'Requests / Pre-reg'); ?></span>
                                     <?php if (!empty($adminAlertCounts['attend'])): ?><span class="badge"><?php echo (int)$adminAlertCounts['attend']; ?></span><?php endif; ?>
                                 </a>
                             </li>
-                            <li class="nav-submenu-label px-3 py-1 small text-muted text-uppercase"><?php echo $adminT('रिपोर्ट', 'Reports'); ?></li>
-                            <li class="<?php echo $currentPage=='program-reports-consolidated' ? 'active' : ''; ?>">
-                                <a href="program-reports-consolidated.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="bar-chart-3"></i></span><span><?php echo $adminT('समेकित रिपोर्ट', 'Consolidated'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-reports-location' ? 'active' : ''; ?>">
-                                <a href="program-reports-location.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="map"></i></span><span><?php echo $adminT('स्थानअनुसार', 'Location-wise'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-reports-member' ? 'active' : ''; ?>">
-                                <a href="program-reports-member.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="users"></i></span><span><?php echo $adminT('सदस्यअनुसार', 'Member-wise'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-reports-absent' ? 'active' : ''; ?>">
-                                <a href="program-reports-absent.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="user-x"></i></span><span><?php echo $adminT('अनुपस्थित', 'Absent'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-reports-duplicates' ? 'active' : ''; ?>">
-                                <a href="program-reports-duplicates.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="shield-alert"></i></span><span><?php echo $adminT('दोहोरो प्रयास', 'Duplicate Attempts'); ?></span></a>
+                            <li class="<?php echo str_starts_with((string)$currentPage, 'program-reports-') ? 'active' : ''; ?>">
+                                <a href="program-reports-consolidated.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bar-chart-3"></i></span>
+                                    <span><?php echo $adminT('रिपोर्ट', 'Reports'); ?></span>
+                                </a>
                             </li>
                             <li class="<?php echo $currentPage=='sahakari-calendar-events' ? 'active' : ''; ?>">
                                 <a href="sahakari-calendar-events.php">

@@ -35,6 +35,7 @@ if ($export) {
 ?>
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('Member-wise Attendance Register', 'fa-users', 'सबै कार्यक्रमको सदस्य उपस्थिति खोज।'); ?>
+  <?php echo programReportsTabs('program-reports-member', 0); ?>
   <div class="card admin-table-card mb-3"><div class="card-body">
     <form method="GET" class="row g-2">
       <div class="col-md-8"><input name="q" class="form-control" placeholder="Member ID / Name / Program" value="<?php echo htmlspecialchars($q); ?>"></div>

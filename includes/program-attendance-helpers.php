@@ -552,7 +552,7 @@ if (!function_exists('programCountActiveMembers')) {
     function programCountActiveMembers(PDO $db): int
     {
         try {
-            return (int)$db->query("SELECT COUNT(*) FROM members WHERE is_active=1 AND LOWER(COALESCE(approval_status,'')) IN ('approved','active','confirmed','')")->fetchColumn();
+            return (int)$db->query("SELECT COUNT(*) FROM members WHERE is_active=1 AND LOWER(COALESCE(approval_status,'')) IN ('approved','active','confirmed','renewal_pending','')")->fetchColumn();
         } catch (Throwable $e) {
             return 0;
         }

@@ -81,6 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log('[program-occurrences] ' . $e->getMessage());
         setFlash('error', get_class($e) === Exception::class ? $e->getMessage() : 'Occurrence सुरक्षित गर्न सकिएन।');
     }
+    if (($_POST['return'] ?? '') === 'detail' && $parentId > 0) {
+        redirect('program-detail.php?id=' . $parentId);
+    }
     redirect('program-occurrences.php' . ($parentId > 0 ? ('?parent_id=' . $parentId) : ''));
 }
 
@@ -113,7 +116,7 @@ if ($editId > 0) {
 ?>
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('स्थान / सत्र (Occurrences)', 'map-pin', 'Multi-location AGM जस्ता कार्यक्रमका लागि Banepa, Panauti, … स्थान/मिति/QR यहाँ व्यवस्थापन गर्नुहोस्।',
-      '<a href="programs.php" class="btn btn-outline-secondary btn-sm">' . (function_exists('icon') ? icon('arrow-left', 14, 'margin-right:4px;') : '<i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>') . 'कार्यक्रम सूची</a>'); ?>
+      '<a href="' . ($parent ? 'program-detail.php?id=' . (int)$parentId : 'programs.php') . '" class="btn btn-outline-secondary btn-sm">' . (function_exists('icon') ? icon('arrow-left', 14, 'margin-right:4px;') : '<i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>') . ($parent ? 'कार्यक्रम hub' : 'कार्यक्रम सूची') . '</a>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
   <div class="card admin-table-card mb-3">
