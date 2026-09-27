@@ -31,26 +31,50 @@ function programReportsCsvHeaders(string $filename): void
     echo "\xEF\xBB\xBF";
 }
 
-function programReportsMemberPhotoUrl(?string $photo): string
-{
-    return programMemberPhotoUrl($photo);
-}
-
 function programReportsFormatAttendedAt(?string $dt): string
 {
     return programFormatAttendedAt($dt);
 }
 
-function programReportsRenderProgramSelect(array $programs, int $selectedId, string $emptyLabel = '— कार्यक्रम —'): void
+const PROGRAM_REPORT_DISPLAY_LIMIT = 500;
+
+/** Program picker + CSV button used by every report page. */
+function programReportsFilterCard(array $programs, int $selectedId, string $emptyLabel = '— कार्यक्रम छान्नुहोस् —', bool $csv = true): string
 {
-    echo '<select name="program_id" class="form-select" onchange="this.form.submit()">';
-    echo '<option value="">' . htmlspecialchars($emptyLabel) . '</option>';
+    $html = '<div class="card admin-table-card mb-3"><div class="card-body"><form method="GET" class="row g-2 align-items-center">'
+        . '<div class="col-md-8"><select name="program_id" class="form-select" aria-label="कार्यक्रम" onchange="this.form.submit()">'
+        . '<option value="">' . htmlspecialchars($emptyLabel) . '</option>';
     foreach ($programs as $p) {
         $pid = (int)($p['id'] ?? 0);
-        $sel = $selectedId === $pid ? ' selected' : '';
-        echo '<option value="' . $pid . '"' . $sel . '>' . htmlspecialchars((string)($p['title'] ?? '')) . '</option>';
+        $html .= '<option value="' . $pid . '"' . ($selectedId === $pid ? ' selected' : '') . '>' . htmlspecialchars(programReportsProgramLabel($p)) . '</option>';
     }
-    echo '</select>';
+    $html .= '</select></div>';
+    if ($csv && $selectedId > 0) {
+        $html .= '<div class="col-md-4"><a class="btn btn-success" href="?program_id=' . $selectedId . '&amp;export=csv"><i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>CSV (सबै)</a></div>';
+    }
+    return $html . '</form></div></div>';
+}
+
+/** "showing 500 of 3200 — CSV has all" note when the on-screen table is capped. */
+function programReportsLimitNote(int $shown, int $total): string
+{
+    if ($total <= $shown) {
+        return '';
+    }
+    return '<div class="alert alert-info py-2 small mb-2">पहिलो ' . $shown . ' / जम्मा ' . $total . ' देखाइएको — पूरा सूचीका लागि CSV डाउनलोड गर्नुहोस्।</div>';
+}
+
+/** Stream rows to CSV; $map turns one DB row into a CSV line. */
+function programReportsCsvStream(string $filename, array $header, iterable $rows, callable $map): void
+{
+    programReportsCsvHeaders($filename);
+    $out = fopen('php://output', 'w');
+    fputcsv($out, $header);
+    foreach ($rows as $r) {
+        fputcsv($out, $map($r));
+    }
+    fclose($out);
+    exit;
 }
 
 function programReportsCsvMethodLabel(?string $method): string

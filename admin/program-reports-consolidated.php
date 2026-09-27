@@ -1,78 +1,56 @@
 <?php
 require_once __DIR__ . '/includes/admin-page-boot.php';
+require_once __DIR__ . '/includes/program-reports-common.php';
+
+$db = programReportsInit();
+$programId = (int)($_GET['program_id'] ?? 0);
+$prog = programReportsSelectedProgram($db, $programId);
+
+if ($prog && ($_GET['export'] ?? '') === 'csv') {
+    $live = programLiveStatsForProgram($db, $prog);
+    programReportsCsvStream('program-consolidated-' . $programId . '.csv',
+        ['Member ID', 'Name', 'Program', 'Location', 'Method', 'Attended At'],
+        programFetchValidAttendanceByScope($db, $live['scope'], 0),
+        static fn(array $r): array => [
+            $r['member_card_no'] ?? '', $r['member_name'] ?? '', $r['program_title'] ?? '',
+            programAttendanceDisplayLocation($r), programReportsCsvMethodLabel($r['attendance_method'] ?? ''), $r['attended_at'] ?? '',
+        ]);
+}
+
 $pageTitle = 'Consolidated Report';
 $currentPage = 'program-reports-consolidated';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
-require_once 'includes/program-reports-common.php';
 
-$db = programReportsInit();
-$programId = (int)($_GET['program_id'] ?? 0);
-$export = isset($_GET['export']) && $_GET['export'] === 'csv';
 $programs = programReportsProgramList($db);
-$prog = programReportsSelectedProgram($db, $programId);
-
 $rows = [];
 $stats = ['attended' => 0, 'eligible' => 0, 'prereg' => 0, 'pct' => 0];
 if ($prog) {
-    $live = programLiveStatsForProgram($db, $prog);
-    $stats = [
-        'attended' => $live['attended'],
-        'eligible' => $live['eligible'],
-        'prereg' => $live['prereg'],
-        'pct' => $live['pct'],
-    ];
-    $rows = programFetchValidAttendanceByScope($db, $live['scope']);
-}
-
-if ($export && $prog) {
-    programReportsCsvHeaders('program-consolidated-' . $programId . '.csv');
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['Member ID', 'Name', 'Program', 'Location', 'Method', 'Attended At']);
-    foreach ($rows as $r) {
-        fputcsv($out, [
-            $r['member_card_no'] ?? '',
-            $r['member_name'] ?? '',
-            $r['program_title'] ?? '',
-            programAttendanceDisplayLocation($r),
-            programReportsCsvMethodLabel($r['attendance_method'] ?? ''),
-            $r['attended_at'] ?? '',
-        ]);
-    }
-    fclose($out);
-    exit;
+    $stats = programLiveStatsForProgram($db, $prog);
+    $rows = programFetchValidAttendanceByScope($db, $stats['scope'], PROGRAM_REPORT_DISPLAY_LIMIT);
 }
 ?>
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader('Consolidated Program Report', 'fa-chart-bar', 'Multi-location AGM मा unique members एक पटक मात्र गणना।', '<a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">Dashboard</a>'); ?>
-  <?php echo programReportsTabs('program-reports-consolidated', (int)($programId ?? 0)); ?>
-  <div class="card admin-table-card mb-3"><div class="card-body">
-    <form method="GET" class="row g-2 align-items-end">
-      <div class="col-md-8"><label for="prc_program_id" class="form-label">कार्यक्रम</label>
-        <select name="program_id" id="prc_program_id" class="form-select" required onchange="this.form.submit()">
-          <option value="">— छान्नुहोस् —</option>
-          <?php foreach ($programs as $p): ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId===(int)$p['id']?'selected':''; ?>><?php echo htmlspecialchars(programReportsProgramLabel($p)); ?></option><?php endforeach; ?>
-        </select>
-      </div>
-      <?php if ($prog): ?><div class="col-md-4"><a href="?program_id=<?php echo $programId; ?>&export=csv" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>CSV Export</a></div><?php endif; ?>
-    </form>
-  </div></div>
+  <?php echo adminPageHeader('Consolidated Program Report', 'fa-chart-bar', 'Multi-location AGM मा unique members एक पटक मात्र गणना।'); ?>
+  <?php echo programReportsTabs('program-reports-consolidated', $programId); ?>
+  <?php echo programReportsFilterCard($programs, $programId); ?>
   <?php if ($prog): ?>
   <div class="row g-3 mb-3">
-    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Unique Attended</div><div class="fs-3 fw-bold text-success"><?php echo $stats['attended']; ?></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Pre-reg</div><div class="fs-3 fw-bold"><?php echo $stats['prereg']; ?></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Eligible Members</div><div class="fs-3 fw-bold"><?php echo $stats['eligible']; ?></div></div></div>
-    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Attendance %</div><div class="fs-3 fw-bold text-primary"><?php echo $stats['pct']; ?>%</div></div></div>
+    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Unique Attended</div><div class="fs-3 fw-bold text-success"><?php echo (int)$stats['attended']; ?></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Pre-reg</div><div class="fs-3 fw-bold"><?php echo (int)$stats['prereg']; ?></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Eligible Members</div><div class="fs-3 fw-bold"><?php echo (int)$stats['eligible']; ?></div></div></div>
+    <div class="col-md-3"><div class="card p-3"><div class="small text-muted">Attendance %</div><div class="fs-3 fw-bold text-primary"><?php echo htmlspecialchars((string)$stats['pct']); ?>%</div></div></div>
   </div>
+  <?php echo programReportsLimitNote(count($rows), (int)$stats['attended']); ?>
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
     <thead><tr><th>Member ID</th><th>Name</th><th>Location</th><th>Method</th><th>Time</th></tr></thead>
     <tbody><?php foreach ($rows as $r): ?><tr>
-      <td><?php echo htmlspecialchars($r['member_card_no']??''); ?></td>
-      <td><?php echo htmlspecialchars($r['member_name']??''); ?></td>
+      <td><?php echo htmlspecialchars($r['member_card_no'] ?? ''); ?></td>
+      <td><?php echo htmlspecialchars($r['member_name'] ?? ''); ?></td>
       <td><?php echo htmlspecialchars(programAttendanceDisplayLocation($r)); ?></td>
-      <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method']??'')); ?></td>
-      <td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at']??'')); ?></td>
-    </tr><?php endforeach; if(empty($rows)): ?><tr><td colspan="5" class="text-muted text-center py-3">No attendance yet.</td></tr><?php endif; ?></tbody>
+      <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method'] ?? '')); ?></td>
+      <td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
+    </tr><?php endforeach; if (empty($rows)): ?><tr><td colspan="5" class="text-muted text-center py-3">अहिलेसम्म उपस्थिति छैन।</td></tr><?php endif; ?></tbody>
   </table></div></div>
   <?php endif; ?>
 </div>

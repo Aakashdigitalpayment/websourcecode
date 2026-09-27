@@ -671,7 +671,8 @@ if (!function_exists('programLiveStatsForProgram')) {
 }
 
 if (!function_exists('programFetchValidAttendanceByScope')) {
-    function programFetchValidAttendanceByScope(PDO $db, int $scopeId): array
+    /** $limit 0 = all rows (CSV export) */
+    function programFetchValidAttendanceByScope(PDO $db, int $scopeId, int $limit = 2000): array
     {
         if ($scopeId < 1) {
             return [];
@@ -681,14 +682,15 @@ if (!function_exists('programFetchValidAttendanceByScope')) {
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.attendance_scope_key=? AND a.attendance_status='VALID'
                             ORDER BY a.attended_at DESC
-                            LIMIT 2000");
+                            " . ($limit > 0 ? ' LIMIT ' . (int)$limit : ''));
         $st->execute([$scopeId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
 
 if (!function_exists('programFetchValidAttendanceByOccurrence')) {
-    function programFetchValidAttendanceByOccurrence(PDO $db, int $occurrenceId): array
+    /** $limit 0 = all rows (CSV export) */
+    function programFetchValidAttendanceByOccurrence(PDO $db, int $occurrenceId, int $limit = 2000): array
     {
         if ($occurrenceId < 1) {
             return [];
@@ -698,14 +700,15 @@ if (!function_exists('programFetchValidAttendanceByOccurrence')) {
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.occurrence_id=? AND a.attendance_status='VALID'
                             ORDER BY a.attended_at DESC
-                            LIMIT 2000");
+                            " . ($limit > 0 ? ' LIMIT ' . (int)$limit : ''));
         $st->execute([$occurrenceId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
 
 if (!function_exists('programFetchValidAttendanceByProgram')) {
-    function programFetchValidAttendanceByProgram(PDO $db, int $programId): array
+    /** $limit 0 = all rows (CSV export) */
+    function programFetchValidAttendanceByProgram(PDO $db, int $programId, int $limit = 2000): array
     {
         if ($programId < 1) {
             return [];
@@ -715,7 +718,7 @@ if (!function_exists('programFetchValidAttendanceByProgram')) {
                             LEFT JOIN members m ON m.id=a.member_id
                             WHERE a.program_id=? AND a.attendance_status='VALID'
                             ORDER BY a.attended_at DESC
-                            LIMIT 2000");
+                            " . ($limit > 0 ? ' LIMIT ' . (int)$limit : ''));
         $st->execute([$programId]);
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
