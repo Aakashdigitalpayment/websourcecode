@@ -341,7 +341,8 @@ if (!function_exists('programValidateMemberEligible')) {
         if ($memberId < 1) {
             return ['ok' => false, 'code' => 'INVALID_MEMBER', 'message_np' => 'सदस्य फेला परेन।', 'message_en' => 'Member not found.'];
         }
-        $st = $db->prepare('SELECT id, name, sadasyata_number, is_active, approval_status, photo FROM members WHERE id=? LIMIT 1');
+        /* SELECT * — members has no fixed photo column across installs (avatar_url / legacy photo) */
+        $st = $db->prepare('SELECT * FROM members WHERE id=? LIMIT 1');
         $st->execute([$memberId]);
         $member = $st->fetch(PDO::FETCH_ASSOC);
         if (!$member) {
@@ -457,7 +458,7 @@ if (!function_exists('recordProgramAttendance')) {
                     return ['ok' => false, 'error_np' => 'Override को लागि कारण अनिवार्य छ।', 'error_en' => 'Override reason is required.'];
                 }
                 $voidAdmin = $staffAdminId ?: (int)($_SESSION['admin_id'] ?? 0);
-                $db->prepare("UPDATE member_program_attendance SET attendance_status='VOID', voided_by=?, voided_at=NOW(), void_reason=? WHERE id=?")
+                $db->prepare("UPDATE member_program_attendance SET attendance_status='VOID'" . programValidLockSql($db, 'NULL') . ", voided_by=?, voided_at=NOW(), void_reason=? WHERE id=?")
                     ->execute([$voidAdmin ?: null, mb_substr($overrideReason, 0, 500), (int)$existing['id']]);
                 programAuditLog($db, 'attendance_void_override', $programId, $occurrenceId, (int)$existing['id'], $memberId, $voidAdmin ?: null, $overrideReason);
             }
@@ -465,8 +466,8 @@ if (!function_exists('recordProgramAttendance')) {
             $ins = $db->prepare("INSERT INTO member_program_attendance
                 (member_id, member_card_no, program_id, occurrence_id, parent_program_id, attendance_scope_key, program_title,
                  is_priority, attendance_note, verified_by_ip, source, attendance_method, attendance_status, location_label,
-                 desk_id, staff_admin_id, device_fingerprint)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                 desk_id, staff_admin_id, device_fingerprint" . (programColumnExists($db, 'member_program_attendance', 'valid_lock') ? ', valid_lock' : '') . ")
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?" . (programColumnExists($db, 'member_program_attendance', 'valid_lock') ? ',1' : '') . ")");
             $ins->execute([
                 $memberId,
                 mb_substr($memberCardNo, 0, 60),
@@ -514,6 +515,14 @@ if (!function_exists('recordProgramAttendance')) {
     }
 }
 
+if (!function_exists('programValidLockSql')) {
+    /** ", valid_lock=<value>" fragment when the column exists (see ensureProgramTables). */
+    function programValidLockSql(PDO $db, string $value): string
+    {
+        return programColumnExists($db, 'member_program_attendance', 'valid_lock') ? ', valid_lock=' . $value : '';
+    }
+}
+
 if (!function_exists('voidProgramAttendance')) {
     function voidProgramAttendance(PDO $db, int $attendanceId, int $adminId, string $reason): array
     {
@@ -528,7 +537,7 @@ if (!function_exists('voidProgramAttendance')) {
         if (!$row) {
             return ['ok' => false, 'error_np' => 'उपस्थिति record फेला परेन।', 'error_en' => 'Attendance record not found.'];
         }
-        $db->prepare("UPDATE member_program_attendance SET attendance_status='VOID', voided_by=?, voided_at=NOW(), void_reason=? WHERE id=?")
+        $db->prepare("UPDATE member_program_attendance SET attendance_status='VOID'" . programValidLockSql($db, 'NULL') . ", voided_by=?, voided_at=NOW(), void_reason=? WHERE id=?")
             ->execute([$adminId ?: null, mb_substr($reason, 0, 500), $attendanceId]);
         programAuditLog($db, 'attendance_void', (int)$row['program_id'], (int)($row['occurrence_id'] ?? 0) ?: null, $attendanceId, (int)$row['member_id'], $adminId, $reason);
         return ['ok' => true];
@@ -600,6 +609,9 @@ if (!function_exists('programMemberPhotoUrl')) {
         $photo = trim((string)$photo);
         if ($photo === '') {
             return '';
+        }
+        if (preg_match('#^https?://#i', $photo)) {
+            return $photo;
         }
         if (function_exists('coop_public_download_url')) {
             return coop_public_download_url($photo);

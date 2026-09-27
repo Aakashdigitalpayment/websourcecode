@@ -54,7 +54,7 @@ $occurrence = $occurrenceId > 0 ? programFetchOccurrenceById($db, $occurrenceId)
 $scope = programResolveScopeId($prog, $occurrenceId);
 $existing = programFindExistingAttendance($db, (int)$member['id'], $scope);
 
-$photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ''));
+$photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ($member['avatar_url'] ?? '')));
 
 $sadasyata = programMemberSadasyataNo($member);
 $window = programIsWindowOpen($prog, $occurrence);

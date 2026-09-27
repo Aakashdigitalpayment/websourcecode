@@ -68,6 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
                             $checkInErr = $_t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
                         }
                     }
+                    if ($checkInErr === '' && $occurrence && ((int)$occurrence['parent_program_id'] !== $progId || (int)($occurrence['is_active'] ?? 0) !== 1)) {
+                        $checkInErr = $_t('छानिएको स्थान यो कार्यक्रमको होइन वा निष्क्रिय छ।', 'Selected location is not valid for this program.');
+                    }
+                    if ($checkInErr === '' && (int)($progRow['is_multi_location'] ?? 0) === 1 && !$occurrence) {
+                        $checkInErr = $_t('आफू भएको स्थान छान्नुहोस्।', 'Please select your venue location.');
+                    }
                     if ($checkInErr === '') {
                         $scope = programResolveScopeId($progRow, $occurrenceId ?: null);
                         $existing = programFindExistingAttendance($db, $memberId, $scope);
@@ -195,6 +201,16 @@ if ($qrToken !== '') {
         }
     } catch (Throwable $e) {
         $qrProgramRow = null;
+    }
+}
+$qrLocationChoices = [];
+if ($qrProgramRow && !$qrOccurrenceRow && (int)($qrProgramRow['is_multi_location'] ?? 0) === 1) {
+    try {
+        $st = $db->prepare('SELECT id, location_name, event_date FROM program_occurrences WHERE parent_program_id=? AND is_active=1 ORDER BY sort_order ASC, id ASC');
+        $st->execute([(int)$qrProgramRow['id']]);
+        $qrLocationChoices = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+        $qrLocationChoices = [];
     }
 }
 if ($qrProgramRow) {
@@ -345,7 +361,14 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
           <?= $csrfField ?>
           <input type="hidden" name="action" value="checkin">
           <input type="hidden" name="program_id" value="<?= (int)$qrProgramRow['id'] ?>">
-          <?php if ($qrOccurrenceRow): ?><input type="hidden" name="occurrence_id" value="<?= (int)$qrOccurrenceRow['id'] ?>"><?php endif; ?>
+          <?php if ($qrOccurrenceRow): ?><input type="hidden" name="occurrence_id" value="<?= (int)$qrOccurrenceRow['id'] ?>">
+          <?php elseif ($qrLocationChoices): ?>
+          <label for="attOccurrence" style="display:block;font-size:.78rem;font-weight:700;color:#065f46;margin-bottom:4px;"><?php echo $_t('तपाईं भएको स्थान', 'Your venue'); ?></label>
+          <select name="occurrence_id" id="attOccurrence" required style="width:100%;padding:9px 10px;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:8px;font-family:inherit;">
+            <?php if (count($qrLocationChoices) > 1): ?><option value=""><?php echo $_t('— स्थान छान्नुहोस् —', '— Select location —'); ?></option><?php endif; ?>
+            <?php foreach ($qrLocationChoices as $lc): ?><option value="<?= (int)$lc['id'] ?>"><?= htmlspecialchars((string)$lc['location_name']) ?></option><?php endforeach; ?>
+          </select>
+          <?php endif; ?>
           <input type="hidden" name="qr_token" value="<?= htmlspecialchars($qrToken) ?>">
           <button type="submit" style="width:100%;padding:12px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.9rem;font-weight:800;cursor:pointer;">
             <i class="lucide-icon me-2" data-lucide="user-check" aria-hidden="true"></i><?php echo !empty($qrProgramRow['instant_attendance']) ? $_t('उपस्थिति Confirm', 'Confirm Attendance') : $_t('यही कार्यक्रममा Check-in', 'Check-in to this Program'); ?>

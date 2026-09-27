@@ -2,6 +2,37 @@
 /**
  * कार्यक्रम / उपस्थिति / pre-registration — तालिकाहरू (schema lock भए पनि idempotent)
  */
+if (!function_exists('programIndexExists')) {
+    function programIndexExists(PDO $db, string $table, string $index): bool
+    {
+        try {
+            $st = $db->prepare('SELECT 1 FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1');
+            $st->execute([$table, $index]);
+            return (bool)$st->fetchColumn();
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('programColumnExists')) {
+    function programColumnExists(PDO $db, string $table, string $column): bool
+    {
+        static $cache = [];
+        $k = $table . '.' . $column;
+        if (!isset($cache[$k])) {
+            try {
+                $st = $db->prepare('SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1');
+                $st->execute([$table, $column]);
+                $cache[$k] = (bool)$st->fetchColumn();
+            } catch (Throwable $e) {
+                $cache[$k] = false;
+            }
+        }
+        return $cache[$k];
+    }
+}
+
 if (!function_exists('ensureProgramTables')) {
     function ensureProgramTables(?PDO $db = null): void
     {
@@ -18,6 +49,16 @@ if (!function_exists('ensureProgramTables')) {
         }
         if (!$db instanceof PDO) {
             return;
+        }
+        $flagKey = 'migration_program_tables_v4';
+        try {
+            $st = $db->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1');
+            $st->execute([$flagKey]);
+            if ((string)$st->fetchColumn() === '1') {
+                $done = true;
+                return;
+            }
+        } catch (Throwable $e) {
         }
         try {
             $db->exec("CREATE TABLE IF NOT EXISTS upcoming_programs (
@@ -266,8 +307,30 @@ if (!function_exists('ensureProgramTables')) {
                 programBackfillV2Columns($db);
             }
 
+            /* valid_lock = 1 for VALID rows, NULL for VOID — unique key then allows many VOID rows per member/scope */
+            $addCol($db, 'member_program_attendance', 'valid_lock', 'TINYINT NULL DEFAULT NULL AFTER attendance_status');
+            $db->exec("UPDATE member_program_attendance SET valid_lock = IF(attendance_status='VALID', 1, NULL)");
+            try {
+                $db->exec('ALTER TABLE member_program_attendance ADD UNIQUE KEY uniq_scope_member_valid (attendance_scope_key, member_id, valid_lock)');
+            } catch (Throwable $e) {
+            }
+            if (programIndexExists($db, 'member_program_attendance', 'uniq_scope_member_valid')) {
+                try {
+                    $db->exec('ALTER TABLE member_program_attendance DROP INDEX uniq_scope_member_status');
+                } catch (Throwable $e) {
+                }
+            } else {
+                error_log('[ensureProgramTables] uniq_scope_member_valid not created — duplicate VALID attendance rows exist?');
+            }
+
             $done = true;
+            try {
+                $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, '1') ON DUPLICATE KEY UPDATE setting_value = '1'")
+                    ->execute([$flagKey]);
+            } catch (Throwable $e) {
+            }
         } catch (Throwable $e) {
+            error_log('[ensureProgramTables] ' . $e->getMessage());
         }
     }
 }

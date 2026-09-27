@@ -224,18 +224,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $okCount = 0;
-                foreach ($targets as $t) {
-                    $name = trim((string)($t['display_name'] ?? $t['member_name'] ?? 'Member'));
-                    $email = trim((string)($t['member_email'] ?? ''));
-                    $phone = trim((string)($t['member_phone'] ?: ($t['member_mobile'] ?? $t['phone'] ?? '')));
-                    $extra = "कार्यक्रम: " . (string)($t['program_title'] ?? '');
-                    if (!empty($t['event_date'])) $extra .= " | मिति: " . (string)$t['event_date'];
-                    $fullComment = $bulkMsg . "\n" . $extra;
-                    sendMemberStatusUpdate('digital_service', $email, $phone, $name, 'confirmed', $fullComment, (string)($t['member_card_no'] ?? ''));
-                    $okCount++;
+                try {
+                    foreach ($targets as $t) {
+                        $name = trim((string)($t['display_name'] ?? $t['member_name'] ?? 'Member'));
+                        $email = trim((string)($t['member_email'] ?? ''));
+                        $phone = trim((string)($t['member_phone'] ?: ($t['member_mobile'] ?? $t['phone'] ?? '')));
+                        $extra = "कार्यक्रम: " . (string)($t['program_title'] ?? '');
+                        if (!empty($t['event_date'])) $extra .= " | मिति: " . (string)$t['event_date'];
+                        $fullComment = $bulkMsg . "\n" . $extra;
+                        try {
+                            sendMemberStatusUpdate('digital_service', $email, $phone, $name, 'confirmed', $fullComment, (string)($t['member_card_no'] ?? ''));
+                            $okCount++;
+                        } catch (Throwable $e) {
+                            error_log('[program-attendance bulk notify] ' . $e->getMessage());
+                        }
+                    }
+                } finally {
+                    updateSetting('notify_member_email', $origEmail);
+                    updateSetting('notify_member_sms', $origSms);
                 }
-                updateSetting('notify_member_email', $origEmail);
-                updateSetting('notify_member_sms', $origSms);
                 if ($action === 'bulk_notify_prereg_test') {
                     setFlash('success', "Test notification पठाइयो (1 सदस्य, channel: {$channel})।");
                 } else {
@@ -303,6 +310,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         setFlash('error', 'यो अनुरोध existing member सँग match भएको छैन। पहिले सदस्य registration/link गरेर मात्र attendance approve गर्नुहोस्।');
                     } else {
                     $occId = (int)($req['occurrence_id'] ?? 0);
+                    if ($occId <= 0) {
+                        $occId = (int)($_POST['occurrence_id'] ?? 0);
+                    }
                     $rec = recordProgramAttendance($db, [
                         'member_id' => $mid,
                         'member_card_no' => (string)($req['member_card_no'] ?? ''),
@@ -312,6 +322,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'source' => 'admin_request_approve',
                         'attendance_note' => 'QR अनुरोध #' . $reqId . ' Admin स्वीकृति',
                         'staff_admin_id' => $adminId,
+                        /* member scanned while the window was open; approval often happens later */
+                        'skip_window_check' => true,
                     ]);
                     if (!empty($rec['ok'])) {
                         $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=? LIMIT 1")
@@ -374,11 +386,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $phone = mb_substr(trim((string)($req['member_phone'] ?? '')), 0, 20, 'UTF-8');
                     $address = mb_substr(trim((string)($req['member_address'] ?? '')), 0, 300, 'UTF-8');
                     $cardNo = mb_substr(trim((string)($req['member_card_no'] ?? '')), 0, 60, 'UTF-8');
-                    if ($name === '' || $phone === '') {
+                    $existingMember = $cardNo !== '' ? programResolveMemberBySadasyata($db, $cardNo) : null;
+                    if ($existingMember) {
+                        $db->prepare("UPDATE member_program_attendance_requests SET member_id=?, member_card_no=? WHERE id=? AND status='pending' LIMIT 1")
+                            ->execute([(int)$existingMember['id'], programMemberSadasyataNo($existingMember), $reqId]);
+                        setFlash('success', 'Member ID ' . programMemberSadasyataNo($existingMember) . ' पहिले नै छ — नयाँ सदस्य नबनाई त्यसैसँग link गरियो। अब approve गर्न सकिन्छ।');
+                    } elseif ($name === '' || $phone === '') {
                         setFlash('error', 'नयाँ सदस्य बनाउन नाम र फोन आवश्यक छ।');
                     } else {
                         if ($cardNo === '') {
-                            $cardNo = 'MEM-' . date('Y') . '-' . str_pad((string)((int)$db->query("SELECT COUNT(*) FROM members")->fetchColumn() + 1), 4, '0', STR_PAD_LEFT);
+                            $seq = (int)$db->query("SELECT COUNT(*) FROM members")->fetchColumn() + 1;
+                            $taken = $db->prepare('SELECT 1 FROM members WHERE sadasyata_number=? LIMIT 1');
+                            do {
+                                $cardNo = 'MEM-' . date('Y') . '-' . str_pad((string)$seq++, 4, '0', STR_PAD_LEFT);
+                                $taken->execute([$cardNo]);
+                            } while ($taken->fetchColumn());
                         }
                         $insM = $db->prepare("INSERT INTO members (sadasyata_number, name, phone, address, approval_status, is_active, created_at)
                             VALUES (?,?,?,?, 'approved', 1, NOW())");
@@ -519,83 +541,12 @@ if ($activeOnly) {
     $paQuery['active_only'] = 1;
 }
 
-if (isset($_GET['export']) && $_GET['export'] === '1') {
-    $sqlAll = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
-               o.location_name AS occurrence_location
-        {$joinA}
-        WHERE {$whereA}
-        ORDER BY a.attended_at DESC";
-    $stAll = $db->prepare($sqlAll);
-    $stAll->execute($paramsA);
-    $exportRows = $stAll->fetchAll(PDO::FETCH_ASSOC);
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="program-attendance-' . date('Ymd-His') . '.csv"');
-    header('Cache-Control: no-store');
-    $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
-    foreach ($exportRows as $r) {
-        $loc = programAttendanceDisplayLocation($r);
-        fputcsv($out, [
-            (string)($r['program_title'] ?? ''),
-            (string)($r['event_date'] ?? ''),
-            (string)($r['member_name'] ?? ''),
-            (string)($r['gender'] ?? ''),
-            (string)($r['member_card_no'] ?? ''),
-            $loc,
-            programAttendanceMethodLabel($r['attendance_method'] ?? '', true),
-            ((int)($r['is_priority'] ?? 0) ? 'Yes' : 'No'),
-            (string)($r['attendance_note'] ?? ''),
-            (string)($r['attended_at'] ?? ''),
-        ]);
-    }
-    fclose($out);
-    exit;
-}
 
 $preJoinSql = "FROM member_program_preregistrations pr
                LEFT JOIN members m ON m.id = pr.member_id
                LEFT JOIN upcoming_programs p ON p.id = pr.program_id
                LEFT JOIN member_program_attendance a2 ON a2.member_id = pr.member_id AND a2.program_id = pr.program_id AND a2.attendance_status='VALID'";
 
-if (isset($_GET['export']) && $_GET['export'] === 'prereg') {
-    $preExportSql = "SELECT pr.*, COALESCE(NULLIF(m.name,''), pr.member_name) AS display_name, m.phone AS member_phone, m.phone AS member_mobile, m.email AS member_email, p.event_date, p.location,
-                      CASE WHEN a2.id IS NULL THEN 0 ELSE 1 END AS is_done
-               {$preJoinSql}
-               WHERE {$wherePr}
-               ORDER BY pr.created_at DESC";
-    $pex = $db->prepare($preExportSql);
-    $pex->execute($paramsPr);
-    $preExportRows = $pex->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="program-preregistration-' . date('Ymd-His') . '.csv"');
-    header('Cache-Control: no-store');
-    $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Email', 'Note', 'Registered At']);
-    foreach ($preExportRows as $r) {
-        $csvName = (string)($r['display_name'] ?? $r['member_name'] ?? '');
-        $phone = (string)($r['member_phone'] ?? $r['member_mobile'] ?? $r['phone'] ?? '');
-        fputcsv($out, [
-            (string)($r['program_title'] ?? ''),
-            (string)($r['event_date'] ?? ''),
-            $csvName,
-            (string)($r['member_card_no'] ?? ''),
-            $phone,
-            (string)($r['member_email'] ?? ''),
-            (string)($r['note'] ?? ''),
-            (string)($r['created_at'] ?? ''),
-        ]);
-    }
-    fclose($out);
-    exit;
-}
 
 $cntSt = $db->prepare("SELECT COUNT(*) {$joinA} WHERE {$whereA}");
 $cntSt->execute($paramsA);
@@ -721,42 +672,6 @@ if ($q !== '') {
     array_push($paramsReq, $like, $like, $like, $like);
 }
 
-if (isset($_GET['export']) && $_GET['export'] === 'requests') {
-    $reqExportSql = "SELECT r.*, COALESCE(NULLIF(m.name,''), r.member_name) AS display_name, m.phone AS matched_phone, p.event_date, p.location
-               FROM member_program_attendance_requests r
-               LEFT JOIN members m ON m.id=r.member_id
-               LEFT JOIN upcoming_programs p ON p.id=r.program_id
-               WHERE {$whereReq}
-               ORDER BY r.requested_at ASC";
-    $rex = $db->prepare($reqExportSql);
-    $rex->execute($paramsReq);
-    $reqExportRows = $rex->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="program-attendance-requests-' . date('Ymd-His') . '.csv"');
-    header('Cache-Control: no-store');
-    $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Address', 'Source', 'IP', 'User Agent', 'Requested At']);
-    foreach ($reqExportRows as $r) {
-        fputcsv($out, [
-            (string)($r['program_title'] ?? ''),
-            (string)($r['event_date'] ?? ''),
-            (string)($r['display_name'] ?? $r['member_name'] ?? ''),
-            (string)($r['member_card_no'] ?? ''),
-            (string)($r['matched_phone'] ?? $r['member_phone'] ?? ''),
-            (string)($r['member_address'] ?? ''),
-            (string)($r['source'] ?? ''),
-            (string)($r['verified_by_ip'] ?? ''),
-            (string)($r['user_agent'] ?? ''),
-            (string)($r['requested_at'] ?? ''),
-        ]);
-    }
-    fclose($out);
-    exit;
-}
 $reqRows = [];
 $reqPendingCount = 0;
 try {
@@ -766,11 +681,12 @@ try {
     $rc->execute($paramsReq);
     $reqPendingCount = (int)$rc->fetchColumn();
 
-    $reqSql = "SELECT r.*, m.name AS mname, m.phone AS mphone, m.phone AS mmobile, p.event_date, p.location,
+    $reqSql = "SELECT r.*, m.name AS mname, m.phone AS mphone, m.phone AS mmobile, p.event_date, p.location, p.is_multi_location,
                o.location_name AS occurrence_location
                FROM member_program_attendance_requests r
                LEFT JOIN members m ON m.id=r.member_id
                LEFT JOIN upcoming_programs p ON p.id=r.program_id
+               LEFT JOIN program_occurrences o ON o.id=r.occurrence_id
                WHERE {$whereReq}
                ORDER BY r.requested_at ASC
                LIMIT 200";
@@ -778,7 +694,28 @@ try {
     $rst->execute($paramsReq);
     $reqRows = $rst->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
+    error_log('program-attendance requests: ' . $e->getMessage());
     $reqRows = [];
+}
+/* Multi-location requests without a location (shared parent QR) — admin picks the venue on approve */
+$reqLocationChoices = [];
+$needLocIds = [];
+foreach ($reqRows as $rx) {
+    if ((int)($rx['is_multi_location'] ?? 0) === 1 && (int)($rx['occurrence_id'] ?? 0) <= 0) {
+        $needLocIds[(int)$rx['program_id']] = true;
+    }
+}
+if ($needLocIds) {
+    try {
+        $ids = array_keys($needLocIds);
+        $lst = $db->prepare('SELECT id, parent_program_id, location_name FROM program_occurrences WHERE is_active=1 AND parent_program_id IN (' . implode(',', array_fill(0, count($ids), '?')) . ') ORDER BY sort_order ASC, id ASC');
+        $lst->execute($ids);
+        foreach ($lst->fetchAll(PDO::FETCH_ASSOC) ?: [] as $lo) {
+            $reqLocationChoices[(int)$lo['parent_program_id']][] = $lo;
+        }
+    } catch (Throwable $e) {
+        $reqLocationChoices = [];
+    }
 }
 
 $totalAttendance = $totalFiltered;
@@ -982,6 +919,12 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="approve_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
+              <?php if ((int)($rx['is_multi_location'] ?? 0) === 1 && (int)($rx['occurrence_id'] ?? 0) <= 0): ?>
+              <select name="occurrence_id" class="form-select form-select-sm d-inline-block w-auto" required title="<?php echo adminLangT('स्थान', 'Location'); ?>">
+                <option value=""><?php echo adminLangT('— स्थान —', '— Location —'); ?></option>
+                <?php foreach ($reqLocationChoices[(int)$rx['program_id']] ?? [] as $lo): ?><option value="<?php echo (int)$lo['id']; ?>"><?php echo htmlspecialchars((string)$lo['location_name']); ?></option><?php endforeach; ?>
+              </select>
+              <?php endif; ?>
               <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo adminLangT('स्वीकृत','Approve'); ?></button>
             </form>
             <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap" onsubmit="return confirm('<?php echo adminLangT('अनुरोध अस्वीकृत गर्ने?', 'Reject this request?'); ?>');">
