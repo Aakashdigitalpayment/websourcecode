@@ -6,6 +6,7 @@ header('Cache-Control: no-store');
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';
+require_once __DIR__ . '/../../includes/program-member-insights.php';
 
 if (!isAdminLoggedIn()) {
     http_response_code(401);
@@ -45,6 +46,7 @@ if (empty($eligible['ok'])) {
         'member' => [
             'member_id' => programMemberSadasyataNo($member),
             'name' => (string)($member['name'] ?? ''),
+            'father_name' => programMemberIdentity($db, $member)['father_name'],
         ],
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -57,6 +59,8 @@ $existing = programFindExistingAttendance($db, (int)$member['id'], $scope);
 $photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ($member['avatar_url'] ?? '')));
 
 $sadasyata = programMemberSadasyataNo($member);
+$identity = programMemberIdentity($db, $member);
+$history = programMemberHistorySummary($db, (int)$member['id'], $programId);
 $window = programIsWindowOpen($prog, $occurrence);
 $needsOccurrence = (int)($prog['is_multi_location'] ?? 0) === 1 && $occurrenceId < 1;
 $canRecord = !empty($window['ok']) && !$existing && !$needsOccurrence;
@@ -71,7 +75,10 @@ echo json_encode([
         'address' => (string)($member['address'] ?? ''),
         'photo_url' => $photoUrl,
         'is_active' => (int)($member['is_active'] ?? 0),
+        'father_name' => $identity['father_name'],
+        'gender' => $identity['gender_key'] === 'unknown' ? '' : $identity['gender_label'],
     ],
+    'history' => $history + ['url' => 'program-member-history.php?member_id=' . rawurlencode($sadasyata)],
     'already_attended' => (bool)$existing,
     'existing' => $existing ? [
         'location' => programAttendanceDisplayLocation($existing),

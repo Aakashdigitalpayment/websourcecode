@@ -279,7 +279,7 @@ assertFileContains('attend.php', '301', 'legacy attend uses permanent redirect')
 assertFileContains('includes/program-tables.php', "'registration_desk' => 'Registration desk'", 'attendance source label covers desk');
 assertFileContains('includes/program-tables.php', "'member_portal_instant' => 'Portal QR (instant)'", 'attendance source label covers instant');
 assertFileContains('admin/includes/admin-header.php', 'उपस्थिति / Pre-reg', 'program nav clarifies attendance vs reports');
-assertFileContains('admin/includes/admin-header.php', 'समेकित रिपोर्ट', 'program report nav has Nepali labels');
+assertFileContains('admin/includes/admin-header.php', "\$adminT('रिपोर्ट', 'Reports')", 'program report nav has Nepali labels');
 assertFileContains('admin/programs.php', 'attendance_* ले जित्छ', 'program form documents window precedence');
 assertFileContains('member/scan.php', 'Instant कार्यक्रममा', 'scan copy explains Instant vs approve');
 assertFileContains('cooperative-programs.php', 'coop_public_form_bot_block', 'program prereg bot guard');

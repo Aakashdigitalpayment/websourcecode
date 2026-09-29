@@ -13,3 +13,12 @@
 .desk-status-closed { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 .desk-inline-warn { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:.65rem .85rem; font-size:.85rem; color:#92400e; }
 .desk-kbd { font-size:.72rem; color:#64748b; }
+
+.desk-history {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    text-align: left;
+    line-height: 1.6;
+}

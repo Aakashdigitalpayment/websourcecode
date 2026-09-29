@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/includes/program-reports-common.php';
+require_once __DIR__ . '/../includes/program-member-insights.php';
 
 $db = programReportsInit();
 $programId = (int)($_GET['program_id'] ?? 0);
@@ -8,11 +9,12 @@ $prog = programReportsSelectedProgram($db, $programId);
 
 if ($prog && ($_GET['export'] ?? '') === 'csv') {
     $live = programLiveStatsForProgram($db, $prog);
+    $fathers = programFatherNamesForScope($db, $live['scope']);
     programReportsCsvStream('program-consolidated-' . $programId . '.csv',
-        ['Member ID', 'Name', 'Program', 'Location', 'Method', 'Attended At'],
+        ['Member ID', 'Name', 'Father', 'Program', 'Location', 'Method', 'Attended At'],
         programFetchValidAttendanceByScope($db, $live['scope'], 0),
         static fn(array $r): array => [
-            $r['member_card_no'] ?? '', $r['member_name'] ?? '', $r['program_title'] ?? '',
+            $r['member_card_no'] ?? '', $r['member_name'] ?? '', $fathers[(int)($r['member_id'] ?? 0)] ?? '', $r['program_title'] ?? '',
             programAttendanceDisplayLocation($r), programReportsCsvMethodLabel($r['attendance_method'] ?? ''), $r['attended_at'] ?? '',
         ]);
 }
@@ -28,6 +30,7 @@ $stats = ['attended' => 0, 'eligible' => 0, 'prereg' => 0, 'pct' => 0];
 if ($prog) {
     $stats = programLiveStatsForProgram($db, $prog);
     $rows = programFetchValidAttendanceByScope($db, $stats['scope'], PROGRAM_REPORT_DISPLAY_LIMIT);
+    $fathers = programFatherNamesForScope($db, $stats['scope']);
 }
 ?>
 <div class="container-fluid py-3">
@@ -43,14 +46,15 @@ if ($prog) {
   </div>
   <?php echo programReportsLimitNote(count($rows), (int)$stats['attended']); ?>
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
-    <thead><tr><th>Member ID</th><th>Name</th><th>Location</th><th>Method</th><th>Time</th></tr></thead>
+    <thead><tr><th>Member ID</th><th>Name</th><th>बुबाको नाम</th><th>Location</th><th>Method</th><th>Time</th></tr></thead>
     <tbody><?php foreach ($rows as $r): ?><tr>
       <td><?php echo htmlspecialchars($r['member_card_no'] ?? ''); ?></td>
-      <td><?php echo htmlspecialchars($r['member_name'] ?? ''); ?></td>
+      <td><a href="program-member-history.php?member_id=<?php echo rawurlencode((string)($r['member_card_no'] ?? '')); ?>" class="text-decoration-none"><?php echo htmlspecialchars($r['member_name'] ?? ''); ?></a></td>
+      <td class="small"><?php echo htmlspecialchars($fathers[(int)($r['member_id'] ?? 0)] ?? ''); ?></td>
       <td><?php echo htmlspecialchars(programAttendanceDisplayLocation($r)); ?></td>
       <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method'] ?? '')); ?></td>
       <td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
-    </tr><?php endforeach; if (empty($rows)): ?><tr><td colspan="5" class="text-muted text-center py-3">अहिलेसम्म उपस्थिति छैन।</td></tr><?php endif; ?></tbody>
+    </tr><?php endforeach; if (empty($rows)): ?><tr><td colspan="6" class="text-muted text-center py-3">अहिलेसम्म उपस्थिति छैन।</td></tr><?php endif; ?></tbody>
   </table></div></div>
   <?php endif; ?>
 </div>

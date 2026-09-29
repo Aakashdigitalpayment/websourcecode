@@ -5,6 +5,7 @@ $currentPage = 'program-registration-desk';
 require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+require_once __DIR__ . '/../includes/program-member-insights.php';
 
 $db = getDB();
 ensureProgramTables($db);
@@ -33,10 +34,22 @@ if ($prog && (int)($prog['is_multi_location'] ?? 0) === 1) {
         $occurrenceId = (int)$occurrences[0]['id'];
     }
 }
+$myAdminId = (int)($_SESSION['admin_id'] ?? 0);
+$myDeskId = 0;
 if ($programId > 0) {
-    $st = $db->prepare('SELECT * FROM program_registration_desks WHERE parent_program_id=? AND is_active=1 ORDER BY id ASC');
-    $st->execute([$programId]);
-    $desks = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    foreach (programDesksForProgram($db, $programId, true) as $d) {
+        $dOcc = (int)($d['occurrence_id'] ?? 0);
+        if ($dOcc > 0 && $occurrenceId > 0 && $dOcc !== $occurrenceId) {
+            continue;
+        }
+        $desks[(int)$d['id']] = $d;
+        if ($myDeskId === 0 && (int)($d['assigned_staff_admin_id'] ?? 0) === $myAdminId && $myAdminId > 0) {
+            $myDeskId = (int)$d['id'];
+        }
+    }
+}
+if (!isset($desks[$deskId])) {
+    $deskId = $_SERVER['REQUEST_METHOD'] === 'POST' ? 0 : $myDeskId;
 }
 
 $selectedOccurrence = ($occurrenceId > 0 && $prog) ? programFetchOccurrenceById($db, $occurrenceId) : null;
@@ -84,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confi
                     'source' => 'registration_desk',
                     'attendance_note' => 'Registration Desk',
                     'desk_id' => $deskId > 0 ? $deskId : null,
-                    'staff_admin_id' => (int)($_SESSION['admin_id'] ?? 0),
+                    'staff_admin_id' => $myAdminId,
                 ]);
                 if (!empty($result['ok'])) {
                     $saved = true;
@@ -102,17 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confi
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_desk') {
-    checkCSRF();
-    $parentId = (int)($_POST['parent_id'] ?? 0);
-    $label = trim((string)($_POST['desk_label'] ?? 'Desk 01'));
-    $occ = (int)($_POST['desk_occurrence_id'] ?? 0);
-    if ($parentId > 0 && $label !== '') {
-        $db->prepare('INSERT INTO program_registration_desks (parent_program_id, occurrence_id, desk_label, assigned_staff_admin_id) VALUES (?,?,?,?)')
-            ->execute([$parentId, $occ > 0 ? $occ : null, mb_substr($label, 0, 60), (int)($_SESSION['admin_id'] ?? 0) ?: null]);
-        redirect('program-registration-desk.php?program_id=' . $parentId);
-    }
-}
 ?>
 <?php
 if (function_exists('coopThemeLink')) {
@@ -140,6 +142,7 @@ if (function_exists('coopThemeLink')) {
       <i class="lucide-icon text-success lucide-2x" data-lucide="circle-check" aria-hidden="true"></i>
       <div class="fw-bold mt-2 fs-5">✓ उपस्थिति दर्ता भयो!</div>
       <div class="mt-1"><?php echo htmlspecialchars($memberPreview['name'] ?? ''); ?></div>
+      <?php $okFather = programMemberIdentity($db, $memberPreview)['father_name']; if ($okFather !== ''): ?><div class="small text-muted">बुबा: <?php echo htmlspecialchars($okFather); ?></div><?php endif; ?>
       <div class="small text-muted font-monospace"><?php echo htmlspecialchars(programMemberSadasyataNo($memberPreview)); ?></div>
       <?php if ($selectedOccurrence): ?><div class="small mt-1"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($selectedOccurrence['location_name'] ?? ''); ?></div><?php endif; ?>
     </div>
@@ -205,12 +208,22 @@ if (function_exists('coopThemeLink')) {
           <?php if (count($occurrences) === 1): ?><div class="form-text text-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>एक मात्र स्थान — स्वतः छानियो</div><?php endif; ?>
         </div>
         <?php endif; ?>
+        <?php if ($programId > 0): ?>
         <div class="col-md-6"><label class="form-label" for="deskDeskId">Desk</label>
-          <select name="desk_id" id="deskDeskId" class="form-select">
-            <option value="0">— Default —</option>
-            <?php foreach ($desks as $d): ?><option value="<?php echo (int)$d['id']; ?>" <?php echo $deskId===(int)$d['id']?'selected':''; ?>><?php echo htmlspecialchars($d['desk_label']); ?></option><?php endforeach; ?>
+          <?php if ($desks): ?>
+          <select name="desk_id" id="deskDeskId" class="form-select" data-program="<?php echo $programId; ?>" data-server-pick="<?php echo $deskId; ?>">
+            <option value="0">— Desk नतोकिएको —</option>
+            <?php foreach ($desks as $d):
+              $dl = (string)$d['desk_label'] . (!empty($d['location_name']) ? ' — ' . $d['location_name'] : '') . (!empty($d['staff_name']) ? ' (' . $d['staff_name'] . ')' : '');
+            ?><option value="<?php echo (int)$d['id']; ?>" <?php echo $deskId===(int)$d['id']?'selected':''; ?>><?php echo htmlspecialchars($dl); ?></option><?php endforeach; ?>
           </select>
+          <div class="form-text"><?php echo $myDeskId > 0 ? 'तपाईंलाई तोकिएको desk स्वतः छानियो।' : 'रिपोर्टमा कुन desk बाट कति दर्ता भयो देखिन्छ।'; ?> <a href="program-detail.php?id=<?php echo $programId; ?>#desks">Desk व्यवस्थापन</a></div>
+          <?php else: ?>
+          <input type="hidden" name="desk_id" value="0">
+          <div class="form-control-plaintext small text-muted py-1">Desk बनाइएको छैन — <a href="program-detail.php?id=<?php echo $programId; ?>#desks">कार्यक्रम hub बाट Desk थप्नुहोस्</a> (ऐच्छिक)</div>
+          <?php endif; ?>
         </div>
+        <?php endif; ?>
       </div>
 
       <div id="deskInlineMsg" class="desk-inline-warn mb-3 d-none"></div>
@@ -218,7 +231,9 @@ if (function_exists('coopThemeLink')) {
       <div id="deskPreview" class="desk-preview text-center mb-3 d-none">
         <img id="deskPhoto" class="desk-photo mb-2" src="" alt="">
         <div id="deskName" class="fs-5 fw-bold"></div>
+        <div id="deskFather" class="small fw-semibold d-none"></div>
         <div id="deskMeta" class="text-muted small"></div>
+        <div id="deskHistory" class="desk-history small mt-2 d-none"></div>
         <div id="deskDupInfo" class="small text-warning mt-2 d-none"></div>
       </div>
 
@@ -231,17 +246,6 @@ if (function_exists('coopThemeLink')) {
       </div>
     </form>
 
-    <?php if ($programId > 0): ?>
-    <hr class="my-4">
-    <details><summary class="small text-muted" style="cursor:pointer">Add Desk</summary>
-      <form method="POST" class="row g-2 mt-2">
-        <?php echo csrfField(); ?><input type="hidden" name="action" value="save_desk"><input type="hidden" name="parent_id" value="<?php echo $programId; ?>">
-        <div class="col-md-4"><input name="desk_label" class="form-control" placeholder="Desk 01" required></div>
-        <div class="col-md-4"><select name="desk_occurrence_id" class="form-select"><option value="0">All occurrences</option><?php foreach ($occurrences as $o): ?><option value="<?php echo (int)$o['id']; ?>"><?php echo htmlspecialchars($o['location_name']); ?></option><?php endforeach; ?></select></div>
-        <div class="col-md-4"><button type="submit" class="btn btn-outline-secondary w-100">Add Desk</button></div>
-      </form>
-    </details>
-    <?php endif; ?>
   </div>
 </div>
 </div>
@@ -277,6 +281,46 @@ if (function_exists('coopThemeLink')) {
     showInline('');
   }
 
+  function renderHistory(h) {
+    var box = document.getElementById('deskHistory');
+    if (!box) return;
+    box.textContent = '';
+    if (!h) { box.classList.add('d-none'); return; }
+    var line = document.createElement('div');
+    line.textContent = 'कुल उपस्थिति: ' + h.total + ' कार्यक्रम';
+    if (h.agm_last3_total > 0) {
+      var b = document.createElement('span');
+      var all = h.agm_last3_attended === h.agm_last3_total;
+      b.className = 'badge ms-2 ' + (all ? 'bg-success' : (h.agm_last3_attended ? 'bg-warning text-dark' : 'bg-secondary'));
+      b.textContent = 'पछिल्ला ' + h.agm_last3_total + ' AGM: ' + h.agm_last3_attended + ' मा उपस्थित';
+      line.appendChild(b);
+    }
+    box.appendChild(line);
+    if (h.recent && h.recent.length) {
+      var r = document.createElement('div');
+      r.className = 'text-muted';
+      r.textContent = 'पछिल्लो: ' + h.recent.map(function (x) { return x.title + (x.date ? ' (' + x.date + ')' : ''); }).join(', ');
+      box.appendChild(r);
+    }
+    if (h.url) {
+      var a = document.createElement('a');
+      a.href = h.url; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = 'पूरा इतिहास हेर्नुहोस् →';
+      box.appendChild(a);
+    }
+    box.classList.remove('d-none');
+  }
+
+  var deskSel = document.getElementById('deskDeskId');
+  if (deskSel && window.localStorage) {
+    var deskKey = 'coopDesk:' + deskSel.getAttribute('data-program');
+    if (deskSel.getAttribute('data-server-pick') === '0') {
+      var saved = localStorage.getItem(deskKey);
+      if (saved && deskSel.querySelector('option[value="' + saved.replace(/[^0-9]/g, '') + '"]')) deskSel.value = saved;
+    }
+    deskSel.addEventListener('change', function () { localStorage.setItem(deskKey, deskSel.value); });
+  }
+
   function lookup(){
     var q = (input && input.value || '').trim();
     if (!q) { resetPreview(); return; }
@@ -306,7 +350,10 @@ if (function_exists('coopThemeLink')) {
         }
         preview.classList.remove('d-none');
         document.getElementById('deskName').textContent = d.member.name + ' (' + d.member.member_id + ')';
-        document.getElementById('deskMeta').textContent = [d.member.phone, d.member.address].filter(Boolean).join(' · ');
+        var fatherEl = document.getElementById('deskFather');
+        if (d.member.father_name) { fatherEl.textContent = 'बुबा: ' + d.member.father_name; fatherEl.classList.remove('d-none'); } else { fatherEl.classList.add('d-none'); }
+        document.getElementById('deskMeta').textContent = [d.member.gender, d.member.phone, d.member.address].filter(Boolean).join(' · ');
+        renderHistory(d.history);
         var img = document.getElementById('deskPhoto');
         if (d.member.photo_url) { img.src = d.member.photo_url; img.classList.remove('d-none'); } else { img.classList.add('d-none'); }
 
@@ -368,7 +415,10 @@ if (function_exists('coopThemeLink')) {
     });
   }
   var occSel = document.getElementById('deskOccurrence');
-  if (occSel) occSel.addEventListener('change', function(){ if ((input.value||'').trim()) lookup(); });
+  if (occSel) occSel.addEventListener('change', function(){
+    if ((input.value||'').trim()) { lookup(); return; }
+    location.href = 'program-registration-desk.php?program_id=' + encodeURIComponent(document.getElementById('deskProgram').value) + '&occurrence_id=' + encodeURIComponent(occSel.value);
+  });
 
   <?php if ($saved || $duplicate): ?>
   setTimeout(function(){

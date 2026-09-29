@@ -169,6 +169,7 @@
             rows.forEach(function(row, idx) {
                 if (row.closest('.tab-content')) return;
                 if (row.dataset.autoSplitDone === '1') return;
+                if (row.hasAttribute('data-no-autosplit')) return;
                 // If page already has custom/manual tabs right above this row, do not auto-split again.
                 var prev = row.previousElementSibling;
                 if (prev && prev.classList && prev.classList.contains('admin-nav-tabs') && !prev.classList.contains('admin-auto-tabs')) return;

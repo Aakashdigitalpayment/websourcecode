@@ -95,18 +95,22 @@ function programReportsProgramLabel(array $p): string
 /** Tab bar shared by all report pages; carries the selected program across tabs. */
 function programReportsTabs(string $current, int $programId = 0): string
 {
+    $noProgramParam = ['program-reports-member', 'program-reports-history'];
     $tabs = [
         'program-reports-consolidated' => ['समेकित', 'bar-chart-3'],
         'program-reports-location'     => ['स्थानअनुसार', 'map'],
+        'program-reports-breakdown'    => ['लिङ्ग / Desk / Staff', 'pie-chart'],
         'program-reports-absent'       => ['अनुपस्थित', 'user-x'],
         'program-reports-member'       => ['सदस्यअनुसार', 'users'],
+        'program-reports-history'      => ['सदस्य इतिहास', 'history'],
         'program-reports-duplicates'   => ['दोहोरो प्रयास', 'shield-alert'],
     ];
     $q = $programId > 0 ? '?program_id=' . $programId : '';
     $html = '<ul class="nav nav-pills flex-wrap gap-1 mb-3">';
     foreach ($tabs as $page => [$label, $icon]) {
         $active = $page === $current;
-        $html .= '<li class="nav-item"><a class="nav-link py-1 px-3' . ($active ? ' active' : ' bg-light') . '" href="' . $page . '.php' . ($page === 'program-reports-member' ? '' : $q) . '">'
+        $file = $page === 'program-reports-history' ? 'program-member-history' : $page;
+        $html .= '<li class="nav-item"><a class="nav-link py-1 px-3' . ($active ? ' active' : ' bg-light') . '" href="' . $file . '.php' . (in_array($page, $noProgramParam, true) ? '' : $q) . '">'
             . '<i class="lucide-icon me-1" data-lucide="' . $icon . '" aria-hidden="true"></i>' . htmlspecialchars($label) . '</a></li>';
     }
     if ($programId > 0 && $current !== '') {

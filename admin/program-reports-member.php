@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/includes/program-reports-common.php';
+require_once __DIR__ . '/../includes/program-member-insights.php';
 
 $db = programReportsInit();
 $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 100);
@@ -12,15 +13,16 @@ if ($q !== '') {
     $like = '%' . $q . '%';
     $params = [$like, $like, $like];
 }
-$from = "FROM member_program_attendance a LEFT JOIN members m ON m.id=a.member_id WHERE $where";
+$kyc = programKycJoinParts($db);
+$from = "FROM member_program_attendance a LEFT JOIN members m ON m.id=a.member_id {$kyc['join']} WHERE $where";
 
 if (($_GET['export'] ?? '') === 'csv') {
-    $st = $db->prepare("SELECT a.*, m.name AS member_name $from ORDER BY a.attended_at DESC");
+    $st = $db->prepare("SELECT a.*, m.name AS member_name, {$kyc['select']} $from ORDER BY a.attended_at DESC");
     $st->execute($params);
     programReportsCsvStream('program-member-attendance.csv',
-        ['Member ID', 'Name', 'Program', 'Location', 'Method', 'Attended At'], $st,
+        ['Member ID', 'Name', 'Father', 'Program', 'Location', 'Method', 'Attended At'], $st,
         static fn(array $r): array => [
-            $r['member_card_no'] ?? '', $r['member_name'] ?? '', $r['program_title'] ?? '', $r['location_label'] ?? '',
+            $r['member_card_no'] ?? '', $r['member_name'] ?? '', $r['father_name'] ?? '', $r['program_title'] ?? '', $r['location_label'] ?? '',
             programReportsCsvMethodLabel($r['attendance_method'] ?? ''), $r['attended_at'] ?? '',
         ]);
 }
@@ -33,7 +35,7 @@ require_once 'includes/admin-ui.php';
 $cst = $db->prepare("SELECT COUNT(*) $from");
 $cst->execute($params);
 $total = (int)$cst->fetchColumn();
-$st = $db->prepare("SELECT a.*, m.name AS member_name $from ORDER BY a.attended_at DESC LIMIT " . PROGRAM_REPORT_DISPLAY_LIMIT);
+$st = $db->prepare("SELECT a.*, m.name AS member_name, {$kyc['select']} $from ORDER BY a.attended_at DESC LIMIT " . PROGRAM_REPORT_DISPLAY_LIMIT);
 $st->execute($params);
 $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 ?>
@@ -48,12 +50,13 @@ $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
   </div></div>
   <?php echo programReportsLimitNote(count($rows), $total); ?>
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
-    <thead><tr><th>Member ID</th><th>Name</th><th>Program</th><th>Location</th><th>Method</th><th>Time</th></tr></thead>
+    <thead><tr><th>Member ID</th><th>Name</th><th>बुबाको नाम</th><th>Program</th><th>Location</th><th>Method</th><th>Time</th></tr></thead>
     <tbody><?php foreach ($rows as $r): ?><tr>
-      <td><?php echo htmlspecialchars($r['member_card_no'] ?? ''); ?></td><td><?php echo htmlspecialchars($r['member_name'] ?? ''); ?></td>
+      <td><?php echo htmlspecialchars($r['member_card_no'] ?? ''); ?></td><td><a href="program-member-history.php?member_id=<?php echo rawurlencode((string)($r['member_card_no'] ?? '')); ?>" class="text-decoration-none"><?php echo htmlspecialchars($r['member_name'] ?? ''); ?></a></td>
+      <td class="small"><?php echo htmlspecialchars($r['father_name'] ?? ''); ?></td>
       <td><?php echo htmlspecialchars($r['program_title'] ?? ''); ?></td><td><?php echo htmlspecialchars(($r['location_label'] ?? '') !== '' ? $r['location_label'] : '—'); ?></td>
       <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method'] ?? '')); ?></td><td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
-    </tr><?php endforeach; if (empty($rows)): ?><tr><td colspan="6" class="text-muted text-center py-3">कुनै रेकर्ड भेटिएन।</td></tr><?php endif; ?></tbody>
+    </tr><?php endforeach; if (empty($rows)): ?><tr><td colspan="7" class="text-muted text-center py-3">कुनै रेकर्ड भेटिएन।</td></tr><?php endif; ?></tbody>
   </table></div></div>
 </div>
 <?php require_once 'includes/admin-footer.php'; ?>
