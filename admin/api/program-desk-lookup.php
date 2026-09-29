@@ -17,6 +17,7 @@ if (!isAdminLoggedIn()) {
 $memberQuery = trim((string)($_GET['member_id'] ?? ''));
 $programId = (int)($_GET['program_id'] ?? 0);
 $occurrenceId = (int)($_GET['occurrence_id'] ?? 0);
+$deskId = (int)($_GET['desk_id'] ?? 0);
 
 if ($memberQuery === '' || $programId < 1) {
     echo json_encode(['ok' => false, 'error' => 'member_id and program_id required', 'error_np' => 'Member ID र कार्यक्रम आवश्यक छ।']);
@@ -37,8 +38,19 @@ if (!$member) {
     exit;
 }
 
+$staffAdminId = (int)($_SESSION['admin_id'] ?? 0) ?: null;
+if ($deskId > 0) {
+    $dk = $db->prepare('SELECT id FROM program_registration_desks WHERE id=? AND parent_program_id=?');
+    $dk->execute([$deskId, $programId]);
+    $deskId = (int)$dk->fetchColumn();
+}
+$parentProgramId = programResolveParentProgramId($prog);
+$logOcc = $occurrenceId > 0 ? $occurrenceId : null;
+
 $eligible = programValidateMemberEligible($db, (int)$member['id'], $prog);
 if (empty($eligible['ok'])) {
+    programLogAttemptOnce($db, (int)$member['id'], $parentProgramId, $programId, $logOcc, 'ADMIN_MANUAL', 'INELIGIBLE',
+        'Desk lookup: ' . (string)($eligible['message_np'] ?? ''), null, $deskId ?: null, $staffAdminId);
     echo json_encode([
         'ok' => false,
         'error' => 'ineligible',
@@ -64,6 +76,14 @@ $history = programMemberHistorySummary($db, (int)$member['id'], $programId);
 $window = programIsWindowOpen($prog, $occurrence);
 $needsOccurrence = (int)($prog['is_multi_location'] ?? 0) === 1 && $occurrenceId < 1;
 $canRecord = !empty($window['ok']) && !$existing && !$needsOccurrence;
+
+if ($existing) {
+    programLogAttemptOnce($db, (int)$member['id'], $parentProgramId, $programId, $logOcc, 'ADMIN_MANUAL', 'DUPLICATE_BLOCKED',
+        rtrim('Desk lookup: already attended ' . programAttendanceDisplayLocation($existing)), (int)$existing['id'], $deskId ?: null, $staffAdminId);
+} elseif (empty($window['ok'])) {
+    programLogAttemptOnce($db, (int)$member['id'], $parentProgramId, $programId, $logOcc, 'ADMIN_MANUAL', 'WINDOW_CLOSED',
+        'Desk lookup: ' . (string)($window['message_np'] ?? ''), null, $deskId ?: null, $staffAdminId);
+}
 
 echo json_encode([
     'ok' => true,

@@ -78,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
                         $scope = programResolveScopeId($progRow, $occurrenceId ?: null);
                         $existing = programFindExistingAttendance($db, $memberId, $scope);
                         if ($existing) {
+                            programLogAttemptOnce($db, $memberId, programResolveParentProgramId($progRow), $progId, $occurrenceId > 0 ? $occurrenceId : null,
+                                $qrToken ? 'QR_SCAN' : 'MEMBER_SELF', 'DUPLICATE_BLOCKED',
+                                rtrim('Member portal: already attended ' . programAttendanceDisplayLocation($existing)), (int)$existing['id']);
                             $checkInErr = programFormatExistingAttendanceMessage($existing, isEnglish());
                         } elseif (!empty($progRow['instant_attendance'])) {
                             $rec = recordProgramAttendance($db, [

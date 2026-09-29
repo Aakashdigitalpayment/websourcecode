@@ -328,7 +328,7 @@ if (function_exists('coopThemeLink')) {
     if (!pid) { showInline('पहिले कार्यक्रम छान्नुहोस्।', true); return; }
     var oid = document.getElementById('deskOccurrence') ? document.getElementById('deskOccurrence').value : '0';
     lastLookup = q;
-    fetch('api/program-desk-lookup.php?member_id='+encodeURIComponent(q)+'&program_id='+pid+'&occurrence_id='+oid, {credentials:'same-origin', cache:'no-store'})
+    fetch('api/program-desk-lookup.php?member_id='+encodeURIComponent(q)+'&program_id='+pid+'&occurrence_id='+oid+'&desk_id='+encodeURIComponent(deskSel ? deskSel.value : '0'), {credentials:'same-origin', cache:'no-store'})
       .then(function(r){
         return r.text().then(function(t){
           try { return JSON.parse(t); } catch (e) { return {ok:false, transport:true, error_np:'Lookup response मिलेन (HTTP ' + r.status + ')।'}; }

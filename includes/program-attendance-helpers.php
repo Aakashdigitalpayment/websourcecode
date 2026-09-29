@@ -287,6 +287,43 @@ if (!function_exists('programLogAttempt')) {
     }
 }
 
+if (!function_exists('programLogAttemptOnce')) {
+    /**
+     * Same as programLogAttempt, but skips if this member already has the same result for the same
+     * parent program within $windowSeconds — desk lookups re-fire while staff type / change location.
+     */
+    function programLogAttemptOnce(
+        PDO $db,
+        int $memberId,
+        int $parentProgramId,
+        int $programId,
+        ?int $occurrenceId,
+        string $method,
+        string $result,
+        string $message = '',
+        ?int $previousAttendanceId = null,
+        ?int $deskId = null,
+        ?int $staffAdminId = null,
+        int $windowSeconds = 120
+    ): void {
+        if ($memberId < 1 || $parentProgramId < 1) {
+            return;
+        }
+        try {
+            $st = $db->prepare("SELECT 1 FROM program_attendance_attempts
+                                WHERE member_id=? AND parent_program_id=? AND result=?
+                                  AND attempted_at >= (NOW() - INTERVAL " . max(1, $windowSeconds) . " SECOND) LIMIT 1");
+            $st->execute([$memberId, $parentProgramId, $result]);
+            if ($st->fetchColumn()) {
+                return;
+            }
+        } catch (Throwable $e) {
+            error_log('[programLogAttemptOnce] ' . $e->getMessage());
+        }
+        programLogAttempt($db, $memberId, $parentProgramId, $programId, $occurrenceId, $method, $result, $message, $previousAttendanceId, $deskId, $staffAdminId);
+    }
+}
+
 if (!function_exists('programAuditLog')) {
     function programAuditLog(
         PDO $db,
