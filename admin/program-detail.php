@@ -73,7 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'void_attendance') {
         $attId = (int)($_POST['attendance_id'] ?? 0);
         $reason = trim((string)($_POST['void_reason'] ?? ''));
-        $res = voidProgramAttendance($db, $attId, (int)($_SESSION['admin_id'] ?? 0), $reason !== '' ? $reason : 'Admin void from program hub');
+        $own = $db->prepare('SELECT 1 FROM member_program_attendance WHERE id=? AND (program_id=? OR parent_program_id=?) LIMIT 1');
+        $own->execute([$attId, $id, $id]);
+        $res = $own->fetchColumn()
+            ? voidProgramAttendance($db, $attId, (int)($_SESSION['admin_id'] ?? 0), $reason !== '' ? $reason : 'Admin void from program hub')
+            : ['ok' => false, 'error_np' => 'यो उपस्थिति यस कार्यक्रमको होइन।'];
         setFlash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'उपस्थिति void भयो।' : ($res['error_np'] ?? 'Error'));
     }
     redirect('program-detail.php?id=' . $id . $redirectHash);

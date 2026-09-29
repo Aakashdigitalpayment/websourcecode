@@ -179,7 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $evRow = $evSt->fetch(PDO::FETCH_ASSOC) ?: [];
             $startsSql = 'COALESCE(qr_starts_at, NOW())';
             $expiresAt = null;
-            if (empty($evRow['qr_expires_at'])) {
+            $pastEvent = false;
+            $prevExpiry = (string)($evRow['qr_expires_at'] ?? '');
+            if ($prevExpiry === '' || strtotime($prevExpiry) <= time()) {
                 $adDate = function_exists('programEventDateToAd')
                     ? programEventDateToAd((string)($evRow['event_date'] ?? ''))
                     : '';
@@ -187,6 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expiresAt = date('Y-m-d 23:59:59', strtotime($adDate . ' +1 day'));
                 } else {
                     $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+                }
+                if (strtotime($expiresAt) <= time()) {
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+1 day'));
+                    $pastEvent = true;
                 }
             }
             if ($expiresAt !== null) {
@@ -196,7 +202,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql} WHERE id=? LIMIT 1")
                     ->execute([$token, $id]);
             }
-            setFlash('success', 'QR लिंक तयार भयो। सदस्य scan गर्दा उपस्थिति अनुरोध Admin approve पछि गणना हुन्छ।');
+            if ($pastEvent) {
+                setFlash('warning', 'कार्यक्रम मिति बितिसकेकाले QR २४ घण्टाका लागि मात्र खुला राखियो। आवश्यक भए QR अन्त्य मिति सम्पादनबाट मिलाउनुहोस्।');
+            } else {
+                setFlash('success', 'QR लिंक तयार भयो। सदस्य scan गर्दा उपस्थिति अनुरोध Admin approve पछि गणना हुन्छ।');
+            }
         } elseif ($action === 'clear_qr') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {

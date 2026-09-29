@@ -15,7 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $defaultSharedQr = !empty($_POST['default_shared_qr']) ? '1' : '0';
     updateSetting('program_default_instant_attendance', $defaultInstant);
     updateSetting('program_default_shared_qr', $defaultSharedQr);
-    updateSetting('program_default_eligible_scope', trim((string)($_POST['eligible_scope'] ?? 'all_active')));
+    $scope = trim((string)($_POST['eligible_scope'] ?? 'all_active'));
+    updateSetting('program_default_eligible_scope', in_array($scope, ['all_active', 'shareholders', 'voters'], true) ? $scope : 'all_active');
     setFlash('success', 'सेटिङ सुरक्षित भयो।');
     redirect('program-settings.php');
 }
