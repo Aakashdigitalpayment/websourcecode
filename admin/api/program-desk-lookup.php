@@ -44,6 +44,11 @@ if ($deskId > 0) {
     $dk->execute([$deskId, $programId]);
     $deskId = (int)$dk->fetchColumn();
 }
+$occurrence = $occurrenceId > 0 ? programFetchOccurrenceById($db, $occurrenceId) : null;
+if ($occurrence && ((int)$occurrence['parent_program_id'] !== $programId || (int)($occurrence['is_active'] ?? 0) !== 1)) {
+    $occurrence = null;
+}
+$occurrenceId = $occurrence ? (int)$occurrence['id'] : 0;
 $parentProgramId = programResolveParentProgramId($prog);
 $logOcc = $occurrenceId > 0 ? $occurrenceId : null;
 
@@ -64,11 +69,10 @@ if (empty($eligible['ok'])) {
     exit;
 }
 
-$occurrence = $occurrenceId > 0 ? programFetchOccurrenceById($db, $occurrenceId) : null;
 $scope = programResolveScopeId($prog, $occurrenceId);
 $existing = programFindExistingAttendance($db, (int)$member['id'], $scope);
 
-$photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ($member['avatar_url'] ?? '')));
+$photoUrl = programMemberPhotoUrl((string)(($member['photo'] ?? '') ?: ($member['avatar_url'] ?? '')));
 
 $sadasyata = programMemberSadasyataNo($member);
 $identity = programMemberIdentity($db, $member);

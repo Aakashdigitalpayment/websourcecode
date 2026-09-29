@@ -46,6 +46,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $attCloseProvided = $attCloseBs !== '';
             $attOpenAt = $attOpenProvided ? programCombineBsDateTime($attOpenBs, $attOpenTime !== '' ? $attOpenTime : '00:00') : null;
             $attCloseAt = $attCloseProvided ? programCombineBsDateTime($attCloseBs, $attCloseTime !== '' ? $attCloseTime : '23:59') : null;
+            if ($attOpenProvided && $attOpenAt === '') {
+                throw new Exception('उपस्थिति Window सुरु मिति (वि.सं.) अमान्य छ। सही मिति छानेर फेरि सेभ गर्नुहोस्।');
+            }
+            if ($attCloseProvided && $attCloseAt === '') {
+                throw new Exception('उपस्थिति Window अन्त्य मिति (वि.सं.) अमान्य छ। सही मिति छानेर फेरि सेभ गर्नुहोस्।');
+            }
+            if ($attOpenAt && $attCloseAt && strtotime($attOpenAt) >= strtotime($attCloseAt)) {
+                throw new Exception('उपस्थिति Window अन्त्य समय सुरु भन्दा पछि हुनुपर्छ।');
+            }
+            /* Field present but blank = admin cleared it; field absent (older form) = keep the saved value */
+            $attOpenCleared = array_key_exists('attendance_open_bs', $_POST) && !$attOpenProvided;
+            $attCloseCleared = array_key_exists('attendance_close_bs', $_POST) && !$attCloseProvided;
             $qrStartsBs = trim((string)($_POST['qr_starts_at_bs'] ?? ''));
             $qrStartsTime = trim((string)($_POST['qr_starts_at_time'] ?? ''));
             $qrExpiresBs = trim((string)($_POST['qr_expires_at_bs'] ?? ''));
@@ -110,10 +122,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$qrExpiresProvided) {
                     $qrExpiresAt = $prevExpires;
                 }
-                if (!$attOpenProvided) {
+                if (!$attOpenProvided && !$attOpenCleared) {
                     $attOpenAt = $prevRow['attendance_open_at'] ?? null;
                 }
-                if (!$attCloseProvided) {
+                if (!$attCloseProvided && !$attCloseCleared) {
                     $attCloseAt = $prevRow['attendance_close_at'] ?? null;
                 }
                 $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=? LIMIT 1");
@@ -142,11 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'कार्यक्रम स्थिति परिवर्तन भयो।');
         } elseif ($action === 'delete') {
             $id = (int)($_POST['id'] ?? 0);
-            $useSt = $db->prepare("SELECT COUNT(*) FROM member_program_attendance WHERE program_id=? OR parent_program_id=?");
-            $useSt->execute([$id, $id]);
+            $useSt = $db->prepare("SELECT (SELECT COUNT(*) FROM member_program_attendance WHERE program_id=? OR parent_program_id=?)
+                                        + (SELECT COUNT(*) FROM member_program_attendance_requests WHERE program_id=?)
+                                        + (SELECT COUNT(*) FROM member_program_preregistrations WHERE program_id=?)");
+            $useSt->execute([$id, $id, $id, $id]);
             if ((int)$useSt->fetchColumn() > 0) {
                 $db->prepare("UPDATE upcoming_programs SET is_active=0 WHERE id=? LIMIT 1")->execute([$id]);
-                setFlash('warning', 'यो कार्यक्रममा उपस्थिति record छ — रिपोर्ट नबिग्रियोस् भनेर हटाइएन, निष्क्रिय मात्र गरियो।');
+                setFlash('warning', 'यो कार्यक्रममा उपस्थिति / अनुरोध / pre-registration record छ — रिपोर्ट नबिग्रियोस् भनेर हटाइएन, निष्क्रिय मात्र गरियो।');
             } else {
                 $db->prepare("DELETE FROM program_occurrences WHERE parent_program_id=?")->execute([$id]);
                 $db->prepare("DELETE FROM program_registration_desks WHERE parent_program_id=?")->execute([$id]);
@@ -274,7 +288,7 @@ foreach ($rows as $_r) {
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
   <div class="card admin-table-card mb-3">
-    <div class="card-header gradient-card-header"><h6 class="mb-0"><?php echo $edit ? 'कार्यक्रम सम्पादन' : 'नयाँ कार्यक्रम थप्नुहोस्'; ?></h6></div>
+    <div class="card-header gradient-card-header"><h6 class="mb-0"><?php echo !empty($edit['id']) ? 'कार्यक्रम सम्पादन — ' . htmlspecialchars((string)$edit['title']) : 'नयाँ कार्यक्रम थप्नुहोस्'; ?></h6></div>
     <div class="card-body">
       <form method="POST" class="row g-3" id="programSaveForm">
         <?php echo csrfField(); ?>
@@ -289,10 +303,10 @@ foreach ($rows as $_r) {
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-4 d-flex flex-column justify-content-end gap-1 pb-1">
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_multi_location" value="1" <?php echo !empty($edit['is_multi_location']) ? 'checked' : ''; ?>>Multi-location (AGM/SGM)</label>
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="instant_attendance" value="1" <?php echo !empty($edit['instant_attendance']) ? 'checked' : ''; ?>>Instant QR attendance (approve बिना — scan पछि तुरुन्तै उपस्थित)</label>
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="shared_qr_mode" value="1" <?php echo !isset($edit['shared_qr_mode']) || (int)($edit['shared_qr_mode'] ?? 1) === 1 ? 'checked' : ''; ?>>Shared parent QR (multi-location)</label>
+        <div class="col-md-4 d-flex flex-column justify-content-end gap-1">
+          <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="is_multi_location" id="prog_multi" value="1" <?php echo !empty($edit['is_multi_location']) ? 'checked' : ''; ?>><label class="form-check-label" for="prog_multi">Multi-location (AGM/SGM)</label></div>
+          <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="instant_attendance" id="prog_instant" value="1" <?php echo !empty($edit['instant_attendance']) ? 'checked' : ''; ?>><label class="form-check-label" for="prog_instant">Instant QR attendance <span class="text-muted small">(approve बिना — scan पछि तुरुन्तै उपस्थित)</span></label></div>
+          <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="shared_qr_mode" id="prog_shared_qr" value="1" <?php echo !isset($edit['shared_qr_mode']) || (int)($edit['shared_qr_mode'] ?? 1) === 1 ? 'checked' : ''; ?>><label class="form-check-label" for="prog_shared_qr">Shared parent QR <span class="text-muted small">(multi-location)</span></label></div>
         </div>
         <div class="col-md-3">
           <label for="prog_event_date" class="form-label">मिति (वि.सं.)</label>
@@ -319,15 +333,27 @@ foreach ($rows as $_r) {
           </select>
         </div>
         <div class="col-md-6"><label for="prog_location" class="form-label">स्थान</label><input name="location" id="prog_location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
-        <div class="col-md-6"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
-        <div class="col-md-3"><label for="prog_att_open_bs" class="form-label">उपस्थिति Window सुरु (BS)</label><input name="attendance_open_bs" id="prog_att_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label for="prog_att_open_time" class="form-label">समय</label><input type="time" name="attendance_open_time" id="prog_att_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
-        <div class="col-md-3"><label for="prog_att_close_bs" class="form-label">उपस्थिति Window अन्त्य (BS)</label><input name="attendance_close_bs" id="prog_att_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label for="prog_att_close_time" class="form-label">समय</label><input type="time" name="attendance_close_time" id="prog_att_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
+        <div class="col-12"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
+        <div class="col-md-4">
+          <label for="prog_att_open_bs" class="form-label">उपस्थिति Window सुरु <span class="text-muted small">(वि.सं.)</span></label>
+          <div class="input-group">
+            <input name="attendance_open_bs" id="prog_att_open_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo !empty($edit['attendance_open_at']) ? htmlspecialchars(programMysqlDtToBsDate($edit['attendance_open_at'])) : ''; ?>">
+            <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
+          </div>
+        </div>
+        <div class="col-md-2"><label for="prog_att_open_time" class="form-label">सुरु समय</label><input type="time" name="attendance_open_time" id="prog_att_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? htmlspecialchars(programMysqlDtToTime($edit['attendance_open_at'])) : '00:00'; ?>"></div>
+        <div class="col-md-4">
+          <label for="prog_att_close_bs" class="form-label">उपस्थिति Window अन्त्य <span class="text-muted small">(वि.सं.)</span></label>
+          <div class="input-group">
+            <input name="attendance_close_bs" id="prog_att_close_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo !empty($edit['attendance_close_at']) ? htmlspecialchars(programMysqlDtToBsDate($edit['attendance_close_at'])) : ''; ?>">
+            <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
+          </div>
+        </div>
+        <div class="col-md-2"><label for="prog_att_close_time" class="form-label">अन्त्य समय</label><input type="time" name="attendance_close_time" id="prog_att_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? htmlspecialchars(programMysqlDtToTime($edit['attendance_close_at'])) : '23:59'; ?>"></div>
         <div class="col-12"><div class="form-text mb-1">मुख्य window = <strong>उपस्थिति Window</strong>। खाली भए मात्र तलको QR सुरु/समाप्त fallback हुन्छ — दुवै फरक राख्दा attendance_* ले जित्छ।</div></div>
-        <div class="col-12 d-flex flex-wrap gap-3">
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
+        <div class="col-12 d-flex flex-wrap align-items-center gap-3">
+          <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="is_active" id="prog_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>><label class="form-check-label" for="prog_active">Active</label></div>
+          <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="pre_registration_open" id="prog_prereg" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>><label class="form-check-label" for="prog_prereg">Pre-registration Open</label></div>
           <?php if (!empty($edit['is_multi_location'])): ?>
             <a href="program-occurrences.php?parent_id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-info"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i>Occurrences व्यवस्थापन</a>
             <a href="program-detail.php?id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>Detail</a>
@@ -374,7 +400,7 @@ foreach ($rows as $_r) {
         </div>
         <div class="col-12 d-flex gap-2">
           <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ</button>
-          <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
+          <?php if (!empty($edit['id'])): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
         </div>
       </form>
     </div>

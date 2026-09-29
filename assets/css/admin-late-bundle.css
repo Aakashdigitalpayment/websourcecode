@@ -4832,6 +4832,40 @@ body[class*="admin-page-"] .modal .form-check-input:checked {
   border-color: var(--primary-color, #1a5f2a) !important;
 }
 
+/* The shared form-control `background: … !important` rule strips Bootstrap's tick/dot/knob images
+   and its radius turns checkboxes into circles — restore them. */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:not(:checked) {
+  border-color: #9aa5b1 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:not(.form-switch *) {
+  border-radius: 0.3em !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"] {
+  border-radius: 50% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:checked:not(.form-switch *),
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:checked:not(.form-switch *) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  border-radius: 2em !important;
+  background-size: contain !important;
+  background-position: left center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%239aa5b1'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input:checked {
+  background-position: right center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
 body[class*="admin-page-"] .main-content .was-validated .form-control:invalid,
 body[class*="admin-page-"] .main-content .form-control.is-invalid,
 body[class*="admin-page-"] .modal .form-control.is-invalid {

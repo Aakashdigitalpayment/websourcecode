@@ -6,13 +6,35 @@
 .desk-member-id { font-size:1.5rem; font-weight:700; letter-spacing:.02em; }
 .desk-photo { width:120px; height:120px; object-fit:cover; border-radius:12px; border:3px solid #10b981; background:#f3f4f6; }
 .desk-success { background:#ecfdf5; border:2px solid #10b981; border-radius:12px; }
-.desk-duplicate { background:#fef3c7; border:2px solid #f59e0b; border-radius:12px; }
+.desk-duplicate { background:#fef3c7; border:2px solid #f59e0b; border-radius:12px; padding:1rem; }
 .desk-preview { background:#f8fafc; border:2px solid #e2e8f0; border-radius:12px; padding:1rem; }
 .desk-status { border-radius:10px; padding:.5rem .75rem; font-size:.85rem; }
 .desk-status-open { background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
 .desk-status-closed { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 .desk-inline-warn { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:.65rem .85rem; font-size:.85rem; color:#92400e; }
 .desk-kbd { font-size:.72rem; color:#64748b; }
+
+/* Admin minimal theme flattens .btn-success / outline buttons; the desk's two actions must stay obvious */
+.desk-card #deskLookupBtn {
+    background: #fff !important;
+    color: #047857 !important;
+    border: 2px solid #059669 !important;
+    font-weight: 600;
+}
+.desk-card #deskLookupBtn:hover { background: #ecfdf5 !important; }
+.desk-card #deskConfirmBtn {
+    background: #059669 !important;
+    color: #fff !important;
+    border: 2px solid #059669 !important;
+    font-weight: 700;
+}
+.desk-card #deskConfirmBtn:hover:not(:disabled) { background: #047857 !important; border-color: #047857 !important; }
+.desk-card #deskConfirmBtn:disabled {
+    background: #e2e8f0 !important;
+    color: #64748b !important;
+    border-color: #e2e8f0 !important;
+    opacity: 1;
+}
 
 .desk-history {
     background: #f8fafc;

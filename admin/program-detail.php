@@ -32,7 +32,10 @@ $deskStaff = static function (PDO $db, int $staff): int {
 };
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    checkCSRF();
+    if (!verifyCSRFToken()) {
+        setFlash('error', 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।');
+        redirect('program-detail.php?id=' . $id);
+    }
     $action = (string)($_POST['action'] ?? '');
     $redirectHash = '';
     if ($action === 'add_desk') {
@@ -304,7 +307,7 @@ if (!$isActive) {
               <tr>
                 <td><a href="program-member-history.php?member_id=<?php echo rawurlencode((string)($ra['member_card_no'] ?? '')); ?>" class="text-decoration-none"><?php echo htmlspecialchars((string)($ra['name'] ?? '')); ?></a> <span class="small text-muted font-monospace"><?php echo htmlspecialchars((string)($ra['member_card_no'] ?? '')); ?></span>
                   <?php if (($ra['father_name'] ?? '') !== ''): ?><div class="small text-muted">बुबा: <?php echo htmlspecialchars((string)$ra['father_name']); ?></div><?php endif; ?></td>
-                <td><?php echo htmlspecialchars((string)($ra['location_label'] ?? '—')); ?></td>
+                <td><?php echo htmlspecialchars(programAttendanceDisplayLocation($ra) ?: '—'); ?></td>
                 <td><?php echo htmlspecialchars(programAttendanceMethodLabel($ra['attendance_method'] ?? '')); ?></td>
                 <td class="small"><?php echo htmlspecialchars(substr((string)($ra['attended_at'] ?? ''), 0, 16)); ?></td>
                 <td><form method="POST" class="d-inline" onsubmit="var r=prompt('Void गर्ने कारण?');if(!r)return false;this.void_reason.value=r;return true;"><?php echo csrfField(); ?><input type="hidden" name="action" value="void_attendance"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="attendance_id" value="<?php echo (int)$ra['id']; ?>"><input type="hidden" name="void_reason" value=""><button type="submit" class="btn btn-sm btn-outline-danger py-0">Void</button></form></td>

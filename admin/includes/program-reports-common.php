@@ -71,10 +71,19 @@ function programReportsCsvStream(string $filename, array $header, iterable $rows
     $out = fopen('php://output', 'w');
     fputcsv($out, $header);
     foreach ($rows as $r) {
-        fputcsv($out, $map($r));
+        fputcsv($out, array_map('programReportsCsvCell', $map($r)));
     }
     fclose($out);
     exit;
+}
+
+/** Stop spreadsheet apps from evaluating member-entered text (=, +, -, @ …) as a formula. */
+function programReportsCsvCell($v)
+{
+    if (is_string($v) && $v !== '' && strpbrk($v[0], "=+-@\t\r") !== false && !is_numeric($v)) {
+        return "'" . $v;
+    }
+    return $v;
 }
 
 function programReportsCsvMethodLabel(?string $method): string
@@ -106,11 +115,14 @@ function programReportsTabs(string $current, int $programId = 0): string
         'program-reports-duplicates'   => ['दोहोरो प्रयास', 'shield-alert'],
     ];
     $q = $programId > 0 ? '?program_id=' . $programId : '';
-    $html = '<ul class="nav nav-pills flex-wrap gap-1 mb-3">';
+    $hub = $current === '';
+    $html = $hub
+        ? '<ul class="nav nav-pills mb-3" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.4rem">'
+        : '<ul class="nav nav-pills flex-wrap gap-1 mb-3">';
     foreach ($tabs as $page => [$label, $icon]) {
         $active = $page === $current;
         $file = $page === 'program-reports-history' ? 'program-member-history' : $page;
-        $html .= '<li class="nav-item"><a class="nav-link py-1 px-3' . ($active ? ' active' : ' bg-light') . '" href="' . $file . '.php' . (in_array($page, $noProgramParam, true) ? '' : $q) . '">'
+        $html .= '<li class="nav-item"><a class="nav-link py-1 px-3' . ($active ? ' active' : ' bg-light') . ($hub ? ' w-100 text-start' : '') . '" href="' . $file . '.php' . (in_array($page, $noProgramParam, true) ? '' : $q) . '">'
             . '<i class="lucide-icon me-1" data-lucide="' . $icon . '" aria-hidden="true"></i>' . htmlspecialchars($label) . '</a></li>';
     }
     if ($programId > 0 && $current !== '') {

@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
                         }
                         if (!$ctx['program'] || (int)$ctx['program']['id'] !== $progId) {
                             $checkInErr = $_t('QR token अमान्य छ।', 'Invalid QR token.');
-                        } elseif (!programIsQrEnabled($progRow, $occurrence)) {
+                        } elseif (!programIsQrEnabled($progRow, $ctx['occurrence'])) {
                             $checkInErr = $_t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
                         }
                     }
@@ -97,7 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
                             } elseif (!empty($rec['duplicate'])) {
                                 $checkInErr = programFormatExistingAttendanceMessage($rec['existing'] ?? [], isEnglish());
                             } else {
-                                $checkInErr = $rec['error_np'] ?? $_t('Check-in गर्न समस्या भयो।', 'Failed to check in.');
+                                $checkInErr = (isEnglish() ? ($rec['error_en'] ?? null) : ($rec['error_np'] ?? null))
+                                    ?? $_t('Check-in गर्न समस्या भयो।', 'Failed to check in.');
                             }
                         } else {
                             if (programHasPendingAttendanceRequest($db, $memberId, $progId)) {
@@ -140,11 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
 
 /* ── Handle pre-registration ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'prereg') {
-    if (verifyCSRFToken()) {
+    if (!verifyCSRFToken()) {
+        $checkInErr = $_t('सुरक्षा जाँच असफल। पेज refresh गरी फेरि प्रयास गर्नुहोस्।', 'Security check failed. Refresh the page and try again.');
+    } else {
         $progId = (int)($_POST['program_id'] ?? 0);
         if ($progId > 0) {
             try {
-                $prog = $db->prepare("SELECT id, title, event_date, pre_registration_open FROM upcoming_programs WHERE id=? LIMIT 1");
+                $prog = $db->prepare("SELECT id, title, event_date, pre_registration_open FROM upcoming_programs WHERE id=? AND is_active=1 LIMIT 1");
                 $prog->execute([$progId]);
                 $progRow = $prog->fetch(PDO::FETCH_ASSOC);
                 if ($progRow && $progRow['pre_registration_open']) {

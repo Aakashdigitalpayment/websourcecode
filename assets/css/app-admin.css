@@ -10648,6 +10648,13 @@ form.kyc-form .row > [class*="col-"],
     border-bottom: 1px solid #dbe3de !important;
 }
 
+/* Light header background above beats the white-on-brand gradient text rule — keep text readable */
+.main-content .card.admin-table-card > .card-header.gradient-card-header,
+.main-content .card.admin-table-card > .card-header.gradient-card-header :is(h1, h2, h3, h4, h5, h6, p, small, strong, span, i):not(.badge):not(.btn *) {
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
 .main-content .admin-table-card .card-header .badge,
 .main-content .admin-table-card .card-header .bg-primary,
 .main-content .admin-table-card .card-header .bg-success {

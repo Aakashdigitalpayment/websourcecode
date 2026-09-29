@@ -34,6 +34,9 @@ if ($prog && (int)($prog['is_multi_location'] ?? 0) === 1) {
         $occurrenceId = (int)$occurrences[0]['id'];
     }
 }
+if ($occurrenceId > 0 && !in_array($occurrenceId, array_map('intval', array_column($occurrences, 'id')), true)) {
+    $occurrenceId = 0;
+}
 $myAdminId = (int)($_SESSION['admin_id'] ?? 0);
 $myDeskId = 0;
 if ($programId > 0) {
@@ -69,48 +72,37 @@ if ($prog) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confirm') {
     checkCSRF();
-        $memberQuery = trim((string)($_POST['member_id_input'] ?? ''));
-        if ($programId <= 0) {
-            $error = 'कार्यक्रम छान्नुहोस्।';
-        } elseif ($memberQuery === '') {
-            $error = 'Member ID (सदस्यता नं.) राख्नुहोस्।';
+    $memberQuery = trim((string)($_POST['member_id_input'] ?? ''));
+    $member = null;
+    if ($programId <= 0) {
+        $error = 'कार्यक्रम छान्नुहोस्।';
+    } elseif ($memberQuery === '') {
+        $error = 'Member ID (सदस्यता नं.) राख्नुहोस्।';
+    } elseif (!($member = programResolveMemberBySadasyata($db, $memberQuery))) {
+        $error = 'Member ID "' . $memberQuery . '" सिस्टममा फेला परेन।';
+    } elseif ($prog && (int)($prog['is_multi_location'] ?? 0) === 1 && $occurrenceId <= 0) {
+        $error = 'Multi-location कार्यक्रममा occurrence/स्थान छान्नुहोस्।';
+    } else {
+        $result = recordProgramAttendance($db, [
+            'member_id' => (int)$member['id'],
+            'member_card_no' => programMemberSadasyataNo($member),
+            'program_id' => $programId,
+            'occurrence_id' => $occurrenceId > 0 ? $occurrenceId : null,
+            'attendance_method' => 'ADMIN_MANUAL',
+            'source' => 'registration_desk',
+            'attendance_note' => 'Registration Desk',
+            'desk_id' => $deskId > 0 ? $deskId : null,
+            'staff_admin_id' => $myAdminId,
+        ]);
+        if (!empty($result['ok'])) {
+            $saved = true;
+            $memberPreview = $member;
+        } elseif (!empty($result['duplicate'])) {
+            $duplicate = true;
+            $existingInfo = $result['existing'] ?? null;
+            $memberPreview = $member;
         } else {
-            $member = programResolveMemberBySadasyata($db, $memberQuery);
-            if (!$member) {
-                $error = 'Member ID "' . htmlspecialchars($memberQuery) . '" सिस्टममा फेला परेन।';
-            } else {
-            $occId = $occurrenceId > 0 ? $occurrenceId : null;
-            if ($prog && (int)($prog['is_multi_location'] ?? 0) === 1 && !$occId) {
-                $error = 'Multi-location कार्यक्रममा occurrence/स्थान छान्नुहोस्।';
-            } else {
-                $occRow = $occId ? programFetchOccurrenceById($db, $occId) : null;
-                $window = programIsWindowOpen($prog, $occRow);
-                if (empty($window['ok'])) {
-                    $error = $window['message_np'] ?? 'उपस्थिति window बन्द छ।';
-                } else {
-                $result = recordProgramAttendance($db, [
-                    'member_id' => (int)$member['id'],
-                    'member_card_no' => programMemberSadasyataNo($member),
-                    'program_id' => $programId,
-                    'occurrence_id' => $occId,
-                    'attendance_method' => 'ADMIN_MANUAL',
-                    'source' => 'registration_desk',
-                    'attendance_note' => 'Registration Desk',
-                    'desk_id' => $deskId > 0 ? $deskId : null,
-                    'staff_admin_id' => $myAdminId,
-                ]);
-                if (!empty($result['ok'])) {
-                    $saved = true;
-                    $memberPreview = $member;
-                } elseif (!empty($result['duplicate'])) {
-                    $duplicate = true;
-                    $existingInfo = $result['existing'] ?? null;
-                    $memberPreview = $member;
-                } else {
-                    $error = $result['error_np'] ?? $result['error_en'] ?? 'Error';
-                }
-                }
-            }
+            $error = $result['error_np'] ?? $result['error_en'] ?? 'Error';
         }
     }
 }
@@ -234,7 +226,7 @@ if (function_exists('coopThemeLink')) {
         <div id="deskFather" class="small fw-semibold d-none"></div>
         <div id="deskMeta" class="text-muted small"></div>
         <div id="deskHistory" class="desk-history small mt-2 d-none"></div>
-        <div id="deskDupInfo" class="small text-warning mt-2 d-none"></div>
+        <div id="deskDupInfo" class="small fw-semibold mt-2 d-none" style="color:#92400e"></div>
       </div>
 
       <label class="form-label desk-member-id" for="deskMemberInput">Member ID (कार्ड / सदस्यता नं.) *</label>
@@ -349,6 +341,9 @@ if (function_exists('coopThemeLink')) {
           return;
         }
         preview.classList.remove('d-none');
+        preview.classList.toggle('desk-duplicate', !!d.already_attended);
+        preview.classList.toggle('desk-preview', !d.already_attended);
+        if (dupInfo) { dupInfo.classList.add('d-none'); dupInfo.textContent = ''; }
         document.getElementById('deskName').textContent = d.member.name + ' (' + d.member.member_id + ')';
         var fatherEl = document.getElementById('deskFather');
         if (d.member.father_name) { fatherEl.textContent = 'बुबा: ' + d.member.father_name; fatherEl.classList.remove('d-none'); } else { fatherEl.classList.add('d-none'); }
@@ -367,7 +362,7 @@ if (function_exists('coopThemeLink')) {
           lookupReady = false;
         } else if (d.already_attended) {
           var ex = d.existing || {};
-          var dupTxt = 'पहिले नै दर्ता' + (ex.location ? ' — ' + ex.location : '') + (ex.attended_at ? ' (' + ex.attended_at + ')' : '');
+          var dupTxt = '⚠ पहिले नै दर्ता भइसकेको' + (ex.location ? ' — ' + ex.location : '') + (ex.attended_at ? ' (' + ex.attended_at + ')' : '');
           showInline(dupTxt, false);
           if (dupInfo) { dupInfo.textContent = dupTxt + (ex.method ? ' · ' + ex.method : ''); dupInfo.classList.remove('d-none'); }
           confirmBtn.disabled = true;

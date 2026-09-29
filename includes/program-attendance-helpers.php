@@ -156,6 +156,9 @@ if (!function_exists('programResolveQrContext')) {
         $occ = $st->fetch(PDO::FETCH_ASSOC) ?: null;
         if ($occ) {
             $prog = programFetchById($db, (int)$occ['parent_program_id']);
+            if (!$prog || (int)($prog['is_active'] ?? 0) !== 1) {
+                return ['program' => null, 'occurrence' => null];
+            }
             return ['program' => $prog, 'occurrence' => $occ];
         }
         $st = $db->prepare('SELECT * FROM upcoming_programs WHERE qr_token=? AND is_active=1 LIMIT 1');
@@ -194,6 +197,12 @@ if (!function_exists('programIsWindowOpen')) {
             if (!$closeAt && !empty($program['qr_expires_at'])) {
                 $closeAt = $program['qr_expires_at'];
             }
+        }
+        if ($openAt && str_starts_with((string)$openAt, '0000-00-00')) {
+            $openAt = null;
+        }
+        if ($closeAt && str_starts_with((string)$closeAt, '0000-00-00')) {
+            $closeAt = null;
         }
         if ($openAt && strtotime((string)$openAt) > $now) {
             return ['ok' => false, 'code' => 'WINDOW_CLOSED', 'message_np' => 'उपस्थिति window अझ सुरु भएको छैन।', 'message_en' => 'Attendance window has not opened yet.'];

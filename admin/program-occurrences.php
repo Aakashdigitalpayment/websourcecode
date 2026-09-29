@@ -37,6 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $attOpen = $attOpenBs !== '' ? programCombineBsDateTime($attOpenBs, $attOpenTime !== '' ? $attOpenTime : '00:00') : null;
             $attClose = $attCloseBs !== '' ? programCombineBsDateTime($attCloseBs, $attCloseTime !== '' ? $attCloseTime : '23:59') : null;
+            if ($attOpen === '' || $attClose === '') {
+                throw new Exception('उपस्थिति Window मिति (वि.सं.) अमान्य छ। सही मिति छानेर फेरि सेभ गर्नुहोस्।');
+            }
+            if ($attOpen && $attClose && strtotime($attOpen) >= strtotime($attClose)) {
+                throw new Exception('उपस्थिति Window अन्त्य समय सुरु भन्दा पछि हुनुपर्छ।');
+            }
             if ($id > 0) {
                 $db->prepare('UPDATE program_occurrences SET location_name=?, event_date=?, start_time=?, end_time=?, attendance_open_at=?, attendance_close_at=?, sort_order=?, is_active=? WHERE id=? AND parent_program_id=?')
                     ->execute([$loc, $date, $start, $end, $attOpen, $attClose, $sort, $active, $id, $parentId]);

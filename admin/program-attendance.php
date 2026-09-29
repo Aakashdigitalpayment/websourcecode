@@ -7,9 +7,11 @@ if (isset($_GET['export'])) {
     require_once __DIR__ . '/../includes/program-tables.php';
     require_once __DIR__ . '/../includes/program-attendance-helpers.php';
     require_once __DIR__ . '/includes/program-reports-common.php';
+    require_once __DIR__ . '/../includes/program-member-insights.php';
 
     $db = getDB();
     ensureProgramTables($db);
+    $kycParts = programKycJoinParts($db);
 
     $programId = (int)($_GET['program_id'] ?? 0);
     $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 200, 'UTF-8');
@@ -52,11 +54,12 @@ if (isset($_GET['export'])) {
     $joinA = "FROM member_program_attendance a
         LEFT JOIN members m ON m.id = a.member_id
         LEFT JOIN upcoming_programs p ON p.id = a.program_id
-        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id";
+        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id
+        {$kycParts['join']}";
 
     $exportType = (string)$_GET['export'];
     if ($exportType === '1') {
-        $stAll = $db->prepare("SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
+        $stAll = $db->prepare("SELECT a.*, m.name AS member_name, {$kycParts['gender']} AS gender, p.event_date, p.location,
                o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
@@ -68,18 +71,18 @@ if (isset($_GET['export'])) {
         fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
         foreach ($exportRows as $r) {
             $loc = programAttendanceDisplayLocation($r);
-            fputcsv($out, [
+            fputcsv($out, array_map('programReportsCsvCell', [
                 (string)($r['program_title'] ?? ''),
                 (string)($r['event_date'] ?? ''),
                 (string)($r['member_name'] ?? ''),
-                (string)($r['gender'] ?? ''),
+                ($gk = programGenderKey($r['gender'] ?? '')) === 'unknown' ? '' : ucfirst($gk),
                 (string)($r['member_card_no'] ?? ''),
                 $loc,
                 programAttendanceMethodLabel($r['attendance_method'] ?? '', true),
                 ((int)($r['is_priority'] ?? 0) ? 'Yes' : 'No'),
                 (string)($r['attendance_note'] ?? ''),
                 (string)($r['attended_at'] ?? ''),
-            ]);
+            ]));
         }
         fclose($out);
         exit;
@@ -113,7 +116,7 @@ if (isset($_GET['export'])) {
         $out = fopen('php://output', 'w');
         fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Email', 'Note', 'Registered At']);
         foreach ($preExportRows as $r) {
-            fputcsv($out, [
+            fputcsv($out, array_map('programReportsCsvCell', [
                 (string)($r['program_title'] ?? ''),
                 (string)($r['event_date'] ?? ''),
                 (string)($r['display_name'] ?? $r['member_name'] ?? ''),
@@ -122,7 +125,7 @@ if (isset($_GET['export'])) {
                 (string)($r['member_email'] ?? ''),
                 (string)($r['note'] ?? ''),
                 (string)($r['created_at'] ?? ''),
-            ]);
+            ]));
         }
         fclose($out);
         exit;
@@ -153,7 +156,7 @@ if (isset($_GET['export'])) {
         $out = fopen('php://output', 'w');
         fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Address', 'Source', 'IP', 'User Agent', 'Requested At']);
         foreach ($reqExportRows as $r) {
-            fputcsv($out, [
+            fputcsv($out, array_map('programReportsCsvCell', [
                 (string)($r['program_title'] ?? ''),
                 (string)($r['event_date'] ?? ''),
                 (string)($r['display_name'] ?? $r['member_name'] ?? ''),
@@ -164,7 +167,7 @@ if (isset($_GET['export'])) {
                 (string)($r['verified_by_ip'] ?? ''),
                 (string)($r['user_agent'] ?? ''),
                 (string)($r['requested_at'] ?? ''),
-            ]);
+            ]));
         }
         fclose($out);
         exit;
@@ -180,8 +183,10 @@ $pageTitle = adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-
 require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+require_once __DIR__ . '/../includes/program-member-insights.php';
 $db = getDB();
 ensureProgramTables($db);
+$kycParts = programKycJoinParts($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
@@ -212,16 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $origEmail = getSetting('notify_member_email', '1');
                 $origSms = getSetting('notify_member_sms', '0');
-                if ($channel === 'email') {
-                    updateSetting('notify_member_email', '1');
-                    updateSetting('notify_member_sms', '0');
-                } elseif ($channel === 'sms') {
-                    updateSetting('notify_member_email', '0');
-                    updateSetting('notify_member_sms', '1');
-                } else {
-                    updateSetting('notify_member_email', '1');
-                    updateSetting('notify_member_sms', '1');
-                }
+                /* Request-local override only — never write the site-wide channel settings */
+                getSettingInvalidate('notify_member_email', $channel === 'sms' ? '0' : '1');
+                getSettingInvalidate('notify_member_sms', $channel === 'email' ? '0' : '1');
 
                 $okCount = 0;
                 try {
@@ -240,8 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 } finally {
-                    updateSetting('notify_member_email', $origEmail);
-                    updateSetting('notify_member_sms', $origSms);
+                    getSettingInvalidate('notify_member_email', $origEmail);
+                    getSettingInvalidate('notify_member_sms', $origSms);
                 }
                 if ($action === 'bulk_notify_prereg_test') {
                     setFlash('success', "Test notification पठाइयो (1 सदस्य, channel: {$channel})।");
@@ -270,6 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'source' => 'admin_prereg',
                         'attendance_note' => 'Pre-registration बाट attendance mark',
                         'staff_admin_id' => (int)($_SESSION['admin_id'] ?? 0),
+                        'skip_window_check' => true,
                     ]);
                     if (!empty($rec['ok'])) {
                         setFlash('success', 'Pre-registration बाट attendance mark भयो।');
@@ -519,7 +518,8 @@ if ($q !== '') {
 $joinA = "FROM member_program_attendance a
         LEFT JOIN members m ON m.id = a.member_id
         LEFT JOIN upcoming_programs p ON p.id = a.program_id
-        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id";
+        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id
+        {$kycParts['join']}";
 
 $paQuery = [];
 if ($programId > 0) {
@@ -570,14 +570,10 @@ $pcd->execute($paramsA);
 $distinctProgramCount = (int)$pcd->fetchColumn();
 
 $genderCounts = ['male' => 0, 'female' => 0, 'other' => 0, 'unknown' => 0];
-$gst = $db->prepare("SELECT LOWER(TRIM(IFNULL(m.gender, ''))) AS g, COUNT(*) AS c {$joinA} WHERE {$whereA} GROUP BY g");
+$gst = $db->prepare("SELECT {$kycParts['gender']} AS g, COUNT(*) AS c {$joinA} WHERE {$whereA} GROUP BY g");
 $gst->execute($paramsA);
 foreach ($gst->fetchAll(PDO::FETCH_ASSOC) as $gr) {
-    $g = (string)($gr['g'] ?? '');
-    if ($g === '' || !isset($genderCounts[$g])) {
-        $g = 'unknown';
-    }
-    $genderCounts[$g] += (int)($gr['c'] ?? 0);
+    $genderCounts[programGenderKey($gr['g'] ?? '')] += (int)($gr['c'] ?? 0);
 }
 
 $programCounts = [];
@@ -603,14 +599,11 @@ $trendLabels = array_slice(array_keys($dailyCounts), -12);
 $trendData = array_map(static fn($k) => $dailyCounts[$k], $trendLabels);
 
 $programGender = [];
-$pgst = $db->prepare("SELECT a.program_title AS pt, LOWER(TRIM(IFNULL(m.gender, ''))) AS g, COUNT(*) AS c {$joinA} WHERE {$whereA} GROUP BY a.program_title, g ORDER BY a.program_title");
+$pgst = $db->prepare("SELECT a.program_title AS pt, {$kycParts['gender']} AS g, COUNT(*) AS c {$joinA} WHERE {$whereA} GROUP BY a.program_title, g ORDER BY a.program_title");
 $pgst->execute($paramsA);
 foreach ($pgst->fetchAll(PDO::FETCH_ASSOC) as $pgr) {
     $pt = (string)($pgr['pt'] ?? 'Unknown');
-    $g = (string)($pgr['g'] ?? '');
-    if ($g === '' || !isset($genderCounts[$g])) {
-        $g = 'unknown';
-    }
+    $g = programGenderKey($pgr['g'] ?? '');
     $c = (int)($pgr['c'] ?? 0);
     if (!isset($programGender[$pt])) {
         $programGender[$pt] = ['male' => 0, 'female' => 0, 'other' => 0, 'unknown' => 0, 'total' => 0];
@@ -620,7 +613,7 @@ foreach ($pgst->fetchAll(PDO::FETCH_ASSOC) as $pgr) {
 }
 
 $offset = ($page - 1) * $perPage;
-$sql = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
+$sql = "SELECT a.*, m.name AS member_name, {$kycParts['gender']} AS gender, p.event_date, p.location,
                o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
@@ -837,10 +830,11 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <td><?php echo htmlspecialchars($r['attendance_note'] ?: ''); ?></td>
         <td class="small text-muted"><?php echo htmlspecialchars(programFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
         <td>
-          <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo adminLangT('यो उपस्थिति void गर्ने? पुन: दर्ता गर्न सकिन्छ।', 'Void this attendance? It can be re-recorded.'); ?>');">
+          <form method="POST" class="d-inline" onsubmit="var r=prompt('<?php echo adminLangT('Void गर्ने कारण? (पुन: दर्ता गर्न सकिन्छ)', 'Reason for voiding? (can be re-recorded)'); ?>');if(!r||!r.trim())return false;this.void_reason.value=r.trim();return true;">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="void_attendance">
             <input type="hidden" name="attendance_id" value="<?php echo (int)$r['id']; ?>">
+            <input type="hidden" name="void_reason" value="">
             <button type="submit" class="btn btn-sm btn-outline-danger py-0" title="Void"><i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i></button>
           </form>
         </td>
