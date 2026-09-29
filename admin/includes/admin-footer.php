@@ -66,6 +66,17 @@
        यहाँ admin panel का सबै global JS functions छन्।
        ===================================================== */
 
+    /* Modals rendered inside tables/cards get trapped under the body-level backdrop
+       (dimmed, off-centre). Lift them to <body> on open — unless a <form> wraps the
+       modal, since moving it out would detach its inputs from that form. */
+    document.addEventListener('show.bs.modal', function (e) {
+        var m = e.target;
+        if (m && m.classList && m.classList.contains('modal')
+            && m.parentElement !== document.body && !m.closest('form')) {
+            document.body.appendChild(m);
+        }
+    }, true);
+
     /* ─────────────────────────────────────────────────────
        Nepali Datepicker initialize गर्ने function
        — Page load र Bootstrap Modal open दुवैमा काम गर्छ

@@ -11444,6 +11444,29 @@ body.admin-page-manage-admins .ma-pass-bad {
     color: #b91c1c;
 }
 
+/* Reset modal: form sits inside .modal-body, so no second 25px padding;
+   input group is [lock][input][eye] — generic modal rule assumes [input][addon] */
+body.admin-page-manage-admins .modal-body form {
+    padding: 0;
+}
+body.admin-page-manage-admins .modal .input-group > .input-group-text:first-child {
+    border-radius: 8px 0 0 8px !important;
+    border: 1.5px solid #d1d9e0 !important;
+    border-right: none !important;
+}
+body.admin-page-manage-admins .modal .input-group > .form-control:not(:last-child) {
+    border-radius: 0 !important;
+}
+body.admin-page-manage-admins .modal .input-group > .input-group-text:first-child + .form-control:last-child {
+    border-radius: 0 8px 8px 0 !important;
+}
+body.admin-page-manage-admins .modal .input-group > .btn:last-child {
+    border-radius: 0 8px 8px 0 !important;
+    border: 1.5px solid #d1d9e0 !important;
+    border-left: none !important;
+    background: #fff;
+}
+
 /* System info class-based upgrade boxes */
 body.admin-page-system-info .si-upgrade-box {
     border-left: 4px solid #16a34a;
