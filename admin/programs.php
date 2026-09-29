@@ -21,8 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = (int)($_POST['id'] ?? 0);
             $title = trim((string)($_POST['title'] ?? ''));
             $desc = trim((string)($_POST['description'] ?? ''));
-            $date = trim((string)($_POST['event_date'] ?? '')) ?: null;
-            $time = trim((string)($_POST['event_time'] ?? ''));
+            $date = programNormalizeBsDate((string)($_POST['event_date'] ?? ''));
+            if ($date === null) {
+                throw new Exception('कार्यक्रम मिति (वि.सं.) अमान्य छ। क्यालेन्डरबाट सही मिति छान्नुहोस्।');
+            }
+            $date = $date ?: null;
+            $time = programNormalizeScheduleTime((string)($_POST['event_time'] ?? ''));
             $loc  = trim((string)($_POST['location'] ?? ''));
             $active = !empty($_POST['is_active']) ? 1 : 0;
             $preRegOpen = !empty($_POST['pre_registration_open']) ? 1 : 0;
@@ -327,20 +331,7 @@ foreach ($rows as $_r) {
         </div>
         <div class="col-md-3">
           <label for="prog_event_time" class="form-label">समय</label>
-          <?php $eventTimeValue = trim((string)($edit['event_time'] ?? '')); $eventTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
-          <select name="event_time" id="prog_event_time" class="form-select">
-            <option value="">— समय छान्नुहोस् —</option>
-            <?php foreach ($eventTimeOptions as $optVal => $optLabel): ?>
-              <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $eventTimeValue === $optVal ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($optLabel, ENT_QUOTES, 'UTF-8'); ?>
-              </option>
-            <?php endforeach; ?>
-            <?php if ($eventTimeValue !== '' && !isset($eventTimeOptions[$eventTimeValue])): ?>
-              <option value="<?php echo htmlspecialchars($eventTimeValue, ENT_QUOTES, 'UTF-8'); ?>" selected>
-                <?php echo htmlspecialchars($eventTimeValue, ENT_QUOTES, 'UTF-8'); ?>
-              </option>
-            <?php endif; ?>
-          </select>
+          <select name="event_time" id="prog_event_time" class="form-select"><?php echo programScheduleTimeSelectOptions((string)($edit['event_time'] ?? '')); ?></select>
         </div>
         <div class="col-md-6"><label for="prog_location" class="form-label">स्थान</label><input name="location" id="prog_location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
         <div class="col-12"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>

@@ -293,7 +293,7 @@ if (!$isActive) {
             <input type="hidden" name="is_active" value="1">
             <input type="hidden" name="return" value="detail">
             <div class="col-md-6"><label class="form-label small mb-0" for="hub_loc">नयाँ स्थान</label><input name="location_name" id="hub_loc" class="form-control form-control-sm" placeholder="उदा. Banepa" required></div>
-            <div class="col-md-4"><label class="form-label small mb-0" for="hub_loc_date">मिति (वि.सं.)</label><input name="event_date" id="hub_loc_date" class="form-control form-control-sm nepali-datepicker" value="<?php echo htmlspecialchars((string)($prog['event_date'] ?? '')); ?>"></div>
+            <div class="col-md-4"><label class="form-label small mb-0" for="hub_loc_date">मिति (वि.सं.)</label><input type="text" name="event_date" id="hub_loc_date" class="form-control form-control-sm nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars((string)($prog['event_date'] ?? '')); ?>"></div>
             <div class="col-md-2"><button type="submit" class="btn btn-sm btn-primary w-100">थप्नुहोस्</button></div>
           </form>
         </div>

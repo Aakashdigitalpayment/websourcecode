@@ -20,9 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = (int)($_POST['id'] ?? 0);
             $parentId = (int)($_POST['parent_id'] ?? 0);
             $loc = trim((string)($_POST['location_name'] ?? ''));
-            $date = trim((string)($_POST['event_date'] ?? '')) ?: null;
-            $start = trim((string)($_POST['start_time'] ?? ''));
-            $end = trim((string)($_POST['end_time'] ?? ''));
+            $date = programNormalizeBsDate((string)($_POST['event_date'] ?? ''));
+            if ($date === null) {
+                throw new Exception('स्थानको मिति (वि.सं.) अमान्य छ। क्यालेन्डरबाट सही मिति छान्नुहोस्।');
+            }
+            $date = $date ?: null;
+            $start = programNormalizeScheduleTime((string)($_POST['start_time'] ?? ''));
+            $end = programNormalizeScheduleTime((string)($_POST['end_time'] ?? ''));
             $sort = (int)($_POST['sort_order'] ?? 0);
             $active = !empty($_POST['is_active']) ? 1 : 0;
             $attOpenBs = trim((string)($_POST['attendance_open_bs'] ?? ''));
@@ -158,13 +162,13 @@ if ($editId > 0) {
         <input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>">
         <input type="hidden" name="id" value="<?php echo (int)($edit['id'] ?? 0); ?>">
         <div class="col-md-4"><label for="pocc_location_name" class="form-label">स्थान *</label><input name="location_name" id="pocc_location_name" class="form-control" required value="<?php echo htmlspecialchars($edit['location_name'] ?? ''); ?>"></div>
-        <div class="col-md-3"><label for="pocc_event_date" class="form-label">मिति (वि.सं.)</label><input name="event_date" id="pocc_event_date" class="form-control nepali-datepicker" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>"></div>
-        <div class="col-md-2"><label for="pocc_start_time" class="form-label">सुरु</label><input name="start_time" id="pocc_start_time" class="form-control" placeholder="09:00" value="<?php echo htmlspecialchars($edit['start_time'] ?? ''); ?>"></div>
-        <div class="col-md-2"><label for="pocc_end_time" class="form-label">अन्त्य</label><input name="end_time" id="pocc_end_time" class="form-control" placeholder="17:00" value="<?php echo htmlspecialchars($edit['end_time'] ?? ''); ?>"></div>
+        <div class="col-md-3"><label for="pocc_event_date" class="form-label">मिति (वि.सं.)</label><div class="input-group"><input type="text" name="event_date" id="pocc_event_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>"><span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span></div></div>
+        <div class="col-md-2"><label for="pocc_start_time" class="form-label">सुरु समय</label><select name="start_time" id="pocc_start_time" class="form-select"><?php echo programScheduleTimeSelectOptions((string)($edit['start_time'] ?? '')); ?></select></div>
+        <div class="col-md-2"><label for="pocc_end_time" class="form-label">अन्त्य समय</label><select name="end_time" id="pocc_end_time" class="form-select"><?php echo programScheduleTimeSelectOptions((string)($edit['end_time'] ?? '')); ?></select></div>
         <div class="col-md-1"><label for="pocc_sort_order" class="form-label">क्रम</label><input type="number" name="sort_order" id="pocc_sort_order" class="form-control" value="<?php echo (int)($edit['sort_order'] ?? 0); ?>"></div>
-        <div class="col-md-3"><label for="pocc_att_open_bs" class="form-label">Window सुरु (BS)</label><input name="attendance_open_bs" id="pocc_att_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
+        <div class="col-md-3"><label for="pocc_att_open_bs" class="form-label">Window सुरु (BS)</label><div class="input-group"><input type="text" name="attendance_open_bs" id="pocc_att_open_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo !empty($edit['attendance_open_at']) ? htmlspecialchars(programMysqlDtToBsDate($edit['attendance_open_at'])) : ''; ?>"><span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span></div></div>
         <div class="col-md-2"><label for="pocc_att_open_time" class="form-label">समय</label><input type="time" name="attendance_open_time" id="pocc_att_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
-        <div class="col-md-3"><label for="pocc_att_close_bs" class="form-label">Window अन्त्य (BS)</label><input name="attendance_close_bs" id="pocc_att_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
+        <div class="col-md-3"><label for="pocc_att_close_bs" class="form-label">Window अन्त्य (BS)</label><div class="input-group"><input type="text" name="attendance_close_bs" id="pocc_att_close_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo !empty($edit['attendance_close_at']) ? htmlspecialchars(programMysqlDtToBsDate($edit['attendance_close_at'])) : ''; ?>"><span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span></div></div>
         <div class="col-md-2"><label for="pocc_att_close_time" class="form-label">समय</label><input type="time" name="attendance_close_time" id="pocc_att_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
         <div class="col-12"><div class="form-text">यही occurrence को उपस्थिति window — parent QR fallback भन्दा पहिले यो लागू हुन्छ।</div></div>
         <div class="col-12"><label class="form-check-label"><input type="checkbox" class="form-check-input me-1" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active'] === 1 ? 'checked' : ''; ?>>Active</label></div>

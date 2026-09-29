@@ -376,15 +376,11 @@ if (!function_exists('programCombineBsDateTime')) {
             $timeIn .= ':00';
         }
         $datePart = substr($dateIn, 0, 10);
-        if (!preg_match('/^(\d{4})-\d{2}-\d{2}$/', $datePart, $m)) {
-            return '';
-        }
-        $y = (int)$m[1];
-        if ($y >= 2070 && function_exists('bsToAd')) {
-            $ad = trim((string)bsToAd($datePart));
-            $ad = preg_match('/^\d{4}-\d{2}-\d{2}/', $ad) ? substr($ad, 0, 10) : '';
-        } else {
+        if (preg_match('/^(\d{4})-\d{2}-\d{2}$/', $datePart, $m) && (int)$m[1] < 2070) {
             $ad = $datePart;
+        } else {
+            $bs = programNormalizeBsDate($dateIn);
+            $ad = $bs ? substr(trim((string)bsToAd($bs)), 0, 10) : '';
         }
         if ($ad === '') {
             return '';
@@ -422,6 +418,67 @@ if (!function_exists('programMysqlDtToTime')) {
             return $fallback;
         }
         return substr((string)$mysqlDt, 11, 5) ?: $fallback;
+    }
+}
+
+/** BS date from picker or typed → canonical YYYY-MM-DD; '' when blank, null when not a real BS date. */
+if (!function_exists('programNormalizeBsDate')) {
+    function programNormalizeBsDate(string $in): ?string
+    {
+        $in = strtr(trim($in), ['०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4', '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9']);
+        if ($in === '') {
+            return '';
+        }
+        if (!function_exists('nepali_bs_to_ad_string') && is_file(__DIR__ . '/nepali-bs-convert.php')) {
+            require_once __DIR__ . '/nepali-bs-convert.php';
+        }
+        if (!function_exists('bsToAd') && is_file(dirname(__DIR__) . '/core/helpers.php')) {
+            require_once dirname(__DIR__) . '/core/helpers.php';
+        }
+        if (!preg_match('/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/', $in, $m) || !function_exists('bsToAd')) {
+            return null;
+        }
+        $bs = sprintf('%04d-%02d-%02d', (int)$m[1], (int)$m[2], (int)$m[3]);
+        /* bsToAd echoes the input back when the date does not exist in the BS calendar */
+        $ad = trim((string)bsToAd($bs));
+        return ($ad !== $bs && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) ? $bs : null;
+    }
+}
+
+/** Program / location schedule time choices (same list everywhere, "h:i A" values). */
+if (!function_exists('programScheduleTimeOptions')) {
+    function programScheduleTimeOptions(): array
+    {
+        return function_exists('getUnifiedTimeOptions') ? getUnifiedTimeOptions('06:00', '20:00', 30) : [];
+    }
+}
+
+/** Posted schedule time → list value or an older saved "H:i" / "h:i AM" value; anything else → ''. */
+if (!function_exists('programNormalizeScheduleTime')) {
+    function programNormalizeScheduleTime(string $in): string
+    {
+        $in = trim($in);
+        if (isset(programScheduleTimeOptions()[$in]) || preg_match('/^\d{1,2}:\d{2}( ?[AaPp][Mm])?$/', $in)) {
+            return $in;
+        }
+        return '';
+    }
+}
+
+/** <option> list for a schedule time <select>, keeping an unlisted saved value selectable. */
+if (!function_exists('programScheduleTimeSelectOptions')) {
+    function programScheduleTimeSelectOptions(string $current): string
+    {
+        $current = trim($current);
+        $opts = programScheduleTimeOptions();
+        $html = '<option value="">— समय छान्नुहोस् —</option>';
+        if ($current !== '' && !isset($opts[$current])) {
+            $html .= '<option value="' . htmlspecialchars($current, ENT_QUOTES, 'UTF-8') . '" selected>' . htmlspecialchars($current, ENT_QUOTES, 'UTF-8') . '</option>';
+        }
+        foreach ($opts as $v => $label) {
+            $html .= '<option value="' . htmlspecialchars($v, ENT_QUOTES, 'UTF-8') . '"' . ($current === $v ? ' selected' : '') . '>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+        }
+        return $html;
     }
 }
 
