@@ -497,12 +497,33 @@ if ($__photoRaw !== '') {
         $__photoSrc = rtrim(SITE_URL, '/') . '/' . ltrim($__photoRaw, '/');
     }
 }
-$__dob = trim((string)($__m['dob_bs'] ?? ''));
-if ($__dob === '') {
-    $__dob = trim((string)($__m['dob_ad'] ?? ''));
-} elseif (!empty($__m['dob_ad'])) {
-    $__dob .= ' / ' . trim((string)$__m['dob_ad']);
+$__memberDob = [];
+if (trim((string)($__m['dob_bs'] ?? '')) === '' && trim((string)($__m['dob_ad'] ?? '')) === '' && $pdo && !empty($__m['id'])) {
+    try {
+        $__dst = $pdo->prepare('SELECT dob FROM members WHERE id=? LIMIT 1');
+        $__dst->execute([(int)$__m['id']]);
+        $__memberDob = ['dob' => (string)$__dst->fetchColumn()];
+    } catch (\Throwable $e) {
+        $__memberDob = [];
+    }
 }
+$__dobInfo = programMemberDob($__memberDob, ['dob_bs' => (string)($__m['dob_bs'] ?? ''), 'dob_ad' => (string)($__m['dob_ad'] ?? '')]);
+$__dob = implode(' · ', array_filter([
+    $__dobInfo['dob_bs'] !== '' ? $__dobInfo['dob_bs'] . $_t(' वि.सं.', ' BS') : '',
+    $__dobInfo['dob_ad'] !== '' ? $__dobInfo['dob_ad'] . ' AD' : '',
+]));
+if ($__dob !== '' && $__dobInfo['age'] !== null) {
+    $__dob .= ' (' . $_t('उमेर ' . $__dobInfo['age'] . ' वर्ष', 'Age ' . $__dobInfo['age']) . ')';
+}
+/* Stored AD date/datetime → "BS वि.सं. (AD)" so desks read the familiar calendar */
+$__fmtDate = static function ($raw) use ($_t): string {
+    $ad = substr(trim((string)$raw), 0, 10);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad) || $ad === '0000-00-00') {
+        return '';
+    }
+    $bs = function_exists('programMysqlDtToBsDate') ? programMysqlDtToBsDate($ad) : '';
+    return ($bs !== '' && $bs !== $ad) ? $bs . $_t(' वि.सं.', ' BS') . ' (' . $ad . ')' : $ad;
+};
 $__father = trim((string)($__m['father_name'] ?? ''));
 $__secretCvv = (string)($__c['secret_cvv'] ?? '');
 $__idFields = [
@@ -510,9 +531,9 @@ $__idFields = [
     [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
     [$_t('बुबाको नाम',"Father's Name"), $__father],
     [$_t('जन्म मिति','Date of Birth'), $__dob],
-    [$_t('सदस्यता मिति','Member Since'),$__m['member_since']?? ''],
-    [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
-    [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],
+    [$_t('सदस्यता मिति','Member Since'), $__fmtDate($__m['member_since'] ?? '')],
+    [$_t('जारी मिति','Issued'),          $__fmtDate($__c['issued_date'] ?? '')],
+    [$_t('म्याद समाप्ति','Valid Until'), $__fmtDate($__c['expires_at'] ?? '')],
 ];
 $__hasPartnerCol = !empty($partners);
 ?>

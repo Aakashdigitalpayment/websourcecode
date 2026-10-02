@@ -445,6 +445,52 @@ if (!function_exists('programNormalizeBsDate')) {
     }
 }
 
+if (!function_exists('programMemberDob')) {
+    /** जन्म मिति from KYC (BS/AD) or members.dob (AD) → ['dob_bs','dob_ad','dob_label','age']; blanks when unknown. */
+    function programMemberDob(array $member, array $kyc): array
+    {
+        if (!function_exists('nepali_bs_to_ad_string') && is_file(__DIR__ . '/nepali-bs-convert.php')) {
+            require_once __DIR__ . '/nepali-bs-convert.php';
+        }
+        if (!function_exists('bsToAd') && is_file(dirname(__DIR__) . '/core/helpers.php')) {
+            require_once dirname(__DIR__) . '/core/helpers.php';
+        }
+        $valid = static fn(string $d): bool => preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) === 1 && $d !== '0000-00-00';
+        $bs = trim((string)($kyc['dob_bs'] ?? ''));
+        $ad = trim((string)($kyc['dob_ad'] ?? ''));
+        $bs = $valid($bs) ? $bs : '';
+        $ad = $valid(substr($ad, 0, 10)) ? substr($ad, 0, 10) : '';
+        if ($ad === '') {
+            $m = substr(trim((string)($member['dob'] ?? '')), 0, 10);
+            $ad = $valid($m) ? $m : '';
+        }
+        if ($bs === '' && $ad !== '' && function_exists('adToBs')) {
+            $conv = substr(trim((string)adToBs($ad)), 0, 10);
+            $bs = ($conv !== $ad && $valid($conv)) ? $conv : '';
+        }
+        if ($ad === '' && $bs !== '' && function_exists('bsToAd')) {
+            $conv = substr(trim((string)bsToAd($bs)), 0, 10);
+            $ad = ($conv !== $bs && $valid($conv)) ? $conv : '';
+        }
+        $age = null;
+        if ($ad !== '') {
+            try {
+                $years = (new DateTimeImmutable($ad))->diff(new DateTimeImmutable('today'))->y;
+                $age = ($years >= 0 && $years <= 120 && $ad <= date('Y-m-d')) ? $years : null;
+            } catch (Throwable $e) {
+                $age = null;
+            }
+        }
+        $parts = array_filter([$bs !== '' ? $bs . ' वि.सं.' : '', $ad !== '' ? $ad . ' AD' : '']);
+        return [
+            'dob_bs' => $bs,
+            'dob_ad' => $ad,
+            'dob_label' => implode(' · ', $parts),
+            'age' => $age,
+        ];
+    }
+}
+
 /** Program / location schedule time choices (same list everywhere, "h:i A" values). */
 if (!function_exists('programScheduleTimeOptions')) {
     function programScheduleTimeOptions(): array

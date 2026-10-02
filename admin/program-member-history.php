@@ -67,6 +67,7 @@ $typeLabel = $type !== '' ? programTypeLabel($type) : 'सबै कार्य
         <div class="fs-5 fw-bold"><?php echo htmlspecialchars((string)($member['name'] ?? '')); ?></div>
         <div class="font-monospace text-muted mb-2"><?php echo htmlspecialchars(programMemberSadasyataNo($member)); ?></div>
         <div class="small"><span class="text-muted">बुबाको नाम:</span> <strong><?php echo htmlspecialchars($identity['father_name'] !== '' ? $identity['father_name'] : '—'); ?></strong></div>
+        <?php if ($identity['dob_label'] !== ''): ?><div class="small"><span class="text-muted">जन्म मिति:</span> <?php echo htmlspecialchars($identity['dob_label'] . ($identity['age'] !== null ? ' (उमेर ' . $identity['age'] . ' वर्ष)' : '')); ?></div><?php endif; ?>
         <div class="small"><span class="text-muted">लिङ्ग:</span> <?php echo htmlspecialchars($identity['gender_label']); ?></div>
         <?php if (!empty($member['phone'])): ?><div class="small"><span class="text-muted">फोन:</span> <?php echo htmlspecialchars((string)$member['phone']); ?></div><?php endif; ?>
         <?php if ((int)($member['is_active'] ?? 1) !== 1): ?><span class="badge bg-secondary mt-2">निष्क्रिय सदस्य</span><?php endif; ?>
