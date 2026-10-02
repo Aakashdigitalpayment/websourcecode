@@ -74,6 +74,7 @@ if (!function_exists('programMemberIdentity')) {
     {
         $father = '';
         $gender = trim((string)($member['gender'] ?? ''));
+        $kyc = null;
         try {
             if (!function_exists('memberSsotLoadLinkedKyc')) {
                 require_once __DIR__ . '/member-ssot.php';
@@ -89,7 +90,93 @@ if (!function_exists('programMemberIdentity')) {
             error_log('[program-insights] identity: ' . $e->getMessage());
         }
         $key = programGenderKey($gender);
-        return ['father_name' => $father, 'gender_key' => $key, 'gender_label' => programGenderLabel($key)];
+        return ['father_name' => $father, 'gender_key' => $key, 'gender_label' => programGenderLabel($key)]
+            + programMemberDob($member, $kyc ?: []);
+    }
+}
+
+if (!function_exists('programMemberDob')) {
+    /** जन्म मिति from KYC (BS/AD) or members.dob (AD) → ['dob_bs','dob_ad','dob_label','age']; blanks when unknown. */
+    function programMemberDob(array $member, array $kyc): array
+    {
+        if (!function_exists('nepali_bs_to_ad_string') && is_file(__DIR__ . '/nepali-bs-convert.php')) {
+            require_once __DIR__ . '/nepali-bs-convert.php';
+        }
+        if (!function_exists('bsToAd') && is_file(dirname(__DIR__) . '/core/helpers.php')) {
+            require_once dirname(__DIR__) . '/core/helpers.php';
+        }
+        $valid = static fn(string $d): bool => preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) === 1 && $d !== '0000-00-00';
+        $bs = trim((string)($kyc['dob_bs'] ?? ''));
+        $ad = trim((string)($kyc['dob_ad'] ?? ''));
+        $bs = $valid($bs) ? $bs : '';
+        $ad = $valid(substr($ad, 0, 10)) ? substr($ad, 0, 10) : '';
+        if ($ad === '') {
+            $m = substr(trim((string)($member['dob'] ?? '')), 0, 10);
+            $ad = $valid($m) ? $m : '';
+        }
+        if ($bs === '' && $ad !== '' && function_exists('adToBs')) {
+            $conv = substr(trim((string)adToBs($ad)), 0, 10);
+            $bs = ($conv !== $ad && $valid($conv)) ? $conv : '';
+        }
+        if ($ad === '' && $bs !== '' && function_exists('bsToAd')) {
+            $conv = substr(trim((string)bsToAd($bs)), 0, 10);
+            $ad = ($conv !== $bs && $valid($conv)) ? $conv : '';
+        }
+        $age = null;
+        if ($ad !== '') {
+            try {
+                $years = (new DateTimeImmutable($ad))->diff(new DateTimeImmutable('today'))->y;
+                $age = ($years >= 0 && $years <= 120 && $ad <= date('Y-m-d')) ? $years : null;
+            } catch (Throwable $e) {
+                $age = null;
+            }
+        }
+        $parts = array_filter([$bs !== '' ? $bs . ' वि.सं.' : '', $ad !== '' ? $ad . ' AD' : '']);
+        return [
+            'dob_bs' => $bs,
+            'dob_ad' => $ad,
+            'dob_label' => implode(' · ', $parts),
+            'age' => $age,
+        ];
+    }
+}
+
+if (!function_exists('programAttendanceRecordedBy')) {
+    /** Who / which desk recorded an attendance row → ['by','desk','channel','summary'] for duplicate warnings. */
+    function programAttendanceRecordedBy(PDO $db, array $row): array
+    {
+        $by = '';
+        $desk = '';
+        $staffId = (int)($row['staff_admin_id'] ?? 0);
+        if ($staffId > 0) {
+            try {
+                $st = $db->prepare('SELECT full_name, username FROM admin_users WHERE id=? LIMIT 1');
+                $st->execute([$staffId]);
+                $u = $st->fetch(PDO::FETCH_ASSOC) ?: [];
+                $name = trim((string)($u['full_name'] ?? ''));
+                $user = trim((string)($u['username'] ?? ''));
+                $by = $name !== '' ? $name . ($user !== '' ? ' (@' . $user . ')' : '') : ($user !== '' ? '@' . $user : 'Admin #' . $staffId);
+            } catch (Throwable $e) {
+                $by = 'Admin #' . $staffId;
+            }
+        }
+        $deskId = (int)($row['desk_id'] ?? 0);
+        if ($deskId > 0) {
+            try {
+                $st = $db->prepare('SELECT desk_label FROM program_registration_desks WHERE id=? LIMIT 1');
+                $st->execute([$deskId]);
+                $desk = trim((string)$st->fetchColumn()) ?: 'Desk #' . $deskId;
+            } catch (Throwable $e) {
+                $desk = 'Desk #' . $deskId;
+            }
+        }
+        $method = strtoupper(trim((string)($row['attendance_method'] ?? '')));
+        if ($by === '' && in_array($method, ['QR_SCAN', 'MEMBER_SELF'], true)) {
+            $by = 'सदस्य आफैं';
+        }
+        $channel = programAttendanceMethodLabel($method);
+        $summary = implode(' · ', array_filter([$by, $desk, $channel !== '—' ? $channel : '']));
+        return ['by' => $by, 'desk' => $desk, 'channel' => $channel, 'summary' => $summary];
     }
 }
 

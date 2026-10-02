@@ -60,11 +60,17 @@ if (empty($eligible['ok'])) {
         'ok' => false,
         'error' => 'ineligible',
         'error_np' => $eligible['message_np'] ?? 'सदस्य eligible छैन।',
-        'member' => [
-            'member_id' => programMemberSadasyataNo($member),
-            'name' => (string)($member['name'] ?? ''),
-            'father_name' => programMemberIdentity($db, $member)['father_name'],
-        ],
+        'member' => (static function () use ($db, $member): array {
+            $idn = programMemberIdentity($db, $member);
+            return [
+                'member_id' => programMemberSadasyataNo($member),
+                'name' => (string)($member['name'] ?? ''),
+                'father_name' => $idn['father_name'],
+                'dob_bs' => $idn['dob_bs'],
+                'dob_ad' => $idn['dob_ad'],
+                'age' => $idn['age'],
+            ];
+        })(),
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -99,8 +105,12 @@ echo json_encode([
         'address' => (string)($member['address'] ?? ''),
         'photo_url' => $photoUrl,
         'is_active' => (int)($member['is_active'] ?? 0),
+        'name_np' => trim((string)($member['name_np'] ?? '')) !== trim((string)($member['name'] ?? '')) ? trim((string)($member['name_np'] ?? '')) : '',
         'father_name' => $identity['father_name'],
         'gender' => $identity['gender_key'] === 'unknown' ? '' : $identity['gender_label'],
+        'dob_bs' => $identity['dob_bs'],
+        'dob_ad' => $identity['dob_ad'],
+        'age' => $identity['age'],
     ],
     'history' => $history + ['url' => 'program-member-history.php?member_id=' . rawurlencode($sadasyata)],
     'already_attended' => (bool)$existing,
@@ -109,7 +119,7 @@ echo json_encode([
         'attended_at' => (string)($existing['attended_at'] ?? ''),
         'method' => programAttendanceMethodLabel($existing['attendance_method'] ?? ''),
         'method_code' => (string)($existing['attendance_method'] ?? ''),
-    ] : null,
+    ] + array_intersect_key(programAttendanceRecordedBy($db, $existing), ['by' => 1, 'desk' => 1]) : null,
     'window' => [
         'open' => !empty($window['ok']),
         'message_np' => (string)($window['message_np'] ?? ''),

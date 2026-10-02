@@ -134,7 +134,9 @@ if (function_exists('coopThemeLink')) {
       <i class="lucide-icon text-success lucide-2x" data-lucide="circle-check" aria-hidden="true"></i>
       <div class="fw-bold mt-2 fs-5">✓ उपस्थिति दर्ता भयो!</div>
       <div class="mt-1"><?php echo htmlspecialchars($memberPreview['name'] ?? ''); ?></div>
-      <?php $okFather = programMemberIdentity($db, $memberPreview)['father_name']; if ($okFather !== ''): ?><div class="small text-muted">बुबा: <?php echo htmlspecialchars($okFather); ?></div><?php endif; ?>
+      <?php $okIdn = programMemberIdentity($db, $memberPreview); ?>
+      <?php if ($okIdn['father_name'] !== ''): ?><div class="small text-muted">बुबा: <?php echo htmlspecialchars($okIdn['father_name']); ?></div><?php endif; ?>
+      <?php if ($okIdn['dob_label'] !== ''): ?><div class="small text-muted">जन्म मिति: <?php echo htmlspecialchars($okIdn['dob_label']); ?></div><?php endif; ?>
       <div class="small text-muted font-monospace"><?php echo htmlspecialchars(programMemberSadasyataNo($memberPreview)); ?></div>
       <?php if ($selectedOccurrence): ?><div class="small mt-1"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($selectedOccurrence['location_name'] ?? ''); ?></div><?php endif; ?>
     </div>
@@ -144,7 +146,9 @@ if (function_exists('coopThemeLink')) {
     <div class="desk-duplicate p-3 mb-3">
       <div class="fw-bold"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i> Already Attended</div>
       <div class="mt-1"><?php echo htmlspecialchars($memberPreview['name'] ?? ''); ?> — <?php echo htmlspecialchars(programMemberSadasyataNo($memberPreview ?? [])); ?></div>
+      <?php $dupBy = programAttendanceRecordedBy($db, $existingInfo); ?>
       <div class="small mt-2">
+        <div><i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i>दर्ता गर्ने: <strong><?php echo htmlspecialchars($dupBy['by'] !== '' ? $dupBy['by'] : 'अज्ञात'); ?></strong><?php if ($dupBy['desk'] !== ''): ?> · <?php echo htmlspecialchars($dupBy['desk']); ?><?php endif; ?></div>
         <div><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars(programAttendanceDisplayLocation($existingInfo)); ?></div>
         <?php if (!empty($existingInfo['attended_at'])): ?><div><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i><?php echo htmlspecialchars(date('Y-m-d H:i', strtotime((string)$existingInfo['attended_at']))); ?></div><?php endif; ?>
         <?php if (!empty($existingInfo['attendance_method'])): ?><div><i class="lucide-icon me-1" data-lucide="tag" aria-hidden="true"></i><?php echo htmlspecialchars(programAttendanceMethodLabel($existingInfo['attendance_method'])); ?></div><?php endif; ?>
@@ -220,13 +224,25 @@ if (function_exists('coopThemeLink')) {
 
       <div id="deskInlineMsg" class="desk-inline-warn mb-3 d-none"></div>
 
-      <div id="deskPreview" class="desk-preview text-center mb-3 d-none">
-        <img id="deskPhoto" class="desk-photo mb-2" src="" alt="">
-        <div id="deskName" class="fs-5 fw-bold"></div>
-        <div id="deskFather" class="small fw-semibold d-none"></div>
-        <div id="deskMeta" class="text-muted small"></div>
-        <div id="deskHistory" class="desk-history small mt-2 d-none"></div>
-        <div id="deskDupInfo" class="small fw-semibold mt-2 d-none" style="color:#92400e"></div>
+      <div id="deskPreview" class="desk-idcard mb-3 d-none" aria-live="polite">
+        <div class="desk-idcard-head">
+          <span><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>सदस्य परिचय</span>
+          <span id="deskStatusBadge" class="desk-idcard-badge"></span>
+        </div>
+        <div class="desk-idcard-body">
+          <div class="desk-idcard-photo">
+            <img id="deskPhoto" src="" alt="" class="d-none">
+            <span id="deskInitials" aria-hidden="true"></span>
+          </div>
+          <div class="desk-idcard-info">
+            <div id="deskName" class="desk-idcard-name"></div>
+            <div id="deskNameNp" class="desk-idcard-sub d-none"></div>
+            <div id="deskMemberNo" class="desk-idcard-no"></div>
+            <dl id="deskFields" class="desk-idcard-fields"></dl>
+          </div>
+        </div>
+        <div id="deskDupInfo" class="desk-idcard-dup d-none"></div>
+        <div id="deskHistory" class="desk-history small d-none"></div>
       </div>
 
       <label class="form-label desk-member-id" for="deskMemberInput">Member ID (कार्ड / सदस्यता नं.) *</label>
@@ -303,6 +319,63 @@ if (function_exists('coopThemeLink')) {
     box.classList.remove('d-none');
   }
 
+  function addField(dl, label, value) {
+    if (!value) return;
+    var dt = document.createElement('dt'); dt.textContent = label;
+    var dd = document.createElement('dd'); dd.textContent = value;
+    dl.appendChild(dt); dl.appendChild(dd);
+  }
+
+  function renderCard(m, isDup) {
+    preview.classList.remove('d-none');
+    preview.classList.toggle('desk-idcard--dup', !!isDup);
+    preview.classList.toggle('desk-idcard--inactive', !isDup && !m.is_active);
+    document.getElementById('deskName').textContent = m.name || '';
+    var np = document.getElementById('deskNameNp');
+    np.textContent = m.name_np || '';
+    np.classList.toggle('d-none', !m.name_np);
+    document.getElementById('deskMemberNo').textContent = m.member_id || '';
+    var badge = document.getElementById('deskStatusBadge');
+    badge.textContent = isDup ? 'पहिले नै दर्ता' : (m.is_active ? 'सक्रिय सदस्य' : 'निष्क्रिय सदस्य');
+    var img = document.getElementById('deskPhoto');
+    var initials = document.getElementById('deskInitials');
+    initials.textContent = (m.name || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0); }).join('').toUpperCase();
+    if (m.photo_url) {
+      img.onerror = function () { img.classList.add('d-none'); initials.classList.remove('d-none'); };
+      img.src = m.photo_url; img.alt = m.name || '';
+      img.classList.remove('d-none'); initials.classList.add('d-none');
+    } else {
+      img.removeAttribute('src'); img.classList.add('d-none'); initials.classList.remove('d-none');
+    }
+    var dl = document.getElementById('deskFields');
+    dl.textContent = '';
+    addField(dl, 'बुबाको नाम', m.father_name);
+    var dob = [m.dob_bs ? m.dob_bs + ' वि.सं.' : '', m.dob_ad ? m.dob_ad + ' AD' : ''].filter(Boolean).join(' · ');
+    if (dob && m.age !== null && m.age !== undefined) dob += ' (उमेर ' + m.age + ' वर्ष)';
+    addField(dl, 'जन्म मिति', dob);
+    addField(dl, 'लिङ्ग', m.gender);
+    addField(dl, 'फोन', m.phone);
+    addField(dl, 'ठेगाना', m.address);
+  }
+
+  function renderDuplicate(ex) {
+    if (!dupInfo) return;
+    dupInfo.textContent = '';
+    var t = document.createElement('div');
+    t.className = 'desk-idcard-dup-title';
+    t.textContent = '⚠ यो सदस्यको उपस्थिति पहिले नै दर्ता भइसकेको छ';
+    dupInfo.appendChild(t);
+    var dl = document.createElement('dl');
+    dl.className = 'desk-idcard-fields mb-0';
+    addField(dl, 'दर्ता गर्ने', ex.by || 'अज्ञात');
+    addField(dl, 'Desk', ex.desk);
+    addField(dl, 'तरिका', ex.method);
+    addField(dl, 'स्थान', ex.location);
+    addField(dl, 'समय', ex.attended_at);
+    dupInfo.appendChild(dl);
+    dupInfo.classList.remove('d-none');
+  }
+
   var deskSel = document.getElementById('deskDeskId');
   if (deskSel && window.localStorage) {
     var deskKey = 'coopDesk:' + deskSel.getAttribute('data-program');
@@ -340,17 +413,9 @@ if (function_exists('coopThemeLink')) {
           resetPreview();
           return;
         }
-        preview.classList.remove('d-none');
-        preview.classList.toggle('desk-duplicate', !!d.already_attended);
-        preview.classList.toggle('desk-preview', !d.already_attended);
+        renderCard(d.member, d.already_attended);
         if (dupInfo) { dupInfo.classList.add('d-none'); dupInfo.textContent = ''; }
-        document.getElementById('deskName').textContent = d.member.name + ' (' + d.member.member_id + ')';
-        var fatherEl = document.getElementById('deskFather');
-        if (d.member.father_name) { fatherEl.textContent = 'बुबा: ' + d.member.father_name; fatherEl.classList.remove('d-none'); } else { fatherEl.classList.add('d-none'); }
-        document.getElementById('deskMeta').textContent = [d.member.gender, d.member.phone, d.member.address].filter(Boolean).join(' · ');
         renderHistory(d.history);
-        var img = document.getElementById('deskPhoto');
-        if (d.member.photo_url) { img.src = d.member.photo_url; img.classList.remove('d-none'); } else { img.classList.add('d-none'); }
 
         if (d.window && !d.window.open) {
           showInline(d.window.message_np || 'Window closed', true);
@@ -362,9 +427,8 @@ if (function_exists('coopThemeLink')) {
           lookupReady = false;
         } else if (d.already_attended) {
           var ex = d.existing || {};
-          var dupTxt = '⚠ पहिले नै दर्ता भइसकेको' + (ex.location ? ' — ' + ex.location : '') + (ex.attended_at ? ' (' + ex.attended_at + ')' : '');
-          showInline(dupTxt, false);
-          if (dupInfo) { dupInfo.textContent = dupTxt + (ex.method ? ' · ' + ex.method : ''); dupInfo.classList.remove('d-none'); }
+          showInline('⚠ पहिले नै दर्ता भइसकेको' + (ex.by ? ' — ' + ex.by + ' बाट' : '') + (ex.attended_at ? ' (' + ex.attended_at + ')' : ''), false);
+          renderDuplicate(ex);
           confirmBtn.disabled = true;
           lookupReady = false;
         } else {
