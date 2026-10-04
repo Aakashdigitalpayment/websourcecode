@@ -8,7 +8,9 @@
  * ════════════════════════════════════════════════════════════════════
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
-
+$pageTitle   = 'सहायता / Help Guide';
+$currentPage = 'help-guide';
+$activeGroup = 'prawidhi';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 echo adminPageHeader('Quick Start Guide','fa-book-open',
@@ -323,6 +325,13 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>CSV upload गर्नुहोस्। उही Member ID मा <code>Update / Replace</code> (सिफारिस — खाली optional ले पुरानो नमेटाउने) वा <code>Skip</code> छान्नुहोस्।</li>
         <li>Import सुरु — ठूलो फाइल (१०–५० हजार) मा progress बारले chunk-chunk मा चल्छ; timeout हुँदैन। कार्ड auto-generate हुन्छ।</li>
         <li>Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>। Bulk SMS पठाइँदैन।</li>
+      </ol>
+      <h5>💰 मासिक बचत (नियमित / नियमित नभएको):</h5>
+      <ol class="hg-steps-list">
+        <li>नयाँ/पूरा import मा <code>monthly_saving</code> column राख्नुहोस् — <code>नियमित</code> / <code>नियमित नभएको</code> (वा <code>1</code> / <code>0</code>)। खाली = पुरानो मान जोगिन्छ।</li>
+        <li><b>पहिले import भइसकेका सदस्य:</b> <a href="member-import.php#fieldUpdate">Member Bulk Import → मासिक बचत मात्र Update</a> — CSV मा <code>member_id</code> + <code>monthly_saving</code> मात्र। नाम, मोबाइल, KYM वा अरू data छोइँदैन; नयाँ सदस्य बन्दैन।</li>
+        <li>एक-एक गरी: <a href="members.php">Members</a> → सदस्य → सम्पादन → व्यक्तिगत, वा KYM सम्पादन।</li>
+        <li><b>कार्यक्रम उपस्थिति:</b> <a href="program-registration-desk.php">दर्ता डेस्क</a> मा Member ID lookup गर्दा मासिक बचत देखिन्छ — बटन थिच्दा तुरुन्तै save हुन्छ (पहिले नै दर्ता भएकोमा पनि)।</li>
       </ol>
       <div class="hg-info">
         ✨ <b>Member ID = एकल स्रोत (SSOT):</b> पहिले Members import / admin ले सदस्यता नं. बनाउने → अनि Online KYM त्यही नम्बरसँग।

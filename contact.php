@@ -126,7 +126,7 @@ require_once 'includes/header.php';
                         <div class="contact-icon"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></div>
                         <div class="contact-details">
                             <h6><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></h6>
-                            <p><?php echo $address; ?></p>
+                            <p><?php echo e($address); ?></p>
                         </div>
                     </div>
                     <div class="contact-item">
@@ -157,11 +157,20 @@ require_once 'includes/header.php';
                         </div>
                     </div>
 
+                    <?php
+                    /* Only configured profiles: unset URLs fall back to '#' (dead link in a new tab) */
+                    $__ctSocial = array_filter([
+                        'Facebook' => [(string) ($facebookUrl ?? ''), 'fab fa-facebook-f'],
+                        'YouTube'  => [(string) ($youtubeUrl ?? ''), 'fab fa-youtube'],
+                    ], static fn(array $s): bool => $s[0] !== '' && $s[0] !== '#');
+                    if ($__ctSocial): ?>
                     <div class="contact-social">
                         <h6><?php echo isEnglish() ? 'Social Media' : 'सामाजिक सञ्जाल'; ?></h6>
-                        <a href="<?php echo htmlspecialchars($facebookUrl ?? '#', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                        <a href="<?php echo htmlspecialchars($youtubeUrl ?? '#', ENT_QUOTES, 'UTF-8'); ?>"  target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                        <?php foreach ($__ctSocial as $__ctName => [$__ctUrl, $__ctIcon]): ?>
+                        <a href="<?php echo htmlspecialchars($__ctUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo htmlspecialchars($__ctName, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars($__ctName, ENT_QUOTES, 'UTF-8'); ?>"><i class="<?php echo $__ctIcon; ?>" aria-hidden="true"></i></a>
+                        <?php endforeach; ?>
                     </div>
+                    <?php endif; unset($__ctSocial, $__ctName, $__ctUrl, $__ctIcon); ?>
 
                     <!-- सन्देश पठाउने बटन — modal खोल्छ -->
                     <div class="mt-4">

@@ -5,6 +5,7 @@ Never include app-public / app-admin / app-member / app-core — those stay froz
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,6 +48,10 @@ BUNDLES: dict[str, list[str]] = {
 
 
 def main() -> None:
+    # --check: exit 1 if any committed bundle differs from its sources (a hand edit
+    # in a bundle is silently lost on the next rebuild). Used by smoke-css-order.php.
+    check = "--check" in sys.argv[1:]
+    stale: list[str] = []
     for out_name, parts in BUNDLES.items():
         lines = [
             f"/* AUTO-GENERATED: {out_name} — do not edit by hand.",
@@ -66,8 +71,18 @@ def main() -> None:
             chunks.append(body.rstrip() + "\n")
             chunks.append(f"/* ===== END {p} ===== */\n")
         out = CSS / out_name
-        out.write_text("".join(chunks), encoding="utf-8")
+        text = "".join(chunks)
+        if check:
+            if not out.is_file() or out.read_text(encoding="utf-8") != text:
+                stale.append(out_name)
+            continue
+        out.write_text(text, encoding="utf-8")
         print(f"{out_name}: {out.stat().st_size} bytes")
+    if check:
+        if stale:
+            print("STALE (edit the source file, then rebuild): " + ", ".join(stale))
+            raise SystemExit(1)
+        print("late bundles in sync with sources")
 
 
 if __name__ == "__main__":

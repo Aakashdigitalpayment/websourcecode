@@ -1305,3 +1305,37 @@ body.verify-auth-page .vp-secure {
   height: 1.15rem !important;
   stroke: currentColor !important;
 }
+
+/* Apply-frame (member KYC iframe): page CSS sets padding 0 but the shared .mem-card-body
+   padding won — 16px more lost on each side of an already narrow embedded form. */
+.mem-card .mem-card-body.mem-apply-frame-body {
+  padding: 0 !important;
+}
+
+/* ── WCAG AA text contrast (axe-core audit) ───────────────────────────────────────────
+   #9ca3af / #94a3b8 grey used as TEXT on white is ~2.5:1 — one step darker (≥4.7:1). */
+.midx-ds-desc,
+.midx-filter-pill:not(.active):not(.is-active),
+.mmp-hint,
+.mem-main-content [style*="color:#9ca3af"],
+.mem-main-content [style*="color: #9ca3af"] {
+  color: #6b7280 !important;
+}
+.mem-kym-item-label {
+  color: #64748b !important;
+}
+.midx-empty-note {
+  color: #4b5563 !important;
+}
+.att-badge {
+  color: #15803d !important;
+}
+/* Language code on the green top bar was grey-on-green (1.2:1) — read as "disabled". */
+.mem-lang-code {
+  color: #fff !important;
+  opacity: 0.92;
+}
+
+.idcard-note-muted {
+  color: #4b5563 !important;   /* on the amber note background #6b7280 was 4.47 */
+}

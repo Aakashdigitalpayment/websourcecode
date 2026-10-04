@@ -222,7 +222,8 @@ if (!is_resource($proc)) {
         fail("HTTP POST /contact.php → {$code}");
     }
 
-    [, $html] = $http('/contact');
+    /* ui_test=1: localhost-only bypass of the no-DB setup wall so the real page renders */
+    [, $html] = $http('/contact?ui_test=1');
     if (str_contains($html, 'action="contact.php"')) {
         ok('rendered form keeps contact.php');
     } else {

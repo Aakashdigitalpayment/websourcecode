@@ -744,8 +744,22 @@ assertContains('scripts/inventory-css-deep-audit.py', 'css-deep-audit.json', 'CS
 assertNotContains('verify.php', 'fonts.googleapis.com', 'verify fonts via SSOT only (no rogue Google link)');
 
 assertContains('online-kyc.php', 'assets/css/kyc-capture.css', 'online-kyc loads kyc-capture.css');
-assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.11', 'online-kyc capture js version');
-assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.11', 'member profile capture js synced');
+assertContains('online-kyc.php', "coopThemeCssVer('assets/js/kyc-capture.js')", 'online-kyc capture js filemtime version');
+assertContains('member/profile.php', "coopThemeCssVer('assets/js/kyc-capture.js')", 'member profile capture js filemtime version');
+
+// .htaccess caches css/js for 1y immutable — a hand-typed ?v=N never refreshes returning visitors.
+foreach ([
+    'includes/header.php', 'admin/includes/admin-header.php', 'admin/includes/admin-footer.php',
+    'member/includes/chrome.php', 'member/includes/chrome-foot.php', 'online-kyc.php', 'member/profile.php',
+] as $__vf) {
+    $__src = (string) @file_get_contents($root . '/' . $__vf);
+    if (preg_match('#assets/[A-Za-z0-9_./-]+\.(?:css|js)\?v=[0-9]#', $__src, $__m)) {
+        fail("{$__vf}: hard-coded asset version ({$__m[0]}) — use coopThemeCssVer()");
+    } else {
+        ok("{$__vf}: asset versions via filemtime");
+    }
+}
+unset($__vf, $__src, $__m);
 
 // Contact panel icons follow Admin brand secondary (not hardcoded yellow)
 assertContains('assets/css/global-theme.php', '--contact-icon-on-primary:', 'contact icon WCAG token from secondary');
@@ -786,6 +800,31 @@ foreach (['includes/theme-assets.php', 'includes/header.php', 'institutional-pro
         ok("{$f}: php -l");
     }
 }
+
+/* @keyframes names are global: the form/footer accent stripes animate `shimmer` as a background slide.
+   A rotating `shimmer` defined later (auction) turned them into a diagonal line across every form. */
+$__pub = (string) @file_get_contents($root . '/assets/css/app-public.css');
+preg_match_all('/@keyframes\s+shimmer\s*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/', $__pub, $__kf);
+if (!array_filter($__kf[0], static fn(string $blk): bool => str_contains($blk, 'rotate('))) {
+    ok('app-public: @keyframes shimmer never rotates (accent stripe safe)');
+} else {
+    fail('app-public: a rotating @keyframes shimmer overrides the accent stripe animation');
+}
+unset($__pub, $__kf);
+
+/* Late bundles are generated — a hand edit there vanishes on the next rebuild. */
+$__py = trim((string) @shell_exec('command -v python3 2>/dev/null'));
+if ($__py !== '') {
+    $__out = [];
+    $__code = 0;
+    exec(escapeshellarg($__py) . ' ' . escapeshellarg($root . '/scripts/build-css-late-bundles.py') . ' --check 2>&1', $__out, $__code);
+    if ($__code === 0) {
+        ok('late bundles in sync with their source files');
+    } else {
+        fail('late bundles out of sync — ' . implode(' ', $__out));
+    }
+}
+unset($__py, $__out, $__code);
 
 echo "\n{$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);

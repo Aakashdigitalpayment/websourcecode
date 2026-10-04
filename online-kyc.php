@@ -1143,10 +1143,10 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
 <!-- v10.4: KYC capture assets (camera/crop/signature/fingerprint) -->
 <?php if (function_exists('coopThemeLink')) { coopThemeLink('assets/css/kyc-capture.css'); } else { ?>
-<link rel="stylesheet" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/css/kyc-capture.css?v=10.6">
+<link rel="stylesheet" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/css/kyc-capture.css?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/css/kyc-capture.css') : '10.6'; ?>">
 <?php } ?>
 <?php printNepalAddressJs(); ?>
-<script defer src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/kyc-capture.js?v=10.11"></script>
+<script defer src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/kyc-capture.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/kyc-capture.js') : '10.11'; ?>"></script>
 
 <!-- KYM Form Section -->
 <section class="kyc-form-section section-padding">

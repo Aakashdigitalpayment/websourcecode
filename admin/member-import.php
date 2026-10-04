@@ -141,6 +141,44 @@ if ($ajaxAction !== '') {
     exit;
 }
 
+/* ── Field-only update (Member ID + मासिक बचत) — normal POST, PRG ── */
+if ($pdo && ($_GET['fu_errors'] ?? '') === '1') {
+    $probs = $_SESSION['mi_field_update']['problems'] ?? [];
+    if (function_exists('memberImportClearOutputBuffers')) {
+        memberImportClearOutputBuffers();
+    }
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="monthly-saving-update-problems.csv"');
+    echo "\xEF\xBB\xBF";
+    $out = fopen('php://output', 'w');
+    fputcsv($out, ['row', 'member_id', 'monthly_saving', 'reason']);
+    foreach ($probs as $pr) {
+        fputcsv($out, array_map('strval', $pr));
+    }
+    fclose($out);
+    exit;
+}
+if ($pdo && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['field_update'])) {
+    checkCSRF();
+    if (function_exists('has_role') && !has_role('staff')) {
+        setFlash('error', 'Permission denied');
+        redirect('member-import.php');
+    }
+    if (is_file(__DIR__ . '/includes/audit-log.php')) {
+        require_once __DIR__ . '/includes/audit-log.php';
+    }
+    $fu = memberImportFieldUpdate($pdo, $_FILES['fu_file'] ?? [], $adminId);
+    if (empty($fu['ok'])) {
+        setFlash('error', (string)($fu['error'] ?? 'Update असफल।'));
+        unset($_SESSION['mi_field_update']);
+    } else {
+        $fu['filename'] = mb_substr((string)($_FILES['fu_file']['name'] ?? ''), 0, 120);
+        $_SESSION['mi_field_update'] = $fu;
+        setFlash('success', 'मासिक बचत update सकियो — ' . (int)$fu['changed'] . ' सदस्यमा परिवर्तन भयो। अरू data छोइएन।');
+    }
+    redirect('member-import.php#fieldUpdate');
+}
+
 $pageTitle   = 'सदस्य Bulk Import';
 $currentPage = 'member-import';
 require_once __DIR__ . '/includes/admin-header.php';
@@ -181,6 +219,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     </div>
 </div>
 
+<?php $fuLast = $_SESSION['mi_field_update'] ?? null; ?>
 <div class="row g-3">
     <div class="col-lg-7">
         <?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('import'); } ?>
@@ -202,7 +241,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <code>father_name</code> (बुबाको नाम → KYM soft-fill),
                     <code>citizenship_no</code> (नागरिकता नं. → KYM soft-fill),
                     <code>membership_date</code> / <code>membership_date_bs</code> (सदस्यता मिति बि.सं. → members),
-                    <code>membership_date_ad</code> (ई.सं.)
+                    <code>membership_date_ad</code> (ई.सं.),
+                    <code>monthly_saving</code> (मासिक बचत: <strong>नियमित</strong> / <strong>नियमित नभएको</strong> — वा 1 / 0)
                     <div class="mt-1"><strong>full_name = English नाम</strong> (CVV) · <strong>name_np = नेपाली नाम</strong> (KYM पूरा नाम)।</div>
                     <div class="mt-1"><code>father_name</code> / <code>citizenship_no</code> KYM मा खाली भए मात्र भरिन्छ — पहिले भरिएको KYM overwrite हुँदैन।</div>
                     <div class="mt-1">Member ID / mobile / dob / नागरिकता मा <strong>नेपाली अंक</strong> (०–९) राखे पनि भित्र English 0–9 मा convert हुन्छ।</div>
@@ -260,6 +300,44 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     </div>
                     <div id="miErrorBox" class="alert alert-danger mt-3 d-none small"></div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-3" id="fieldUpdate">
+            <div class="card-body">
+                <h2 class="h6 fw-bold mb-2"><i class="lucide-icon me-2 text-primary" data-lucide="refresh-cw" aria-hidden="true"></i>मासिक बचत मात्र Update (पहिले import भएका सदस्य)</h2>
+                <p class="small text-muted mb-2">
+                    CSV मा <code>member_id</code> र <code>monthly_saving</code> दुई column मात्र।
+                    <strong>नाम, मोबाइल, KYM वा अरू कुनै data छोइँदैन</strong> · नयाँ सदस्य बन्दैन ·
+                    खाली मान = पुरानो नै रहन्छ · सिस्टममा नभएको Member ID छोडिन्छ (problems CSV मा आउँछ)।
+                </p>
+                <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2">
+                    <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
+                    <input type="hidden" name="field_update" value="1">
+                    <div class="flex-grow-1">
+                        <label for="fuFile" class="form-label small fw-semibold">CSV फाइल (member_id, monthly_saving)</label>
+                        <input type="file" name="fu_file" id="fuFile" class="form-control" accept=".csv,text/csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="upload" aria-hidden="true"></i>Update गर्नुहोस्</button>
+                    <a href="member-import-sample.php?type=monthly_saving" class="btn btn-outline-primary"><i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Sample</a>
+                </form>
+                <div class="form-text">मान: <code>नियमित</code> / <code>नियमित नभएको</code> (वा <code>1</code> / <code>0</code>, <code>yes</code> / <code>no</code>, <code>regular</code> / <code>irregular</code>)।</div>
+                <?php if (is_array($fuLast)): ?>
+                <div class="border rounded p-2 mt-3 small bg-light">
+                    <div class="fw-semibold mb-1">पछिल्लो update<?php echo !empty($fuLast['filename']) ? ' — ' . htmlspecialchars((string)$fuLast['filename']) : ''; ?></div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-secondary">Rows <?php echo (int)$fuLast['total']; ?></span>
+                        <span class="badge bg-success">परिवर्तन <?php echo (int)$fuLast['changed']; ?></span>
+                        <span class="badge bg-info text-dark">पहिले नै उही <?php echo (int)$fuLast['unchanged']; ?></span>
+                        <span class="badge bg-light text-dark border">खाली <?php echo (int)$fuLast['blank']; ?></span>
+                        <span class="badge bg-warning text-dark">Member ID छैन <?php echo (int)$fuLast['not_found']; ?></span>
+                        <span class="badge bg-danger">गलत मान <?php echo (int)$fuLast['invalid']; ?></span>
+                    </div>
+                    <?php if (!empty($fuLast['problems'])): ?>
+                    <a class="btn btn-sm btn-outline-danger mt-2" href="member-import.php?fu_errors=1">Problems CSV download</a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

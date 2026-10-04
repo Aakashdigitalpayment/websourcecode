@@ -176,19 +176,19 @@ try {
                             <ul class="footer-contact">
                                 <li>
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i>
-                                    <span><?php echo $address ?? 'काठमाडौं, नेपाल'; ?></span>
+                                    <span><?php echo e($address ?? 'काठमाडौं, नेपाल'); ?></span>
                                 </li>
                                 <li>
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i>
-                                    <span><?php echo $phone ?? '061590067'; ?></span>
+                                    <span><?php echo e($phone ?? '061590067'); ?></span>
                                 </li>
                                 <li>
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i>
-                                    <span><?php echo $mobile ?? '9827157000'; ?></span>
+                                    <span><?php echo e($mobile ?? '9827157000'); ?></span>
                                 </li>
                                 <li>
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i>
-                                    <span><?php echo $email ?? 'info@sahakari.org.np'; ?></span>
+                                    <span><?php echo e($email ?? 'info@sahakari.org.np'); ?></span>
                                 </li>
                             </ul>
                         </div>
@@ -649,16 +649,17 @@ try {
         }
 
         function updateDarkModeIcon(isDark) {
-            var topbarIcon = topbarDarkModeToggle ? topbarDarkModeToggle.querySelector('i') : null;
-            if (!topbarIcon) return;
+            if (!topbarDarkModeToggle) return;
             var name = isDark ? 'sun' : 'moon';
-            topbarIcon.className = 'lucide-icon';
-            topbarIcon.setAttribute('data-lucide', name);
-            topbarIcon.setAttribute('aria-hidden', 'true');
-            topbarIcon.innerHTML = '';
-            if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                window.lucide.createIcons({ nodes: [topbarIcon] });
+            /* querySelector('i') found nothing once Lucide had rendered the <svg> → icon never flipped */
+            if (typeof window.coopSetLucide === 'function') {
+                window.coopSetLucide(topbarDarkModeToggle, name);
+                return;
             }
+            /* Saved-preference call on load runs before the shared helper is printed; Lucide has not
+               rendered yet either, so the <i> only needs its name. */
+            var pending = topbarDarkModeToggle.querySelector('i[data-lucide]');
+            if (pending) pending.setAttribute('data-lucide', name);
         }
 
         if (darkModeToggle) {

@@ -21,6 +21,13 @@ if (!in_array($type, $allowedTypes, true) || $id <= 0) {
     exit;
 }
 
+/* Same RBAC as the list pages — these types are admin+ there (require_role('admin')),
+   so an editor/staff login must not be able to print them by ID here either. */
+require_once __DIR__ . '/../includes/auth-roles.php';
+if (in_array($type, ['kyc', 'loan', 'digital', 'account', 'grievance', 'job'], true)) {
+    require_role('admin');
+}
+
 /* ── Site settings ── */
 $siteName    = getSetting('site_name',           'सहकारी संस्था');
 $siteAddress = getSetting('office_address',      '');

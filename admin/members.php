@@ -9,6 +9,7 @@
 require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/member-auth.php';
 require_once __DIR__ . '/../includes/member-ssot.php';
+require_once __DIR__ . '/../includes/member-monthly-saving.php';
 require_once __DIR__ . '/../includes/information-room-tables.php';
 require_once __DIR__ . '/includes/admin-ui.php';
 
@@ -51,6 +52,7 @@ try {
         if (function_exists('ensureInformationRoomMemberColumn')) {
             ensureInformationRoomMemberColumn($db);
         }
+        coop_monthly_saving_ensure_column($db);
         $stFlag = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
         $stFlag->execute(['migration_member_schema_backfill_v1']);
         if ((string)$stFlag->fetchColumn() !== '1') {
@@ -269,6 +271,12 @@ if (isset($_POST['update_member_profile'])) {
                     $mid,
                 ]);
         }
+        if (array_key_exists('monthly_saving', $_POST)) {
+            $msParsed = coop_monthly_saving_parse((string) $_POST['monthly_saving']);
+            if ($msParsed['ok']) {
+                coop_monthly_saving_set($db, $mid, $msParsed['value'], 'Members edit');
+            }
+        }
         if (function_exists('memberSsotAfterMemberWrite')) {
             memberSsotAfterMemberWrite($db, $mid);
         }
@@ -378,6 +386,10 @@ $kycFilter = trim((string)($_GET['kyc'] ?? 'all'));
 if (!in_array($kycFilter, ['all', 'linked', 'unlinked', 'no_password'], true)) {
     $kycFilter = 'all';
 }
+$msFilter = (string)($_GET['ms'] ?? 'all');
+if (!in_array($msFilter, ['all', '1', '0', 'none'], true)) {
+    $msFilter = 'all';
+}
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 20;
 $offset = ($page - 1) * $limit;
@@ -435,6 +447,12 @@ if ($kycFilter === 'linked' && $hasKycId && $hasPassword) {
     $where .= " AND (kyc_application_id IS NULL OR kyc_application_id = 0)";
 } elseif ($kycFilter === 'no_password' && $hasPassword) {
     $where .= " AND (password_hash IS NULL OR password_hash = '')";
+}
+
+if ($msFilter !== 'all' && $hasCol(COOP_MONTHLY_SAVING_COL)) {
+    $where .= $msFilter === 'none'
+        ? ' AND ' . COOP_MONTHLY_SAVING_COL . ' IS NULL'
+        : ' AND ' . COOP_MONTHLY_SAVING_COL . ' = ' . (int) $msFilter;
 }
 
 $whereBase = $where;
@@ -507,6 +525,7 @@ try {
     if ($hasApproval) $selectCols[] = 'approval_status';
     if ($hasCreated) $selectCols[] = 'created_at';
     if ($hasCardNo) $selectCols[] = 'member_card_no';
+    if ($hasCol(COOP_MONTHLY_SAVING_COL)) $selectCols[] = COOP_MONTHLY_SAVING_COL;
 
     $sql = 'SELECT ' . implode(', ', $selectCols) . "
             FROM members
@@ -792,6 +811,11 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                             <input type="date" name="dob" id="mem_edit_dob" class="form-control" value="<?php echo $memEditDob !== '' ? htmlspecialchars($memEditDob, ENT_QUOTES, 'UTF-8') : ''; ?>">
                             <div class="form-text">YYYY-MM-DD — linked KYM को dob_ad मा sync हुन्छ।</div>
                         </div>
+                        <div class="col-md-4">
+                            <span class="form-label fw-semibold d-block" id="mem_edit_ms_lbl">मासिक बचत</span>
+                            <?php echo coop_monthly_saving_radios_html(coop_monthly_saving_from_db($viewMember[COOP_MONTHLY_SAVING_COL] ?? null), 'mem_edit_ms'); ?>
+                            <div class="form-text">नियमित / नियमित नभएको — Program desk र import मा पनि यही।</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -865,6 +889,10 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">जन्म मिति</span>
                     <span class="small"><?php echo $memEditDobDisplay; ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">मासिक बचत</span>
+                    <span class="small"><?php echo coop_monthly_saving_badge_html(coop_monthly_saving_from_db($viewMember[COOP_MONTHLY_SAVING_COL] ?? null)); ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">दर्ता</span>
@@ -1168,8 +1196,8 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
         ['icon'=>'fa-clock',              'label'=>'प्रतीक्षामा',      'value'=>$stats['pending'] ?? 0,      'color'=>'warning', 'link'=>'members.php?status=pending'],
         ['icon'=>'fa-rotate',             'label'=>'Renewal Pending',   'value'=>$stats['renewal'] ?? 0,      'color'=>'info',    'link'=>'members.php?renewal=1'],
         ['icon'=>'fa-link',               'label'=>'KYC Linked',        'value'=>$stats['kyc_linked'] ?? 0,   'color'=>'secondary'],
-        ['icon'=>'fa-g',                  'label'=>'Google Login',       'value'=>$stats['google'],            'color'=>'danger'],
-        ['icon'=>'fa-f',                  'label'=>'Facebook Login',     'value'=>$stats['facebook'],          'color'=>'primary'],
+        ['icon'=>'fa-envelope',           'label'=>'Google Login',       'value'=>$stats['google'],            'color'=>'danger'],
+        ['icon'=>'fa-right-to-bracket',   'label'=>'Facebook Login',     'value'=>$stats['facebook'],          'color'=>'primary'],
     ];
     $statColClass = 'col-6 col-sm-4 col-md-3 col-lg-2';
     include __DIR__ . '/../includes/components/stat-card.php';
@@ -1191,8 +1219,14 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <option value="unlinked" <?php echo $kycFilter==='unlinked' ? 'selected' : ''; ?>>Member only (KYM छैन)</option>
                 <option value="no_password" <?php echo $kycFilter==='no_password' ? 'selected' : ''; ?>>Stub (पासवर्ड छैन)</option>
             </select>
+            <select name="ms" class="form-select form-select-sm mem-filter-kyc" title="मासिक बचत फिल्टर" aria-label="मासिक बचत फिल्टर">
+                <option value="all" <?php echo $msFilter==='all' ? 'selected' : ''; ?>>मासिक बचत: सबै</option>
+                <option value="1" <?php echo $msFilter==='1' ? 'selected' : ''; ?>>नियमित</option>
+                <option value="0" <?php echo $msFilter==='0' ? 'selected' : ''; ?>>नियमित नभएको</option>
+                <option value="none" <?php echo $msFilter==='none' ? 'selected' : ''; ?>>नतोकिएको</option>
+            </select>
             <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i>खोज</button>
-            <?php if ($search !== '' || $kycFilter !== 'all'): ?>
+            <?php if ($search !== '' || $kycFilter !== 'all' || $msFilter !== 'all'): ?>
                 <a href="members.php<?php echo $memSub === 'arch' ? '?mem_sub=arch' : ''; ?>" class="btn btn-sm btn-outline-secondary">Clear</a>
             <?php endif; ?>
             <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#bulkNotifModal" title="सबै सदस्यलाई एकैचोटि सूचना पठाउनुहोस्">
@@ -1277,7 +1311,9 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                             </div>
                         </div>
                     </td>
-                    <td class="small"><code><?php echo htmlspecialchars($m['sadasyata_number'] ?? '—'); ?></code></td>
+                    <td class="small"><code><?php echo htmlspecialchars($m['sadasyata_number'] ?? '—'); ?></code>
+                        <?php if (array_key_exists(COOP_MONTHLY_SAVING_COL, $m)): ?><div class="mt-1" title="मासिक बचत"><?php echo coop_monthly_saving_badge_html(coop_monthly_saving_from_db($m[COOP_MONTHLY_SAVING_COL])); ?></div><?php endif; ?>
+                    </td>
                     <td class="small"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                     <td class="small"><?php echo htmlspecialchars($m['phone'] ?? '—'); ?></td>
                     <td>
@@ -1347,11 +1383,12 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 $pgStart = max(1, $page - (int)floor($pgWindow / 2));
                 $pgEnd = min($totalPages, $pgStart + $pgWindow - 1);
                 $pgStart = max(1, $pgEnd - $pgWindow + 1);
-                $memPageQ = static function (int $pg) use ($search, $kycFilter, $memSub): string {
+                $memPageQ = static function (int $pg) use ($search, $kycFilter, $memSub, $msFilter): string {
                     return htmlspecialchars('members.php?' . http_build_query(array_filter([
                         'page' => $pg > 1 ? $pg : null,
                         'search' => $search !== '' ? $search : null,
                         'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
+                        'ms' => $msFilter !== 'all' ? $msFilter : null,
                         'mem_sub' => $memSub !== 'live' ? $memSub : null,
                     ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8');
                 };

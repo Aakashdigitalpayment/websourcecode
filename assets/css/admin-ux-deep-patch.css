@@ -631,12 +631,27 @@ body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link {
 }
 
 /* Alerts */
+/* Base app-admin/app-core force `.alert { display:flex !important }` (frozen) — non-dismissible alerts go back to block.
+   Hidden states (d-none / [hidden] / collapse / inline display) are excluded so !important never un-hides them. */
+body[class*="admin-page-"] .main-content .alert:not(.alert-dismissible):not(.d-none):not([hidden]):not(.collapse):not([style*="display"]) {
+  display: block !important;
+}
+
 body[class*="admin-page-"] .main-content .alert {
   font-size: 0.875rem !important;
   line-height: 1.5;
-  display: flex;
+}
+
+/* Flex only for "icon + one content block" alerts. Mixed text/<code>/<strong> alerts stay block —
+   as flex every inline run became a non-wrapping column (member-import help: page 2800px wide). */
+body[class*="admin-page-"] .main-content .alert:not(.d-none):not([hidden]):not(.collapse):not([style*="display"]):has(> :is(.lucide-icon, svg, i):first-child + :is(div, span, p):last-child) {
+  display: flex !important;
   align-items: flex-start;
   gap: 0.6rem;
+}
+
+body[class*="admin-page-"] .main-content .alert > :is(.lucide-icon, svg):first-child {
+  vertical-align: -0.2em;
 }
 
 body[class*="admin-page-"] .main-content .alert .lucide-icon,
@@ -1129,6 +1144,48 @@ body[class*="admin-page-"] .modal .form-check-input:checked {
   border-color: var(--primary-color, #1a5f2a) !important;
 }
 
+/* The shared form-control `background: … !important` rule strips Bootstrap's tick/dot/knob images
+   and its radius turns checkboxes into circles — restore them. */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:not(:checked) {
+  border-color: #9aa5b1 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:not(.form-switch *) {
+  border-radius: 0.3em !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"] {
+  border-radius: 50% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:checked:not(.form-switch *),
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:checked:not(.form-switch *) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  border-radius: 2em !important;
+  background-size: contain !important;
+  background-position: left center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%239aa5b1'/%3e%3c/svg%3e") !important;
+}
+/* A shared 14×14 checkbox size collapsed switches into circles (looked like radio buttons). */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  width: 2.3em !important;
+  min-width: 2.3em !important;
+  height: 1.25em !important;
+  margin-top: 0.15em;
+  flex-shrink: 0;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input:checked {
+  background-position: right center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
 body[class*="admin-page-"] .main-content .was-validated .form-control:invalid,
 body[class*="admin-page-"] .main-content .form-control.is-invalid,
 body[class*="admin-page-"] .modal .form-control.is-invalid {
@@ -1378,3 +1435,565 @@ body[class*="admin-page-"] .main-content .table .badge.text-bg-info {
   color: var(--color-info, #0891b2) !important;
   border: 1px solid var(--color-info-border, #a5f3fc);
 }
+
+/* ── Light page / table-card headers: "light" (white) buttons + icons ────────────────
+   .btn-outline-light was written for the old dark gradient headers. The page header
+   (adminPageHeader) and .admin-table-card headers are light now, so those buttons and
+   header icons rendered white-on-white (e.g. "टिम व्यवस्थापन", "+ बचत दर थप्नुहोस्").
+   Brand outline on light surfaces; hover fills with brand colour. */
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 40%, transparent) !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light:is(:hover, :focus-visible),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light:is(:hover, :focus-visible) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+/* Lucide paths inherit `stroke: currentColor` as a keyword and resolve it against their OWN
+   colour — which the old `.gradient-card-header *` rule forces to white. Follow the icon. */
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon) *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) * {
+  color: inherit !important;
+}
+
+/* ── Card headers explicitly marked .bg-white stay white ─────────────────────────────
+   A blanket `.main-content .card > .card-header` rule repaints every header green with
+   white text, overriding the author's explicit .bg-white — whose contents use
+   text-success / text-primary / text-danger (green-on-green, invisible icons). */
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white {
+  background: #fff !important;
+  color: var(--text-primary, #1f2937) !important;
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+}
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white :is(h1, h2, h3, h4, h5, h6, .card-title):not([class*="text-"]) {
+  color: var(--text-primary, #1f2937) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Empty-state CTA inside a table (td[colspan]) is a real button, not a row icon ────
+   `table td .btn-sm` rules size row-action icons to 30px and make .btn-success white,
+   which squeezed the "थप्नुहोस्" button into a blank white square. */
+body[class*="admin-page-"] .main-content table td[colspan] .btn {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0.4rem 0.95rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35rem;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Outline warning: Bootstrap's #ffc107 text is unreadable on white — darker amber ── */
+body[class*="admin-page-"] .main-content .btn-outline-warning:not(:hover):not(:focus-visible):not(.active) {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+  border-color: #f59e0b !important;
+}
+
+/* ── Filter bar (adm-filter-bar, 13 list pages): one row, one control height ─────────
+   app-admin.css intends 38px controls + hides the input's search prepend (the green
+   submit is the search icon). A later layer pushed selects/dates to 46px (search box
+   sat lower), and the prepend-hide matched only Font Awesome `.fa-search` — Lucide
+   icons brought the duplicate back. */
+body[class*="admin-page-"] .main-content .adm-filter-bar .input-group .input-group-text:has([data-lucide="search"], svg.lucide-search) {
+  display: none !important;
+}
+body[class*="admin-page-"] .main-content .adm-filter-bar :is(.form-select, .form-control, .input-group) {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+body[class*="admin-page-"] .main-content .adm-filter-bar :is(.form-select, .form-control) {
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.35rem !important;
+  font-size: 0.875rem !important;
+}
+body[class*="admin-page-"] .main-content .adm-filter-bar .input-group > .form-control {
+  height: 40px !important;
+}
+body[class*="admin-page-"] .main-content .adm-filter-bar :is(button[type="submit"].btn-primary, a.btn.btn-outline-secondary.btn-sm, a.btn.btn-outline-danger.btn-sm) {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px !important;
+}
+body[class*="admin-page-"] .main-content .adm-filter-bar label {
+  color: var(--text-secondary, #4b5563) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.3rem !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── Avatar + name cells (loan / account / KYC / grievance / vendor lists) ────────────
+   `td .d-flex { flex-wrap: nowrap }` loses to the generic `.d-flex.gap-2 { wrap }`, so
+   long names dropped under the avatar (double-height rows). Keep them side by side. */
+body[class*="admin-page-"] .main-content table td .d-flex:has(> .av-letter, > .rounded-circle:first-child) {
+  flex-wrap: nowrap !important;
+  min-width: 11rem;
+}
+body[class*="admin-page-"] .main-content table td .d-flex:has(> .av-letter) > :not(.av-letter) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ── Readable floor for small table text (Devanagari at ~10px was hard to read) ───────
+   Admin root is 14px, so the 0.72–0.75rem used by these shared classes rendered at
+   10–10.5px. 12px floor; layout unchanged (badges/pills only grow ~2px). */
+body[class*="admin-page-"] .main-content :is(
+  .badge-status, .track-badge, .result-count-badge, .cell-sub, .sm-lbl,
+  .btn-qapprove, .btn-qreject, .header-date-pill
+) {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+body[class*="admin-page-"] .main-content table :is(.badge, small, .small, .text-muted.small) {
+  font-size: max(12px, 0.85em) !important;
+}
+body[class*="admin-page-"] .main-content table .cell-sub {
+  color: var(--text-secondary, #4b5563) !important;
+}
+body[class*="admin-page-"] .main-content table td .d-flex:has(> .av-letter) {
+  gap: 0.6rem !important;
+}
+/* Tracking IDs are neutral references — red read as "error/rejected". */
+body[class*="admin-page-"] .main-content .track-badge {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, transparent) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── Icons inside buttons follow the button's text colour ─────────────────────────────
+   The global admin icon default is grey (#374151); buttons that never re-coloured their
+   icon showed grey-on-green (e.g. the mobile ☰ #sidebarToggle was a blank green square).
+   More specific per-button icon colours still win. */
+body[class*="admin-page-"] :is(button, .btn) > :is(svg.lucide, .lucide-icon) {
+  color: inherit !important;
+}
+/* Icons on solid/gradient brand bubbles were the grey default (grey-on-green). */
+body[class*="admin-page-"] .main-content :is(.hg-icon, .dbs-page-icon, .content-header, .job-bucket.is-on) > :is(svg.lucide, .lucide-icon),
+body[class*="admin-page-"] .main-content :is(svg.lucide, .lucide-icon).auc-icon-completed-fg {
+  color: #fff !important;
+}
+body[class*="admin-page-"] .main-content :is(svg.lucide, .lucide-icon).job-icon-interview-fg {
+  color: #64748b !important;
+}
+
+/* ── Phone admin topbar: one row, show WHERE you are ──────────────────────────────────
+   ≤480px hid .page-title-wrap and kept a second logo box (the sidebar already has the
+   logo), so the bar wrapped to two rows (111px) with no page title. One 56px row:
+   [☰] [page title…] [actions]. */
+@media (max-width: 575.98px) {
+  body[class*="admin-page-"] .admin-header.admin-header--compact {
+    flex-direction: row !important; /* admin-ui-unified ≤768px stacks it as a column */
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    height: auto !important;
+    min-height: 56px !important;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    align-items: center !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .header-left {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .admin-topbar-brand,
+  body[class*="admin-page-"] .admin-header--compact .header-date-pill {
+    display: none !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .page-title-wrap {
+    display: flex !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .page-title {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    font-size: 1rem !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .header-right {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+  }
+  body[class*="admin-page-"] .admin-header--compact .admin-header-icon,
+  body[class*="admin-page-"] .admin-header--compact .notification-bell {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+}
+
+/* ── Phone card-view tables (table-responsive-stack, 9 list pages) ───────────────────
+   Two stack implementations collide: the cell is the flex row from app-admin, but the
+   label ::before is still `position:absolute; left:6px` from app-core — so every label
+   was printed on top of its value. Label = fixed-width flex column, value = the rest. */
+@media (max-width: 640px) {
+  body[class*="admin-page-"] .main-content table.table-responsive-stack,
+  body[class*="admin-page-"] .main-content table.table-responsive-stack :is(tbody, tr, td) {
+    min-width: 0 !important;  /* desktop scroll min-width (540–560px) made cards wider than the phone */
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  /* Grid: label column | value column (multi-line values stack instead of colliding) */
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] {
+    display: grid !important;
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+    row-gap: 0 !important; /* label spans empty implicit rows — gaps there added dead height */
+    align-items: start !important;
+    padding: 9px 12px !important;
+    text-align: left !important;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label]::before {
+    grid-column: 1 !important;
+    grid-row: 1 / span 6 !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding-top: 2px;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    color: var(--text-secondary, #6b7280) !important;
+    white-space: normal !important;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] > * + * {
+    margin-top: 2px;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] > * {
+    grid-column: 2 !important;
+    justify-self: start;
+    min-width: 0;
+    max-width: 100%;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] .d-flex:not(:has(> .av-letter)) {
+    flex-wrap: wrap !important;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] .d-flex:has(> .av-letter) {
+    min-width: 0 !important;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] :is(.adm-action-icons, .btn-group-action, .action-btns, .btn-group) {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    max-width: 100%;
+  }
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] :is(.cell-main, .cell-sub) {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ── WCAG AA text contrast (axe-core audit, 112 admin failures → shared sources) ─────
+   Same colour families, one step darker so small Devanagari text stays readable. */
+body[class*="admin-page-"] .main-content .badge.bg-success {
+  color: #166534 !important;               /* 2.75 → 5.96 on the soft green pill */
+  -webkit-text-fill-color: #166534 !important;
+}
+body[class*="admin-page-"] .group-badge,
+html body[class*="admin-page-"] aside.sidebar .sidebar-nav .group-badge.group-badge,
+body[class*="admin-page-"] .sidebar .nav-badge {
+  background: #dc2626 !important;          /* white on #ef4444 was 3.76 */
+}
+body[class*="admin-page-"] .main-content .btn-qapprove {
+  color: #15803d !important;               /* 3.12 → 4.76 */
+  -webkit-text-fill-color: #15803d !important;
+}
+body[class*="admin-page-"] .main-content .badge.ntc-no-badge {
+  color: #4b5563 !important;               /* 2.18 → 6.5 */
+}
+body[class*="admin-page-"] .main-content code {
+  color: #9d174d !important;               /* Bootstrap pink on tinted rows was 3.46 */
+}
+body[class*="admin-page-"] .main-content .text-muted,
+body[class*="admin-page-"] .main-content .alert-secondary {
+  color: #4b5563 !important;               /* #6b7280 failed on tinted cards/alerts */
+}
+body[class*="admin-page-"] .main-content .btn-warning:not(:hover) {
+  color: #111827 !important;               /* white on amber was 3.18 */
+  -webkit-text-fill-color: #111827 !important;
+}
+body[class*="admin-page-"] .main-content .btn-outline-warning:not(:hover):not(:focus-visible):not(.active) {
+  color: #92400e !important;               /* #b45309 dipped to 4.05 on tinted cards */
+  -webkit-text-fill-color: #92400e !important;
+}
+body[class*="admin-page-"] :is(.main-content, .sidebar) li.text-muted[style*="opacity"] {
+  opacity: 1 !important;                   /* group headings faded to 3.6:1 */
+}
+body[class*="admin-page-"] .main-content .btn-link:not(:hover) {
+  color: var(--primary-color, #1a5f2a) !important;   /* Bootstrap blue was 4.36 on cards; brand colour */
+}
+body[class*="admin-page-"] .main-content .member-ssot-help :is(div, .text-secondary) {
+  color: #374151 !important;               /* grey on the info tint was 4.39 */
+}
+
+/* Desktop topbar title was capped at 220px ("सबै सदस्य (Member I…") with ~1100px free. */
+@media (min-width: 992px) {
+  body[class*="admin-page-"] .admin-header--compact .page-title {
+    max-width: min(640px, 48vw) !important;
+  }
+}
+
+/* ── Phone: tables WITHOUT data-label stay real tables (scroll sideways) ─────────────
+   bootstrap-admin-overrides turns every .table into cards at ≤768px and hides <thead>,
+   relying on td[data-label] for labels. Tables that never set data-label (programs,
+   attendance, reports, logs…) became label-less cards with values pushed right off-screen.
+   Only tables with no labelled cell are restored; labelled card tables are untouched. */
+@media (max-width: 768px) {
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) {
+    display: table !important;
+    width: 100% !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > thead {
+    display: table-header-group !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > :is(thead, tbody, tfoot) > tr {
+    display: table-row !important;
+    width: auto !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > :is(thead, tbody, tfoot) > tr > :is(td, th) {
+    display: table-cell !important;
+    width: auto !important;
+    position: static !important;
+    padding: 0.55rem 0.65rem !important;
+    text-align: left !important;
+    border-bottom: 1px solid var(--admin-border, #e5e7eb) !important;
+    white-space: nowrap;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > tbody > tr > td::before {
+    content: none !important;
+  }
+}
+
+/* ── Phone: input + icon/button add-on stay on one line ───────────────────────────────
+   app-admin (frozen) gives every .input-group child flex:1 1 100% at ≤575px, so the
+   calendar icon / copy button dropped under its field. Groups with a single field keep
+   the add-ons inline; groups with several fields still wrap as before. */
+@media (max-width: 575.98px) {
+  body[class*="admin-page-"] .main-content .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))),
+  body[class*="admin-page-"] .modal .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) {
+    flex-wrap: nowrap !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > * {
+    margin-bottom: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :is(.form-control, .form-select) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :is(.input-group-text, .btn) {
+    flex: 0 0 auto !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :not(:last-child) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
+
+/* ══ Admin button system + readable text (all admin pages) ═════════════════════════════
+   The frozen base has ~20 competing .btn rules: one .btn-success had 11 different looks
+   across pages (white in cards, gradient, solid), outline buttons turned solid inside forms,
+   table text buttons were squeezed to borderless 30px squares, 301 buttons were < 12px.
+   One rule set per variant: solid green / red / amber / slate, neutral outline, green /
+   red / amber outline. Proven on the program module first, then rolled out. */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  min-height: 38px !important;
+  width: auto;
+  min-width: 0 !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  border-width: 1px !important;   /* colour comes from the variant rules below (this rule is more specific) */
+  border-style: solid !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-sm:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+  /* width:auto below never beats .w-100 (rule after this one) */
+  min-height: 32px !important;
+  height: auto !important;
+  width: auto;                     /* base squeezes every table .btn-sm to a 30px icon square */
+  max-width: 100%;
+  padding: 0 10px !important;
+  font-size: 12.5px !important;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-lg:not(.btn-check + .btn) {
+  min-height: 46px !important;
+  padding: 0 20px !important;
+  font-size: 15px !important;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.w-100):not(.btn-check + .btn) { width: auto !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.w-100:not(.btn-check + .btn) { width: 100% !important; }
+/* Known Bootstrap variants drop the base gradients; custom buttons (.dash-btn-primary …) keep theirs */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary, [class*="btn-outline-"]):not(.btn-check + .btn) {
+  background-image: none !important;
+}
+/* Solid */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success):not(.btn-check + .btn) {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-danger:not(.btn-check + .btn) { background-color: #b91c1c !important; border-color: #b91c1c !important; color: #fff !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-warning:not(.btn-check + .btn) { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #111827 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-dark, .btn-secondary):not(.btn-check + .btn) { background-color: #334155 !important; border-color: #334155 !important; color: #fff !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary):not(.btn-check + .btn):hover { filter: brightness(.93); }
+/* Outline — neutral by default; green / red / amber keep meaning */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn) {
+  background-color: #fff !important; border-color: #cbd5e1 !important; color: #334155 !important;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn) {
+  background-color: #fff !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 45%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fecaca !important; color: #b91c1c !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-warning:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fcd34d !important; color: #92400e !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn):hover { background-color: #f1f5f9 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn):hover { background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn):hover { background-color: #fef2f2 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close) :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; margin: 0 !important; color: inherit !important; }
+
+/* Readable text: KPI labels, table headers, small helper lines */
+body[class*="admin-page-"] .main-content .card.text-center > .small:first-child {
+  font-size: 12.5px !important; font-weight: 600; color: #475569 !important; margin-bottom: 4px; line-height: 1.35;
+}
+body[class*="admin-page-"] .main-content .table > thead > tr > th {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 700 !important; color: #334155 !important; white-space: nowrap;
+}
+body[class*="admin-page-"] .main-content .table > tbody > tr > td { font-size: 13.5px; vertical-align: middle; }
+body[class*="admin-page-"] .main-content .table > tbody > tr > td :is(.small, small) { font-size: 12.5px !important; }
+body[class*="admin-page-"] .main-content .form-text,
+body[class*="admin-page-"] .main-content .card-header .small { font-size: 12.5px !important; color: #4b5563 !important; }
+body[class*="admin-page-"] .main-content .form-label { font-size: 13px !important; }
+
+/* Program form */
+.prog-form .form-section-title { display: flex; align-items: center; gap: .5rem; margin: 0 0 .9rem !important; padding: 0 0 .55rem !important; border-bottom: 1px solid #e5e7eb; font-size: 14.5px !important; width: 100% !important; }
+.prog-form .form-section-title .lucide-icon { width: 17px; height: 17px; }
+body[class*="admin-page-program"] .main-content .prog-form textarea.form-control { min-height: 72px !important; height: auto !important; resize: vertical; }
+body[class*="admin-page-program"] .main-content .prog-form .form-section-title { font-size: 14.5px !important; padding: 0 0 .55rem !important; }
+.prog-switches { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .6rem .9rem; }
+.prog-switches .form-check { display: flex; align-items: flex-start; gap: .65rem; margin: 0; padding: .65rem .75rem; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8fafc; }
+.prog-switches .form-check-input { float: none; flex-shrink: 0; margin: .15rem 0 0 !important; }
+.prog-switches .form-check-label { font-weight: 600; font-size: 13.5px; color: #1f2937; line-height: 1.35; }
+.prog-switches .form-check-label small { display: block; font-weight: 400; font-size: 12.5px; color: #4b5563; margin-top: 2px; }
+.prog-advanced { border: 1px dashed #cbd5e1; border-radius: 10px; padding: .6rem .9rem; background: #fafafa; }
+.prog-advanced > summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: #334155; }
+.prog-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+
+/* Program list: QR + row actions */
+.prog-qr-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.prog-qr-thumb { padding: 0; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; line-height: 0; cursor: zoom-in; }
+.prog-qr-thumb img { display: block; border-radius: 7px; }
+.prog-qr-thumb:focus-visible { outline: 2px solid var(--primary-color, #1a5f2a); outline-offset: 2px; }
+.prog-qr-remove { font-size: 12px !important; min-height: 0 !important; }
+.prog-row-actions { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+.prog-row-actions form { margin: 0; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn {
+  display: inline-flex !important; align-items: center; justify-content: center;
+  width: 34px !important; height: 34px !important; padding: 0 !important;
+  border: 1px solid #e2e8f0 !important; border-radius: 8px !important;
+  background: #fff !important; color: #334155 !important; box-shadow: none !important;
+}
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn:hover { background: #f1f5f9 !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn--delete { color: #b91c1c !important; border-color: #fecaca !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn--delete:hover { background: #fef2f2 !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; color: inherit !important; }
+body[class*="admin-page-program"] .main-content .card-body :is(.small, small):is(.text-muted, .form-text),
+body[class*="admin-page-program"] .main-content .card-body > .small { font-size: 12.5px !important; line-height: 1.45; color: #4b5563 !important; }
+body[class*="admin-page-program"] .main-content .form-label { text-transform: none !important; letter-spacing: 0 !important; color: #1f2937; font-weight: 600 !important; }
+
+/* Fields inside card headers inherited the header's white text (gradient headers are light now) */
+body[class*="admin-page-"] .main-content .card-header :is(.form-select, .form-control) {
+  color: #1f2937 !important;
+  background-color: #fff !important;
+}
+
+/* ── Page never wider than the screen ──────────────────────────────────────────────────
+   main.main-content is a flex item of .admin-wrapper with min-width:auto, so one wide
+   table/filter row stretched the whole page (KYM list ~1775px at 1280). min-width:0 lets
+   it shrink; wide tables then scroll inside their .table-responsive / .v9-table-scroll. */
+.admin-wrapper > .main-content {
+  min-width: 0;
+}
+/* Help Guide: grid `1fr` = minmax(auto,1fr) let wide guide tables stretch the column */
+.hg-wrap > .hg-content { min-width: 0; }
+@media (min-width: 992px) { .hg-wrap { grid-template-columns: 270px minmax(0, 1fr) !important; } }
+/* Help Guide steps: flex li made every inline <code>/<b> a non-wrapping column (page ~1700px).
+   Block li + absolutely placed number keeps the badge and lets the text wrap normally. */
+.hg-steps-list li { display: block !important; position: relative; padding-left: 36px; min-height: 26px; line-height: 1.6; }
+.hg-steps-list li::before { position: absolute; left: 0; top: 0; }
+/* Filter-bar submit: full-width "🔍 खोज" button in its column (was a 40px square that clipped the word) */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .adm-filter-bar form.row > [class*="col-"] > button[type="submit"].btn.w-100 {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  flex: 1 1 auto !important;
+  padding: 0 10px !important;
+}
+
+/* Contrast: Bootstrap .text-info (#0dcaf0) on .bg-info-subtle was 1.67:1 (grievance category badges) */
+body[class*="admin-page-"] .main-content .bg-info-subtle.text-info,
+body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !important; }
+/* Help Guide sidebar group labels: #9ca3af at 9.5px was 2.5:1 */
+.hg-wrap .grp { color: #4b5563 !important; font-size: 11.5px !important; }

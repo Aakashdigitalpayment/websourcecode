@@ -38,11 +38,13 @@ const STATIC_EXT_RE = /\.(?:css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf
 const PRECACHE_REQUIRED = [
   '/offline.php',
   '/member/offline.php',
-  '/assets/images/logo.png',
 ];
 
 /* Pre-cache attempt — skip silently if unavailable */
+/* logo.png is not in git (uploaded per site) — a 404 inside cache.addAll() rejects the
+   whole REQUIRED batch, so the offline pages would never be cached. Keep it optional. */
 const PRECACHE_OPTIONAL = [
+  '/assets/images/logo.png',
   '/pwa-icon.php?s=192',
   '/pwa-icon.php?s=512',
   '/pwa-icon.php?s=512&maskable=1',

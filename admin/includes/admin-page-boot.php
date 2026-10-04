@@ -52,4 +52,17 @@ if (empty($GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN']) && !defined('ADMIN_PAGE_BOOT_S
     if (function_exists('requireAdminLogin')) {
         requireAdminLogin();
     }
+    /* Page-level RBAC (SSOT map in includes/auth-roles.php) — editor/staff stay on content pages */
+    $__authRoles = __DIR__ . '/../../includes/auth-roles.php';
+    if (is_file($__authRoles)) {
+        require_once $__authRoles;
+        $__minRole = function_exists('coop_admin_page_min_role')
+            ? coop_admin_page_min_role(basename((string) ($_SERVER['SCRIPT_NAME'] ?? '')))
+            : null;
+        if ($__minRole !== null && function_exists('require_role')) {
+            require_role($__minRole);
+        }
+        unset($__minRole);
+    }
+    unset($__authRoles);
 }

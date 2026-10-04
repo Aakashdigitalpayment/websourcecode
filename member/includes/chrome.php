@@ -12,7 +12,7 @@
  *
  *   // ... page specific PHP ...
  *
- *   $pageTitle = 'Profile — ' . SITE_NAME;
+ *   $pageTitle = 'Profile — ' . getSetting('site_name', 'सहकारी');
  *   $extraHead = '<style>...page-specific css...</style>';
  *   require __DIR__ . '/includes/chrome.php';   // emits <head>, <body>, topbar, nav
  *
@@ -210,8 +210,8 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 <link rel="stylesheet" href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/css/nepali.datepicker.min.css">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=6.9" defer></script>
-<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/pwa-register.js?v=3.3" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-mobile.js') : '6.9'; ?>" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/pwa-register.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/pwa-register.js') : '3.3'; ?>" defer></script>
 </head>
 <body class="mem-wrapper">
 <a class="skip-link" href="#main-content"><?php echo $_t('मुख्य सामग्रीमा जानुहोस्', 'Skip to content'); ?></a>
@@ -326,7 +326,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         </div>
         <?php endif; ?>
         <span class="mem-topbar-name"><?php echo htmlspecialchars($_memName); ?></span>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout">
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout" title="<?php echo htmlspecialchars($_t('लगआउट', 'Logout'), ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($_t('लगआउट', 'Logout'), ENT_QUOTES, 'UTF-8'); ?>">
             <i class="lucide-icon" data-lucide="log-out" aria-hidden="true"></i><span class="mem-logout-text"> <?php echo $_t('लगआउट', 'Logout'); ?></span>
         </a>
     </div>
@@ -347,7 +347,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         <?php endif; ?>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/welfare.php" class="mem-nav-item <?php echo $_active==='welfare'?'active':''; ?>"><i class="lucide-icon" data-lucide="heart-pulse" aria-hidden="true"></i><?php echo $_t('कल्याण दाबी', 'Welfare Claim'); ?></a>
         <?php if (!empty($_hasInfoRoom)): ?>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="lucide-icon" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="lucide-icon" data-lucide="folder-lock" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
         <?php endif; ?>
         <?php if ($_electionState === 'voting'): ?>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/election-vote.php" class="mem-nav-item mem-nav-vote-live <?php echo $_active==='election'?'active':''; ?>"><i class="lucide-icon" data-lucide="vote" aria-hidden="true"></i><?php echo $_t('मतदान', 'Vote'); ?> <span class="mem-vote-live-dot" aria-hidden="true"></span></a>
@@ -379,7 +379,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                 <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
             </div>
         </div>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="lucide-icon" data-lucide="badge" aria-hidden="true"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="lucide-icon" data-lucide="award" aria-hidden="true"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="lucide-icon" data-lucide="circle-user" aria-hidden="true"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
     </nav>
@@ -441,7 +441,6 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
   var MEMBER_PUSH_CSRF = <?php echo json_encode(generateCSRFToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
   var btn      = document.getElementById('pushEnableBtn');
-  var icon     = document.getElementById('pushBellIcon');
   var STORAGE  = 'coop_push_subscribed';
 
   /* ── Helpers ──────────────────────────────────────────────────── */
@@ -457,15 +456,16 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
   function setSubscribed(yes) {
     try { localStorage.setItem(STORAGE, yes ? '1' : '0'); } catch (_) {}
     if (!btn) return;
-    if (icon) {
-      icon.className = 'lucide-icon';
-      icon.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
-      icon.setAttribute('aria-hidden', 'true');
-      icon.innerHTML = '';
-      if (window.lucide && typeof lucide.createIcons === 'function') {
-        lucide.createIcons({ nodes: [icon] });
-      }
-      icon.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
+    /* Re-query by id each time (Lucide swaps the node for an <svg>; className there throws) */
+    var bell = document.getElementById('pushBellIcon');
+    if (bell && typeof window.coopSetLucide === 'function') {
+      bell = window.coopSetLucide(bell, yes ? 'bell' : 'bell-off') || bell;
+    } else if (bell && bell.tagName === 'I') {
+      /* Early (before the shared helper is printed / Lucide ran): just rename the <i> */
+      bell.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
+    }
+    if (bell) {
+      bell.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
     }
     btn.title = yes ? 'Push Notification सक्षम छ' : 'Push Notification सक्षम गर्नुहोस्';
   }

@@ -140,12 +140,12 @@ if (!function_exists('adminExcelDateInputsHtml')) {
         $c    = htmlspecialchars($colClass, ENT_QUOTES, 'UTF-8');
         return <<<HTML
         <div class="{$c}">
-            <label>मिति देखि</label>
-            <input type="date" name="date_from" class="form-control form-control-sm" value="{$from}">
+            <label for="xf_date_from">मिति देखि</label>
+            <input type="date" name="date_from" id="xf_date_from" class="form-control form-control-sm" value="{$from}">
         </div>
         <div class="{$c}">
-            <label>मिति सम्म</label>
-            <input type="date" name="date_to" class="form-control form-control-sm" value="{$to}">
+            <label for="xf_date_to">मिति सम्म</label>
+            <input type="date" name="date_to" id="xf_date_to" class="form-control form-control-sm" value="{$to}">
         </div>
 HTML;
     }

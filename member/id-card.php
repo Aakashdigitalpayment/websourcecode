@@ -313,7 +313,10 @@ $cardAddress = function_exists('getSetting')
     ? trim((string)getSetting(isEnglish() ? 'address_en' : 'address', getSetting('address', '')))
     : '';
 $cardWebsite = function_exists('getSetting') ? trim((string) getSetting('site_url', '')) : '';
-$cardLogoRaw = function_exists('getSetting') ? trim((string)getSetting('logo', 'assets/images/logo.png')) : 'assets/images/logo.png';
+/* Same resolver as the site header: logo_np/logo_en/site_logo/logo + existing-file fallback */
+$cardLogoRaw = function_exists('getLocalizedLogoPath')
+    ? trim((string) getLocalizedLogoPath('assets/images/logo.png'))
+    : (function_exists('getSetting') ? trim((string) getSetting('logo', 'assets/images/logo.png')) : 'assets/images/logo.png');
 if ($cardWebsite === '' && defined('SITE_URL')) $cardWebsite = SITE_URL;
 $cardWebsite = preg_replace('#^https?://#i', '', rtrim($cardWebsite, '/'));
 $cardLogoUrl = '';

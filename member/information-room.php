@@ -6,6 +6,8 @@ require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/information-room-tables.php';
 requireMemberLogin();
 memberSecurityHeaders();
+/* SITE_NAME constant does not exist (fatal on PHP 8) — same title source as other member pages */
+$siteName = getSetting('site_name', 'सहकारी');
 
 $db = getDB();
 ensureInformationRoomTables($db);
@@ -19,7 +21,7 @@ if (!$mem) {
 
 if (!irMemberHasAccess($mem)) {
     http_response_code(403);
-    $pageTitle = (function_exists('isEnglish') && isEnglish() ? 'Access denied' : 'पहुँच अस्वीकृत') . ' — ' . SITE_NAME;
+    $pageTitle = (function_exists('isEnglish') && isEnglish() ? 'Access denied' : 'पहुँच अस्वीकृत') . ' — ' . $siteName;
     require __DIR__ . '/includes/chrome.php';
     echo '<div class="alert alert-warning mt-3"><i class="lucide-icon me-2" data-lucide="lock" aria-hidden="true"></i>';
     echo function_exists('isEnglish') && isEnglish()
@@ -40,7 +42,7 @@ if ($catFilter !== '' && !isset(irCategories()[$catFilter])) {
 }
 
 $items = irFetchActiveItems($db, $catFilter);
-$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . SITE_NAME;
+$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . $siteName;
 $extraHead = function_exists('coopThemeLinkHtml')
     ? coopThemeLinkHtml('assets/css/information-room.css')
     : '<link rel="stylesheet" href="../assets/css/information-room.css">';
@@ -49,7 +51,7 @@ require __DIR__ . '/includes/chrome.php';
 ?>
 
 <div class="mem-page-head mb-3">
-    <h1 class="h4 mb-1"><i class="lucide-icon me-2 text-success" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
+    <h1 class="h4 mb-1"><i class="lucide-icon me-2 text-success" data-lucide="folder-lock" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
     <p class="text-muted small mb-0"><?php echo $_t(
         'बोर्ड निर्णय, नीति, कार्यविधि र बिनियम — अनुमति प्राप्त सदस्यका लागि।',
         'Board decisions, policies, procedures and bylaws — for authorized members.'

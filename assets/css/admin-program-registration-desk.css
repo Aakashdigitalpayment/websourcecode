@@ -67,6 +67,11 @@
 .desk-idcard--dup .desk-idcard-head { background: linear-gradient(90deg, #b45309, #d97706); }
 .desk-idcard--inactive { border-color: #94a3b8; }
 .desk-idcard--inactive .desk-idcard-head { background: #64748b; }
+/* मासिक बचत — status + quick change on the ID card */
+.desk-saving { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; margin-top: .7rem; padding: .5rem .65rem; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+.desk-saving--unset { border-color: #fcd34d; background: #fffbeb; }
+.desk-saving-label { font-size: .85rem; font-weight: 600; color: #475569; }
+.desk-saving .btn { min-height: 34px; font-weight: 600; }
 @media (max-width: 575.98px) {
     .desk-idcard-body { grid-template-columns: 1fr; justify-items: center; }
     .desk-idcard-info { text-align: center; width: 100%; }

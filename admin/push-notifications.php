@@ -133,15 +133,8 @@ $typeColors = [
 ];
 ?>
 
-<div class="content-header">
-    <h1 class="page-title">
-        <i class="lucide-icon" data-lucide="bell-ring" aria-hidden="true" style="color:var(--primary-color);margin-right:8px;"></i>
-        Push Notifications
-    </h1>
-    <div style="font-size:.82rem;color:#6b7280;">
-        सदस्यहरूको फोनमा Browser Closed भएपनि real-time alert पठाउनुहोस्।
-    </div>
-</div>
+<?php /* Shared page header (title already in topbar) — same as every other admin page */
+echo adminPageHeader('Push Notifications', 'fa-bell', 'सदस्यहरूको फोनमा Browser Closed भएपनि real-time alert पठाउनुहोस्।'); ?>
 
 <?php if ($result && !isset($result['cleared'])): ?>
 <div class="alert alert-<?php echo $result['sent'] > 0 ? 'success' : 'warning'; ?>"

@@ -188,10 +188,32 @@
                 });
                 mo.observe(origBtn, { attributes: true, attributeFilter: ['aria-busy', 'disabled'], childList: true, characterData: true, subtree: true });
             } catch (err) { /* ignore */ }
-            var ob = new IntersectionObserver(function (entries) {
-                bar.style.display = entries[0].isIntersecting ? 'none' : 'block';
-            }, { threshold: 0.1 });
+            /* Show only while THIS form is visible and its own button is off-screen. A form in a
+               hidden tab/pane (appointment member/visit, online-kyc quick/full, member
+               "My applications" tab) never intersects, so the old check showed its bar and the
+               tap submitted the hidden form. Tab switches change visibility without any
+               intersection change, hence the extra scroll/resize/click re-checks. */
+            var isShown = function (el) {
+                return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+            };
+            var update = function () {
+                if (!isShown(form) || !isShown(origBtn)) { bar.style.display = 'none'; return; }
+                var r = origBtn.getBoundingClientRect();
+                var inView = r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight);
+                bar.style.display = inView ? 'none' : 'block';
+            };
+            var queued = false;
+            var schedule = function () {
+                if (queued) return;
+                queued = true;
+                window.requestAnimationFrame(function () { queued = false; update(); });
+            };
+            var ob = new IntersectionObserver(update, { threshold: 0.1 });
             ob.observe(origBtn);
+            window.addEventListener('scroll', schedule, { passive: true });
+            window.addEventListener('resize', schedule);
+            document.addEventListener('click', function () { setTimeout(update, 60); });
+            update();
         });
     }
 

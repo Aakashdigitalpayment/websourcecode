@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function crFilter() {
-    var q   = (document.getElementById('crSearch').value || '').toLowerCase().trim();
+    var q   = ((document.getElementById('crSearch') || {}).value || '').toLowerCase().trim();
     var cards = document.querySelectorAll('#crGrid .cr-job-card');
     var visible = 0;
 
@@ -502,7 +502,7 @@ function crDeptChip(el) {
 /* Override crFilter to also handle dept */
 var _crFilterOrig = crFilter;
 crFilter = function() {
-    var q      = (document.getElementById('crSearch').value || '').toLowerCase().trim();
+    var q      = ((document.getElementById('crSearch') || {}).value || '').toLowerCase().trim();
     var cards  = document.querySelectorAll('#crGrid .cr-job-card');
     var visible = 0;
     cards.forEach(function(c) {

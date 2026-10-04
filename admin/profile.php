@@ -49,20 +49,7 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
                 <h5><i class="lucide-icon" data-lucide="user-pen" aria-hidden="true"></i> प्रोफाइल जानकारी</h5>
             </div>
             <div class="card-body">
-                <?php
-                $flashErr = getFlash('error');
-                $flashOk  = getFlash('success');
-                if ($flashErr): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo e($flashErr); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; if ($flashOk): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i> <?php echo e($flashOk); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; ?>
+                <?php /* Flash messages render once in admin-header.php (POST handlers always redirect). */ ?>
 
                 <?php if ($admin): ?>
                 <form method="POST" action="" class="needs-validation" novalidate>

@@ -76,7 +76,8 @@ foreach ([
     ['career-detail.php', 'coop_render_cms_prose', 'job description prose rendered'],
     ['career-detail.php', 'coop_public_download_url', 'job attachment safe src'],
     ['includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute bg url'],
-    ['admin/includes/admin-header.php', 'safe_versioned_media_src($siteLogo)', 'admin logo safe src'],
+    /* _absolute: a document-relative src resolved to /admin/assets/… (404) inside the admin panel */
+    ['admin/includes/admin-header.php', 'safe_versioned_media_src_absolute($siteLogo)', 'admin logo safe src (absolute)'],
     ['admin/team.php', 'safe_media_src', 'team photo safe src'],
     ['admin/auctions.php', 'safe_media_src', 'auction media safe src'],
     ['admin/member-of-year.php', 'safe_media_src', 'member-of-year photo safe src'],

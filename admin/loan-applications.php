@@ -672,8 +672,8 @@ $loanFilterQs = array_filter([
             $prevPage = $page > 1 ? $page - 1 : null;
             $nextPage = $page < $totalPages ? $page + 1 : null;
             ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>" title="<?php echo $__t('पहिलो', 'First'); ?>"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
-            <a href="<?php echo $prevPage ? '?'.http_build_query(array_merge($qs,['page'=>$prevPage])) : '#'; ?>" class="<?php echo !$prevPage?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>" title="<?php echo $__t('पहिलो', 'First'); ?>" aria-label="पहिलो पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
+            <a href="<?php echo $prevPage ? '?'.http_build_query(array_merge($qs,['page'=>$prevPage])) : '#'; ?>" class="<?php echo !$prevPage?'disabled':''; ?>" aria-label="अघिल्लो पृष्ठ"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
             <?php
             $start = max(1, $page - 2); $end = min($totalPages, $page + 2);
             for ($i = $start; $i <= $end; $i++):
@@ -683,8 +683,8 @@ $loanFilterQs = array_filter([
             <?php else: ?>
             <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$i])); ?>"><?php echo $i; ?></a>
             <?php endif; endfor; ?>
-            <a href="<?php echo $nextPage ? '?'.http_build_query(array_merge($qs,['page'=>$nextPage])) : '#'; ?>" class="<?php echo !$nextPage?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>" title="<?php echo $__t('अन्तिम', 'Last'); ?>"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
+            <a href="<?php echo $nextPage ? '?'.http_build_query(array_merge($qs,['page'=>$nextPage])) : '#'; ?>" class="<?php echo !$nextPage?'disabled':''; ?>" aria-label="अर्को पृष्ठ"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>" title="<?php echo $__t('अन्तिम', 'Last'); ?>" aria-label="अन्तिम पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
             <span class="acc-page-meta"><?php echo $page; ?>/<?php echo $totalPages; ?> <?php echo $__t('पेज', 'pages'); ?> · <?php echo $total; ?> <?php echo $__t('रेकर्ड', 'records'); ?></span>
         </div>
     </div>

@@ -23,12 +23,10 @@ function sp_setting(string $k, string $d = ''): string {
 }
 $spSiteName   = sp_setting('site_name', defined('SITE_NAME') ? (string)SITE_NAME : 'सहकारी');
 $spSiteNameEn = sp_setting('site_name_en', $spSiteName);
-$spLogo       = sp_setting('site_logo', '');
+/* Shared resolver (logo_np/logo_en/site_logo/logo + existing-file fallback) — same as header */
+$spLogo       = function_exists('getLocalizedLogoPath') ? trim((string) getLocalizedLogoPath('assets/images/logo.png')) : '';
 if ($spLogo === '') {
-    $spLogo = sp_setting('logo', 'assets/images/logo.png');
-}
-if ($spLogo === '') {
-    $spLogo = 'assets/images/logo.png';
+    $spLogo = sp_setting('site_logo', '') ?: sp_setting('logo', 'assets/images/logo.png');
 }
 $spLogoUrl = rtrim(defined('SITE_URL') ? (string)SITE_URL : '', '/') . '/' . ltrim($spLogo, '/');
 
@@ -116,7 +114,7 @@ function sp_fmt_min(int $m): string {
    FULL PANCHANGA
 ══════════════════════════════════════════════════════════════════════════ */
 function sp_panchanga(int $y, int $m, int $d): array {
-    global $SP_BS_MONTHS_NP;
+    global $SP_BS_MONTHS_NP, $SP_VAARS_NP;
     $tithiNames=['प्रतिपदा','द्वितीया','तृतीया','चतुर्थी','पञ्चमी','षष्ठी','सप्तमी','अष्टमी','नवमी','दशमी','एकादशी','द्वादशी','त्रयोदशी','चतुर्दशी','पूर्णिमा','प्रतिपदा','द्वितीया','तृतीया','चतुर्थी','पञ्चमी','षष्ठी','सप्तमी','अष्टमी','नवमी','दशमी','एकादशी','द्वादशी','त्रयोदशी','चतुर्दशी','औंसी'];
     $tithiShort=['प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','पू','प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','औ'];
     $nakNp=['अश्विनी','भरणी','कृत्तिका','रोहिणी','मृगशिरा','आर्द्रा','पुनर्वसु','पुष्य','आश्लेषा','मघा','पू.फाल्.','उ.फाल्.','हस्त','चित्रा','स्वाति','विशाखा','अनुराधा','ज्येष्ठा','मूल','पू.षा.','उ.षा.','श्रवण','धनिष्ठा','शतभिषा','पू.भा.','उ.भा.','रेवती'];
@@ -709,7 +707,7 @@ if($activeTab==='patro'): ?>
                 <img src="<?php echo htmlspecialchars($spLogoUrl, ENT_QUOTES, 'UTF-8'); ?>"
                      alt=""
                      loading="lazy"
-                     onerror="this.onerror=null;this.src='<?php echo htmlspecialchars(rtrim((string)SITE_URL,'/').'/assets/images/logo.png', ENT_QUOTES, 'UTF-8'); ?>';">
+                     onerror="this.onerror=null;this.src='<?php echo htmlspecialchars(rtrim((string)SITE_URL,'/').'/assets/images/icon-192x192.png', ENT_QUOTES, 'UTF-8'); ?>';">
               </div>
             </div>
             <?php else:

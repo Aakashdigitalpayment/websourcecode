@@ -140,7 +140,7 @@ $newsArch = $newsPart['archived'];
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th width="40" class="text-center"><input type="checkbox" onclick="document.querySelectorAll('#news-sub-live .news-select').forEach(c=>c.checked=this.checked)"></th>
+                                <th width="40" class="text-center"><input type="checkbox" aria-label="सबै छान्नुहोस्" onclick="document.querySelectorAll('#news-sub-live .news-select').forEach(c=>c.checked=this.checked)"></th>
                                 <th class="ps-3" width="70">छवि</th>
                                 <th>शीर्षक</th>
                                 <th width="120">मिति</th>
@@ -162,7 +162,7 @@ $newsArch = $newsPart['archived'];
                             <?php endif; ?>
                             <?php foreach ($newsLive as $n): ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>"></td>
+                                <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>" aria-label="<?php echo htmlspecialchars('छान्नुहोस्: ' . (string) ($n['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></td>
                                 <td class="ps-3">
                                     <?php if ($n['image']): ?>
                                     <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">
@@ -210,7 +210,7 @@ $newsArch = $newsPart['archived'];
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th width="40" class="text-center"><input type="checkbox" onclick="document.querySelectorAll('#news-sub-arch .news-select').forEach(c=>c.checked=this.checked)"></th>
+                                <th width="40" class="text-center"><input type="checkbox" aria-label="सबै छान्नुहोस्" onclick="document.querySelectorAll('#news-sub-arch .news-select').forEach(c=>c.checked=this.checked)"></th>
                                 <th class="ps-3" width="70">छवि</th>
                                 <th>शीर्षक</th>
                                 <th width="120">मिति</th>
@@ -227,7 +227,7 @@ $newsArch = $newsPart['archived'];
                             <?php endif; ?>
                             <?php foreach ($newsArch as $n): ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>"></td>
+                                <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>" aria-label="<?php echo htmlspecialchars('छान्नुहोस्: ' . (string) ($n['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></td>
                                 <td class="ps-3">
                                     <?php if ($n['image']): ?>
                                     <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">

@@ -6,6 +6,8 @@ require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/information-room-tables.php';
 requireMemberLogin();
 memberSecurityHeaders();
+/* SITE_NAME constant does not exist (fatal on PHP 8) — same title source as other member pages */
+$siteName = getSetting('site_name', 'सहकारी');
 
 $db = getDB();
 ensureInformationRoomTables($db);
@@ -32,7 +34,7 @@ $memName = (string) ($mem['name'] ?? 'Member');
 $memId = (int) ($mem['id'] ?? 0);
 /* Access logged by information-room-file.php when document bytes are served */
 
-$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . SITE_NAME;
+$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . $siteName;
 $extraHead = function_exists('coopThemeLinkHtml')
     ? coopThemeLinkHtml('assets/css/information-room.css')
     : '<link rel="stylesheet" href="../assets/css/information-room.css">';

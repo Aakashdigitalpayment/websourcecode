@@ -77,3 +77,15 @@
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
 </IfModule>
+
+# Compress text responses (no-op if mod_deflate is unavailable). The theme CSS alone is
+# ~1.4 MB raw per public page -> ~220 KB gzipped; big win on mobile data.
+# Both guards: on Apache 2.4 AddOutputFilterByType lives in mod_filter — without it the
+# directive would be a 500 for the whole site.
+<IfModule mod_deflate.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/xml
+        AddOutputFilterByType DEFLATE application/javascript text/javascript application/json
+        AddOutputFilterByType DEFLATE application/manifest+json image/svg+xml
+    </IfModule>
+</IfModule>

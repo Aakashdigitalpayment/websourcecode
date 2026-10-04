@@ -34,16 +34,18 @@
     toggle.parentNode.replaceChild(freshToggle, toggle);
     toggle = freshToggle;
     toggle.dataset.v96Bound = '1';
-    var toggleIcon = toggle.querySelector('i, .lucide-icon, [data-lucide]');
-
+    /* Re-query + swap in a fresh <i> every time: once Lucide has run, the icon is an <svg>
+       (className is read-only there → TypeError aborted init) and an old reference goes stale. */
     function setToggleLucide(name) {
-      if (!toggleIcon) return;
-      toggleIcon.className = 'lucide-icon';
-      toggleIcon.setAttribute('data-lucide', name);
-      toggleIcon.setAttribute('aria-hidden', 'true');
-      toggleIcon.innerHTML = '';
+      var cur = toggle.querySelector('[data-lucide], .lucide-icon, i, svg');
+      if (!cur || !cur.parentNode) return;
+      var icon = document.createElement('i');
+      icon.className = 'lucide-icon';
+      icon.setAttribute('data-lucide', name);
+      icon.setAttribute('aria-hidden', 'true');
+      cur.parentNode.replaceChild(icon, cur);
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
-        window.lucide.createIcons({ nodes: [toggleIcon] });
+        window.lucide.createIcons({ nodes: [icon] });
       }
     }
 
@@ -97,7 +99,10 @@
         closeBtn.style.opacity = isOpen ? '1' : '0';
         closeBtn.style.pointerEvents = isOpen ? 'auto' : 'none';
       }
-      nav.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      /* Only a closed phone drawer is hidden from assistive tech (desktop menu must stay reachable) */
+      var closedDrawer = !isOpen && window.matchMedia('(max-width: 991.98px)').matches;
+      if (closedDrawer) { nav.setAttribute('aria-hidden', 'true'); nav.setAttribute('inert', ''); }
+      else { nav.removeAttribute('aria-hidden'); nav.removeAttribute('inert'); }
     }
 
     function openNav() {

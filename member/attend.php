@@ -6,6 +6,7 @@
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+require_once __DIR__ . '/../includes/qr-local.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -282,7 +283,7 @@ try {
 
 /* QR code for this member */
 $siteUrl   = SITE_URL;
-$memberQr  = 'https://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($siteUrl . 'verify.php?id=' . urlencode($memCard)) . '&size=140x140&margin=4';
+$memberQrData = $siteUrl . 'verify.php?id=' . urlencode($memCard); /* drawn locally — coop_qr_img_tag() */
 $siteName  = getSetting('site_name', 'सहकारी');
 $pageTitle = $_t('कार्यक्रम उपस्थिति', 'Program Attendance') . ' — ' . $siteName;
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
@@ -447,7 +448,7 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
 <!-- Member QR + stats bar -->
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
     <div style="text-align:center;">
-      <img src="<?= htmlspecialchars($memberQr) ?>" alt="QR" width="70" height="70" style="border-radius:6px;border:1px solid #e5e7eb;">
+      <?= coop_qr_img_tag($memberQrData, 70, 'QR', 'mem-attend-qr', 'border-radius:6px;border:1px solid #e5e7eb;') ?>
       <div style="font-size:.65rem;color:#9ca3af;margin-top:3px;">मेरो QR</div>
     </div>
     <div style="flex:1;min-width:0;">
@@ -636,7 +637,7 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($pr['program_title']) ?></div>
         <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">
-          <?php if ($pr['event_date']): ?><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= $pr['event_date'] ?><?php endif; ?>
+          <?php if ($pr['event_date']): ?><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= htmlspecialchars((string) $pr['event_date'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
           <?php if ($pr['location']): ?><span style="margin-left:8px;"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($pr['location']) ?></span><?php endif; ?>
         </div>
       </div>

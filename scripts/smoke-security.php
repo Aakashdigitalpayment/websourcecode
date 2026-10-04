@@ -223,7 +223,7 @@ assertFileContains('install.php', 'assets/css/install-page.css', 'install CSS ex
 assertFileContains('admin/account-applications.php', "echo e(\$v)", 'account status key escaped');
 assertFileContains('admin/welfare-claims.php', "echo e(\$label['np'])", 'welfare filter label escaped');
 assertFileContains('admin/auctions.php', "echo (int)\$auc['id']", 'auction ids cast');
-assertFileContains('contact.php', "htmlspecialchars(\$facebookUrl ?? '#'", 'contact facebook href escaped');
+assertFileContains('contact.php', "htmlspecialchars(\$__ctUrl, ENT_QUOTES, 'UTF-8')", 'contact social hrefs escaped');
 assertFileContains('includes/site-license.php', "site-license-expired-page.css", 'license expired loads extracted CSS');
 assertFileContains('admin/downloads.php', "e(ucfirst((string) (\$d['category']", 'downloads category escaped');
 assertFileContains('includes/config.php', 'function coop_is_public_tracking_id', 'shared public tracking id validator');
@@ -280,7 +280,7 @@ assertFileContains('includes/program-tables.php', "'registration_desk' => 'Regis
 assertFileContains('includes/program-tables.php', "'member_portal_instant' => 'Portal QR (instant)'", 'attendance source label covers instant');
 assertFileContains('admin/includes/admin-header.php', 'उपस्थिति / Pre-reg', 'program nav clarifies attendance vs reports');
 assertFileContains('admin/includes/admin-header.php', "\$adminT('रिपोर्ट', 'Reports')", 'program report nav has Nepali labels');
-assertFileContains('admin/programs.php', 'attendance_* ले जित्छ', 'program form documents window precedence');
+assertFileContains('admin/programs.php', 'दुवै राखे उपस्थिति Window नै लागू हुन्छ', 'program form documents window precedence');
 assertFileContains('member/scan.php', 'Instant कार्यक्रममा', 'scan copy explains Instant vs approve');
 assertFileContains('cooperative-programs.php', 'coop_public_form_bot_block', 'program prereg bot guard');
 assertFileContains('cooperative-programs.php', 'coop_public_form_anti_bot_html', 'program prereg anti-bot UI');
@@ -462,10 +462,11 @@ assertFileContains('admin/index.php', "pendingModeEarly !== 'backup_ack'", 'admi
 assertFileContains('member/login.php', "pendingModeEarly !== 'backup_ack'", 'member backup_ack skips 2FA rate budget');
 assertFileContains('admin/index.php', 'inputmode="text"', 'admin 2FA field allows backup codes on mobile');
 assertFileContains('member/login.php', 'inputmode="text"', 'member 2FA field allows backup codes on mobile');
-assertFileContains('admin/index.php', 'twoFaQrImageUrl', 'admin Google Authenticator QR image');
+assertFileContains('admin/index.php', 'twoFaQrImgTag', 'admin Google Authenticator QR image (local render)');
 assertFileContains('member/login.php', 'Member portal: Google Authenticator 2FA always mandatory', 'member 2FA always on');
-assertFileContains('member/login.php', 'twoFaQrImageUrl', 'member Google Authenticator QR image');
-assertFileContains('includes/totp-2fa.php', 'function twoFaQrImageUrl', 'TOTP QR helper');
+assertFileContains('member/login.php', 'twoFaQrImgTag', 'member Google Authenticator QR image (local render)');
+assertFileContains('includes/totp-2fa.php', 'function twoFaQrImgTag', 'TOTP QR helper');
+assertFileNotContains('includes/totp-2fa.php', 'api.qrserver.com', 'TOTP secret never sent to an external QR API');
 assertFileContains('includes/totp-2fa.php', 'otpauth://totp/', 'Google Authenticator otpauth URI');
 assertFileContains('includes/member-auth.php', "'need_2fa' => true", 'OAuth returns 2FA challenge');
 assertFileContains('includes/member-auth.php', 'function memberLoginEligibilityError', 'shared login eligibility gate');
@@ -630,8 +631,8 @@ assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z
 assertFileContains('admin/pages.php', 'integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM"', 'TinyMCE SRI');
 assertFileContains('admin/includes/admin-footer.php', 'integrity="sha384-iRqAtUS5zaxUb29RlrazJxjB/+B6yhysd3tFSeMTcmvAgxeXTVWBk4OlbSJWpthT"', 'CKEditor SRI');
 assertFileContains('includes/config.php', 'https://cdn.ckeditor.com', 'CSP allows CKEditor CDN');
-assertFileContains('member/login.php', 'alt="Google Authenticator QR"', 'member 2FA QR image');
-assertFileContains('admin/index.php', 'alt="Google Authenticator QR"', 'admin 2FA QR image');
+assertFileContains('includes/totp-2fa.php', 'alt="Google Authenticator QR"', '2FA QR image alt (shared helper)');
+assertFileContains('assets/js/totp-qr.js', 'data-otpauth', '2FA QR rendered locally from data-otpauth');
 assertFileContains('member/login.php', 'id="twofa_code"', 'member 2FA code field');
 assertFileContains('member/login.php', 'autocomplete="one-time-code"', 'member 2FA OTP autocomplete');
 assertFileContains('admin/index.php', 'id="admin_twofa_code"', 'admin 2FA code field');
@@ -819,7 +820,8 @@ assertFileContains('admin/index.php', 'set_admin_session($user)', 'admin 2FA log
 assertFileContains('admin/index.php', 'admin_canonical_db_role', 'local debug login canonical role');
 assertFileContains('includes/footer.php', 'data-lucide="map-pin"', 'footer contact map Lucide');
 assertFileContains('includes/footer.php', 'data-lucide="mail"', 'footer email Lucide');
-assertFileContains('includes/footer.php', "setAttribute('data-lucide', name)", 'dark mode toggles Lucide icon');
+assertFileContains('includes/footer.php', "coopSetLucide(topbarDarkModeToggle", 'dark mode toggles Lucide icon (shared swap)');
+assertFileContains('includes/theme-assets.php', 'window.coopSetLucide = function', 'shared Lucide icon swap helper');
 assertFileContains('assets/css/app-public.css', 'FROZEN PANEL BASE', 'app-public freeze banner');
 assertFileContains('assets/css/app-admin.css', 'FROZEN PANEL BASE', 'app-admin freeze banner');
 assertFileContains('scripts/build-css-late-bundles.py', 'Never include app-public', 'late-bundle build excludes app-*');
@@ -974,7 +976,7 @@ assertFileContains('admin/partner-facilities.php', 'echo (int)$uid', 'partner fa
 assertFileContains('admin/committees.php', 'echo (int)$showNav', 'committees showNav cast');
 assertFileContains('member/includes/chrome.php', 'data-lucide="house"', 'member chrome dashboard Lucide');
 assertFileContains('member/includes/chrome.php', 'data-lucide="bell-off"', 'member chrome push bell Lucide');
-assertFileContains('member/includes/chrome.php', "setAttribute('data-lucide'", 'member chrome push toggle Lucide-aware');
+assertFileContains('member/includes/chrome.php', "coopSetLucide(bell", 'member chrome push toggle Lucide-aware');
 assertFileContains('includes/coop-date-ui.php', 'data-lucide="calendar"', 'coop date UI Lucide calendar');
 assertFileContains('includes/information-room-viewer.php', 'data-lucide="arrow-left"', 'IR viewer back Lucide');
 assertFileContains('includes/member-marketplace-public-page.php', 'coop_nav_icon_html', 'marketplace cards use nav icon helper');
@@ -1035,7 +1037,7 @@ assertFileContains('admin/assets/icon-picker.js', 'faClassToLucideName', 'icon-p
 assertFileContains('admin/assets/icon-picker.js', "id: 'brands'", 'icon-picker brands group stays FA');
 assertFileContains('admin/assets/icon-picker.js', 'DB stores FA class', 'icon-picker documents FA storage SSOT');
 assertFileContains('admin/assets/icon-picker.css', '.fa-ip-preview .fab', 'icon-picker brand preview FA fonts');
-assertFileContains('admin/includes/admin-footer.php', 'icon-picker.js?v=6', 'icon-picker cache-bust v6');
+assertFileContains('admin/includes/admin-footer.php', "coopThemeCssVer('admin/assets/icon-picker.js')", 'icon-picker cache-bust via filemtime');
 assertFileContains('admin/manage-admins.php', 'normalize_role_aliases', 'manage-admins alias-only normalize action');
 assertFileNotContains('admin/member-online-portal.php', "'❌ पासवर्ड Reset", 'portal reject notif no emoji title');
 assertFileContains('admin/member-online-portal.php', "'पासवर्ड Reset अस्वीकृत भयो'", 'portal reject notif text title');

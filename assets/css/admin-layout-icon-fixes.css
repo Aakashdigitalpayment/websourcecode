@@ -389,7 +389,10 @@ svg.lucide,
 .lucide,
 .lucide-icon {
     color: #374151 !important;
-    stroke: #374151 !important;
+    /* currentColor, not #374151: CSS stroke beats the SVG's stroke="currentColor", so a fixed
+       grey here ignored every later colour rule (white-on-green buttons → invisible icons,
+       green outline buttons → grey icons). Default look is unchanged (color is still grey). */
+    stroke: currentColor !important;
     fill: none;
 }
 

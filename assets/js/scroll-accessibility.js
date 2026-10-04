@@ -1146,7 +1146,7 @@
             '</button>' +
 
             /* ── Expandable section ── */
-            '<div id="saPanelControls" class="sa-controls" aria-hidden="true">' +
+            '<div id="saPanelControls" class="sa-controls" aria-hidden="true" inert>' +
 
                 /* Section label */
                 '<div class="sa-section-label">स्क्रोल</div>' +
@@ -1243,6 +1243,8 @@
             panel.classList.toggle('sa-expanded', open);
             panelToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
             panelControls.setAttribute('aria-hidden', open ? 'false' : 'true');
+            /* inert while closed: hidden buttons must not take keyboard focus (axe aria-hidden-focus) */
+            if (open) panelControls.removeAttribute('inert'); else panelControls.setAttribute('inert', '');
         }
         panelToggle.addEventListener('click', function () {
             setPanelOpen(panel.classList.contains('sa-collapsed'));

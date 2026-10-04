@@ -19,6 +19,7 @@ require_once __DIR__ . '/includes/admin-request-view.php';
 require_once '../includes/member-auth.php'; /* adminGenerateMemberIdCard() को लागि */
 require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
+require_once __DIR__ . '/../includes/member-monthly-saving.php';
 require_once __DIR__ . '/includes/admin-excel-export.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
@@ -442,6 +443,19 @@ if (isset($_POST['update_kyc_profile'])) {
 
         if (function_exists('memberSsotAfterKycWrite')) {
             memberSsotAfterKycWrite($db, $id);
+        }
+        /* मासिक बचत lives on the linked member (SSOT) — KYM form only edits it there */
+        if (array_key_exists('monthly_saving', $_POST) && function_exists('memberSsotFindBySadasyata')) {
+            $msParsed = coop_monthly_saving_parse((string) $_POST['monthly_saving']);
+            if ($msParsed['ok']) {
+                $stMid = $db->prepare('SELECT member_id FROM kyc_applications WHERE id = ? LIMIT 1');
+                $stMid->execute([$id]);
+                $kymSid = trim((string) $stMid->fetchColumn());
+                $kymMember = $kymSid !== '' ? memberSsotFindBySadasyata($db, $kymSid) : null;
+                if ($kymMember) {
+                    coop_monthly_saving_set($db, (int) $kymMember['id'], $msParsed['value'], 'KYM edit');
+                }
+            }
         }
         if (function_exists('writeAuditLog')) {
             writeAuditLog('kyc_profile_update', 'Admin updated KYM profile (synced to member): ' . $fullName, 'kyc', $id);
@@ -883,6 +897,10 @@ if ($viewApp):
                             <td><strong><?php echo htmlspecialchars($viewApp['full_name'] ?? '—'); ?></strong></td></tr>
                         <tr><th>सदस्यता नं. (Member ID)</th>
                             <td><code class="text-primary fw-bold"><?php echo htmlspecialchars($viewApp['member_id'] ?? '—'); ?></code></td></tr>
+                        <tr><th>मासिक बचत</th>
+                            <td><?php echo $viewLinkedMember
+                                ? coop_monthly_saving_badge_html(coop_monthly_saving_from_db($viewLinkedMember[COOP_MONTHLY_SAVING_COL] ?? null))
+                                : '<span class="text-muted small">Member link भएपछि देखिन्छ</span>'; ?></td></tr>
                         <tr><th>Full Name (English)</th>
                             <td><?php echo htmlspecialchars($viewApp['full_name_en'] ?: '—'); ?></td></tr>
                         <tr><th>जन्म मिति (BS)</th>
@@ -1399,6 +1417,15 @@ if ($viewApp):
                                             <input type="text" name="nationality" id="kyc_ed_nationality" class="form-control form-control-sm" maxlength="100"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['nationality'] ?? '')); ?>">
                                         </div>
+                                        <div class="col-12">
+                                            <span class="form-label fw-semibold small d-block">मासिक बचत</span>
+                                            <?php if ($viewLinkedMember): ?>
+                                            <?php echo coop_monthly_saving_radios_html(coop_monthly_saving_from_db($viewLinkedMember[COOP_MONTHLY_SAVING_COL] ?? null), 'kyc_ed_ms'); ?>
+                                            <div class="form-text">Linked Member मा save हुन्छ (Members / Program desk मा पनि यही)।</div>
+                                            <?php else: ?>
+                                            <div class="form-text">Member ID link भएपछि मात्र सेट गर्न मिल्छ।</div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1687,8 +1714,8 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </select>
         </div>
         <div class="col-md-2 col-6">
-            <label>लिंक स्थिति</label>
-            <select name="link" class="form-select form-select-sm">
+            <label for="qf_link">लिंक स्थिति</label>
+            <select name="link" id="qf_link" class="form-select form-select-sm">
                 <option value="">सबै लिंक</option>
                 <option value="linked" <?php echo $link_filter==='linked'?'selected':''; ?>>लिंक (KYM+सदस्य+पासवर्ड)</option>
                 <option value="no_password" <?php echo $link_filter==='no_password'?'selected':''; ?>>सदस्य stub (पासवर्ड छैन)</option>
@@ -1697,13 +1724,13 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </select>
         </div>
         <div class="col-md-2 col-6">
-            <label>मिति देखि</label>
-            <input type="date" name="date_from" class="form-control form-control-sm"
+            <label for="xf_date_from">मिति देखि</label>
+            <input type="date" name="date_from" id="xf_date_from" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
         </div>
         <div class="col-md-2 col-6">
-            <label>मिति सम्म</label>
-            <input type="date" name="date_to" class="form-control form-control-sm"
+            <label for="xf_date_to">मिति सम्म</label>
+            <input type="date" name="date_to" id="xf_date_to" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
         </div>
         <div class="col-md-3 col-12">
@@ -1859,13 +1886,13 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
     <div class="p-3 border-top no-print">
         <div class="adm-pagination">
             <?php $qs = $kycFilterQs; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>" aria-label="पहिलो पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>" aria-label="अघिल्लो पृष्ठ"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
             <?php $start=max(1,$page-2);$end=min($totalPages,$page+2); for($i=$start;$i<=$end;$i++): ?>
             <?php echo $i==$page ? "<span class='active'>$i</span>" : "<a href='?".http_build_query(array_merge($qs,['page'=>$i]))."'>$i</a>"; ?>
             <?php endfor; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>" aria-label="अर्को पृष्ठ"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>" aria-label="अन्तिम पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
             <span class="acc-page-meta"><?php echo $page; ?>/<?php echo $totalPages; ?> · <?php echo $total; ?> रेकर्ड</span>
         </div>
     </div>

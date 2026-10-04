@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
     $content           = function_exists('coop_sanitize_cms_html')
         ? coop_sanitize_cms_html($_POST['content'] ?? '')
         : trim((string) ($_POST['content'] ?? ''));
-    $noticeDate        = !empty(trim($_POST['notice_date'] ?? '')) ? clean_text($_POST['notice_date']) : null;
+    $noticeDate        = coop_notice_date_normalize_input(clean_text($_POST['notice_date'] ?? ''));
     $isActive          = isset($_POST['is_active']) ? 1 : 0;
     $isPopup           = isset($_POST['is_popup']) ? 1 : 0;
     $isPopupPhotoOnly  = isset($_POST['popup_photo_only']) ? 1 : 0;
@@ -88,6 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
 
     if ($title === '') {
         setFlash('error', $__t('शीर्षक अनिवार्य छ।', 'Title is required.'));
+        $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
+    }
+    if ($noticeDate === false) {
+        setFlash('error', $__t('सूचना मिति अमान्य। बि.सं. YYYY-MM-DD राख्नुहोस्।', 'Invalid notice date. Use BS YYYY-MM-DD.'));
         $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
     }
 
@@ -378,7 +382,7 @@ $ntcBasename = static function (?string $path): string {
                         <tbody>
                             <?php foreach ($notices as $idx => $item): ?>
                             <tr>
-                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>"></td>
+                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>" aria-label="<?php echo htmlspecialchars($__t('छान्नुहोस्: ', 'Select: ') . (string) ($item['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></td>
                                 <td class="ps-3 ntc-muted" data-label="#"><?php echo $idx + 1; ?></td>
                                 <td data-label="शीर्षक">
                                     <div class="fw-semibold text-dark"><?php echo htmlspecialchars($item['title']); ?></div>
@@ -402,7 +406,7 @@ $ntcBasename = static function (?string $path): string {
                                 <td data-label="मिति">
                                     <span class="text-secondary">
                                         <i class="lucide-icon me-1 ntc-date-icon" data-lucide="calendar" aria-hidden="true"></i>
-                                        <?php echo htmlspecialchars($item['notice_date'] ?? '—'); ?>
+                                        <?php echo htmlspecialchars(($item['notice_date'] ?? '') !== '' ? coop_notice_date_bs($item['notice_date']) : '—'); ?>
                                     </span>
                                 </td>
                                 <td class="text-center" data-label="पप-अप">
@@ -513,7 +517,7 @@ $ntcBasename = static function (?string $path): string {
                                     <input type="text" name="notice_date" id="ntf_date"
                                            class="form-control admin-fancy-input nepali-datepicker"
                                            placeholder="YYYY-MM-DD" autocomplete="off"
-                                           value="<?php echo htmlspecialchars((string) ($ef['notice_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                           value="<?php echo htmlspecialchars(coop_notice_date_bs((string) ($ef['notice_date'] ?? '')), ENT_QUOTES, 'UTF-8'); ?>">
                                     <span class="input-group-text ntc-date-trigger ndp-trigger ntf-cursor-pointer">
                                         <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                                     </span>
@@ -877,6 +881,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 order     : [],
                 pageLength: 15,
+                /* 15 must be in the menu, else the "rows" select renders blank */
+                lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
                 columnDefs: [{ orderable: false, targets: [0, 6] }]
             });
         } catch(e) {}

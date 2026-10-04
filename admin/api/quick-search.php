@@ -4,7 +4,8 @@
  * GET /admin/api/quick-search.php?q=<query>
  * Returns JSON: { members, kyc, notices, total }
  */
-if (session_status() === PHP_SESSION_NONE) session_start();
+/* No session_start() here: config.php opens the app session (SESSION_NAME + secure params).
+   Starting a default PHPSESSID first meant isAdminLoggedIn() never saw the login → always 401. */
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/auth-roles.php';
 
@@ -28,9 +29,11 @@ if (mb_strlen($q) < 2) {
 $db = getDB();
 $like = '%' . $q . '%';
 $out  = ['members' => [], 'kyc' => [], 'notices' => [], 'total' => 0];
+/* members.php / kyc-applications.php are admin+ — editor/staff search sees notices only */
+$canSeePii = function_exists('is_admin_or_above') && is_admin_or_above();
 
 /* ── 1. Members ──────────────────────────────────────────────────── */
-try {
+if ($canSeePii) { try {
     $stmt = $db->prepare(
         'SELECT id, name, email, phone, sadasyata_number, approval_status
          FROM members
@@ -53,10 +56,10 @@ try {
         ];
         $out['total']++;
     }
-} catch (Throwable $e) { /* table may not exist yet */ }
+} catch (Throwable $e) { /* table may not exist yet */ } }
 
 /* ── 2. KYM Applications ─────────────────────────────────────────── */
-try {
+if ($canSeePii) { try {
     $stmt = $db->prepare(
         'SELECT id, full_name, full_name_en, mobile, status
          FROM kyc_applications
@@ -75,7 +78,7 @@ try {
         ];
         $out['total']++;
     }
-} catch (Throwable $e) { /* table may not exist yet */ }
+} catch (Throwable $e) { /* table may not exist yet */ } }
 
 /* ── 3. Notices ──────────────────────────────────────────────────── */
 try {
@@ -91,7 +94,7 @@ try {
         $out['notices'][] = [
             'id'    => (int)$r['id'],
             'title' => $displayTitle,
-            'sub'   => $r['notice_date'] ?? '',
+            'sub'   => coop_notice_date_bs($r['notice_date'] ?? ''),
             'badge' => $r['is_active'] ? 'active' : 'inactive',
             'url'   => 'notices.php?edit=' . (int)$r['id'],
         ];

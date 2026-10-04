@@ -74,7 +74,7 @@ if ($selectedProgramId > 0) {
         <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0"><?php echo adminLangT('Live उपस्थिति', 'Live Attendance'); ?></h6>
           <form method="GET" class="d-flex gap-2 align-items-center">
-            <select name="program_id" class="form-select form-select-sm" style="min-width:200px" onchange="this.form.submit()">
+            <select name="program_id" class="form-select form-select-sm" style="min-width:200px" aria-label="कार्यक्रम छान्नुहोस्" onchange="this.form.submit()">
               <option value=""><?php echo adminLangT('— कार्यक्रम छान्नुहोस् —', '— Select program —'); ?></option>
               <?php foreach ($activeList as $p): ?>
                 <option value="<?php echo (int)$p['id']; ?>" <?php echo $selectedProgramId === (int)$p['id'] ? 'selected' : ''; ?>>

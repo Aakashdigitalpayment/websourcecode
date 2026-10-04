@@ -476,12 +476,9 @@ if (function_exists('coopThemeLink')) {
                 <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> <?php echo $_t('मैले codes सुरक्षित राखें — Continue', 'I saved my codes — Continue'); ?></button>
             <?php elseif (($member2faPending['mode'] ?? '') === 'setup'): ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो QR स्क्यान गर्नुहोस्:</div>
-                <?php if ($member2faSetupUri !== '' && function_exists('twoFaQrImageUrl')): ?>
+                <?php if ($member2faSetupUri !== '' && function_exists('twoFaQrImgTag')): ?>
                 <div class="twofa-qr-wrap" style="text-align:center;margin:12px 0">
-                    <img src="<?php echo htmlspecialchars(twoFaQrImageUrl($member2faSetupUri, 220), ENT_QUOTES, 'UTF-8'); ?>"
-                         alt="Google Authenticator QR"
-                         width="220" height="220"
-                         style="max-width:220px;height:auto;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:8px">
+                    <?php echo twoFaQrImgTag($member2faSetupUri, 220, 'max-width:220px;height:auto;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:8px'); ?>
                 </div>
                 <?php endif; ?>
                 <div class="field">
@@ -634,13 +631,9 @@ function togglePw(id, btn) {
     var inp = document.getElementById(id);
     var show = inp.type === 'password';
     inp.type = show ? 'text' : 'password';
-    var icon = btn.querySelector('i');
-    if (icon) {
-        icon.setAttribute('data-lucide', show ? 'eye-off' : 'eye');
-        icon.className = 'lucide-icon';
-        if (window.lucide && typeof window.lucide.createIcons === 'function') {
-            try { window.lucide.createIcons({ nodes: [icon] }); } catch (e) {}
-        }
+    /* btn.querySelector('i') is null once Lucide has rendered the <svg> — shared swap helper */
+    if (typeof window.coopSetLucide === 'function') {
+        window.coopSetLucide(btn, show ? 'eye-off' : 'eye');
     }
     var en = (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
     var label = show

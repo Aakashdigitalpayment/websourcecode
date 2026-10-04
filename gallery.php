@@ -334,7 +334,9 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                         if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $video['video_url'] ?? '', $matches)) {
                             $videoId = $matches[1];
                         }
-                        $thumbnail = $video['thumbnail'] ?? ($videoId ? 'https://img.youtube.com/vi/' . $videoId . '/maxresdefault.jpg' : '');
+                        /* ?: not ?? — the column is often '' (not NULL), which would skip the YouTube thumb */
+                        $thumbnail = trim((string) ($video['thumbnail'] ?? ''))
+                            ?: ($videoId ? 'https://img.youtube.com/vi/' . $videoId . '/maxresdefault.jpg' : '');
                     ?>
                     <div class="col-lg-4 col-md-6 mb-4 gallery-item">
                         <div class="video-card">
