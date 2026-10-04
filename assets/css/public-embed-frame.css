@@ -5,3 +5,15 @@
     body.embed-in-member-portal .page-banner { display: none !important; }
     body.embed-in-member-portal .main-footer { display: none !important; }
     
+    /* Phone: the form inside the member-portal iframe got ~199px of a 390px screen —
+       six nested paddings (portal card + section + container + shell + 40px form box).
+       Embed mode only; the public page itself is unchanged. */
+    @media (max-width: 767.98px) {
+        body.embed-in-member-portal .section-padding { padding-top: 8px !important; padding-bottom: 16px !important; }
+        body.embed-in-member-portal :is(section, .container, .public-form-shell) { padding-left: 4px !important; padding-right: 4px !important; }
+        body.embed-in-member-portal :is(.kyc-form-box, .loan-form-box, .account-form-box, .grievance-form-box,
+            .appointment-form-box, .contact-form-box, .digital-form-card, .claim-form-card, .vendor-form-card) {
+            padding: 16px 12px !important;
+            border-radius: 12px !important;
+        }
+    }

@@ -2350,6 +2350,12 @@ body.verify-auth-page .vp-secure {
   height: 1.15rem !important;
   stroke: currentColor !important;
 }
+
+/* Apply-frame (member KYC iframe): page CSS sets padding 0 but the shared .mem-card-body
+   padding won — 16px more lost on each side of an already narrow embedded form. */
+.mem-card .mem-card-body.mem-apply-frame-body {
+  padding: 0 !important;
+}
 /* ===== END member-shell-polish.css ===== */
 
 /* ===== BEGIN lucide-icon-utils.css ===== */

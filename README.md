@@ -75,6 +75,7 @@ python3 scripts/build-css-late-bundles.py
 ```
 
 Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
+`python3 scripts/build-css-late-bundles.py --check` (also run by `smoke-css-order.php`) fails if a bundle drifted from its sources.
 
 `assets/css/app-sections/` holds **non-live** extract shadows of frozen `app-*.css` blocks — see that folder’s README; never load them in production theme order.
 
