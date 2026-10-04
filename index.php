@@ -629,7 +629,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                                 </div>
                                 <div class="notice-content">
                                     <h6><a href="notices?id=<?php echo (int)$notice['id']; ?>"><?php echo e($notice['title']); ?></a></h6>
-                                    <span class="notice-meta"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?></span>
+                                    <span class="notice-meta"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo e(coop_notice_date_bs($notice['notice_date'] ?? '')); ?></span>
                                 </div>
                             </div>
                             <?php endforeach; ?>

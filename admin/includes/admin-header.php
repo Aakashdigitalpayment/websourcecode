@@ -572,9 +572,11 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='reports' ? 'active' : ''; ?>">
                                 <a href="reports.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-column"></i></span><span><?php echo $adminT('प्रतिवेदन', 'Reports'); ?></span></a>
                             </li>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('app-features.php')): ?>
                             <li class="<?php echo $currentPage=='app-features' ? 'active' : ''; ?>">
                                 <a href="app-features.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i></span><span><?php echo $adminT('एप सुविधाहरू', 'App Features'); ?></span></a>
                             </li>
+                            <?php endif; ?>
                             <li class="<?php echo $currentPage=='why-choose' ? 'active' : ''; ?>">
                                 <a href="why-choose.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-gold" aria-hidden="true" data-lucide="star"></i></span><span><?php echo $adminT('किन हामीलाई छान्ने?', 'Why Choose Us'); ?></span></a>
                             </li>
@@ -983,24 +985,30 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo in_array($currentPage, ['information-room','information-room-browse','information-room-logs'], true) ? 'active' : ''; ?>">
                                 <a href="information-room.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="archive"></i></span><span><?php echo $adminT('Information Room', 'Information Room'); ?></span></a>
                             </li>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('notification-settings.php')): ?>
                             <li class="<?php echo $currentPage=='notification-settings' ? 'active' : ''; ?>">
                                 <a href="notification-settings.php">
                                 <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i></span>
                                 <span><?php echo $adminT('सूचना सेटिङ्स', 'Notification Settings'); ?></span>
                             </a>
                             </li>
+                            <?php endif; ?>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('ai-settings.php')): ?>
                             <li class="<?php echo $currentPage=='ai-settings' ? 'active' : ''; ?>">
                                 <a href="ai-settings.php">
                                 <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i></span>
                                 <span><?php echo $adminT('AI Chat सेटिङ्स', 'AI Chat Settings'); ?></span>
                             </a>
                             </li>
+                            <?php endif; ?>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('notification-templates.php')): ?>
                             <li class="<?php echo $currentPage=='notification-templates' ? 'active' : ''; ?>">
                                 <a href="notification-templates.php">
                                 <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-violet" aria-hidden="true" data-lucide="mail-open"></i></span>
                                 <span><?php echo $adminT('सूचना Templates', 'Notification Templates'); ?></span>
                             </a>
                             </li>
+                            <?php endif; ?>
                             <li class="<?php echo $currentPage=='push-notifications' ? 'active' : ''; ?>">
                                 <a href="push-notifications.php">
                                 <span class="nav-icon-wrap"><i style="color:#f59e0b;" class="lucide-icon" aria-hidden="true" data-lucide="bell-ring"></i></span>
@@ -1019,9 +1027,11 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='satisfaction-settings' ? 'active' : ''; ?>">
                                 <a href="satisfaction-settings.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-pink" aria-hidden="true" data-lucide="smile"></i></span><span><?php echo $adminT('सन्तुष्टि Widget', 'Satisfaction Widget'); ?></span></a>
                             </li>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('settings.php')): ?>
                             <li class="<?php echo $currentPage=='settings' ? 'active' : ''; ?>">
                                 <a href="settings.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="sliders"></i></span><span><?php echo $adminT('सेटिङ्स', 'Settings'); ?></span></a>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
 
@@ -1045,18 +1055,22 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='site-health' ? 'active' : ''; ?>">
                                 <a href="site-health.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="heart-pulse"></i></span><span><?php echo $adminT('साइट स्वास्थ्य', 'Site Health'); ?></span></a>
                             </li>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('audit-log.php')): ?>
                             <li class="<?php echo $currentPage=='audit-log' ? 'active' : ''; ?>">
                                 <a href="audit-log.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-blue" aria-hidden="true" data-lucide="shield-half"></i></span>
                                     <span><?php echo $adminT('अडिट लग', 'Audit Log'); ?></span>
                                 </a>
                             </li>
+                            <?php endif; ?>
+                            <?php if (!function_exists('coop_admin_nav_allowed') || coop_admin_nav_allowed('error-log.php')): ?>
                             <li class="<?php echo $currentPage=='error-log' ? 'active' : ''; ?>">
                                 <a href="error-log.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-red" aria-hidden="true" data-lucide="bug"></i></span>
                                     <span><?php echo $adminT('त्रुटि लग', 'Error Log'); ?></span>
                                 </a>
                             </li>
+                            <?php endif; ?>
                             <!-- v5: In-app User Manual / Help & Guide (non-developer friendly) -->
                             <li class="<?php echo ($currentPage=='help-guide' || $currentPage=='help-center') ? 'active' : ''; ?>">
                                 <a href="help-center.php">

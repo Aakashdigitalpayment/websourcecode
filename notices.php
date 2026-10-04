@@ -81,7 +81,7 @@ if ($singleNotice) {
             $pageTitle,
             $pageDescription,
             seo_canonical_url(),
-            (string) ($singleNotice['notice_date'] ?? $singleNotice['created_at'] ?? ''),
+            (coop_notice_date_ad($singleNotice['notice_date'] ?? '') ?: (string) ($singleNotice['created_at'] ?? '')),
             isset($pageOgImage) ? (string) $pageOgImage : '',
             isEnglish()
         );
@@ -139,7 +139,7 @@ require_once 'includes/header.php';
                     <div class="notice-header">
                         <span class="notice-date">
                             <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
-                            <?php echo formatDate($singleNotice['notice_date'], 'Y-m-d'); ?>
+                            <?php echo e(coop_notice_date_bs($singleNotice['notice_date'] ?? '')); ?>
                         </span>
                         <h1><?php echo e($singleNotice['title']); ?></h1>
                     </div>
@@ -199,7 +199,7 @@ require_once 'includes/header.php';
                         <div class="notice-content">
                             <span class="notice-date">
                                 <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
-                                <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?>
+                                <?php echo e(coop_notice_date_bs($notice['notice_date'] ?? '')); ?>
                             </span>
                             <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo e($notice['title']); ?></a></h5>
                             <p><?php echo e(truncateText(strip_tags((string)($notice['content'] ?? '')), 100)); ?></p>

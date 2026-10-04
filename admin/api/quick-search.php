@@ -94,7 +94,7 @@ try {
         $out['notices'][] = [
             'id'    => (int)$r['id'],
             'title' => $displayTitle,
-            'sub'   => $r['notice_date'] ?? '',
+            'sub'   => coop_notice_date_bs($r['notice_date'] ?? ''),
             'badge' => $r['is_active'] ? 'active' : 'inactive',
             'url'   => 'notices.php?edit=' . (int)$r['id'],
         ];

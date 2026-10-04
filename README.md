@@ -114,6 +114,8 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 | **Welfare types** | `welfare_claim_types` / member-welfare catalog only — no duplicate type fields on IP |
 | **Institutional राहत** | Pre-portal totals: Admin → **राहत Opening** (`admin/institutional-welfare-opening.php`). Monthly IP form auto-fills month-new + cumulative (**editable**). Public prefers saved snapshot |
 | **Notice popup** | Admin Notices → Show as popup → optional **पप-अप समाप्त मिति (बि.सं.)** → DB `popup_expires_at` (AD). Empty = no expiry. After that day, public popup auto-hides (no re-edit) |
+| **Notice date** | Exception to AD storage: `notices.notice_date` holds **बि.सं.** (admin form is BS). Read via `coop_notice_date_bs()` (display) / `coop_notice_date_ad()` (sitemap, JSON-LD); save via `coop_notice_date_normalize_input()` — legacy AD rows still display correctly |
+| **Admin roles** | System/config pages (Settings, App Features, AI/Notification settings & templates, Audit/Error log) need **admin+** — one map `coop_admin_page_min_role()` in `includes/auth-roles.php`, enforced by `admin-page-boot.php`; sidebar hides them via `coop_admin_nav_allowed()`. Editor/Staff keep content pages |
 | **Reports / IP member gate** | `access_level` + `includes/public-member-access.php`; files via `report-file.php` / `institutional-profile-file.php` |
 | **Content stores** | `useful_links` (footer/admin Useful Links); public FAQs vs `chatbot_faqs` (Help Center) — see `includes/data-ssot.php`; do not dual-write legacy tables |
 

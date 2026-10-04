@@ -1105,7 +1105,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                                     <span class="pfl-bell-item-body">
                                         <span class="pfl-bell-item-title"><?php echo e(mb_substr($bn['title'], 0, 70) . (mb_strlen($bn['title']) > 70 ? '…' : '')); ?></span>
                                         <?php if (!empty($bn['notice_date'])): ?>
-                                        <span class="pfl-bell-item-date"><?php echo e($bn['notice_date']); ?></span>
+                                        <span class="pfl-bell-item-date"><?php echo e(coop_notice_date_bs($bn['notice_date'])); ?></span>
                                         <?php endif; ?>
                                     </span>
                                     <?php if ($bni < 3): ?>
@@ -2071,7 +2071,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         <?php if (!empty($notice['notice_date'])): ?>
                         <div class="popup-date">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="calendar"></i>
-                            <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?>
+                            <?php echo e(coop_notice_date_bs($notice['notice_date'])); ?>
                         </div>
                         <?php endif; ?>
                     </div>

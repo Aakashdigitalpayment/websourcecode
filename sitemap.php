@@ -164,7 +164,7 @@ try {
             if ($id <= 0) {
                 continue;
             }
-            $raw = $n['notice_date'] ?? $n['created_at'] ?? '';
+            $raw = coop_notice_date_ad($n['notice_date'] ?? '') ?: (string) ($n['created_at'] ?? '');
             $lm = $today;
             if ($raw !== '') {
                 $t = strtotime((string) $raw);

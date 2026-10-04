@@ -621,6 +621,70 @@ function coop_render_cms_prose(?string $html): string
 }
 
 /**
+ * Notice dates are stored as Bikram Sambat (YYYY-MM-DD) — the admin form is BS.
+ * Legacy/seeded rows may hold A.D.; these helpers accept either (year >= 2070 = BS).
+ */
+if (!function_exists('coop_notice_date_bs')) {
+    function coop_notice_date_bs(?string $date): string
+    {
+        $ymd = substr(trim((string) $date), 0, 10);
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $ymd, $m)) {
+            return $ymd;
+        }
+        if ((int) $m[1] >= 2070) {
+            return $ymd;
+        }
+        $bs = function_exists('nepali_ad_to_bs_string') ? nepali_ad_to_bs_string($ymd) : null;
+        return is_string($bs) && $bs !== '' ? $bs : $ymd;
+    }
+}
+
+if (!function_exists('coop_notice_date_ad')) {
+    /** A.D. Y-m-d for machine consumers (sitemap lastmod, JSON-LD); '' when unknown. */
+    function coop_notice_date_ad(?string $date): string
+    {
+        $ymd = substr(trim((string) $date), 0, 10);
+        if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $ymd, $m)) {
+            return '';
+        }
+        if ((int) $m[1] < 2070) {
+            return $ymd;
+        }
+        $ad = function_exists('nepali_bs_to_ad_string') ? nepali_bs_to_ad_string($ymd) : null;
+        return is_string($ad) ? $ad : '';
+    }
+}
+
+if (!function_exists('coop_notice_date_normalize_input')) {
+    /**
+     * Admin input (BS, or A.D. typed by mistake) → BS Y-m-d for storage.
+     * Returns null for empty input, false when the date is not a real calendar date.
+     *
+     * @return string|null|false
+     */
+    function coop_notice_date_normalize_input(?string $raw)
+    {
+        $v = trim((string) $raw);
+        if ($v === '') {
+            return null;
+        }
+        $v = strtr($v, ['०' => '0', '१' => '1', '२' => '2', '३' => '3', '४' => '4', '५' => '5', '६' => '6', '७' => '7', '८' => '8', '९' => '9', '/' => '-', '.' => '-']);
+        if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $v, $m)) {
+            return false;
+        }
+        $ymd = sprintf('%04d-%02d-%02d', (int) $m[1], (int) $m[2], (int) $m[3]);
+        if ((int) $m[1] >= 2070) {
+            return coop_notice_date_ad($ymd) !== '' ? $ymd : false;
+        }
+        if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
+            return false;
+        }
+        $bs = coop_notice_date_bs($ymd);
+        return (int) substr($bs, 0, 4) >= 2070 ? $bs : false;
+    }
+}
+
+/**
  * BS notice_date (YYYY-MM-DD) → day + Nepali month label for homepage cards.
  *
  * @return array{day: string, month: string}
@@ -628,7 +692,7 @@ function coop_render_cms_prose(?string $html): string
 if (!function_exists('coop_notice_bs_day_month')) {
     function coop_notice_bs_day_month(?string $date): array
     {
-        $date = trim((string) $date);
+        $date = coop_notice_date_bs($date);
         if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $date, $m)) {
             return ['day' => '—', 'month' => ''];
         }

@@ -157,6 +157,34 @@ if (!function_exists('is_staff_or_above')) {
     function is_staff_or_above(): bool { return has_role('staff'); }
 }
 
+if (!function_exists('coop_admin_page_min_role')) {
+    /**
+     * Minimum role for system/config admin pages (enforced in admin/includes/admin-page-boot.php).
+     * Editor/Staff = content + day-to-day pages only (see Help Guide → Admin User Management).
+     * Pages not listed keep their own checks (many already gate superadmin or admin inline).
+     */
+    function coop_admin_page_min_role(string $script): ?string {
+        static $map = [
+            'settings.php'               => 'admin',
+            'app-features.php'           => 'admin',
+            'notification-templates.php' => 'admin',
+            'error-log.php'              => 'admin',
+            'audit-log.php'              => 'admin',
+            'ai-settings.php'            => 'admin',
+            'notification-settings.php'  => 'admin',
+        ];
+        return $map[strtolower($script)] ?? null;
+    }
+}
+
+if (!function_exists('coop_admin_nav_allowed')) {
+    /** Sidebar: hide links the current role would be redirected away from. */
+    function coop_admin_nav_allowed(string $script): bool {
+        $min = coop_admin_page_min_role($script);
+        return $min === null || has_role($min);
+    }
+}
+
 if (!function_exists('require_role')) {
     /**
      * Page को सुरुमा call गर्नुहोस्। तपाईंको existing
