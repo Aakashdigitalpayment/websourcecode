@@ -1129,6 +1129,40 @@ body[class*="admin-page-"] .modal .form-check-input:checked {
   border-color: var(--primary-color, #1a5f2a) !important;
 }
 
+/* The shared form-control `background: … !important` rule strips Bootstrap's tick/dot/knob images
+   and its radius turns checkboxes into circles — restore them. */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:not(:checked) {
+  border-color: #9aa5b1 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:not(.form-switch *) {
+  border-radius: 0.3em !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"] {
+  border-radius: 50% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input:checked:not(.form-switch *),
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="checkbox"]:checked:not(.form-switch *) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-check-input[type="radio"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  border-radius: 2em !important;
+  background-size: contain !important;
+  background-position: left center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%239aa5b1'/%3e%3c/svg%3e") !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input:checked {
+  background-position: right center !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
 body[class*="admin-page-"] .main-content .was-validated .form-control:invalid,
 body[class*="admin-page-"] .main-content .form-control.is-invalid,
 body[class*="admin-page-"] .modal .form-control.is-invalid {
@@ -1377,4 +1411,83 @@ body[class*="admin-page-"] .main-content .table .badge.text-bg-info {
   background: var(--color-info-bg, #ecfeff) !important;
   color: var(--color-info, #0891b2) !important;
   border: 1px solid var(--color-info-border, #a5f3fc);
+}
+
+/* ── Light page / table-card headers: "light" (white) buttons + icons ────────────────
+   .btn-outline-light was written for the old dark gradient headers. The page header
+   (adminPageHeader) and .admin-table-card headers are light now, so those buttons and
+   header icons rendered white-on-white (e.g. "टिम व्यवस्थापन", "+ बचत दर थप्नुहोस्").
+   Brand outline on light surfaces; hover fills with brand colour. */
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 40%, transparent) !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light:is(:hover, :focus-visible),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light:is(:hover, :focus-visible) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+/* Lucide paths inherit `stroke: currentColor` as a keyword and resolve it against their OWN
+   colour — which the old `.gradient-card-header *` rule forces to white. Follow the icon. */
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon) *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) * {
+  color: inherit !important;
+}
+
+/* ── Card headers explicitly marked .bg-white stay white ─────────────────────────────
+   A blanket `.main-content .card > .card-header` rule repaints every header green with
+   white text, overriding the author's explicit .bg-white — whose contents use
+   text-success / text-primary / text-danger (green-on-green, invisible icons). */
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white {
+  background: #fff !important;
+  color: var(--text-primary, #1f2937) !important;
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+}
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white :is(h1, h2, h3, h4, h5, h6, .card-title):not([class*="text-"]) {
+  color: var(--text-primary, #1f2937) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Empty-state CTA inside a table (td[colspan]) is a real button, not a row icon ────
+   `table td .btn-sm` rules size row-action icons to 30px and make .btn-success white,
+   which squeezed the "थप्नुहोस्" button into a blank white square. */
+body[class*="admin-page-"] .main-content table td[colspan] .btn {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0.4rem 0.95rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35rem;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Outline warning: Bootstrap's #ffc107 text is unreadable on white — darker amber ── */
+body[class*="admin-page-"] .main-content .btn-outline-warning:not(:hover):not(:focus-visible):not(.active) {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+  border-color: #f59e0b !important;
 }

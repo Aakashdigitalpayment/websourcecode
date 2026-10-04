@@ -5115,6 +5115,85 @@ body[class*="admin-page-"] .main-content .table .badge.text-bg-info {
   color: var(--color-info, #0891b2) !important;
   border: 1px solid var(--color-info-border, #a5f3fc);
 }
+
+/* ── Light page / table-card headers: "light" (white) buttons + icons ────────────────
+   .btn-outline-light was written for the old dark gradient headers. The page header
+   (adminPageHeader) and .admin-table-card headers are light now, so those buttons and
+   header icons rendered white-on-white (e.g. "टिम व्यवस्थापन", "+ बचत दर थप्नुहोस्").
+   Brand outline on light surfaces; hover fills with brand colour. */
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 40%, transparent) !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+body[class*="admin-page-"] .main-content .admin-page-header .btn-outline-light:is(:hover, :focus-visible),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header .btn-outline-light:is(:hover, :focus-visible) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon),
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+/* Lucide paths inherit `stroke: currentColor` as a keyword and resolve it against their OWN
+   colour — which the old `.gradient-card-header *` rule forces to white. Follow the icon. */
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header > :is(svg.lucide, .lucide-icon) *,
+body[class*="admin-page-"] .main-content .card.admin-table-card > .card-header :is(h1, h2, h3, h4, h5, h6) > :is(svg.lucide, .lucide-icon) * {
+  color: inherit !important;
+}
+
+/* ── Card headers explicitly marked .bg-white stay white ─────────────────────────────
+   A blanket `.main-content .card > .card-header` rule repaints every header green with
+   white text, overriding the author's explicit .bg-white — whose contents use
+   text-success / text-primary / text-danger (green-on-green, invisible icons). */
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white {
+  background: #fff !important;
+  color: var(--text-primary, #1f2937) !important;
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+}
+body[class*="admin-page-"] .main-content .card > .card-header.bg-white :is(h1, h2, h3, h4, h5, h6, .card-title):not([class*="text-"]) {
+  color: var(--text-primary, #1f2937) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Empty-state CTA inside a table (td[colspan]) is a real button, not a row icon ────
+   `table td .btn-sm` rules size row-action icons to 30px and make .btn-success white,
+   which squeezed the "थप्नुहोस्" button into a blank white square. */
+body[class*="admin-page-"] .main-content table td[colspan] .btn {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0.4rem 0.95rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35rem;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+body[class*="admin-page-"] .main-content table td[colspan] :is(.btn-success, .btn-primary) * {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* ── Outline warning: Bootstrap's #ffc107 text is unreadable on white — darker amber ── */
+body[class*="admin-page-"] .main-content .btn-outline-warning:not(:hover):not(:focus-visible):not(.active) {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+  border-color: #f59e0b !important;
+}
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */
