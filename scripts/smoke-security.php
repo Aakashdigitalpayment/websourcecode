@@ -223,7 +223,7 @@ assertFileContains('install.php', 'assets/css/install-page.css', 'install CSS ex
 assertFileContains('admin/account-applications.php', "echo e(\$v)", 'account status key escaped');
 assertFileContains('admin/welfare-claims.php', "echo e(\$label['np'])", 'welfare filter label escaped');
 assertFileContains('admin/auctions.php', "echo (int)\$auc['id']", 'auction ids cast');
-assertFileContains('contact.php', "htmlspecialchars(\$facebookUrl ?? '#'", 'contact facebook href escaped');
+assertFileContains('contact.php', "htmlspecialchars(\$__ctUrl, ENT_QUOTES, 'UTF-8')", 'contact social hrefs escaped');
 assertFileContains('includes/site-license.php', "site-license-expired-page.css", 'license expired loads extracted CSS');
 assertFileContains('admin/downloads.php', "e(ucfirst((string) (\$d['category']", 'downloads category escaped');
 assertFileContains('includes/config.php', 'function coop_is_public_tracking_id', 'shared public tracking id validator');

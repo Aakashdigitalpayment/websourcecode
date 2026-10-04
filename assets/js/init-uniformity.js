@@ -41,6 +41,11 @@
                     });
                 })(window.jQuery);
             }
+            /* The vendor picker adds aria-expanded / aria-haspopup to a plain text input, which
+               ARIA only allows on a combobox — give BS date inputs that role (axe: aria-allowed-attr). */
+            document.querySelectorAll('input.nepali-datepicker:not([role])').forEach(function (inp) {
+                inp.setAttribute('role', 'combobox');
+            });
         } catch (err) {
             console && console.error && console.error('init-uniformity datepicker error', err);
         }

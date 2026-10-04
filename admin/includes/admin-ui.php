@@ -460,10 +460,13 @@ function adminListSubtabQueryLinks(
     $liveActive = $current === 'live' ? ' active' : '';
     $archActive = $current === 'arch' ? ' active' : '';
     $paneAttr = ' data-subtab-pane="' . htmlspecialchars($panePrefix, ENT_QUOTES, 'UTF-8') . '"';
-    return '<ul class="nav nav-pills admin-inner-tabstrip flex-wrap gap-2 px-3 py-2 mx-3 mt-2 mb-2" role="tablist"' . $paneAttr . '>'
-        . '<li class="nav-item" role="presentation"><a class="nav-link py-2' . $liveActive . '" href="' . htmlspecialchars($mk('live'), ENT_QUOTES, 'UTF-8') . '">'
+    /* Page links (each reloads with ?sub=), not ARIA tabs — so no role="tablist"; aria-current marks the active one */
+    $liveCur = $current === 'live' ? ' aria-current="page"' : '';
+    $archCur = $current === 'arch' ? ' aria-current="page"' : '';
+    return '<ul class="nav nav-pills admin-inner-tabstrip flex-wrap gap-2 px-3 py-2 mx-3 mt-2 mb-2"' . $paneAttr . '>'
+        . '<li class="nav-item"><a class="nav-link py-2' . $liveActive . '"' . $liveCur . ' href="' . htmlspecialchars($mk('live'), ENT_QUOTES, 'UTF-8') . '">'
         . '<i style="margin-right:4px;" class="lucide-icon" aria-hidden="true" data-lucide="zap"></i>सक्रिय <span class="badge adm-subpill-count adm-subpill-count--live ms-1">' . (int) $liveCount . '</span></a></li>'
-        . '<li class="nav-item" role="presentation"><a class="nav-link py-2' . $archActive . '" href="' . htmlspecialchars($mk('arch'), ENT_QUOTES, 'UTF-8') . '">'
+        . '<li class="nav-item"><a class="nav-link py-2' . $archActive . '"' . $archCur . ' href="' . htmlspecialchars($mk('arch'), ENT_QUOTES, 'UTF-8') . '">'
         . '<i style="margin-right:4px;" class="lucide-icon" aria-hidden="true" data-lucide="archive"></i>अभिलेख <span class="badge adm-subpill-count adm-subpill-count--arch ms-1">' . (int) $archCount . '</span></a></li>'
         . '</ul>';
 }

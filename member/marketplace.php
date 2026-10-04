@@ -404,7 +404,7 @@ $untilDateBs = mpAdToBsDisplay($untilDateVal ?: date('Y-m-d', strtotime('+' . mp
                 <div class="form-group">
                     <label for="mpUntil"><?php echo $_t('सम्म उपलब्ध (यसपछि हट्छ) — वि.सं.', 'Available until (then removed) — BS'); ?></label>
                     <input class="form-control nepali-datepicker" id="mpUntil" type="text" name="available_until" required autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($untilDateBs); ?>">
-                    <input class="form-control" style="margin-top:6px" type="time" name="available_until_time" value="<?php echo htmlspecialchars($untilTimeVal ?: '23:59'); ?>">
+                    <input class="form-control" style="margin-top:6px" type="time" name="available_until_time" aria-label="<?php echo htmlspecialchars($_t('सम्म उपलब्ध — समय', 'Available until — time'), ENT_QUOTES, 'UTF-8'); ?>" value="<?php echo htmlspecialchars($untilTimeVal ?: '23:59'); ?>">
                     <div class="mmp-hint"><?php echo $_t('यो मिति/समयपछि सार्वजनिक सूचीबाट स्वतः हट्छ। खाली भए ३० दिन राखिन्छ। नेपाली मिति (वि.सं.) लेख्नुहोस्।', 'After this date/time the listing leaves the public list. Defaults to 30 days. Use Nepali (BS) date.'); ?></div>
                 </div>
             </div>
@@ -563,6 +563,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var $inp = $(this);
     if ($inp.data('ndp-ready')) return;
     $inp.data('ndp-ready', true);
+    if (!$inp.attr('role')) $inp.attr('role', 'combobox'); /* picker adds aria-expanded */
     $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
   });
 });

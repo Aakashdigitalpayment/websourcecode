@@ -378,7 +378,7 @@ $ntcBasename = static function (?string $path): string {
                         <tbody>
                             <?php foreach ($notices as $idx => $item): ?>
                             <tr>
-                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>"></td>
+                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>" aria-label="<?php echo htmlspecialchars($__t('छान्नुहोस्: ', 'Select: ') . (string) ($item['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></td>
                                 <td class="ps-3 ntc-muted" data-label="#"><?php echo $idx + 1; ?></td>
                                 <td data-label="शीर्षक">
                                     <div class="fw-semibold text-dark"><?php echo htmlspecialchars($item['title']); ?></div>

@@ -239,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var $inp = window.jQuery(this);
     if ($inp.data('ndp-ready')) return;
     $inp.data('ndp-ready', true);
+    if (!$inp.attr('role')) $inp.attr('role', 'combobox'); /* picker adds aria-expanded */
     try {
       $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
     } catch (e) {}

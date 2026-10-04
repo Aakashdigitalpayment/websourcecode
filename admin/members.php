@@ -1168,8 +1168,8 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
         ['icon'=>'fa-clock',              'label'=>'प्रतीक्षामा',      'value'=>$stats['pending'] ?? 0,      'color'=>'warning', 'link'=>'members.php?status=pending'],
         ['icon'=>'fa-rotate',             'label'=>'Renewal Pending',   'value'=>$stats['renewal'] ?? 0,      'color'=>'info',    'link'=>'members.php?renewal=1'],
         ['icon'=>'fa-link',               'label'=>'KYC Linked',        'value'=>$stats['kyc_linked'] ?? 0,   'color'=>'secondary'],
-        ['icon'=>'fa-g',                  'label'=>'Google Login',       'value'=>$stats['google'],            'color'=>'danger'],
-        ['icon'=>'fa-f',                  'label'=>'Facebook Login',     'value'=>$stats['facebook'],          'color'=>'primary'],
+        ['icon'=>'fa-envelope',           'label'=>'Google Login',       'value'=>$stats['google'],            'color'=>'danger'],
+        ['icon'=>'fa-right-to-bracket',   'label'=>'Facebook Login',     'value'=>$stats['facebook'],          'color'=>'primary'],
     ];
     $statColClass = 'col-6 col-sm-4 col-md-3 col-lg-2';
     include __DIR__ . '/../includes/components/stat-card.php';

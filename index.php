@@ -179,12 +179,13 @@ $L = getLangStrings();
         <div class="carousel-indicators hero-indicators-modern">
             <?php foreach ($sliders as $index => $slider): ?>
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?php echo $index; ?>"
-                    class="hero-indicator-btn <?php echo $index === 0 ? 'active' : ''; ?>">
+                    class="hero-indicator-btn <?php echo $index === 0 ? 'active' : ''; ?>"
+                    aria-label="<?php echo (isEnglish() ? 'Slide ' : 'स्लाइड ') . ($index + 1); ?>"<?php echo $index === 0 ? ' aria-current="true"' : ''; ?>>
                 <span class="indicator-dot"></span>
             </button>
             <?php endforeach; ?>
             <?php if (empty($sliders)): ?>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-label="<?php echo isEnglish() ? 'Slide 1' : 'स्लाइड 1'; ?>" aria-current="true">
                 <span class="indicator-dot"></span>
             </button>
             <?php endif; ?>

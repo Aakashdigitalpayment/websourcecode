@@ -1537,7 +1537,7 @@ body[class*="admin-page-"] .main-content .adm-filter-bar label {
 /* ── Avatar + name cells (loan / account / KYC / grievance / vendor lists) ────────────
    `td .d-flex { flex-wrap: nowrap }` loses to the generic `.d-flex.gap-2 { wrap }`, so
    long names dropped under the avatar (double-height rows). Keep them side by side. */
-body[class*="admin-page-"] .main-content table td .d-flex:has(> .av-letter) {
+body[class*="admin-page-"] .main-content table td .d-flex:has(> .av-letter, > .rounded-circle:first-child) {
   flex-wrap: nowrap !important;
   min-width: 11rem;
 }
@@ -1707,5 +1707,55 @@ body[class*="admin-page-"] .main-content :is(svg.lucide, .lucide-icon).job-icon-
   body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] :is(.cell-main, .cell-sub) {
     white-space: normal !important;
     overflow-wrap: anywhere;
+  }
+}
+
+/* ── WCAG AA text contrast (axe-core audit, 112 admin failures → shared sources) ─────
+   Same colour families, one step darker so small Devanagari text stays readable. */
+body[class*="admin-page-"] .main-content .badge.bg-success {
+  color: #166534 !important;               /* 2.75 → 5.96 on the soft green pill */
+  -webkit-text-fill-color: #166534 !important;
+}
+body[class*="admin-page-"] .group-badge,
+html body[class*="admin-page-"] aside.sidebar .sidebar-nav .group-badge.group-badge,
+body[class*="admin-page-"] .sidebar .nav-badge {
+  background: #dc2626 !important;          /* white on #ef4444 was 3.76 */
+}
+body[class*="admin-page-"] .main-content .btn-qapprove {
+  color: #15803d !important;               /* 3.12 → 4.76 */
+  -webkit-text-fill-color: #15803d !important;
+}
+body[class*="admin-page-"] .main-content .badge.ntc-no-badge {
+  color: #4b5563 !important;               /* 2.18 → 6.5 */
+}
+body[class*="admin-page-"] .main-content code {
+  color: #9d174d !important;               /* Bootstrap pink on tinted rows was 3.46 */
+}
+body[class*="admin-page-"] .main-content .text-muted,
+body[class*="admin-page-"] .main-content .alert-secondary {
+  color: #4b5563 !important;               /* #6b7280 failed on tinted cards/alerts */
+}
+body[class*="admin-page-"] .main-content .btn-warning:not(:hover) {
+  color: #111827 !important;               /* white on amber was 3.18 */
+  -webkit-text-fill-color: #111827 !important;
+}
+body[class*="admin-page-"] .main-content .btn-outline-warning:not(:hover):not(:focus-visible):not(.active) {
+  color: #92400e !important;               /* #b45309 dipped to 4.05 on tinted cards */
+  -webkit-text-fill-color: #92400e !important;
+}
+body[class*="admin-page-"] :is(.main-content, .sidebar) li.text-muted[style*="opacity"] {
+  opacity: 1 !important;                   /* group headings faded to 3.6:1 */
+}
+body[class*="admin-page-"] .main-content .btn-link:not(:hover) {
+  color: var(--primary-color, #1a5f2a) !important;   /* Bootstrap blue was 4.36 on cards; brand colour */
+}
+body[class*="admin-page-"] .main-content .member-ssot-help :is(div, .text-secondary) {
+  color: #374151 !important;               /* grey on the info tint was 4.39 */
+}
+
+/* Desktop topbar title was capped at 220px ("सबै सदस्य (Member I…") with ~1100px free. */
+@media (min-width: 992px) {
+  body[class*="admin-page-"] .admin-header--compact .page-title {
+    max-width: min(640px, 48vw) !important;
   }
 }

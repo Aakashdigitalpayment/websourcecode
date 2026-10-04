@@ -151,7 +151,8 @@ $flash = getFlash();
                                             data-category="saving"
                                             data-description="<?php echo htmlspecialchars($item['description'] ?? '', ENT_QUOTES); ?>"
                                             data-order="<?php echo (int)$item['display_order']; ?>"
-                                            data-active="<?php echo (int)$item['is_active']; ?>">
+                                            data-active="<?php echo (int)$item['is_active']; ?>"
+                                            title="सम्पादन" aria-label="<?php echo htmlspecialchars('सम्पादन: ' . (string) $item['name'], ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="ir-inline-form" onsubmit="return confirm('यो ब्याजदर मेटाउने हो?')">
@@ -218,7 +219,8 @@ $flash = getFlash();
                                             data-category="loan"
                                             data-description="<?php echo htmlspecialchars($item['description'] ?? '', ENT_QUOTES); ?>"
                                             data-order="<?php echo (int)$item['display_order']; ?>"
-                                            data-active="<?php echo (int)$item['is_active']; ?>">
+                                            data-active="<?php echo (int)$item['is_active']; ?>"
+                                            title="सम्पादन" aria-label="<?php echo htmlspecialchars('सम्पादन: ' . (string) $item['name'], ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="ir-inline-form" onsubmit="return confirm('यो ब्याजदर मेटाउने हो?')">

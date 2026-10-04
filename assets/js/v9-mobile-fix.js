@@ -99,7 +99,10 @@
         closeBtn.style.opacity = isOpen ? '1' : '0';
         closeBtn.style.pointerEvents = isOpen ? 'auto' : 'none';
       }
-      nav.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+      /* Only a closed phone drawer is hidden from assistive tech (desktop menu must stay reachable) */
+      var closedDrawer = !isOpen && window.matchMedia('(max-width: 991.98px)').matches;
+      if (closedDrawer) { nav.setAttribute('aria-hidden', 'true'); nav.setAttribute('inert', ''); }
+      else { nav.removeAttribute('aria-hidden'); nav.removeAttribute('inert'); }
     }
 
     function openNav() {

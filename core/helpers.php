@@ -1112,6 +1112,8 @@ if (!function_exists('fa_to_lucide_map')) {
             'fa-comments'         => 'messages-square',
             'fa-paper-plane'      => 'send',
             'fa-envelope'         => 'mail',
+            'fa-rotate'           => 'refresh-cw',
+            'fa-right-to-bracket' => 'log-in',
             'fa-envelope-open'    => 'mail-open',
             'fa-phone'            => 'phone',
             'fa-phone-alt'        => 'phone-outgoing',

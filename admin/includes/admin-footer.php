@@ -98,6 +98,9 @@
             if ($inp.data('ndp-ready')) return;
             $inp.data('ndp-ready', true);
 
+            /* Picker adds aria-expanded, which ARIA only allows on a combobox */
+            if (!$inp.attr('role')) $inp.attr('role', 'combobox');
+
             /* Nepali datepicker v5 initialize */
             $inp.nepaliDatePicker({
                 dateFormat : 'YYYY-MM-DD',
@@ -540,6 +543,18 @@
         if (typeof $ !== 'undefined' && $.fn.DataTable) {
             /* colspan rows in empty tbody ले tn/18 alert दिन्छ — suppress गर्छौं */
             $.fn.dataTable.ext.errMode = 'none';
+            /* DataTables' Bootstrap pager emits aria-role="link" (not an ARIA attribute) — use role.
+               Bound on document so page-level tables (notices, …) are covered too. */
+            var fixDtAriaRole = function (root) {
+                (root || document).querySelectorAll('[aria-role]').forEach(function (el) {
+                    if (!el.hasAttribute('role')) el.setAttribute('role', el.getAttribute('aria-role'));
+                    el.removeAttribute('aria-role');
+                });
+            };
+            $(document).on('draw.dt init.dt', function (e) {
+                fixDtAriaRole(e.target && e.target.closest ? (e.target.closest('.dataTables_wrapper') || document) : document);
+            });
+            fixDtAriaRole(document); /* tables a page initialised before this footer ran */
             document.querySelectorAll('table.data-table:not(.dataTable), table.pf-data-table:not(.dataTable), table[class*="-data-table"]:not(.dataTable)').forEach(function(tbl) {
                 try {
                     var noResponsive = tbl.classList.contains('dt-no-responsive');

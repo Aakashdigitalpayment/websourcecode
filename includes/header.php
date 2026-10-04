@@ -1195,7 +1195,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
             </button>
 
             <!-- Navigation — same structure as original -->
-            <nav class="main-nav" id="mainNavV2" aria-hidden="true" data-mobile-drawer="public">
+            <nav class="main-nav" id="mainNavV2" data-mobile-drawer="public" aria-label="<?php echo isEnglish() ? 'Main navigation' : 'मुख्य मेनु'; ?>">
                 <button type="button" class="close-menu d-lg-none" id="closeMenuV2" aria-label="<?php echo isEnglish() ? 'Close menu' : 'मेनु बन्द गर्नुहोस्'; ?>" data-testid="public-mobile-menu-close-button">
                     <span class="close-menu-label"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="menu"></i><?php echo isEnglish() ? 'Navigation' : 'मेनु'; ?></span>
                     <i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>
@@ -1763,6 +1763,12 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                 toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
                 toggle.classList.toggle('is-open', isOpen);
                 setToggleLucide(isOpen ? 'x' : 'menu');
+                /* Hide from assistive tech only while it is a CLOSED phone drawer. The markup used to
+                   hard-code aria-hidden="true", so the desktop menu (and the open drawer) was
+                   invisible to screen readers on every page. */
+                var closedDrawer = !isOpen && window.matchMedia('(max-width: 991.98px)').matches;
+                if (closedDrawer) { nav.setAttribute('aria-hidden', 'true'); nav.setAttribute('inert', ''); }
+                else { nav.removeAttribute('aria-hidden'); nav.removeAttribute('inert'); }
             }
             function cleanupDdButtons() {
                 nav.querySelectorAll(':scope .dd-chevron-btn').forEach(function(btn){ btn.remove(); });

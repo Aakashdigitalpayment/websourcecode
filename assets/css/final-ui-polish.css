@@ -5325,3 +5325,15 @@ html body:not([class*="admin-page-"]) .form-check-input[type="checkbox"]:not(.fo
 html body.dark-mode .form-check-input[type="checkbox"]:not(.form-switch *):not(:checked) {
   border-color: #6b7280 !important;
 }
+
+/* Top-bar pills: a white overlay lightened the brand bar under white text (4.0:1). A dark
+   overlay keeps the pill shape but raises contrast for any brand colour chosen in Settings. */
+.pfl-login-toggle,
+.pfl-lang-wrap .pfl-lang-link.active,
+.pfl-lang-wrap a.active {
+  background: rgba(0, 0, 0, 0.22) !important;
+}
+.pfl-login-toggle:hover,
+.pfl-lang-wrap .pfl-lang-link:hover {
+  background: rgba(0, 0, 0, 0.32) !important;
+}

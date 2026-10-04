@@ -1687,8 +1687,8 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </select>
         </div>
         <div class="col-md-2 col-6">
-            <label>लिंक स्थिति</label>
-            <select name="link" class="form-select form-select-sm">
+            <label for="qf_link">लिंक स्थिति</label>
+            <select name="link" id="qf_link" class="form-select form-select-sm">
                 <option value="">सबै लिंक</option>
                 <option value="linked" <?php echo $link_filter==='linked'?'selected':''; ?>>लिंक (KYM+सदस्य+पासवर्ड)</option>
                 <option value="no_password" <?php echo $link_filter==='no_password'?'selected':''; ?>>सदस्य stub (पासवर्ड छैन)</option>
@@ -1697,13 +1697,13 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </select>
         </div>
         <div class="col-md-2 col-6">
-            <label>मिति देखि</label>
-            <input type="date" name="date_from" class="form-control form-control-sm"
+            <label for="xf_date_from">मिति देखि</label>
+            <input type="date" name="date_from" id="xf_date_from" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
         </div>
         <div class="col-md-2 col-6">
-            <label>मिति सम्म</label>
-            <input type="date" name="date_to" class="form-control form-control-sm"
+            <label for="xf_date_to">मिति सम्म</label>
+            <input type="date" name="date_to" id="xf_date_to" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
         </div>
         <div class="col-md-3 col-12">
