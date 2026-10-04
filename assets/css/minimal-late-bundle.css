@@ -9121,4 +9121,11 @@ html body.dark-mode .form-check-input[type="checkbox"]:not(.form-switch *):not(:
 .pfl-lang-wrap .pfl-lang-link:hover {
   background: rgba(0, 0, 0, 0.32) !important;
 }
+
+/* AOS fade-left / fade-right start translated ±100px — before they animate in, the homepage
+   was 1372px wide at 1280 (sideways wiggle on scroll). clip (not hidden) = no scroll container,
+   so sticky headers keep working; only sections that hold AOS elements are affected. */
+main section:has([data-aos]) {
+  overflow-x: clip;
+}
 /* ===== END final-ui-polish.css ===== */
