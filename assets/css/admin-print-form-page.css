@@ -110,7 +110,7 @@ body {
     text-transform: uppercase; letter-spacing: .35px;
 }
 .pf-tbl { width: 100%; border-collapse: collapse; }
-.pf-tbl th, .pf-tbl td { padding: 6px 11px; border-bottom: 1px solid var(--c-border); vertical-align: top; }
+.pf-tbl th, .pf-tbl td { padding: 6px 11px; border-bottom: 1px solid var(--c-border); vertical-align: top; overflow-wrap: anywhere; }
 .pf-tbl tr:last-child th, .pf-tbl tr:last-child td { border-bottom: none; }
 .pf-tbl tr:nth-child(even) td { background: var(--c-zebra); }
 .pf-tbl th { width: 32%; background: #f3f9f5; font-weight: 600; color: #374151; }
@@ -120,7 +120,7 @@ body {
 
 /* Family / money / docs */
 .pf-subtbl { width: 100%; border-collapse: collapse; font-size: 12px; }
-.pf-subtbl th, .pf-subtbl td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; }
+.pf-subtbl th, .pf-subtbl td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; overflow-wrap: anywhere; }
 .pf-subtbl thead th { background: #f3f9f5; font-weight: 700; color: #374151; font-size: 11px; }
 .pf-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
 .pf-money-grid > div { border-right: 1px solid var(--c-border); }

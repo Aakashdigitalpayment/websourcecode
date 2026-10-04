@@ -3719,6 +3719,37 @@ body[class*="admin-page-"] .main-content {
   padding-bottom: 1.25rem;
 }
 
+/* .main-content is a `flex: 1 1 0%` item of .admin-wrapper; with the default
+   `min-width: auto` any wide min-content inside it (nowrap table columns — even
+   inside .table-responsive — long <code>, grid tracks) grew it past the viewport
+   and dragged the header along. min-width:0 lets it shrink; wide tables then
+   scroll inside their own .table-responsive as intended. */
+body[class*="admin-page-"] .admin-wrapper > .main-content {
+  min-width: 0;
+}
+
+/* Help guide: `.hg-content` sits in a `270px 1fr` grid track (min auto) — let it shrink. */
+body[class*="admin-page-"] .hg-content {
+  min-width: 0;
+}
+
+/* Base `.hg-steps-list li { display:flex }` turned every <code>/<b>/<a> in a step into
+   its own non-wrapping flex item (same failure as the old flex .alert). Keep the li
+   block so mixed text wraps; the counter badge is positioned instead of flexed. */
+body[class*="admin-page-"] .hg-steps-list li {
+  display: block;
+  position: relative;
+  padding-left: 36px;
+  min-height: 26px;
+  overflow-wrap: anywhere;
+}
+
+body[class*="admin-page-"] .hg-steps-list li::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
 body[class*="admin-page-"] .main-content > .container-fluid,
 body[class*="admin-page-"] .main-content > .container {
   padding-left: max(12px, env(safe-area-inset-left));
@@ -5424,6 +5455,13 @@ body[class*="admin-page-"] .main-content :is(svg.lucide, .lucide-icon).job-icon-
   }
   body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] :is(.cell-main, .cell-sub) {
     white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+  /* avatar + name/email blocks (members): the text div is a flex item (min-width:auto) and
+     inherits the cell's nowrap, so long names/emails ran past the card and were clipped. */
+  body[class*="admin-page-"] .main-content table.table-responsive-stack tbody td[data-label] .d-flex > div {
+    min-width: 0;
+    white-space: normal;
     overflow-wrap: anywhere;
   }
 }

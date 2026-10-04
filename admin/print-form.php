@@ -17,7 +17,7 @@ $id   = (int)($_GET['id'] ?? 0);
 $allowedTypes = ['kyc', 'loan', 'welfare', 'digital', 'account', 'honor', 'appointment', 'grievance', 'job'];
 if (!in_array($type, $allowedTypes, true) || $id <= 0) {
     http_response_code(400);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Invalid request. Use ?type=kyc|loan|welfare|digital|account|honor|appointment|grievance|job&amp;id=N</p>';
+    echo '<p style="font-family:sans-serif;padding:2rem;color:red;overflow-wrap:anywhere;">Invalid request. Use ?type=kyc|loan|welfare|digital|account|honor|appointment|grievance|job&amp;id=N</p>';
     exit;
 }
 
@@ -810,12 +810,12 @@ case 'job':
 /* ── Not found (goto landing — if(false) prevents fall-through) ── */
 if (false) { NOT_FOUND:
     http_response_code(404);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Record not found (id='.$id.').</p>';
+    echo '<p style="font-family:sans-serif;padding:2rem;color:red;overflow-wrap:anywhere;">Record not found (id='.$id.').</p>';
     exit;
 }
 if (!$data) {
     http_response_code(404);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Record not found.</p>';
+    echo '<p style="font-family:sans-serif;padding:2rem;color:red;overflow-wrap:anywhere;">Record not found.</p>';
     exit;
 }
 
