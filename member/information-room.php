@@ -51,7 +51,7 @@ require __DIR__ . '/includes/chrome.php';
 ?>
 
 <div class="mem-page-head mb-3">
-    <h1 class="h4 mb-1"><i class="lucide-icon me-2 text-success" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
+    <h1 class="h4 mb-1"><i class="lucide-icon me-2 text-success" data-lucide="folder-lock" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
     <p class="text-muted small mb-0"><?php echo $_t(
         'बोर्ड निर्णय, नीति, कार्यविधि र बिनियम — अनुमति प्राप्त सदस्यका लागि।',
         'Board decisions, policies, procedures and bylaws — for authorized members.'

@@ -877,6 +877,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 order     : [],
                 pageLength: 15,
+                /* 15 must be in the menu, else the "rows" select renders blank */
+                lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
                 columnDefs: [{ orderable: false, targets: [0, 6] }]
             });
         } catch(e) {}

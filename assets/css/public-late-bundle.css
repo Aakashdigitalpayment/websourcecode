@@ -10047,4 +10047,67 @@ html body select:not([multiple]):not([size]):disabled {
   cursor: not-allowed;
   opacity: 0.7;
 }
+
+/* ── Breadcrumbs: 44px touch-target links kept their text at the top of the box, so on
+   phones "गृहपृष्ठ" sat ~12px above "/ current page". Centre the text in the tap area. */
+.breadcrumb {
+  align-items: center !important;
+}
+.breadcrumb .breadcrumb-item {
+  align-items: center !important;
+}
+.breadcrumb .breadcrumb-item > a {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Notice ticker separators: hollow "circle" icons read like unchecked radio buttons. */
+.ticker-item svg.lucide-circle {
+  fill: currentColor !important;
+  width: 7px !important;
+  height: 7px !important;
+  min-width: 7px !important;
+  opacity: 0.75;
+}
+
+/* ── Invalid + focused field stays red (all panels) ──────────────────────────────────
+   The brand-green focus ring/border overrode the error state, so the first invalid
+   field (which receives focus after submit) looked "OK". */
+html body :is(input, select, textarea).is-invalid:focus,
+html body .was-validated :is(input, select, textarea):invalid:focus {
+  border-color: var(--color-danger, #dc3545) !important;
+  outline-color: var(--color-danger, #dc3545) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger, #dc3545) 20%, transparent) !important;
+}
+
+/* Dark mode lives on <body>; <html> stayed light, flashing white above the sticky header
+   during its scroll transition and on mobile overscroll / rubber-band. */
+html:has(> body.dark-mode) {
+  background-color: #111825 !important;
+  color-scheme: dark;
+}
+
+/* ── Public / member checkboxes: square with a tick (admin has its own rule) ──────────
+   A shared `background … !important` shorthand + 10px radius turned .form-check-input
+   checkboxes into round dots with no tick — identical to a selected radio button
+   ("गुप्त रूपमा पेश गर्नुहोस्", terms acceptance). Switches excluded. */
+html body:not([class*="admin-page-"]) .form-check-input[type="checkbox"]:not(.form-switch *) {
+  border-radius: 0.3em !important;
+  border: 1.5px solid #9aa5b1 !important;
+}
+html body:not([class*="admin-page-"]) .form-check-input[type="checkbox"]:not(.form-switch *):checked {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+}
+html body:not([class*="admin-page-"]) .form-check-input[type="checkbox"]:not(.form-switch *):focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px;
+}
+html body.dark-mode .form-check-input[type="checkbox"]:not(.form-switch *):not(:checked) {
+  border-color: #6b7280 !important;
+}
 /* ===== END final-ui-polish.css ===== */

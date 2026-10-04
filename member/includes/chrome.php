@@ -326,7 +326,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         </div>
         <?php endif; ?>
         <span class="mem-topbar-name"><?php echo htmlspecialchars($_memName); ?></span>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout">
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout" title="<?php echo htmlspecialchars($_t('लगआउट', 'Logout'), ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($_t('लगआउट', 'Logout'), ENT_QUOTES, 'UTF-8'); ?>">
             <i class="lucide-icon" data-lucide="log-out" aria-hidden="true"></i><span class="mem-logout-text"> <?php echo $_t('लगआउट', 'Logout'); ?></span>
         </a>
     </div>
@@ -347,7 +347,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         <?php endif; ?>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/welfare.php" class="mem-nav-item <?php echo $_active==='welfare'?'active':''; ?>"><i class="lucide-icon" data-lucide="heart-pulse" aria-hidden="true"></i><?php echo $_t('कल्याण दाबी', 'Welfare Claim'); ?></a>
         <?php if (!empty($_hasInfoRoom)): ?>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="lucide-icon" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="lucide-icon" data-lucide="folder-lock" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
         <?php endif; ?>
         <?php if ($_electionState === 'voting'): ?>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/election-vote.php" class="mem-nav-item mem-nav-vote-live <?php echo $_active==='election'?'active':''; ?>"><i class="lucide-icon" data-lucide="vote" aria-hidden="true"></i><?php echo $_t('मतदान', 'Vote'); ?> <span class="mem-vote-live-dot" aria-hidden="true"></span></a>
@@ -379,7 +379,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                 <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
             </div>
         </div>
-        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="lucide-icon" data-lucide="badge" aria-hidden="true"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="lucide-icon" data-lucide="award" aria-hidden="true"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="lucide-icon" data-lucide="circle-user" aria-hidden="true"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
         <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
     </nav>

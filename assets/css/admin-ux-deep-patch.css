@@ -1158,6 +1158,14 @@ body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-i
   background-position: left center !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%239aa5b1'/%3e%3c/svg%3e") !important;
 }
+/* A shared 14×14 checkbox size collapsed switches into circles (looked like radio buttons). */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input {
+  width: 2.3em !important;
+  min-width: 2.3em !important;
+  height: 1.25em !important;
+  margin-top: 0.15em;
+  flex-shrink: 0;
+}
 body[class*="admin-page-"] :is(.main-content, .modal) .form-switch .form-check-input:checked {
   background-position: right center !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;

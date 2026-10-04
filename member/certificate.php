@@ -82,7 +82,7 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
   <!-- Action buttons (hidden on print) -->
   <div class="cert-noprint cert-actions">
     <h1 class="cert-page-title">
-      <i class="lucide-icon cert-inline-icon-lg" data-lucide="badge" aria-hidden="true"></i><?php echo $_t('सदस्यता प्रमाणपत्र', 'Membership Certificate'); ?>
+      <i class="lucide-icon cert-inline-icon-lg" data-lucide="award" aria-hidden="true"></i><?php echo $_t('सदस्यता प्रमाणपत्र', 'Membership Certificate'); ?>
     </h1>
     <div class="cert-btn-row">
       <button type="button" onclick="window.print()" class="cert-btn primary">

@@ -235,7 +235,7 @@ $L = getLangStrings();
         <div class="row justify-content-center">
 
             <!-- Steps sidebar -->
-            <div class="col-lg-4 mb-4 mb-lg-0 order-lg-2">
+            <div class="col-lg-4 mb-4 mb-lg-0 order-2 order-lg-2">
                 <div class="card border-0 shadow-sm h-100 appt-steps-card">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i><?php echo isEnglish() ? 'How It Works' : 'कसरी काम गर्छ'; ?></h5>
@@ -269,7 +269,7 @@ $L = getLangStrings();
             </div>
 
             <!-- Form card -->
-            <div class="col-lg-8 order-lg-1 public-form-shell">
+            <div class="col-lg-8 order-1 order-lg-1 mb-4 mb-lg-0 public-form-shell">
                 <div class="card border-0 shadow-sm appt-form-card">
                     <div class="card-header appt-form-card-head border-0 rounded-top-3 py-3 px-4 bg-primary">
                         <h5 class="mb-0 text-white fw-bold">

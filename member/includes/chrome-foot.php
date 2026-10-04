@@ -74,7 +74,7 @@ if ($_fnHasId) {
 }
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/welfare.php',         'icon'=>'heart-pulse',       'label'=>$_footT('कल्याण दाबी','Welfare'),      'active'=>'welfare'];
 if (!empty($_hasInfoRoom)) {
-    $_fnSecondary[] = ['href'=>$_fnUrl.'member/information-room.php', 'icon'=>'archive', 'label'=>$_footT('Information Room','Information Room'), 'active'=>'info-room'];
+    $_fnSecondary[] = ['href'=>$_fnUrl.'member/information-room.php', 'icon'=>'folder-lock', 'label'=>$_footT('Information Room','Information Room'), 'active'=>'info-room'];
 }
 if ($_fnElection === 'voting') {
     $_fnSecondary[] = ['href'=>$_fnUrl.'member/election-vote.php','icon'=>'square-check-big',    'label'=>$_footT('मतदान','Vote'),               'active'=>'election'];
