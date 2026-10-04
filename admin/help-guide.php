@@ -8,7 +8,9 @@
  * ════════════════════════════════════════════════════════════════════
  */
 require_once __DIR__ . '/includes/admin-page-boot.php';
-
+$pageTitle   = 'सहायता / Help Guide';
+$currentPage = 'help-guide';
+$activeGroup = 'prawidhi';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 echo adminPageHeader('Quick Start Guide','fa-book-open',

@@ -22,11 +22,12 @@ if (!function_exists('coop_qr_scripts_html')) {
 }
 
 if (!function_exists('coop_qr_img_tag')) {
-    function coop_qr_img_tag(string $data, int $size = 120, string $alt = 'QR', string $class = ''): string
+    function coop_qr_img_tag(string $data, int $size = 120, string $alt = 'QR', string $class = '', string $style = ''): string
     {
         $size = max(48, min(480, $size));
         $h = static fn (string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
         return '<img hidden data-qr="' . $h($data) . '" alt="' . $h($alt) . '" width="' . $size . '" height="' . $size . '"'
-            . ($class !== '' ? ' class="' . $h($class) . '"' : '') . '>' . coop_qr_scripts_html();
+            . ($class !== '' ? ' class="' . $h($class) . '"' : '')
+            . ($style !== '' ? ' style="' . $h($style) . '"' : '') . '>' . coop_qr_scripts_html();
     }
 }

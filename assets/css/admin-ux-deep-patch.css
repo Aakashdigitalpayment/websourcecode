@@ -1843,12 +1843,13 @@ body[class*="admin-page-"] .main-content .member-ssot-help :is(div, .text-second
   }
 }
 
-/* ══ Program module (programs, desk, attendance, reports, member history) ═══════════════
-   One button system + readable text for every page whose body is admin-page-program*.
-   The frozen base has ~20 competing .btn rules (white .btn-success in cards, solid
-   .btn-outline-primary in forms, borderless 30px text buttons in tables, 11.7px labels).
-   Scoped here first; widen the body selector to roll it out to other admin modules. */
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+/* ══ Admin button system + readable text (all admin pages) ═════════════════════════════
+   The frozen base has ~20 competing .btn rules: one .btn-success had 11 different looks
+   across pages (white in cards, gradient, solid), outline buttons turned solid inside forms,
+   table text buttons were squeezed to borderless 30px squares, 301 buttons were < 12px.
+   One rule set per variant: solid green / red / amber / slate, neutral outline, green /
+   red / amber outline. Proven on the program module first, then rolled out. */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1864,61 +1865,67 @@ body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:not(.btn-li
   border-style: solid !important;
   border-radius: 8px !important;
   box-shadow: none !important;
-  background-image: none !important;
   white-space: nowrap;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-sm:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-sm:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+  /* width:auto below never beats .w-100 (rule after this one) */
   min-height: 32px !important;
   height: auto !important;
-  width: auto !important;          /* base squeezes every table .btn-sm to a 30px icon square */
+  width: auto;                     /* base squeezes every table .btn-sm to a 30px icon square */
+  max-width: 100%;
   padding: 0 10px !important;
   font-size: 12.5px !important;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-lg:not(.btn-check + .btn) {
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-lg:not(.btn-check + .btn) {
   min-height: 46px !important;
   padding: 0 20px !important;
   font-size: 15px !important;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.w-100:not(.btn-check + .btn) { width: 100% !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.w-100):not(.btn-check + .btn) { width: auto !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.w-100:not(.btn-check + .btn) { width: 100% !important; }
+/* Known Bootstrap variants drop the base gradients; custom buttons (.dash-btn-primary …) keep theirs */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary, [class*="btn-outline-"]):not(.btn-check + .btn) {
+  background-image: none !important;
+}
 /* Solid */
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success):not(.btn-check + .btn) {
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success):not(.btn-check + .btn) {
   background-color: var(--primary-color, #1a5f2a) !important;
   border-color: var(--primary-color, #1a5f2a) !important;
   color: #fff !important;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-danger:not(.btn-check + .btn) { background-color: #b91c1c !important; border-color: #b91c1c !important; color: #fff !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-warning:not(.btn-check + .btn) { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #111827 !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-dark, .btn-secondary):not(.btn-check + .btn) { background-color: #334155 !important; border-color: #334155 !important; color: #fff !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary):not(.btn-check + .btn):hover { filter: brightness(.93); }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-danger:not(.btn-check + .btn) { background-color: #b91c1c !important; border-color: #b91c1c !important; color: #fff !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-warning:not(.btn-check + .btn) { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #111827 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-dark, .btn-secondary):not(.btn-check + .btn) { background-color: #334155 !important; border-color: #334155 !important; color: #fff !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary):not(.btn-check + .btn):hover { filter: brightness(.93); }
 /* Outline — neutral by default; green / red / amber keep meaning */
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn) {
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn) {
   background-color: #fff !important; border-color: #cbd5e1 !important; color: #334155 !important;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn) {
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn) {
   background-color: #fff !important;
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 45%, #fff) !important;
   color: var(--primary-color, #1a5f2a) !important;
 }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fecaca !important; color: #b91c1c !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-warning:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fcd34d !important; color: #92400e !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn):hover { background-color: #f1f5f9 !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn):hover { background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn):hover { background-color: #fef2f2 !important; }
-body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close) :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; margin: 0 !important; color: inherit !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fecaca !important; color: #b91c1c !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-warning:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fcd34d !important; color: #92400e !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn):hover { background-color: #f1f5f9 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn):hover { background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn):hover { background-color: #fef2f2 !important; }
+body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close) :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; margin: 0 !important; color: inherit !important; }
 
 /* Readable text: KPI labels, table headers, small helper lines */
-body[class*="admin-page-program"] .main-content .card.text-center > .small:first-child {
+body[class*="admin-page-"] .main-content .card.text-center > .small:first-child {
   font-size: 12.5px !important; font-weight: 600; color: #475569 !important; margin-bottom: 4px; line-height: 1.35;
 }
-body[class*="admin-page-program"] .main-content .table > thead > tr > th {
+body[class*="admin-page-"] .main-content .table > thead > tr > th {
   text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 700 !important; color: #334155 !important; white-space: nowrap;
 }
-body[class*="admin-page-program"] .main-content .table > tbody > tr > td { font-size: 13.5px; vertical-align: middle; }
-body[class*="admin-page-program"] .main-content .table > tbody > tr > td :is(.small, small) { font-size: 12.5px !important; }
-body[class*="admin-page-program"] .main-content .form-text,
-body[class*="admin-page-program"] .main-content .card-header .small { font-size: 12.5px !important; color: #4b5563 !important; }
-body[class*="admin-page-program"] .main-content .form-label { font-size: 13px !important; }
+body[class*="admin-page-"] .main-content .table > tbody > tr > td { font-size: 13.5px; vertical-align: middle; }
+body[class*="admin-page-"] .main-content .table > tbody > tr > td :is(.small, small) { font-size: 12.5px !important; }
+body[class*="admin-page-"] .main-content .form-text,
+body[class*="admin-page-"] .main-content .card-header .small { font-size: 12.5px !important; color: #4b5563 !important; }
+body[class*="admin-page-"] .main-content .form-label { font-size: 13px !important; }
 
 /* Program form */
 .prog-form .form-section-title { display: flex; align-items: center; gap: .5rem; margin: 0 0 .9rem !important; padding: 0 0 .55rem !important; border-bottom: 1px solid #e5e7eb; font-size: 14.5px !important; width: 100% !important; }
@@ -1961,3 +1968,32 @@ body[class*="admin-page-"] .main-content .card-header :is(.form-select, .form-co
   color: #1f2937 !important;
   background-color: #fff !important;
 }
+
+/* ── Page never wider than the screen ──────────────────────────────────────────────────
+   main.main-content is a flex item of .admin-wrapper with min-width:auto, so one wide
+   table/filter row stretched the whole page (KYM list ~1775px at 1280). min-width:0 lets
+   it shrink; wide tables then scroll inside their .table-responsive / .v9-table-scroll. */
+.admin-wrapper > .main-content {
+  min-width: 0;
+}
+/* Help Guide: grid `1fr` = minmax(auto,1fr) let wide guide tables stretch the column */
+.hg-wrap > .hg-content { min-width: 0; }
+@media (min-width: 992px) { .hg-wrap { grid-template-columns: 270px minmax(0, 1fr) !important; } }
+/* Help Guide steps: flex li made every inline <code>/<b> a non-wrapping column (page ~1700px).
+   Block li + absolutely placed number keeps the badge and lets the text wrap normally. */
+.hg-steps-list li { display: block !important; position: relative; padding-left: 36px; min-height: 26px; line-height: 1.6; }
+.hg-steps-list li::before { position: absolute; left: 0; top: 0; }
+/* Filter-bar submit: full-width "🔍 खोज" button in its column (was a 40px square that clipped the word) */
+body[class*="admin-page-"]:not(.dark-mode) .main-content .adm-filter-bar form.row > [class*="col-"] > button[type="submit"].btn.w-100 {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  flex: 1 1 auto !important;
+  padding: 0 10px !important;
+}
+
+/* Contrast: Bootstrap .text-info (#0dcaf0) on .bg-info-subtle was 1.67:1 (grievance category badges) */
+body[class*="admin-page-"] .main-content .bg-info-subtle.text-info,
+body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !important; }
+/* Help Guide sidebar group labels: #9ca3af at 9.5px was 2.5:1 */
+.hg-wrap .grp { color: #4b5563 !important; font-size: 11.5px !important; }

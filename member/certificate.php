@@ -4,6 +4,7 @@
  * Printable + browser PDF download via print dialog
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/qr-local.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -61,7 +62,7 @@ if ($photoPath) {
 
 /* Verify QR URL */
 $verifyUrl = SITE_URL . 'verify.php?id=' . urlencode($sadasyata);
-$qrUrl     = 'https://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($verifyUrl) . '&size=120x120&margin=4';
+/* QR drawn locally (coop_qr_img_tag) — the member ID link is not sent to a QR API */
 
 /* Issue / expiry */
 $issueDate  = $approvedDate ? date('Y F d', strtotime($approvedDate)) : date('Y F d');
@@ -202,7 +203,7 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
         </div>
       </div>
       <div class="cert-footer-qr">
-        <img src="<?= htmlspecialchars($qrUrl) ?>" alt="QR" width="80" height="80" class="cert-qr">
+        <?= coop_qr_img_tag($verifyUrl, 80, 'QR', 'cert-qr') ?>
         <div class="cert-qr-note">Scan to Verify</div>
       </div>
     </div>

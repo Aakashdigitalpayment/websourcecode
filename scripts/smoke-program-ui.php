@@ -26,7 +26,7 @@ check(str_contains(programWindowTimeSelectHtml('a', 'b', '10:15'), 'value="10:15
 foreach (['admin/programs.php', 'admin/program-occurrences.php'] as $f) {
     check(!str_contains($read($f), 'type="time"'), "{$f}: no native time inputs (all time fields are one select style)");
 }
-foreach (['admin/programs.php', 'admin/program-detail.php', 'admin/program-registration-desk.php'] as $f) {
+foreach (['admin/programs.php', 'admin/program-detail.php', 'admin/program-registration-desk.php', 'member/attend.php', 'member/certificate.php'] as $f) {
     $src = $read($f);
     check(!str_contains($src, 'api.qrserver.com') && !str_contains($src, 'chart.googleapis.com'), "{$f}: attendance QR drawn locally");
 }
@@ -34,7 +34,7 @@ check(str_contains(coop_qr_img_tag('https://x.test/a?b=1'), 'data-qr="https://x.
 check(str_contains($read('assets/js/totp-qr.js'), 'img[data-qr]') && str_contains($read('assets/js/totp-qr.js'), 'coopQrDataUrl'), 'local QR renderer handles data-qr + JS API');
 check(str_contains($read('admin/programs.php'), '<textarea name="description"'), 'program description is a textarea');
 $css = $read('assets/css/admin-ux-deep-patch.css');
-check(str_contains($css, 'body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn'), 'program button system present');
+check(str_contains($css, 'body[class*="admin-page-"]:not(.dark-mode) .main-content .btn'), 'admin button system present (all admin pages)');
 check(str_contains($css, 'table.table:not(:has(td[data-label]))'), 'unlabelled tables stay tables on phones');
 
 echo "\n{$passed} passed, {$failed} failed\n";

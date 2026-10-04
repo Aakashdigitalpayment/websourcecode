@@ -1886,13 +1886,13 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
     <div class="p-3 border-top no-print">
         <div class="adm-pagination">
             <?php $qs = $kycFilterQs; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>" aria-label="पहिलो पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-left" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>" aria-label="अघिल्लो पृष्ठ"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a>
             <?php $start=max(1,$page-2);$end=min($totalPages,$page+2); for($i=$start;$i<=$end;$i++): ?>
             <?php echo $i==$page ? "<span class='active'>$i</span>" : "<a href='?".http_build_query(array_merge($qs,['page'=>$i]))."'>$i</a>"; ?>
             <?php endfor; ?>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
-            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>min($totalPages,$page+1)])); ?>" class="<?php echo $page>=$totalPages?'disabled':''; ?>" aria-label="अर्को पृष्ठ"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a>
+            <a href="?<?php echo http_build_query(array_merge($qs,['page'=>$totalPages])); ?>" class="<?php echo $page==$totalPages?'disabled':''; ?>" aria-label="अन्तिम पृष्ठ"><i class="lucide-icon" data-lucide="chevrons-right" aria-hidden="true"></i></a>
             <span class="acc-page-meta"><?php echo $page; ?>/<?php echo $totalPages; ?> · <?php echo $total; ?> रेकर्ड</span>
         </div>
     </div>
