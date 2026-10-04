@@ -3,6 +3,7 @@ require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../includes/program-member-insights.php';
+require_once __DIR__ . '/../includes/qr-local.php';
 
 $db = getDB();
 ensureProgramTables($db);
@@ -196,12 +197,12 @@ if (!$isActive) {
           <div class="fw-semibold small mb-1"><i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>Member Portal QR</div>
           <?php if ($qrUrl !== ''): ?>
             <div class="d-flex gap-3 align-items-start">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=4&data=<?php echo rawurlencode($qrUrl); ?>" width="120" height="120" alt="QR" class="border rounded bg-white">
+              <?php echo coop_qr_img_tag($qrUrl, 120, 'Program QR', 'border rounded bg-white flex-shrink-0'); ?>
               <div class="small">
                 <div class="mb-1"><?php echo !empty($prog['instant_attendance']) ? 'Scan पछि तुरुन्तै उपस्थित।' : 'Scan → pending अनुरोध → Admin approve।'; ?></div>
                 <?php if (!empty($prog['qr_expires_at'])): ?><div class="text-muted mb-1">QR समाप्त: <?php echo htmlspecialchars(substr((string)$prog['qr_expires_at'], 0, 16)); ?> (AD)</div><?php endif; ?>
                 <input type="text" class="form-control form-control-sm font-monospace mb-1" readonly value="<?php echo htmlspecialchars($qrUrl); ?>" onclick="this.select()">
-                <form method="POST" action="programs.php" class="d-inline" onsubmit="return confirm('QR हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="clear_qr"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="return" value="detail"><button type="submit" class="btn btn-sm btn-outline-danger py-0">QR हटाउनुहोस्</button></form>
+                <form method="POST" action="programs.php" class="d-inline" onsubmit="return confirm('QR हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="clear_qr"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="return" value="detail"><button type="submit" class="btn btn-sm btn-outline-danger">QR हटाउनुहोस्</button></form>
               </div>
             </div>
           <?php else: ?>
@@ -240,8 +241,8 @@ if (!$isActive) {
               </td>
               <td class="text-end"><?php echo (int)$d['attended_count']; ?></td>
               <td class="text-end text-nowrap">
-                <?php if ($dActive): ?><a class="btn btn-sm btn-outline-success py-0" href="<?php echo htmlspecialchars($deskUrl . '&desk_id=' . (int)$d['id'] . (!empty($d['occurrence_id']) ? '&occurrence_id=' . (int)$d['occurrence_id'] : '')); ?>">खोल्नुहोस्</a><?php endif; ?>
-                <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle_desk"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="desk_id" value="<?php echo (int)$d['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-secondary py-0"><?php echo $dActive ? 'बन्द' : 'सक्रिय'; ?></button></form>
+                <?php if ($dActive): ?><a class="btn btn-sm btn-outline-success" href="<?php echo htmlspecialchars($deskUrl . '&desk_id=' . (int)$d['id'] . (!empty($d['occurrence_id']) ? '&occurrence_id=' . (int)$d['occurrence_id'] : '')); ?>">खोल्नुहोस्</a><?php endif; ?>
+                <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle_desk"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="desk_id" value="<?php echo (int)$d['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-secondary"><?php echo $dActive ? 'बन्द' : 'सक्रिय'; ?></button></form>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -268,9 +269,9 @@ if (!$isActive) {
       <div class="card admin-table-card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i>स्थान / सत्र</h6>
-          <a href="program-occurrences.php?parent_id=<?php echo $id; ?>" class="btn btn-sm btn-outline-info py-0">व्यवस्थापन / QR</a>
+          <a href="program-occurrences.php?parent_id=<?php echo $id; ?>" class="btn btn-sm btn-outline-secondary">व्यवस्थापन / QR</a>
         </div>
-        <table class="table table-sm mb-0">
+        <div class="table-responsive"><table class="table table-sm mb-0">
           <thead><tr><th>स्थान</th><th>मिति</th><th class="text-end">उपस्थित</th><th></th></tr></thead>
           <tbody>
             <?php if (empty($occRows)): ?>
@@ -280,11 +281,11 @@ if (!$isActive) {
                 <td><?php echo htmlspecialchars($o['location_name'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars($o['event_date'] ?? '—'); ?></td>
                 <td class="text-end"><?php echo (int)($o['attended_count'] ?? 0); ?></td>
-                <td class="text-end"><a class="btn btn-sm btn-outline-success py-0" href="<?php echo htmlspecialchars($deskUrl . '&occurrence_id=' . (int)$o['id']); ?>">डेस्क</a></td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-success" href="<?php echo htmlspecialchars($deskUrl . '&occurrence_id=' . (int)$o['id']); ?>">डेस्क</a></td>
               </tr>
             <?php endforeach; endif; ?>
           </tbody>
-        </table>
+        </table></div>
         <div class="card-body border-top">
           <form method="POST" action="program-occurrences.php" class="row g-2 align-items-end">
             <?php echo csrfField(); ?>
@@ -314,7 +315,7 @@ if (!$isActive) {
                 <td><?php echo htmlspecialchars(programAttendanceDisplayLocation($ra) ?: '—'); ?></td>
                 <td><?php echo htmlspecialchars(programAttendanceMethodLabel($ra['attendance_method'] ?? '')); ?></td>
                 <td class="small"><?php echo htmlspecialchars(substr((string)($ra['attended_at'] ?? ''), 0, 16)); ?></td>
-                <td><form method="POST" class="d-inline" onsubmit="var r=prompt('Void गर्ने कारण?');if(!r)return false;this.void_reason.value=r;return true;"><?php echo csrfField(); ?><input type="hidden" name="action" value="void_attendance"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="attendance_id" value="<?php echo (int)$ra['id']; ?>"><input type="hidden" name="void_reason" value=""><button type="submit" class="btn btn-sm btn-outline-danger py-0">Void</button></form></td>
+                <td><form method="POST" class="d-inline" onsubmit="var r=prompt('Void गर्ने कारण?');if(!r)return false;this.void_reason.value=r;return true;"><?php echo csrfField(); ?><input type="hidden" name="action" value="void_attendance"><input type="hidden" name="id" value="<?php echo $id; ?>"><input type="hidden" name="attendance_id" value="<?php echo (int)$ra['id']; ?>"><input type="hidden" name="void_reason" value=""><button type="submit" class="btn btn-sm btn-outline-danger" aria-label="उपस्थिति रद्द (Void)"><i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i>Void</button></form></td>
               </tr>
             <?php endforeach; endif; ?>
           </tbody>

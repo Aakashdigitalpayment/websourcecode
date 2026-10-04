@@ -97,7 +97,7 @@ $typeLabel = $type !== '' ? programTypeLabel($type) : 'सबै कार्य
     <div class="col-lg-5">
       <div class="card admin-table-card">
         <div class="card-header"><h6 class="mb-0"><?php echo htmlspecialchars($typeLabel); ?> — उपस्थिति register</h6><div class="small text-muted">सम्पन्न भएका (कम्तीमा एक उपस्थिति भएका) पछिल्ला १० वटा</div></div>
-        <table class="table table-sm mb-0">
+        <div class="table-responsive"><table class="table table-sm mb-0">
           <thead><tr><th>कार्यक्रम</th><th>मिति</th><th class="text-center">स्थिति</th></tr></thead>
           <tbody>
           <?php foreach ($register['rows'] as $r): ?>
@@ -110,7 +110,7 @@ $typeLabel = $type !== '' ? programTypeLabel($type) : 'सबै कार्य
             <tr><td colspan="3" class="text-muted text-center py-3">यो प्रकारको सम्पन्न कार्यक्रम छैन।</td></tr>
           <?php endif; ?>
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
     <div class="col-lg-7">

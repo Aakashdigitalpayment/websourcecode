@@ -116,6 +116,7 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 | **Notice popup** | Admin Notices → Show as popup → optional **पप-अप समाप्त मिति (बि.सं.)** → DB `popup_expires_at` (AD). Empty = no expiry. After that day, public popup auto-hides (no re-edit) |
 | **मासिक बचत** | `members.monthly_saving_regular` (1 = नियमित, 0 = नियमित नभएको, NULL = नतोकिएको) — one helper `includes/member-monthly-saving.php`. Edited from Members, KYM (writes the linked member), member import column `monthly_saving`, **field-only import** (Member ID + monthly_saving; touches nothing else) and Program Registration Desk (inline save) |
 | **Notice date** | Exception to AD storage: `notices.notice_date` holds **बि.सं.** (admin form is BS). Read via `coop_notice_date_bs()` (display) / `coop_notice_date_ad()` (sitemap, JSON-LD); save via `coop_notice_date_normalize_input()` — legacy AD rows still display correctly |
+| **Program module UI** | One button system, readable labels, form sections and switches for `admin-page-program*` pages in `admin-ux-deep-patch.css` (widen the body selector to roll out). All time fields are one select style: `programScheduleTimeSelectOptions()` (event) / `programWindowTimeSelectHtml()` (window + QR, posts `H:i`) |
 | **Admin roles** | System/config pages (Settings, App Features, AI/Notification settings & templates, Audit/Error log) need **admin+** — one map `coop_admin_page_min_role()` in `includes/auth-roles.php`, enforced by `admin-page-boot.php`; sidebar hides them via `coop_admin_nav_allowed()`. Editor/Staff keep content pages |
 | **Reports / IP member gate** | `access_level` + `includes/public-member-access.php`; files via `report-file.php` / `institutional-profile-file.php` |
 | **Content stores** | `useful_links` (footer/admin Useful Links); public FAQs vs `chatbot_faqs` (Help Center) — see `includes/data-ssot.php`; do not dual-write legacy tables |
@@ -135,7 +136,7 @@ Admin how-to: `admin/help-guide.php` (sections कल्याण, Members impor
 | `kyc-capture.js` | KYC camera capture |
 | `pwa-register.js` | Service worker |
 | `modal-focus-trap.js` | Modal a11y |
-| `totp-qr.js` | 2FA setup QR drawn locally (+ `assets/vendor/qrcode-generator.js`) — never send the otpauth secret to an external QR API |
+| `totp-qr.js` | QR drawn locally (+ `assets/vendor/qrcode-generator.js`): 2FA setup (`twoFaQrImgTag()`), any `img[data-qr]` (`coop_qr_img_tag()` in `includes/qr-local.php`, e.g. program attendance QR) and `window.coopQrDataUrl()` — never send QR data to an external API |
 
 Icon swaps after page load (menu/x, eye, sun/moon, bell): use `window.coopSetLucide(holder, name)` from `coopThemeLucideInit()` — Lucide turns `<i>` into a read-only `<svg>`.
 

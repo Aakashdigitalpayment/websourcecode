@@ -842,7 +842,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
             <input type="hidden" name="action" value="void_attendance">
             <input type="hidden" name="attendance_id" value="<?php echo (int)$r['id']; ?>">
             <input type="hidden" name="void_reason" value="">
-            <button type="submit" class="btn btn-sm btn-outline-danger py-0" title="Void"><i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i></button>
+            <button type="submit" class="btn btn-sm btn-outline-danger" title="उपस्थिति रद्द (Void)" aria-label="उपस्थिति रद्द (Void)"><i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i>Void</button>
           </form>
         </td>
       </tr>

@@ -528,6 +528,32 @@ if (!function_exists('programScheduleTimeSelectOptions')) {
     }
 }
 
+/**
+ * Window / QR time <select> (posts 24h "H:i" — same values the old <input type="time"> sent).
+ * Same look as the event-time select so every time field on the program forms is one control.
+ */
+if (!function_exists('programWindowTimeSelectHtml')) {
+    function programWindowTimeSelectHtml(string $name, string $id, string $current, string $default = '00:00'): string
+    {
+        $current = trim($current) !== '' ? substr(trim($current), 0, 5) : $default;
+        $opts = [];
+        for ($m = 0; $m < 24 * 60; $m += 30) {
+            $opts[sprintf('%02d:%02d', intdiv($m, 60), $m % 60)] = true;
+        }
+        $opts['23:59'] = true;
+        if (preg_match('/^\d{2}:\d{2}$/', $current) && !isset($opts[$current])) {
+            $opts[$current] = true;
+            ksort($opts);
+        }
+        $html = '<select name="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" id="' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '" class="form-select">';
+        foreach (array_keys($opts) as $v) {
+            $label = date('h:i A', strtotime('2000-01-01 ' . $v));
+            $html .= '<option value="' . $v . '"' . ($v === $current ? ' selected' : '') . '>' . $label . '</option>';
+        }
+        return $html . '</select>';
+    }
+}
+
 /** Program type options for admin forms */
 if (!function_exists('programTypeOptions')) {
     function programTypeOptions(): array

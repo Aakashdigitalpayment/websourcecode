@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../includes/program-member-insights.php';
 require_once __DIR__ . '/../includes/member-monthly-saving.php';
+require_once __DIR__ . '/../includes/qr-local.php';
 
 $db = getDB();
 ensureProgramTables($db);
@@ -180,7 +181,7 @@ if (function_exists('coopThemeLink')) {
     <?php if ($programQrUrl !== ''): ?>
     <div class="text-center mb-3 p-2 border rounded bg-light">
       <div class="small text-muted mb-1"><i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>सदस्य QR scan (Member Portal)</div>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=4&amp;data=<?php echo urlencode($programQrUrl); ?>" alt="Program QR" width="120" height="120" class="rounded border bg-white">
+      <?php echo coop_qr_img_tag($programQrUrl, 120, 'Program QR', 'rounded border bg-white'); ?>
       <div class="mt-1"><a href="<?php echo htmlspecialchars($programQrUrl); ?>" class="small" target="_blank" rel="noopener noreferrer">Attendance link</a></div>
     </div>
     <?php endif; ?>

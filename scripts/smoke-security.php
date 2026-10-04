@@ -280,7 +280,7 @@ assertFileContains('includes/program-tables.php', "'registration_desk' => 'Regis
 assertFileContains('includes/program-tables.php', "'member_portal_instant' => 'Portal QR (instant)'", 'attendance source label covers instant');
 assertFileContains('admin/includes/admin-header.php', 'उपस्थिति / Pre-reg', 'program nav clarifies attendance vs reports');
 assertFileContains('admin/includes/admin-header.php', "\$adminT('रिपोर्ट', 'Reports')", 'program report nav has Nepali labels');
-assertFileContains('admin/programs.php', 'attendance_* ले जित्छ', 'program form documents window precedence');
+assertFileContains('admin/programs.php', 'दुवै राखे उपस्थिति Window नै लागू हुन्छ', 'program form documents window precedence');
 assertFileContains('member/scan.php', 'Instant कार्यक्रममा', 'scan copy explains Instant vs approve');
 assertFileContains('cooperative-programs.php', 'coop_public_form_bot_block', 'program prereg bot guard');
 assertFileContains('cooperative-programs.php', 'coop_public_form_anti_bot_html', 'program prereg anti-bot UI');

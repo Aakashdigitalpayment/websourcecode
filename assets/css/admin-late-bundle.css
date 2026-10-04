@@ -5477,6 +5477,193 @@ body[class*="admin-page-"] .main-content .member-ssot-help :is(div, .text-second
     max-width: min(640px, 48vw) !important;
   }
 }
+
+/* ── Phone: tables WITHOUT data-label stay real tables (scroll sideways) ─────────────
+   bootstrap-admin-overrides turns every .table into cards at ≤768px and hides <thead>,
+   relying on td[data-label] for labels. Tables that never set data-label (programs,
+   attendance, reports, logs…) became label-less cards with values pushed right off-screen.
+   Only tables with no labelled cell are restored; labelled card tables are untouched. */
+@media (max-width: 768px) {
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) {
+    display: table !important;
+    width: 100% !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > thead {
+    display: table-header-group !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > :is(thead, tbody, tfoot) > tr {
+    display: table-row !important;
+    width: auto !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > :is(thead, tbody, tfoot) > tr > :is(td, th) {
+    display: table-cell !important;
+    width: auto !important;
+    position: static !important;
+    padding: 0.55rem 0.65rem !important;
+    text-align: left !important;
+    border-bottom: 1px solid var(--admin-border, #e5e7eb) !important;
+    white-space: nowrap;
+  }
+  body[class*="admin-page-"] .main-content table.table:not(:has(td[data-label])) > tbody > tr > td::before {
+    content: none !important;
+  }
+}
+
+/* ── Phone: input + icon/button add-on stay on one line ───────────────────────────────
+   app-admin (frozen) gives every .input-group child flex:1 1 100% at ≤575px, so the
+   calendar icon / copy button dropped under its field. Groups with a single field keep
+   the add-ons inline; groups with several fields still wrap as before. */
+@media (max-width: 575.98px) {
+  body[class*="admin-page-"] .main-content .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))),
+  body[class*="admin-page-"] .modal .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) {
+    flex-wrap: nowrap !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > * {
+    margin-bottom: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :is(.form-control, .form-select) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :is(.input-group-text, .btn) {
+    flex: 0 0 auto !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+  body[class*="admin-page-"] :is(.main-content, .modal) .input-group:not(:has(> :is(.form-control, .form-select) ~ :is(.form-control, .form-select))) > :not(:last-child) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
+
+/* ══ Program module (programs, desk, attendance, reports, member history) ═══════════════
+   One button system + readable text for every page whose body is admin-page-program*.
+   The frozen base has ~20 competing .btn rules (white .btn-success in cards, solid
+   .btn-outline-primary in forms, borderless 30px text buttons in tables, 11.7px labels).
+   Scoped here first; widen the body selector to roll it out to other admin modules. */
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  min-height: 38px !important;
+  width: auto;
+  min-width: 0 !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  border-width: 1px !important;   /* colour comes from the variant rules below (this rule is more specific) */
+  border-style: solid !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  white-space: nowrap;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-sm:not(.btn-link):not(.btn-close):not(.btn-check + .btn) {
+  min-height: 32px !important;
+  height: auto !important;
+  width: auto !important;          /* base squeezes every table .btn-sm to a 30px icon square */
+  padding: 0 10px !important;
+  font-size: 12.5px !important;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-lg:not(.btn-check + .btn) {
+  min-height: 46px !important;
+  padding: 0 20px !important;
+  font-size: 15px !important;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.w-100:not(.btn-check + .btn) { width: 100% !important; }
+/* Solid */
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success):not(.btn-check + .btn) {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-danger:not(.btn-check + .btn) { background-color: #b91c1c !important; border-color: #b91c1c !important; color: #fff !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-warning:not(.btn-check + .btn) { background-color: #f59e0b !important; border-color: #f59e0b !important; color: #111827 !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-dark, .btn-secondary):not(.btn-check + .btn) { background-color: #334155 !important; border-color: #334155 !important; color: #fff !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-dark, .btn-secondary):not(.btn-check + .btn):hover { filter: brightness(.93); }
+/* Outline — neutral by default; green / red / amber keep meaning */
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn) {
+  background-color: #fff !important; border-color: #cbd5e1 !important; color: #334155 !important;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn) {
+  background-color: #fff !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 45%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fecaca !important; color: #b91c1c !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-warning:not(.btn-check + .btn) { background-color: #fff !important; border-color: #fcd34d !important; color: #92400e !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-secondary, .btn-outline-dark, .btn-outline-light, .btn-outline-info):not(.btn-check + .btn):hover { background-color: #f1f5f9 !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:is(.btn-outline-primary, .btn-outline-success):not(.btn-check + .btn):hover { background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn.btn-outline-danger:not(.btn-check + .btn):hover { background-color: #fef2f2 !important; }
+body[class*="admin-page-program"]:not(.dark-mode) .main-content .btn:not(.btn-link):not(.btn-close) :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; margin: 0 !important; color: inherit !important; }
+
+/* Readable text: KPI labels, table headers, small helper lines */
+body[class*="admin-page-program"] .main-content .card.text-center > .small:first-child {
+  font-size: 12.5px !important; font-weight: 600; color: #475569 !important; margin-bottom: 4px; line-height: 1.35;
+}
+body[class*="admin-page-program"] .main-content .table > thead > tr > th {
+  text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 700 !important; color: #334155 !important; white-space: nowrap;
+}
+body[class*="admin-page-program"] .main-content .table > tbody > tr > td { font-size: 13.5px; vertical-align: middle; }
+body[class*="admin-page-program"] .main-content .table > tbody > tr > td :is(.small, small) { font-size: 12.5px !important; }
+body[class*="admin-page-program"] .main-content .form-text,
+body[class*="admin-page-program"] .main-content .card-header .small { font-size: 12.5px !important; color: #4b5563 !important; }
+body[class*="admin-page-program"] .main-content .form-label { font-size: 13px !important; }
+
+/* Program form */
+.prog-form .form-section-title { display: flex; align-items: center; gap: .5rem; margin: 0 0 .9rem !important; padding: 0 0 .55rem !important; border-bottom: 1px solid #e5e7eb; font-size: 14.5px !important; width: 100% !important; }
+.prog-form .form-section-title .lucide-icon { width: 17px; height: 17px; }
+body[class*="admin-page-program"] .main-content .prog-form textarea.form-control { min-height: 72px !important; height: auto !important; resize: vertical; }
+body[class*="admin-page-program"] .main-content .prog-form .form-section-title { font-size: 14.5px !important; padding: 0 0 .55rem !important; }
+.prog-switches { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .6rem .9rem; }
+.prog-switches .form-check { display: flex; align-items: flex-start; gap: .65rem; margin: 0; padding: .65rem .75rem; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8fafc; }
+.prog-switches .form-check-input { float: none; flex-shrink: 0; margin: .15rem 0 0 !important; }
+.prog-switches .form-check-label { font-weight: 600; font-size: 13.5px; color: #1f2937; line-height: 1.35; }
+.prog-switches .form-check-label small { display: block; font-weight: 400; font-size: 12.5px; color: #4b5563; margin-top: 2px; }
+.prog-advanced { border: 1px dashed #cbd5e1; border-radius: 10px; padding: .6rem .9rem; background: #fafafa; }
+.prog-advanced > summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: #334155; }
+.prog-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+
+/* Program list: QR + row actions */
+.prog-qr-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.prog-qr-thumb { padding: 0; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; line-height: 0; cursor: zoom-in; }
+.prog-qr-thumb img { display: block; border-radius: 7px; }
+.prog-qr-thumb:focus-visible { outline: 2px solid var(--primary-color, #1a5f2a); outline-offset: 2px; }
+.prog-qr-remove { font-size: 12px !important; min-height: 0 !important; }
+.prog-row-actions { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+.prog-row-actions form { margin: 0; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn {
+  display: inline-flex !important; align-items: center; justify-content: center;
+  width: 34px !important; height: 34px !important; padding: 0 !important;
+  border: 1px solid #e2e8f0 !important; border-radius: 8px !important;
+  background: #fff !important; color: #334155 !important; box-shadow: none !important;
+}
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn:hover { background: #f1f5f9 !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn--delete { color: #b91c1c !important; border-color: #fecaca !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn--delete:hover { background: #fef2f2 !important; }
+body[class*="admin-page-program"] .main-content .prog-row-actions .adm-icon-btn :is(.lucide-icon, svg) { width: 16px !important; height: 16px !important; color: inherit !important; }
+body[class*="admin-page-program"] .main-content .card-body :is(.small, small):is(.text-muted, .form-text),
+body[class*="admin-page-program"] .main-content .card-body > .small { font-size: 12.5px !important; line-height: 1.45; color: #4b5563 !important; }
+body[class*="admin-page-program"] .main-content .form-label { text-transform: none !important; letter-spacing: 0 !important; color: #1f2937; font-weight: 600 !important; }
+
+/* Fields inside card headers inherited the header's white text (gradient headers are light now) */
+body[class*="admin-page-"] .main-content .card-header :is(.form-select, .form-control) {
+  color: #1f2937 !important;
+  background-color: #fff !important;
+}
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */
