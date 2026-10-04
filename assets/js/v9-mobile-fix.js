@@ -34,16 +34,18 @@
     toggle.parentNode.replaceChild(freshToggle, toggle);
     toggle = freshToggle;
     toggle.dataset.v96Bound = '1';
-    var toggleIcon = toggle.querySelector('i, .lucide-icon, [data-lucide]');
-
+    /* Re-query + swap in a fresh <i> every time: once Lucide has run, the icon is an <svg>
+       (className is read-only there → TypeError aborted init) and an old reference goes stale. */
     function setToggleLucide(name) {
-      if (!toggleIcon) return;
-      toggleIcon.className = 'lucide-icon';
-      toggleIcon.setAttribute('data-lucide', name);
-      toggleIcon.setAttribute('aria-hidden', 'true');
-      toggleIcon.innerHTML = '';
+      var cur = toggle.querySelector('[data-lucide], .lucide-icon, i, svg');
+      if (!cur || !cur.parentNode) return;
+      var icon = document.createElement('i');
+      icon.className = 'lucide-icon';
+      icon.setAttribute('data-lucide', name);
+      icon.setAttribute('aria-hidden', 'true');
+      cur.parentNode.replaceChild(icon, cur);
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
-        window.lucide.createIcons({ nodes: [toggleIcon] });
+        window.lucide.createIcons({ nodes: [icon] });
       }
     }
 

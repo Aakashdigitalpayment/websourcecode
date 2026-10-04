@@ -6,6 +6,8 @@ require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/information-room-tables.php';
 requireMemberLogin();
 memberSecurityHeaders();
+/* SITE_NAME constant does not exist (fatal on PHP 8) — same title source as other member pages */
+$siteName = getSetting('site_name', 'सहकारी');
 
 $db = getDB();
 ensureInformationRoomTables($db);
@@ -19,7 +21,7 @@ if (!$mem) {
 
 if (!irMemberHasAccess($mem)) {
     http_response_code(403);
-    $pageTitle = (function_exists('isEnglish') && isEnglish() ? 'Access denied' : 'पहुँच अस्वीकृत') . ' — ' . SITE_NAME;
+    $pageTitle = (function_exists('isEnglish') && isEnglish() ? 'Access denied' : 'पहुँच अस्वीकृत') . ' — ' . $siteName;
     require __DIR__ . '/includes/chrome.php';
     echo '<div class="alert alert-warning mt-3"><i class="lucide-icon me-2" data-lucide="lock" aria-hidden="true"></i>';
     echo function_exists('isEnglish') && isEnglish()
@@ -40,7 +42,7 @@ if ($catFilter !== '' && !isset(irCategories()[$catFilter])) {
 }
 
 $items = irFetchActiveItems($db, $catFilter);
-$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . SITE_NAME;
+$pageTitle = $_t('Information Room', 'Information Room') . ' — ' . $siteName;
 $extraHead = function_exists('coopThemeLinkHtml')
     ? coopThemeLinkHtml('assets/css/information-room.css')
     : '<link rel="stylesheet" href="../assets/css/information-room.css">';

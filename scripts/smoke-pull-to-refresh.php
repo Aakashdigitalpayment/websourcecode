@@ -47,10 +47,10 @@ if (preg_match('/touchmove[\s\S]{0,200}if \(!armed/', $js)
     bad('touchmove may still run unarmed');
 }
 
-if (strpos($hdr, 'pull-to-refresh.js?v=1.5') !== false) {
-    ok('header cache-busts PTR to v=1.5');
+if (strpos($hdr, "coopThemeCssVer('assets/js/pull-to-refresh.js')") !== false) {
+    ok('header cache-busts PTR via filemtime');
 } else {
-    bad('header still on old PTR ?v=');
+    bad('header PTR not cache-busted via coopThemeCssVer()');
 }
 if (strpos($js, 'coopPtrInit') !== false && strpos($js, 'DOMContentLoaded') !== false) {
     ok('PTR waits for DOM before init');

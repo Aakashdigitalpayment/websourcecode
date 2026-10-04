@@ -1397,7 +1397,6 @@ if (!function_exists('fa_to_lucide_map')) {
             'fa-tasks'        => 'list-checks',
             'fa-list-check'  => 'list-checks',
             'fa-todo'         => 'list-todo',
-            'fa-list'         => 'list',
             'fa-list-ul'      => 'list',
             'fa-list-ol'      => 'list-ordered',
             'fa-align-left'   => 'align-left',

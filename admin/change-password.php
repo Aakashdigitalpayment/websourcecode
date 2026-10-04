@@ -9,6 +9,7 @@ require_once 'includes/admin-ui.php';
  * यो पृष्ठ अरू admin वा superadmin (फाइलमा पासवर्ड खाली पारेपछि) को लागि। */
 
 $mustChangeBanner = false;
+$success = false; /* POST always redirects (PRG) — render never follows a save */
 try {
     $dbc = getDB();
     if (function_exists('safeColumnExists') && safeColumnExists('admin_users', 'must_change_password')) {
@@ -97,20 +98,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                     Superadmin/Admin ले तपाईंको खाताको पासवर्ड सेट गरेको छ — अब आफ्नो <strong>हालको</strong> (अस्थायी) पासवर्ड र <strong>नयाँ</strong> पासवर्ड राखेर सेभ गर्नुहोस्। Public password-reset URL छैन।
                 </div>
                 <?php endif; ?>
-                <?php
-                $flashErr = getFlash('error');
-                $flashOk  = getFlash('success');
-                if ($flashErr): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo e($flashErr); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; if ($flashOk): ?>
-                <div class="alert alert-success alert-dismissible fade show">
-                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i> <?php echo e($flashOk); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                <?php endif; ?>
+                <?php /* Flash messages render once in admin-header.php (POST handlers always redirect). */ ?>
 
                 <form method="POST" action="" class="needs-validation" novalidate>
     <?php echo csrfField(); ?>

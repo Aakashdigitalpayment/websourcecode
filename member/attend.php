@@ -636,7 +636,7 @@ $extraHead = (isset($extraHead) ? (string) $extraHead : '')
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($pr['program_title']) ?></div>
         <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">
-          <?php if ($pr['event_date']): ?><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= $pr['event_date'] ?><?php endif; ?>
+          <?php if ($pr['event_date']): ?><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= htmlspecialchars((string) $pr['event_date'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
           <?php if ($pr['location']): ?><span style="margin-left:8px;"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($pr['location']) ?></span><?php endif; ?>
         </div>
       </div>

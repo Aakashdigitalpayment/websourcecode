@@ -635,12 +635,9 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                     <i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i>
                     Google Authenticator setup आवश्यक छ — QR स्क्यान गर्नुहोस् वा Manual Secret हाल्नुहोस्।
                 </div>
-                <?php if ($admin2faSetupUri !== '' && function_exists('twoFaQrImageUrl')): ?>
+                <?php if ($admin2faSetupUri !== '' && function_exists('twoFaQrImgTag')): ?>
                 <div class="field field-compact" style="text-align:center">
-                    <img src="<?php echo htmlspecialchars(twoFaQrImageUrl($admin2faSetupUri, 220), ENT_QUOTES, 'UTF-8'); ?>"
-                         alt="Google Authenticator QR"
-                         width="220" height="220"
-                         style="max-width:220px;height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;padding:8px">
+                    <?php echo twoFaQrImgTag($admin2faSetupUri, 220, 'max-width:220px;height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;padding:8px'); ?>
                     <div class="sub" style="margin-top:8px">Google Authenticator / Authy मा Scan गर्नुहोस्</div>
                 </div>
                 <?php endif; ?>

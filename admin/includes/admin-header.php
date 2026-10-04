@@ -421,7 +421,7 @@ set_exception_handler(function (\Throwable $ex) {
             <div class="sidebar-header">
                 <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="logo sidebar-brand <?php echo $hasSiteLogo ? 'has-logo' : 'no-logo'; ?>">
                     <?php if ($hasSiteLogo): ?>
-                    <img src="<?php echo e(safe_versioned_media_src($siteLogo)); ?>" alt="<?php echo e($siteName); ?>" class="sidebar-brand-logo">
+                    <img src="<?php echo e(safe_versioned_media_src_absolute($siteLogo)); ?>" alt="<?php echo e($siteName); ?>" class="sidebar-brand-logo">
                     <?php else: ?>
                     <div class="admin-logo-fallback"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></div>
                     <span class="sidebar-brand-text"><?php echo $adminT('एडमिन प्यानल', 'Admin Panel'); ?></span>
@@ -1126,7 +1126,7 @@ set_exception_handler(function (\Throwable $ex) {
                         </div>
                         <?php if ($hasSiteLogo): ?>
                         <img
-                            src="<?php echo e(safe_versioned_media_src($siteLogo)); ?>"
+                            src="<?php echo e(safe_versioned_media_src_absolute($siteLogo)); ?>"
                             alt="<?php echo e($siteName); ?>"
                             onerror="this.style.display='none';var p=this.closest('a');if(p){p.classList.remove('has-logo');p.classList.add('no-logo');var f=p.querySelector('.admin-logo-fallback');var t=p.querySelector('.brand-text');if(f)f.style.display='grid';if(t)t.style.display='inline';}"
                         >
@@ -1653,4 +1653,4 @@ set_exception_handler(function (\Throwable $ex) {
     })();
     </script>
 
-    <script src="../assets/js/coop-mobile.js?v=6.9" defer></script>
+    <script src="../assets/js/coop-mobile.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-mobile.js') : '6.9'; ?>" defer></script>

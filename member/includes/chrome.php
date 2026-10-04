@@ -12,7 +12,7 @@
  *
  *   // ... page specific PHP ...
  *
- *   $pageTitle = 'Profile — ' . SITE_NAME;
+ *   $pageTitle = 'Profile — ' . getSetting('site_name', 'सहकारी');
  *   $extraHead = '<style>...page-specific css...</style>';
  *   require __DIR__ . '/includes/chrome.php';   // emits <head>, <body>, topbar, nav
  *
@@ -210,8 +210,8 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 <link rel="stylesheet" href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/css/nepali.datepicker.min.css">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=6.9" defer></script>
-<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/pwa-register.js?v=3.3" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-mobile.js') : '6.9'; ?>" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/pwa-register.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/pwa-register.js') : '3.3'; ?>" defer></script>
 </head>
 <body class="mem-wrapper">
 <a class="skip-link" href="#main-content"><?php echo $_t('मुख्य सामग्रीमा जानुहोस्', 'Skip to content'); ?></a>
@@ -441,7 +441,6 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
   var MEMBER_PUSH_CSRF = <?php echo json_encode(generateCSRFToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
   var btn      = document.getElementById('pushEnableBtn');
-  var icon     = document.getElementById('pushBellIcon');
   var STORAGE  = 'coop_push_subscribed';
 
   /* ── Helpers ──────────────────────────────────────────────────── */
@@ -457,15 +456,16 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
   function setSubscribed(yes) {
     try { localStorage.setItem(STORAGE, yes ? '1' : '0'); } catch (_) {}
     if (!btn) return;
-    if (icon) {
-      icon.className = 'lucide-icon';
-      icon.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
-      icon.setAttribute('aria-hidden', 'true');
-      icon.innerHTML = '';
-      if (window.lucide && typeof lucide.createIcons === 'function') {
-        lucide.createIcons({ nodes: [icon] });
-      }
-      icon.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
+    /* Re-query by id each time (Lucide swaps the node for an <svg>; className there throws) */
+    var bell = document.getElementById('pushBellIcon');
+    if (bell && typeof window.coopSetLucide === 'function') {
+      bell = window.coopSetLucide(bell, yes ? 'bell' : 'bell-off') || bell;
+    } else if (bell && bell.tagName === 'I') {
+      /* Early (before the shared helper is printed / Lucide ran): just rename the <i> */
+      bell.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
+    }
+    if (bell) {
+      bell.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
     }
     btn.title = yes ? 'Push Notification सक्षम छ' : 'Push Notification सक्षम गर्नुहोस्';
   }

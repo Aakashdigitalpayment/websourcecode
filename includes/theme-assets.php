@@ -316,6 +316,27 @@ if (!function_exists('coopThemeCssUrl')) {
         renderLucide();
     }
     window.addEventListener("load", renderLucide);
+
+    /* Shared icon swap (menu/x, eye/eye-off, sun/moon, bell…). Lucide replaces <i data-lucide>
+       with an <svg> whose className is read-only, so never edit a cached icon node: re-query
+       inside holder (or holder itself) and replace it with a fresh <i>. Returns the new <i>. */
+    window.coopSetLucide = function (holder, name) {
+        if (!holder || !name) return null;
+        var sel = "[data-lucide], .lucide-icon, i, svg";
+        var cur = (holder.matches && holder.matches("[data-lucide], svg, i")) ? holder : holder.querySelector(sel);
+        if (!cur || !cur.parentNode) return null;
+        var icon = document.createElement("i");
+        icon.className = "lucide-icon";
+        if (cur.id) icon.id = cur.id;
+        icon.setAttribute("data-lucide", name);
+        icon.setAttribute("aria-hidden", "true");
+        cur.parentNode.replaceChild(icon, cur);
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            normalizeLucideNames(icon.parentNode);
+            lucide.createIcons({ nodes: [icon] });
+        }
+        return icon;
+    };
     /* NOTE: MutationObserver intentionally removed — createIcons() replaces
        <i data-lucide> with <svg> which re-triggers the observer → infinite
        loop → Page Unresponsive crash. Tabs/modals call lucide.createIcons()

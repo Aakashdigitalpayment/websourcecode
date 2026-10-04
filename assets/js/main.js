@@ -415,6 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastScroll = 0;
 
     window.addEventListener('scroll', function() {
+        if (!header) return; /* embed / standalone pages have no .header */
         const currentScroll = window.pageYOffset;
 
         if (currentScroll > 100) {

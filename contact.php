@@ -126,7 +126,7 @@ require_once 'includes/header.php';
                         <div class="contact-icon"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></div>
                         <div class="contact-details">
                             <h6><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></h6>
-                            <p><?php echo $address; ?></p>
+                            <p><?php echo e($address); ?></p>
                         </div>
                     </div>
                     <div class="contact-item">

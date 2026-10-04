@@ -73,13 +73,26 @@ if (!function_exists('twoFaProvisioningUri')) {
     }
 }
 
-if (!function_exists('twoFaQrImageUrl')) {
-    /** PNG QR for Google Authenticator otpauth:// URI (external image API). */
-    function twoFaQrImageUrl(string $otpauthUri, int $size = 220): string
+if (!function_exists('twoFaQrImgTag')) {
+    /**
+     * <img> for the Google Authenticator setup QR, rendered client-side by assets/js/totp-qr.js.
+     * Never use an external QR image API here: the otpauth:// URI contains the TOTP secret,
+     * so sending it to a third party would let them generate valid 2FA codes.
+     * $style is the caller's inline style (each portal keeps its own look).
+     */
+    function twoFaQrImgTag(string $otpauthUri, int $size = 220, string $style = ''): string
     {
         $size = max(120, min(400, $size));
-        return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size
-            . '&ecc=M&margin=8&data=' . rawurlencode($otpauthUri);
+        $base = rtrim(defined('SITE_URL') ? SITE_URL : '/', '/') . '/';
+        $ver = static function (string $rel): string {
+            return function_exists('coopThemeCssVer') ? coopThemeCssVer($rel) : '1';
+        };
+        $h = static fn(string $v): string => htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+        return '<img hidden data-otpauth="' . $h($otpauthUri) . '" alt="Google Authenticator QR"'
+            . ' width="' . $size . '" height="' . $size . '"'
+            . ($style !== '' ? ' style="' . $h($style) . '"' : '') . '>'
+            . '<script src="' . $h($base . 'assets/vendor/qrcode-generator.js?v=' . $ver('assets/vendor/qrcode-generator.js')) . '"></script>'
+            . '<script src="' . $h($base . 'assets/js/totp-qr.js?v=' . $ver('assets/js/totp-qr.js')) . '"></script>';
     }
 }
 

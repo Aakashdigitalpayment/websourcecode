@@ -154,6 +154,9 @@ try {
 /* ── कर्मचारी वर्ग / समूह (team_staff_groups, show_in_nav) ── */
 $navStaffGroups = [];
 $navTeamMenuCategories = [];
+/* Defined up-front: the nav markup reads these even when $db is null (setup / DB outage). */
+$navHasBoardMembers = false;
+$navHasContactOfficers = false;
 try {
     require_once __DIR__ . '/team-staff-groups.php';
     require_once __DIR__ . '/team-menu-categories.php';
@@ -732,8 +735,8 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
     }
     ?>
     <?php endif; ?>
-<script src="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>assets/js/pwa-register.js?v=3.2" defer></script>
-<script src="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>assets/js/pull-to-refresh.js?v=1.5" defer></script>
+<script src="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>assets/js/pwa-register.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/pwa-register.js') : '3.2'; ?>" defer></script>
+<script src="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>assets/js/pull-to-refresh.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/pull-to-refresh.js') : '1.5'; ?>" defer></script>
     <?php
     /* Optional page CSS/JS before </head> (same contract as member/includes/chrome.php). */
     if (!empty($extraHead)) {
@@ -1465,7 +1468,6 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                     var nav = document.getElementById('mainNavV2');
                     var backdrop = document.getElementById('pflMobileBackdrop');
                     var menuToggle = document.getElementById('mobileMenuToggle2');
-                    var menuIcon = menuToggle ? menuToggle.querySelector('i') : null;
                     if (nav) nav.classList.remove('nav-open', 'open', 'active');
                     if (backdrop) backdrop.classList.remove('active');
                     document.body.classList.remove('mobile-nav-open');
@@ -1474,14 +1476,8 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         menuToggle.classList.remove('is-open');
                         menuToggle.setAttribute('aria-expanded', 'false');
                     }
-                    if (menuIcon) {
-                        menuIcon.className = 'lucide-icon';
-                        menuIcon.setAttribute('data-lucide', 'menu');
-                        menuIcon.setAttribute('aria-hidden', 'true');
-                        menuIcon.innerHTML = '';
-                        if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                            window.lucide.createIcons({ nodes: [menuIcon] });
-                        }
+                    if (menuToggle && typeof window.coopSetLucide === 'function') {
+                        window.coopSetLucide(menuToggle, 'menu');
                     }
                 }
                 var open = wrap.classList.toggle('open');
@@ -1510,10 +1506,10 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
             <div class="row align-items-center">
                 <div class="col-lg-8 col-md-12">
                     <ul class="top-info">
-                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i> <?php echo $phone; ?></li>
-                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i> <?php echo $mobile; ?></li>
-                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i> <?php echo $email; ?></li>
-                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo $address; ?></li>
+                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i> <?php echo e($phone); ?></li>
+                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i> <?php echo e($mobile); ?></li>
+                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i> <?php echo e($email); ?></li>
+                        <li><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i> <?php echo e($address); ?></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 col-md-12 text-lg-end">
@@ -1744,20 +1740,22 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
             var nav = document.getElementById('mainNavV2');
             var closeBtn = document.getElementById('closeMenuV2');
             var backdrop = document.getElementById('pflMobileBackdrop');
-            var toggleIcon = toggle ? toggle.querySelector('i, .lucide-icon, [data-lucide]') : null;
             if (!toggle || !nav || toggle.dataset.emgMobileBound === '1') return;
             toggle.dataset.emgMobileBound = '1';
             toggle.dataset.v96Bound = '1';
             var savedY = 0;
 
+            /* Same as v9-mobile-fix.js: re-query + swap a fresh <i> (Lucide turns it into a read-only <svg>) */
             function setToggleLucide(name){
-                if (!toggleIcon) return;
-                toggleIcon.className = 'lucide-icon';
-                toggleIcon.setAttribute('data-lucide', name);
-                toggleIcon.setAttribute('aria-hidden', 'true');
-                toggleIcon.innerHTML = '';
+                var cur = toggle.querySelector('[data-lucide], .lucide-icon, i, svg');
+                if (!cur || !cur.parentNode) return;
+                var icon = document.createElement('i');
+                icon.className = 'lucide-icon';
+                icon.setAttribute('data-lucide', name);
+                icon.setAttribute('aria-hidden', 'true');
+                cur.parentNode.replaceChild(icon, cur);
                 if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                    window.lucide.createIcons({ nodes: [toggleIcon] });
+                    window.lucide.createIcons({ nodes: [icon] });
                 }
             }
             function syncToggleVisualState(){
@@ -1848,7 +1846,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
         else bindPflMobileMenu();
     })();
     </script>
-    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=6.9" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-mobile.js') : '6.9'; ?>" defer></script>
     <script>
     /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {

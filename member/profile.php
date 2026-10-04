@@ -259,8 +259,8 @@ $extraHead = '';
 if ($profileKycCapture) {
     $extraHead = (function_exists('coopThemeLinkHtml')
             ? coopThemeLinkHtml('assets/css/kyc-capture.css')
-            : '<link rel="stylesheet" href="' . htmlspecialchars($siteUrl) . 'assets/css/kyc-capture.css?v=10.6">' . "\n")
-        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=10.11"></script>';
+            : '<link rel="stylesheet" href="' . htmlspecialchars($siteUrl) . 'assets/css/kyc-capture.css">' . "\n")
+        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=' . (function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/kyc-capture.js') : '10.11') . '"></script>';
 }
 
 $extraHead = (isset($extraHead) ? (string) $extraHead : '')
@@ -441,7 +441,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                 </div>
                 <div class="mem-card-body">
                     <table style="width:100%;font-size:0.82rem;">
-                        <tr><td style="color:#6b7280;padding:5px 0;font-weight:600;">Member ID</td><td><code><?php echo htmlspecialchars($mem['member_card_no']); ?></code></td></tr>
+                        <tr><td style="color:#6b7280;padding:5px 0;font-weight:600;">Member ID</td><td><code><?php echo htmlspecialchars((string) ($mem['member_card_no'] ?? '')); ?></code></td></tr>
                         <tr><td style="color:#6b7280;padding:5px 0;font-weight:600;">दर्ता मिति</td><td><?php echo formatNepaliDate($mem['created_at']); ?></td></tr>
                         <tr><td style="color:#6b7280;padding:5px 0;font-weight:600;">अन्तिम Login</td><td><?php echo $mem['last_login'] ? formatNepaliDate($mem['last_login'], true) : 'पहिलो पटक'; ?></td></tr>
                         <tr><td style="color:#6b7280;padding:5px 0;font-weight:600;">Login विधि</td><td>

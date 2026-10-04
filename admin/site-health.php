@@ -2,9 +2,10 @@
 /* ── Auto-create folder action (AJAX POST from "Create Folder" button) ── */
 require_once __DIR__ . '/includes/admin-page-boot.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['folder_key'], $_POST['csrf_token'])) {
-    require_once 'includes/admin-header.php';   /* loads session + CSRF helpers */
+    /* admin-page-boot already enforced login. Do NOT include admin-header here — it prints the
+       HTML shell before this JSON. checkCSRF() returns void (so `!checkCSRF()` was always true). */
     header('Content-Type: application/json');
-    if (!checkCSRF($_POST['csrf_token'])) {
+    if (!verifyCSRFToken((string) $_POST['csrf_token'])) {
         echo json_encode(['ok' => false, 'msg' => 'CSRF mismatch.']);
         exit;
     }
@@ -743,14 +744,8 @@ function htmlEsc(s) {
                   if (!field) return;
                   var shown = field.type === 'text';
                   field.type = shown ? 'password' : 'text';
-                  if (icon) {
-                      icon.className = 'lucide-icon';
-                      icon.setAttribute('data-lucide', shown ? 'eye' : 'eye-off');
-                      icon.setAttribute('aria-hidden', 'true');
-                      icon.innerHTML = '';
-                      if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                          window.lucide.createIcons({ nodes: [icon] });
-                      }
+                  if (icon && typeof window.coopSetLucide === 'function') {
+                      window.coopSetLucide(icon, shown ? 'eye' : 'eye-off');
                   }
               });
           }
@@ -768,14 +763,8 @@ function htmlEsc(s) {
                   var field = document.getElementById('fp-pw-field');
                   if (field) { field.type = 'password'; }
                   var icon = document.getElementById('fp-pw-icon');
-                  if (icon) {
-                      icon.className = 'lucide-icon';
-                      icon.setAttribute('data-lucide', 'eye');
-                      icon.setAttribute('aria-hidden', 'true');
-                      icon.innerHTML = '';
-                      if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                          window.lucide.createIcons({ nodes: [icon] });
-                      }
+                  if (icon && typeof window.coopSetLucide === 'function') {
+                      window.coopSetLucide(icon, 'eye');
                   }
               });
           }

@@ -131,6 +131,9 @@ Admin how-to: `admin/help-guide.php` (sections कल्याण, Members impor
 | `kyc-capture.js` | KYC camera capture |
 | `pwa-register.js` | Service worker |
 | `modal-focus-trap.js` | Modal a11y |
+| `totp-qr.js` | 2FA setup QR drawn locally (+ `assets/vendor/qrcode-generator.js`) — never send the otpauth secret to an external QR API |
+
+Icon swaps after page load (menu/x, eye, sun/moon, bell): use `window.coopSetLucide(holder, name)` from `coopThemeLucideInit()` — Lucide turns `<i>` into a read-only `<svg>`.
 
 ---
 

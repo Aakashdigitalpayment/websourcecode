@@ -1020,7 +1020,12 @@ function seo_absolute_asset_url(string $path): string
 {
     $path = trim($path);
     if ($path === '') {
-        return rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/assets/images/favicon.png';
+        /* favicon.png may not be uploaded yet — resolver falls back to an existing PWA icon */
+        $fallback = function_exists('getSiteFaviconPath') ? (string) getSiteFaviconPath() : 'assets/images/favicon.png';
+        if (preg_match('#^https?://#i', $fallback)) {
+            return $fallback;
+        }
+        return rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/' . ltrim($fallback, '/');
     }
     if (preg_match('#^https?://#i', $path)) {
         return $path;
@@ -3564,9 +3569,8 @@ function adminAttachmentHtml(?string $path): string {
 
 /* ============================================================
    DB NOT CONFIGURED — Public Pages को लागि Setup Message
-
-/* ============================================================
-   DB NOT CONFIGURED — Public Pages ko lagi Setup Message
+   (CLI — smoke tests / cron — never gets the HTML wall: it would
+   exit 0 and make a test pass without running any check.)
 ============================================================ */
 $_cfg_self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '';
 $_cfg_is_admin = (
@@ -3586,7 +3590,8 @@ if (isset($_GET['ui_test']) && (string) $_GET['ui_test'] === '1') {
     $_cfg_ui_test = $_cfg_ui_local
         || in_array($_cfg_ui_env, ['development', 'local', 'dev', 'test'], true);
 }
-if (!$_cfg_is_admin && DB_NAME === '' && !$_cfg_ui_test) {
+$_cfg_is_cli = (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg');
+if (!$_cfg_is_admin && !$_cfg_is_cli && DB_NAME === '' && !$_cfg_ui_test) {
     http_response_code(200);
     $_cfg_proto = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
     $_cfg_host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
@@ -3604,7 +3609,7 @@ if (!$_cfg_is_admin && DB_NAME === '' && !$_cfg_ui_test) {
        . '</div></body></html>';
     exit;
 }
-unset($_cfg_self, $_cfg_is_admin, $_cfg_ui_test, $_cfg_proto, $_cfg_host, $_cfg_admin, $_cfg_ui_env, $_cfg_ui_host, $_cfg_ui_local);
+unset($_cfg_self, $_cfg_is_admin, $_cfg_is_cli, $_cfg_ui_test, $_cfg_proto, $_cfg_host, $_cfg_admin, $_cfg_ui_env, $_cfg_ui_host, $_cfg_ui_local);
 
 /**
  * =====================================================

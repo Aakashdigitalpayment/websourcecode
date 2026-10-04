@@ -744,8 +744,22 @@ assertContains('scripts/inventory-css-deep-audit.py', 'css-deep-audit.json', 'CS
 assertNotContains('verify.php', 'fonts.googleapis.com', 'verify fonts via SSOT only (no rogue Google link)');
 
 assertContains('online-kyc.php', 'assets/css/kyc-capture.css', 'online-kyc loads kyc-capture.css');
-assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.11', 'online-kyc capture js version');
-assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.11', 'member profile capture js synced');
+assertContains('online-kyc.php', "coopThemeCssVer('assets/js/kyc-capture.js')", 'online-kyc capture js filemtime version');
+assertContains('member/profile.php', "coopThemeCssVer('assets/js/kyc-capture.js')", 'member profile capture js filemtime version');
+
+// .htaccess caches css/js for 1y immutable — a hand-typed ?v=N never refreshes returning visitors.
+foreach ([
+    'includes/header.php', 'admin/includes/admin-header.php', 'admin/includes/admin-footer.php',
+    'member/includes/chrome.php', 'member/includes/chrome-foot.php', 'online-kyc.php', 'member/profile.php',
+] as $__vf) {
+    $__src = (string) @file_get_contents($root . '/' . $__vf);
+    if (preg_match('#assets/[A-Za-z0-9_./-]+\.(?:css|js)\?v=[0-9]#', $__src, $__m)) {
+        fail("{$__vf}: hard-coded asset version ({$__m[0]}) — use coopThemeCssVer()");
+    } else {
+        ok("{$__vf}: asset versions via filemtime");
+    }
+}
+unset($__vf, $__src, $__m);
 
 // Contact panel icons follow Admin brand secondary (not hardcoded yellow)
 assertContains('assets/css/global-theme.php', '--contact-icon-on-primary:', 'contact icon WCAG token from secondary');

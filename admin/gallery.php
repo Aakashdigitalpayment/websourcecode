@@ -521,8 +521,12 @@ foreach ($images as $img) {
                 <div class="row g-3">
                     <?php foreach ($images as $img):
                         $isVideo = ($img['media_type'] ?? 'photo') === 'video';
+                        $vThumb = trim((string) ($img['thumbnail'] ?? ''));
+                        if ($vThumb !== '' && !preg_match('#^https?://#i', $vThumb)) {
+                            $vThumb = '../' . ltrim($vThumb, '/');
+                        }
                         $thumbSrc = $isVideo
-                            ? ($img['thumbnail'] ?? 'assets/images/video-placeholder.png')
+                            ? ($vThumb !== '' ? $vThumb : '../assets/images/icon-192x192.png')
                             : ('../' . $img['image']);
                         $albumLbl = trim((string)($img['album_name_np'] ?? ''));
                         if ($albumLbl === '') {

@@ -144,8 +144,9 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
     </div>
 </div>
 
-<script src="assets/vendor/bootstrap.bundle.min.js" defer></script>
-<script src="<?php echo $_fnUrl; ?>assets/js/v9-mobile-fix.js?v=9.7" defer></script>
+<?php /* Absolute: a bare "assets/…" resolved to /member/assets/… (404) — no bootstrap.Modal on election vote, no tabs. */ ?>
+<script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/vendor/bootstrap.bundle.min.js') : '5'; ?>" defer></script>
+<script src="<?php echo $_fnUrl; ?>assets/js/v9-mobile-fix.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/v9-mobile-fix.js') : '9.7'; ?>" defer></script>
 <script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/form-validation.js?v=<?php echo (int)(@filemtime(dirname(__DIR__, 2) . '/assets/js/form-validation.js') ?: time()); ?>" defer></script>
 <script>
 (function () {
