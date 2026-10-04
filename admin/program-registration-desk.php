@@ -6,9 +6,11 @@ require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../includes/program-member-insights.php';
+require_once __DIR__ . '/../includes/member-monthly-saving.php';
 
 $db = getDB();
 ensureProgramTables($db);
+coop_monthly_saving_ensure_column($db);
 
 $programId = (int)($_POST['program_id'] ?? ($_GET['program_id'] ?? 0));
 $occurrenceId = (int)($_POST['occurrence_id'] ?? ($_GET['occurrence_id'] ?? 0));
@@ -94,6 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confi
             'desk_id' => $deskId > 0 ? $deskId : null,
             'staff_admin_id' => $myAdminId,
         ]);
+        if (array_key_exists('monthly_saving', $_POST) && (!empty($result['ok']) || !empty($result['duplicate']))) {
+            $msParsed = coop_monthly_saving_parse((string) $_POST['monthly_saving']);
+            if ($msParsed['ok'] && $msParsed['value'] !== null) {
+                coop_monthly_saving_set($db, (int) $member['id'], $msParsed['value'], 'Registration desk');
+            }
+        }
         if (!empty($result['ok'])) {
             $saved = true;
             $memberPreview = $member;
@@ -239,6 +247,17 @@ if (function_exists('coopThemeLink')) {
             <div id="deskNameNp" class="desk-idcard-sub d-none"></div>
             <div id="deskMemberNo" class="desk-idcard-no"></div>
             <dl id="deskFields" class="desk-idcard-fields"></dl>
+            <div id="deskSaving" class="desk-saving d-none">
+              <span class="desk-saving-label" id="deskSavingLbl">मासिक बचत</span>
+              <span id="deskSavingBadge"></span>
+              <div class="btn-group btn-group-sm ms-choice" role="radiogroup" aria-labelledby="deskSavingLbl">
+                <input type="radio" class="btn-check" name="monthly_saving" id="deskMs1" value="1" disabled>
+                <label class="btn btn-outline-success" for="deskMs1">नियमित</label>
+                <input type="radio" class="btn-check" name="monthly_saving" id="deskMs0" value="0" disabled>
+                <label class="btn btn-outline-warning" for="deskMs0">नियमित नभएको</label>
+              </div>
+              <span id="deskSavingMsg" class="small" role="status" aria-live="polite"></span>
+            </div>
           </div>
         </div>
         <div id="deskDupInfo" class="desk-idcard-dup d-none"></div>
@@ -286,6 +305,11 @@ if (function_exists('coopThemeLink')) {
     if (confirmBtn) confirmBtn.disabled = true;
     if (preview) preview.classList.add('d-none');
     if (dupInfo) { dupInfo.classList.add('d-none'); dupInfo.textContent = ''; }
+    var sb = document.getElementById('deskSaving');
+    if (sb) {
+      sb.classList.add('d-none');
+      Array.prototype.forEach.call(sb.querySelectorAll('input[name="monthly_saving"]'), function (r) { r.checked = false; r.disabled = true; });
+    }
     showInline('');
   }
 
@@ -356,7 +380,55 @@ if (function_exists('coopThemeLink')) {
     addField(dl, 'लिङ्ग', m.gender);
     addField(dl, 'फोन', m.phone);
     addField(dl, 'ठेगाना', m.address);
+    renderSaving(m);
   }
+
+  /* मासिक बचत — shows current value; change saves immediately (works for already-attended too) */
+  var savingBox = document.getElementById('deskSaving');
+  var savingMsg = document.getElementById('deskSavingMsg');
+  var savingBadge = document.getElementById('deskSavingBadge');
+  var savingMemberPk = 0;
+  var msRadios = savingBox ? savingBox.querySelectorAll('input[name="monthly_saving"]') : [];
+  function savingBadgeSet(v) {
+    if (!savingBadge) return;
+    savingBadge.className = 'badge ' + (v === 1 ? 'bg-success' : (v === 0 ? 'bg-warning text-dark' : 'bg-secondary'));
+    savingBadge.textContent = v === 1 ? 'नियमित' : (v === 0 ? 'नियमित नभएको' : 'नतोकिएको');
+  }
+  function renderSaving(m) {
+    if (!savingBox) return;
+    savingMemberPk = parseInt(m.id || 0, 10) || 0;
+    var v = (m.monthly_saving === 0 || m.monthly_saving === 1) ? m.monthly_saving : null;
+    savingBadgeSet(v);
+    Array.prototype.forEach.call(msRadios, function (r) {
+      r.checked = v !== null && String(v) === r.value;
+      r.disabled = savingMemberPk < 1;
+    });
+    if (savingMsg) { savingMsg.textContent = v === null ? 'अहिलेसम्म नतोकिएको — छान्नुहोस्' : ''; savingMsg.className = 'small text-muted'; }
+    savingBox.classList.toggle('desk-saving--unset', v === null);
+    savingBox.classList.remove('d-none');
+  }
+  Array.prototype.forEach.call(msRadios, function (r) {
+    r.addEventListener('change', function () {
+      if (!r.checked || savingMemberPk < 1) return;
+      var fd = new FormData();
+      fd.append('member_pk', String(savingMemberPk));
+      fd.append('monthly_saving', r.value);
+      var tok = form ? form.querySelector('[name="csrf_token"]') : null;
+      if (tok) fd.append('csrf_token', tok.value);
+      if (savingMsg) { savingMsg.textContent = 'सेभ गर्दै…'; savingMsg.className = 'small text-muted'; }
+      fetch('api/member-monthly-saving.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+        .then(function (res) { return res.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) throw new Error((d && d.error_np) || 'save failed');
+          savingBadgeSet(d.value);
+          savingBox.classList.remove('desk-saving--unset');
+          if (savingMsg) { savingMsg.textContent = d.changed ? '✓ सेभ भयो' : '✓ पहिले नै यही'; savingMsg.className = 'small text-success'; }
+        })
+        .catch(function (err) {
+          if (savingMsg) { savingMsg.textContent = (err && err.message && err.message !== 'save failed' ? err.message : 'सेभ भएन') + ' — Confirm गर्दा पनि save हुन्छ'; savingMsg.className = 'small text-danger'; }
+        });
+    });
+  });
 
   function renderDuplicate(ex) {
     if (!dupInfo) return;

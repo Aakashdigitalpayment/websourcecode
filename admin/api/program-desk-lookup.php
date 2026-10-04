@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../../includes/program-member-insights.php';
+require_once __DIR__ . '/../../includes/member-monthly-saving.php';
 
 if (!isAdminLoggedIn()) {
     http_response_code(401);
@@ -69,6 +70,7 @@ if (empty($eligible['ok'])) {
                 'dob_bs' => $idn['dob_bs'],
                 'dob_ad' => $idn['dob_ad'],
                 'age' => $idn['age'],
+                'monthly_saving' => coop_monthly_saving_from_db($member[COOP_MONTHLY_SAVING_COL] ?? null),
             ];
         })(),
     ], JSON_UNESCAPED_UNICODE);
@@ -111,6 +113,7 @@ echo json_encode([
         'dob_bs' => $identity['dob_bs'],
         'dob_ad' => $identity['dob_ad'],
         'age' => $identity['age'],
+        'monthly_saving' => coop_monthly_saving_from_db($member[COOP_MONTHLY_SAVING_COL] ?? null),
     ],
     'history' => $history + ['url' => 'program-member-history.php?member_id=' . rawurlencode($sadasyata)],
     'already_attended' => (bool)$existing,

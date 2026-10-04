@@ -23,6 +23,8 @@ if (!defined('MEMBER_IMPORT_KYC_ROW_LIMIT')) {
     define('MEMBER_IMPORT_KYC_ROW_LIMIT', 400);
 }
 
+require_once __DIR__ . '/member-monthly-saving.php';
+
 if (!function_exists('ensureMemberImportTables')) {
     function ensureMemberImportTables(?PDO $pdo = null): void {
         static $done = false;
@@ -82,6 +84,7 @@ if (!function_exists('ensureMemberImportTables')) {
             safeAddColumn($pdo, 'member_import_rows', 'father_name', "VARCHAR(100) NOT NULL DEFAULT ''");
             safeAddColumn($pdo, 'member_import_rows', 'citizenship_no', "VARCHAR(50) NOT NULL DEFAULT ''");
             safeAddColumn($pdo, 'member_import_rows', 'membership_date', "VARCHAR(20) NOT NULL DEFAULT ''");
+            safeAddColumn($pdo, 'member_import_rows', 'monthly_saving', "VARCHAR(2) NOT NULL DEFAULT ''");
             safeAddColumn($pdo, 'members', 'name_np', "VARCHAR(255) NOT NULL DEFAULT ''");
             safeAddColumn($pdo, 'members', 'membership_date', 'DATE NULL DEFAULT NULL');
         } else {
@@ -90,9 +93,11 @@ if (!function_exists('ensureMemberImportTables')) {
             try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN father_name VARCHAR(100) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN citizenship_no VARCHAR(50) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN membership_date VARCHAR(20) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
+            try { $pdo->exec("ALTER TABLE member_import_rows ADD COLUMN monthly_saving VARCHAR(2) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE members ADD COLUMN name_np VARCHAR(255) NOT NULL DEFAULT ''"); } catch (Throwable $e) {}
             try { $pdo->exec("ALTER TABLE members ADD COLUMN membership_date DATE NULL DEFAULT NULL"); } catch (Throwable $e) {}
         }
+        coop_monthly_saving_ensure_column($pdo);
         // Helpful lookup index for Member ID (phone is intentionally non-unique — family share)
         if (function_exists('safeAddIndex')) {
             safeAddIndex($pdo, 'members', 'idx_members_sadasyata', ['sadasyata_number']);
@@ -207,6 +212,16 @@ if (!function_exists('memberImportNormalizeHeader')) {
             'fathers name' => 'father_name',
             'सदस्यता_मिति' => 'membership_date_bs',
             'sadasyata_miti' => 'membership_date_bs',
+            /* मासिक बचत नियमित / नियमित नभएको (1/0, yes/no, नियमित/नियमित नभएको) */
+            'monthly_saving' => 'monthly_saving',
+            'monthly saving' => 'monthly_saving',
+            'monthly_saving_regular' => 'monthly_saving',
+            'monthly_saving_status' => 'monthly_saving',
+            'saving_regular' => 'monthly_saving',
+            'masik_bachat' => 'monthly_saving',
+            'masik bachat' => 'monthly_saving',
+            'मासिक_बचत' => 'monthly_saving',
+            'मासिक बचत' => 'monthly_saving',
         ];
         return $aliases[$h] ?? $h;
     }
@@ -556,10 +571,15 @@ if (!function_exists('memberImportApplyOptionalExtras')) {
         int $memberPk,
         string $fatherName,
         string $citizenshipNo,
-        string $membershipDateAd
+        string $membershipDateAd,
+        string $monthlySaving = ''
     ): void {
         if ($memberPk < 1) {
             return;
+        }
+        /* मासिक बचत: blank CSV keeps old value; '1'/'0' sets members (SSOT) */
+        if ($monthlySaving === '1' || $monthlySaving === '0') {
+            coop_monthly_saving_set($pdo, $memberPk, (int) $monthlySaving, 'member import', false);
         }
         $fatherName = function_exists('clean_text') ? clean_text($fatherName, 100) : mb_substr(trim($fatherName), 0, 100);
         $citizenshipNo = memberImportNormalizeCitizenship($citizenshipNo);
@@ -984,8 +1004,8 @@ if (!function_exists('_memberImportParseChunk')) {
             $ins = $pdo->prepare(
                 "INSERT INTO member_import_rows
                     (job_id, row_num, sadasyata_number, full_name, name_np, mobile, email, address, dob, gender, branch, remarks,
-                     father_name, citizenship_no, membership_date, status, message)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                     father_name, citizenship_no, membership_date, monthly_saving, status, message)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             );
         } catch (Throwable $ePrep) {
             $insWithExtras = false;
@@ -1053,6 +1073,8 @@ if (!function_exists('_memberImportParseChunk')) {
             $remarks = function_exists('clean_text') ? clean_text($val('remarks')) : $val('remarks');
             $fatherName = function_exists('clean_text') ? clean_text($val('father_name'), 100) : mb_substr($val('father_name'), 0, 100);
             $citizenshipNo = memberImportNormalizeCitizenship($val('citizenship_no'));
+            $msParsed = coop_monthly_saving_parse($val('monthly_saving'));
+            $monthlySaving = $msParsed['value'] === null ? '' : (string) $msParsed['value'];
             /* Membership date: same BS/AD rules as DOB */
             $mdRawBs = trim($val('membership_date_bs'));
             $mdRawAd = trim($val('membership_date_ad'));
@@ -1089,6 +1111,10 @@ if (!function_exists('_memberImportParseChunk')) {
                 $status = 'failed';
                 $message = 'membership_date गलत — बि.सं. YYYY-MM-DD (सिफारिस) वा membership_date_ad (ई.सं.)। खाली छोड्न मिल्छ।';
                 $failAdd++;
+            } elseif (!$msParsed['ok']) {
+                $status = 'failed';
+                $message = 'monthly_saving गलत — नियमित / नियमित नभएको (वा 1 / 0, yes / no)। खाली छोड्न मिल्छ।';
+                $failAdd++;
             } else {
                 $dob = (string)$dobNorm;
                 $membershipDate = (string)$mdNorm;
@@ -1112,6 +1138,7 @@ if (!function_exists('_memberImportParseChunk')) {
                         mb_substr($fatherName, 0, 100),
                         mb_substr($citizenshipNo, 0, 50),
                         mb_substr($membershipDate, 0, 20),
+                        $monthlySaving,
                         $status,
                         mb_substr($message, 0, 500),
                     ]);
@@ -1154,6 +1181,7 @@ if (!function_exists('_memberImportParseChunk')) {
                     || stripos($eRow->getMessage(), 'father_name') !== false
                     || stripos($eRow->getMessage(), 'citizenship_no') !== false
                     || stripos($eRow->getMessage(), 'membership_date') !== false
+                    || stripos($eRow->getMessage(), 'monthly_saving') !== false
                     || stripos($eRow->getMessage(), 'name_np') !== false)) {
                     $insWithExtras = false;
                     $ins = $pdo->prepare(
@@ -1386,6 +1414,7 @@ if (!function_exists('_memberImportImportChunk')) {
             $fatherName = trim((string)($r['father_name'] ?? ''));
             $citizenshipNo = trim((string)($r['citizenship_no'] ?? ''));
             $membershipDate = trim((string)($r['membership_date'] ?? ''));
+            $monthlySaving = trim((string)($r['monthly_saving'] ?? ''));
 
             try {
                 if ($sid === '' || $name === '') {
@@ -1501,7 +1530,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                         }
                         if (function_exists('memberImportApplyOptionalExtras')) {
-                            memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
+                            memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate, $monthlySaving);
                         }
                         $mark->execute([
                             'ok',
@@ -1687,7 +1716,7 @@ if (!function_exists('_memberImportImportChunk')) {
                                 memberSsotSyncKycFromMember($pdo, $memberPk, null, 'soft');
                             }
                             if (function_exists('memberImportApplyOptionalExtras')) {
-                                memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
+                                memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate, $monthlySaving);
                             }
                             $mark->execute([
                                 'ok',
@@ -1746,7 +1775,7 @@ if (!function_exists('_memberImportImportChunk')) {
                     }
                 }
                 if ($memberPk > 0 && function_exists('memberImportApplyOptionalExtras')) {
-                    memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate);
+                    memberImportApplyOptionalExtras($pdo, $memberPk, $fatherName, $citizenshipNo, $membershipDate, $monthlySaving);
                 }
 
                 $mark->execute([
@@ -1875,5 +1904,154 @@ if (!function_exists('memberImportExportErrors')) {
             }
         }
         fclose($out);
+    }
+}
+
+if (!function_exists('memberImportFieldUpdate')) {
+    /**
+     * Field-only update CSV: member_id + monthly_saving. Touches ONLY members.monthly_saving_regular
+     * of members that already exist — never creates members, never changes name/mobile/KYM/other fields.
+     * Blank value = no change. Unknown Member ID / bad value = listed in problems, nothing written.
+     *
+     * @return array{ok:bool, error?:string, total?:int, changed?:int, unchanged?:int, blank?:int,
+     *               not_found?:int, invalid?:int, problems?:list<array{0:int,1:string,2:string,3:string}>}
+     */
+    function memberImportFieldUpdate(PDO $pdo, array $file, int $adminId = 0): array {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string)($file['tmp_name'] ?? ''))) {
+            return ['ok' => false, 'error' => 'CSV फाइल छान्नुहोस् (upload असफल)।'];
+        }
+        $ext = strtolower(pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
+        if ($ext !== 'csv') {
+            return ['ok' => false, 'error' => 'Excel लाई CSV UTF-8 (.csv) मा Save गरेर मात्र upload गर्नुहोस्।'];
+        }
+        if ((int)($file['size'] ?? 0) > 20 * 1024 * 1024) {
+            return ['ok' => false, 'error' => 'फाइल धेरै ठूलो छ (अधिकतम ~20MB)।'];
+        }
+        $fh = fopen((string)$file['tmp_name'], 'r');
+        if (!$fh) {
+            return ['ok' => false, 'error' => 'CSV पढ्न सकिएन।'];
+        }
+        $headerRow = memberImportFgetcsv($fh);
+        if (!is_array($headerRow)) {
+            fclose($fh);
+            return ['ok' => false, 'error' => 'CSV header खाली छ। Sample download गर्नुहोस्।'];
+        }
+        $idx = [];
+        foreach ($headerRow as $i => $h) {
+            $idx[memberImportNormalizeHeader((string)$h)] = $i;
+        }
+        if (!isset($idx['sadasyata_number'], $idx['monthly_saving'])) {
+            fclose($fh);
+            return ['ok' => false, 'error' => "CSV header मा 'member_id' र 'monthly_saving' दुवै चाहिन्छ। Field-update sample प्रयोग गर्नुहोस्।"];
+        }
+
+        @set_time_limit(300);
+        coop_monthly_saving_ensure_column($pdo);
+        $col = COOP_MONTHLY_SAVING_COL;
+        $norm = static fn (string $v): string => function_exists('memberSsotNormalizeId')
+            ? memberSsotNormalizeId($v) : strtoupper(trim($v));
+
+        $res = ['ok' => true, 'total' => 0, 'changed' => 0, 'unchanged' => 0, 'blank' => 0, 'not_found' => 0, 'invalid' => 0, 'problems' => []];
+        $addProblem = static function (array &$res, int $row, string $sid, string $raw, string $why): void {
+            if (count($res['problems']) < 2000) {
+                $res['problems'][] = [$row, $sid, $raw, $why];
+            }
+        };
+
+        /* Pass 1: read + validate. Last row wins if a Member ID repeats in the sheet. */
+        $want = [];   // sid => [value, rowNum, raw]
+        $rowNum = 1;
+        while (($row = memberImportFgetcsv($fh)) !== false) {
+            $rowNum++;
+            if (!is_array($row) || count(array_filter($row, static fn ($v) => trim((string)$v) !== '')) === 0) {
+                continue;
+            }
+            $res['total']++;
+            $sid = $norm((string)($row[$idx['sadasyata_number']] ?? ''));
+            $raw = trim((string)($row[$idx['monthly_saving']] ?? ''));
+            if ($sid === '') {
+                $res['invalid']++;
+                $addProblem($res, $rowNum, '', $raw, 'member_id खाली');
+                continue;
+            }
+            $p = coop_monthly_saving_parse($raw);
+            if (!$p['ok']) {
+                $res['invalid']++;
+                $addProblem($res, $rowNum, $sid, $raw, 'monthly_saving गलत — नियमित / नियमित नभएको (1 / 0)');
+                continue;
+            }
+            if ($p['value'] === null) {
+                $res['blank']++;
+                continue;
+            }
+            $want[$sid] = [$p['value'], $rowNum, $raw];
+        }
+        fclose($fh);
+
+        /* Pass 2: resolve existing members (indexed exact match first, SSOT variants for the rest) */
+        $found = [];  // sid => list<[id, current]>
+        foreach (array_chunk(array_keys($want), 500) as $batch) {
+            $ph = implode(',', array_fill(0, count($batch), '?'));
+            $st = $pdo->prepare("SELECT id, sadasyata_number, {$col} AS ms FROM members WHERE sadasyata_number IN ({$ph})");
+            $st->execute($batch);
+            while ($m = $st->fetch(PDO::FETCH_ASSOC)) {
+                $found[$norm((string)$m['sadasyata_number'])][] = [(int)$m['id'], coop_monthly_saving_from_db($m['ms'])];
+            }
+        }
+        foreach ($want as $sid => $w) {
+            if (isset($found[$sid])) {
+                continue;
+            }
+            $m = function_exists('memberSsotFindBySadasyata') ? memberSsotFindBySadasyata($pdo, $sid) : null;
+            if ($m) {
+                $found[$sid][] = [(int)$m['id'], coop_monthly_saving_from_db($m[$col] ?? null)];
+            }
+        }
+
+        /* Pass 3: write only rows whose value actually changes */
+        $toSet = [1 => [], 0 => []];
+        foreach ($want as $sid => [$value, $rn, $raw]) {
+            if (!isset($found[$sid])) {
+                $res['not_found']++;
+                $addProblem($res, $rn, $sid, $raw, 'Member ID सिस्टममा छैन — केही परिवर्तन भएन');
+                continue;
+            }
+            $anyChange = false;
+            foreach ($found[$sid] as [$id, $cur]) {
+                if ($cur !== $value) {
+                    $toSet[$value][] = $id;
+                    $anyChange = true;
+                }
+            }
+            $res[$anyChange ? 'changed' : 'unchanged']++;
+        }
+        try {
+            $pdo->beginTransaction();
+            foreach ($toSet as $value => $ids) {
+                foreach (array_chunk($ids, 500) as $chunk) {
+                    $ph = implode(',', array_fill(0, count($chunk), '?'));
+                    $pdo->prepare("UPDATE members SET {$col} = ? WHERE id IN ({$ph})")
+                        ->execute(array_merge([$value], $chunk));
+                }
+            }
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('[member-import field-update] ' . $e->getMessage());
+            return ['ok' => false, 'error' => 'DB update असफल — कुनै पनि परिवर्तन save भएन। फेरि प्रयास गर्नुहोस्।'];
+        }
+        usort($res['problems'], static fn (array $a, array $b): int => $a[0] <=> $b[0]);
+        if (function_exists('writeAuditLog')) {
+            writeAuditLog(
+                'member_monthly_saving_import',
+                sprintf('मासिक बचत field-update import: %s — changed %d, unchanged %d, blank %d, not found %d, invalid %d',
+                    mb_substr((string)($file['name'] ?? ''), 0, 120), $res['changed'], $res['unchanged'], $res['blank'], $res['not_found'], $res['invalid']),
+                'member',
+                0
+            );
+        }
+        return $res;
     }
 }

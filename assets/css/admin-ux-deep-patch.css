@@ -631,12 +631,27 @@ body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link {
 }
 
 /* Alerts */
+/* Base app-admin/app-core force `.alert { display:flex !important }` (frozen) — non-dismissible alerts go back to block.
+   Hidden states (d-none / [hidden] / collapse / inline display) are excluded so !important never un-hides them. */
+body[class*="admin-page-"] .main-content .alert:not(.alert-dismissible):not(.d-none):not([hidden]):not(.collapse):not([style*="display"]) {
+  display: block !important;
+}
+
 body[class*="admin-page-"] .main-content .alert {
   font-size: 0.875rem !important;
   line-height: 1.5;
-  display: flex;
+}
+
+/* Flex only for "icon + one content block" alerts. Mixed text/<code>/<strong> alerts stay block —
+   as flex every inline run became a non-wrapping column (member-import help: page 2800px wide). */
+body[class*="admin-page-"] .main-content .alert:not(.d-none):not([hidden]):not(.collapse):not([style*="display"]):has(> :is(.lucide-icon, svg, i):first-child + :is(div, span, p):last-child) {
+  display: flex !important;
   align-items: flex-start;
   gap: 0.6rem;
+}
+
+body[class*="admin-page-"] .main-content .alert > :is(.lucide-icon, svg):first-child {
+  vertical-align: -0.2em;
 }
 
 body[class*="admin-page-"] .main-content .alert .lucide-icon,

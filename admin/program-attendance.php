@@ -8,9 +8,11 @@ if (isset($_GET['export'])) {
     require_once __DIR__ . '/../includes/program-attendance-helpers.php';
     require_once __DIR__ . '/includes/program-reports-common.php';
     require_once __DIR__ . '/../includes/program-member-insights.php';
+    require_once __DIR__ . '/../includes/member-monthly-saving.php';
 
     $db = getDB();
     ensureProgramTables($db);
+    coop_monthly_saving_ensure_column($db);
     $kycParts = programKycJoinParts($db);
 
     $programId = (int)($_GET['program_id'] ?? 0);
@@ -59,7 +61,7 @@ if (isset($_GET['export'])) {
 
     $exportType = (string)$_GET['export'];
     if ($exportType === '1') {
-        $stAll = $db->prepare("SELECT a.*, m.name AS member_name, {$kycParts['gender']} AS gender, p.event_date, p.location,
+        $stAll = $db->prepare("SELECT a.*, m.name AS member_name, m.monthly_saving_regular AS monthly_saving, {$kycParts['gender']} AS gender, p.event_date, p.location,
                o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
@@ -68,7 +70,7 @@ if (isset($_GET['export'])) {
         $exportRows = $stAll->fetchAll(PDO::FETCH_ASSOC);
         programReportsCsvHeaders('program-attendance-' . date('Ymd-His') . '.csv');
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
+        fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Monthly Saving', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
         foreach ($exportRows as $r) {
             $loc = programAttendanceDisplayLocation($r);
             fputcsv($out, array_map('programReportsCsvCell', [
@@ -77,6 +79,7 @@ if (isset($_GET['export'])) {
                 (string)($r['member_name'] ?? ''),
                 ($gk = programGenderKey($r['gender'] ?? '')) === 'unknown' ? '' : ucfirst($gk),
                 (string)($r['member_card_no'] ?? ''),
+                coop_monthly_saving_label(coop_monthly_saving_from_db($r['monthly_saving'] ?? null)),
                 $loc,
                 programAttendanceMethodLabel($r['attendance_method'] ?? '', true),
                 ((int)($r['is_priority'] ?? 0) ? 'Yes' : 'No'),
@@ -184,8 +187,10 @@ require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../includes/program-member-insights.php';
+require_once __DIR__ . '/../includes/member-monthly-saving.php';
 $db = getDB();
 ensureProgramTables($db);
+coop_monthly_saving_ensure_column($db);
 $kycParts = programKycJoinParts($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -613,7 +618,7 @@ foreach ($pgst->fetchAll(PDO::FETCH_ASSOC) as $pgr) {
 }
 
 $offset = ($page - 1) * $perPage;
-$sql = "SELECT a.*, m.name AS member_name, {$kycParts['gender']} AS gender, p.event_date, p.location,
+$sql = "SELECT a.*, m.name AS member_name, m.monthly_saving_regular AS monthly_saving, {$kycParts['gender']} AS gender, p.event_date, p.location,
                o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
@@ -823,7 +828,9 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <td><?php echo htmlspecialchars($r['program_title']); ?></td>
         <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?></td>
         <td><?php echo htmlspecialchars($r['member_name'] ?: '—'); ?></td>
-        <td><code class="small"><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></code></td>
+        <td><code class="small"><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></code>
+          <?php if ((int)($r['member_id'] ?? 0) > 0): ?><div class="mt-1" title="मासिक बचत"><?php echo coop_monthly_saving_badge_html(coop_monthly_saving_from_db($r['monthly_saving'] ?? null)); ?></div><?php endif; ?>
+        </td>
         <td class="small"><?php echo htmlspecialchars($rowLoc !== '' ? $rowLoc : '—'); ?></td>
         <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rowMethod); ?></span></td>
         <td><?php echo (int)$r['is_priority'] ? '<span class="badge bg-warning text-dark">Priority</span>' : '<span class="text-muted">No</span>'; ?></td>
