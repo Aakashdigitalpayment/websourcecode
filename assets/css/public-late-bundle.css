@@ -10019,4 +10019,32 @@ body.dark-mode .pfl-header-wrapper {
     background: #1c1c2e !important;
   }
 }
+
+
+/* ── Select dropdown arrow — all panels (public / admin / member) ─────────────────────
+   Theme rules use the `background: … !important` shorthand on .form-control/.form-select,
+   which also wipes Bootstrap's arrow image: every <select> looked like a text box.
+   Longhands + higher specificity restore one consistent chevron. Skip multi/listbox
+   selects and the date converter (own Font Awesome arrow). */
+html body select:not([multiple]):not([size]):not(.no-arrow) {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.85rem center !important;
+  background-size: 14px 10px !important;
+  padding-right: 2.4rem !important;
+  cursor: pointer;
+}
+html body.dark-mode select:not([multiple]):not([size]):not(.no-arrow) {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+html body .date-select-wrapper select:not([multiple]) {
+  background-image: none !important;
+}
+html body select:not([multiple]):not([size]):disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 /* ===== END final-ui-polish.css ===== */
