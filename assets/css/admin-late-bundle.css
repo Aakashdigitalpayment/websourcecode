@@ -5700,6 +5700,36 @@ body[class*="admin-page-"] .main-content .bg-info-subtle.text-info,
 body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !important; }
 /* Help Guide sidebar group labels: #9ca3af at 9.5px was 2.5:1 */
 .hg-wrap .grp { color: #4b5563 !important; font-size: 11.5px !important; }
+
+/* ── मासिक बचत component (Members, KYM, Registration Desk) ───────────────────────────
+   Own colours, not Bootstrap bg-* / btn-* — live themes recoloured those (dark chip hid
+   the text, choices looked like plain words). Status chip = value from the system;
+   .ms-opt buttons = what staff can change it to (selected one filled). */
+.ms-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .3rem .7rem; border-radius: 999px; border: 1.5px solid transparent;
+  font-size: 14px; font-weight: 700; line-height: 1.25; white-space: nowrap;
+}
+.ms-badge--yes   { background: #15803d !important; border-color: #15803d !important; color: #fff !important; }
+.ms-badge--no    { background: #fef3c7 !important; border-color: #f59e0b !important; color: #78350f !important; }
+.ms-badge--unset { background: #f1f5f9 !important; border-color: #94a3b8 !important; color: #1f2937 !important; }
+
+.ms-choice { display: inline-flex; flex-wrap: wrap; gap: .5rem; }
+.ms-choice .ms-opt {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; padding: 0 16px; margin: 0;
+  border: 1.5px solid #cbd5e1; border-radius: 8px;
+  background: #fff !important; color: #1f2937 !important;
+  font-size: 14px; font-weight: 600; line-height: 1.2; cursor: pointer; user-select: none;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.ms-choice .ms-opt:hover { border-color: #64748b; background: #f8fafc !important; }
+.ms-choice .btn-check:focus-visible + .ms-opt { outline: 3px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 45%, transparent); outline-offset: 2px; }
+.ms-choice .btn-check:disabled + .ms-opt { opacity: .55; cursor: not-allowed; }
+.ms-choice .btn-check:checked + .ms-opt--yes   { background: #15803d !important; border-color: #15803d; color: #fff !important; }
+.ms-choice .btn-check:checked + .ms-opt--no    { background: #f59e0b !important; border-color: #d97706; color: #111827 !important; }
+.ms-choice .btn-check:checked + .ms-opt--unset { background: #475569 !important; border-color: #475569; color: #fff !important; }
+.ms-choice .btn-check:checked + .ms-opt::before { content: "✓"; margin-right: .35rem; font-weight: 800; }
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */

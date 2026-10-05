@@ -47,5 +47,14 @@ check(str_contains($read('admin/program-registration-desk.php'), 'api/member-mon
 $api = $read('admin/api/member-monthly-saving.php');
 check(str_contains($api, 'verifyCSRFToken') && str_contains($api, "has_role('staff')"), 'save API checks CSRF + role');
 
+$chip = coop_monthly_saving_badge_html(null);
+check(str_contains($chip, 'ms-badge--unset') && !str_contains($chip, 'bg-secondary'), 'status chip uses own colours (theme-proof), not Bootstrap bg-*');
+check(str_contains(coop_monthly_saving_badge_html(1), 'ms-badge--yes') && str_contains(coop_monthly_saving_badge_html(0), 'ms-badge--no'), 'chip modifier per value');
+$radios = coop_monthly_saving_radios_html(1);
+check(str_contains($radios, 'class="ms-opt ms-opt--yes"') && !str_contains($radios, 'class="btn '), 'choice labels are .ms-opt, not theme .btn');
+$deskSrc = $read('admin/program-registration-desk.php');
+check(str_contains($deskSrc, 'मासिक बचत (हाल)') && str_contains($deskSrc, 'बदल्नुहोस्'), 'desk separates current value from change buttons');
+check(str_contains($read('assets/css/admin-ux-deep-patch.css'), '.ms-choice .btn-check:checked + .ms-opt--yes'), 'shared ms-opt checked styles');
+
 echo "\n{$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);

@@ -101,11 +101,21 @@ if (!function_exists('coop_monthly_saving_label')) {
     }
 }
 
+if (!function_exists('coop_monthly_saving_modifier')) {
+    /** CSS modifier shared by the status chip and the choice buttons: yes | no | unset */
+    function coop_monthly_saving_modifier(?int $value): string
+    {
+        return $value === 1 ? 'yes' : ($value === 0 ? 'no' : 'unset');
+    }
+}
+
 if (!function_exists('coop_monthly_saving_badge_html')) {
     function coop_monthly_saving_badge_html(?int $value, bool $english = false): string
     {
-        $cls = $value === 1 ? 'bg-success' : ($value === 0 ? 'bg-warning text-dark' : 'bg-secondary');
-        return '<span class="badge ' . $cls . ' ms-badge">' . htmlspecialchars(coop_monthly_saving_label($value, $english), ENT_QUOTES, 'UTF-8') . '</span>';
+        /* Own colours (ms-badge--*), not Bootstrap bg-* — site themes recolour those and hid the text */
+        $mod = coop_monthly_saving_modifier($value);
+        $icon = $value === 1 ? '✓ ' : ($value === 0 ? '! ' : '');
+        return '<span class="ms-badge ms-badge--' . $mod . '">' . $icon . htmlspecialchars(coop_monthly_saving_label($value, $english), ENT_QUOTES, 'UTF-8') . '</span>';
     }
 }
 
@@ -179,13 +189,13 @@ if (!function_exists('coop_monthly_saving_radios_html')) {
     {
         $opts = [['1', 'नियमित', 1], ['0', 'नियमित नभएको', 0], ['', 'नतोकिएको', null]];
         $nameEsc = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-        $html = '<div class="ms-choice btn-group flex-wrap" role="radiogroup" aria-label="मासिक बचत">';
+        $html = '<div class="ms-choice" role="radiogroup" aria-label="मासिक बचत">';
         foreach ($opts as $i => [$val, $label, $cmp]) {
             $id = htmlspecialchars($idPrefix . '_' . $i, ENT_QUOTES, 'UTF-8');
             $checked = $value === $cmp ? ' checked' : '';
-            $btn = $cmp === 1 ? 'btn-outline-success' : ($cmp === 0 ? 'btn-outline-warning' : 'btn-outline-secondary');
+            /* Plain labels (no .btn) so theme button rules can't flatten them; styled by .ms-opt */
             $html .= '<input type="radio" class="btn-check" name="' . $nameEsc . '" id="' . $id . '" value="' . $val . '"' . $checked . '>'
-                . '<label class="btn btn-sm ' . $btn . '" for="' . $id . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label>';
+                . '<label class="ms-opt ms-opt--' . coop_monthly_saving_modifier($cmp) . '" for="' . $id . '">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</label>';
         }
         return $html . '</div>';
     }
