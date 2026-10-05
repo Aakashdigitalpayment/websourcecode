@@ -612,6 +612,64 @@ try {
     error_log('[admin/members stats] ' . $e->getMessage());
 }
 
+/* ── Excel/CSV export — same filters as the list (search / link / मासिक बचत / live|archive).
+   Admin+ only (bulk PII). Runs before admin-header so no HTML leaks into the file. ── */
+if ((string)($_GET['export'] ?? '') === 'csv' && $db instanceof PDO) {
+    require_role('admin');
+    require_once __DIR__ . '/includes/admin-excel-export.php';
+    require_once __DIR__ . '/includes/audit-log.php';
+    $exCols = static function (array $names) use ($hasCol): string {
+        $out = [];
+        foreach ($names as $c) {
+            $out[] = $hasCol($c) ? $c : "NULL AS {$c}";
+        }
+        return implode(', ', $out);
+    };
+    try {
+        $exSt = $db->prepare('SELECT id, ' . $exCols(['sadasyata_number', 'name', 'name_np', 'phone', 'email', 'address', 'dob', 'gender',
+                'membership_date', COOP_MONTHLY_SAVING_COL, 'kyc_application_id', 'is_active', 'approval_status', 'created_at'])
+            . ($hasPassword ? ", CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password" : ', 0 AS has_password')
+            . " FROM members WHERE {$whereList} ORDER BY id ASC LIMIT 60000");
+        $exSt->execute($paramsBase);
+        $exRows = $exSt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+        error_log('[admin/members export] ' . $e->getMessage());
+        $exRows = null;
+    }
+    if ($exRows === null) {
+        while (ob_get_level() > 0) { ob_end_clean(); }
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Export failed.';
+        exit;
+    }
+    if (function_exists('writeAuditLog')) {
+        writeAuditLog('members_export', 'Members CSV export: ' . count($exRows) . ' rows', 'member', 0);
+    }
+    $bs = static function ($ad): string {
+        $ad = substr((string)$ad, 0, 10);
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad) || !function_exists('nepali_ad_to_bs_string')) {
+            return '';
+        }
+        return (string)(nepali_ad_to_bs_string($ad) ?? '');
+    };
+    adminExcelStreamCsv(
+        adminExcelFilename('members-' . ($memSub === 'arch' ? 'archived' : 'active')),
+        ['Member ID', 'Name (English)', 'नाम (नेपाली)', 'Mobile', 'Email', 'Address', 'DOB (AD)', 'जन्म मिति (बि.सं.)', 'Gender',
+         'सदस्यता मिति (AD)', 'मासिक बचत', 'KYM linked', 'Portal login', 'Status', 'Approval', 'Created At'],
+        adminExcelMapRows($exRows, [
+            'sadasyata_number', 'name', 'name_np', 'phone', 'email', 'address', 'dob',
+            static fn (array $r): string => $bs($r['dob'] ?? ''),
+            'gender', 'membership_date',
+            static fn (array $r): string => coop_monthly_saving_label(coop_monthly_saving_from_db($r[COOP_MONTHLY_SAVING_COL] ?? null)),
+            static fn (array $r): string => (int)($r['kyc_application_id'] ?? 0) > 0 ? 'Yes' : 'No',
+            static fn (array $r): string => (int)($r['has_password'] ?? 0) === 1 ? 'Yes' : 'No',
+            static fn (array $r): string => (int)($r['is_active'] ?? 1) === 1 ? 'Active' : 'Inactive',
+            'approval_status', 'created_at',
+        ])
+    );
+}
+
 require_once __DIR__ . '/includes/admin-header.php';
 ?>
 
@@ -1228,6 +1286,17 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i>खोज</button>
             <?php if ($search !== '' || $kycFilter !== 'all' || $msFilter !== 'all'): ?>
                 <a href="members.php<?php echo $memSub === 'arch' ? '?mem_sub=arch' : ''; ?>" class="btn btn-sm btn-outline-secondary">Clear</a>
+            <?php endif; ?>
+            <?php if (function_exists('is_admin_or_above') && is_admin_or_above()): ?>
+            <a href="members.php?<?php echo htmlspecialchars(http_build_query(array_filter([
+                'export' => 'csv',
+                'search' => $search !== '' ? $search : null,
+                'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
+                'ms' => $msFilter !== 'all' ? $msFilter : null,
+                'mem_sub' => $memSub !== 'live' ? $memSub : null,
+            ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-success" title="हालको फिल्टर अनुसार सबै सदस्य Excel (CSV) मा">
+                <i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Excel डाउनलोड<?php echo $totalCount > 0 ? ' (' . (int)$totalCount . ')' : ''; ?>
+            </a>
             <?php endif; ?>
             <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#bulkNotifModal" title="सबै सदस्यलाई एकैचोटि सूचना पठाउनुहोस्">
                 <i class="lucide-icon me-1" data-lucide="megaphone" aria-hidden="true"></i>Bulk Notification
