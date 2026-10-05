@@ -2055,3 +2055,35 @@ if (!function_exists('memberImportFieldUpdate')) {
         return $res;
     }
 }
+
+if (!function_exists('memberImportFieldUpdateView')) {
+    /**
+     * Shape a memberImportFieldUpdate() result for the page: counts + % of rows, first 50 problems.
+     * Used by the AJAX response and by the "last update" panel on page load (one renderer in JS).
+     *
+     * @param array<string,mixed> $fu
+     * @return array<string,mixed>
+     */
+    function memberImportFieldUpdateView(array $fu): array {
+        $total = max(0, (int)($fu['total'] ?? 0));
+        $pct = static fn (int $n): float => $total > 0 ? round($n * 100 / $total, 1) : 0.0;
+        $counts = [];
+        foreach (['changed', 'unchanged', 'blank', 'not_found', 'invalid'] as $k) {
+            $counts[$k] = ['n' => (int)($fu[$k] ?? 0), 'pct' => $pct((int)($fu[$k] ?? 0))];
+        }
+        $problems = is_array($fu['problems'] ?? null) ? $fu['problems'] : [];
+        $problemsTotal = $counts['not_found']['n'] + $counts['invalid']['n'];
+        return [
+            'ok' => true,
+            'filename' => (string)($fu['filename'] ?? ''),
+            'total' => $total,
+            'counts' => $counts,
+            /* rows that ended in the right state (changed now or already correct) */
+            'success_pct' => $pct($counts['changed']['n'] + $counts['unchanged']['n']),
+            'problems' => array_slice(array_map(static fn ($p) => [
+                'row' => (int)($p[0] ?? 0), 'member_id' => (string)($p[1] ?? ''), 'value' => (string)($p[2] ?? ''), 'reason' => (string)($p[3] ?? ''),
+            ], $problems), 0, 50),
+            'problems_total' => $problemsTotal,
+        ];
+    }
+}

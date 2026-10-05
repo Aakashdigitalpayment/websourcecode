@@ -82,6 +82,29 @@ if ($ajaxAction !== '') {
         exit;
     }
 
+    /* Field-only update (member_id + monthly_saving) — JSON for the on-page progress/result view */
+    if ($ajaxAction === 'field_update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Content-Type: application/json; charset=UTF-8');
+        if (function_exists('memberImportClearOutputBuffers')) {
+            memberImportClearOutputBuffers();
+        }
+        ob_start();
+        if (is_file(__DIR__ . '/includes/audit-log.php')) {
+            require_once __DIR__ . '/includes/audit-log.php';
+        }
+        $fu = memberImportFieldUpdate($pdo, $_FILES['fu_file'] ?? [], $adminId);
+        while (ob_get_level() > 0) { @ob_end_clean(); }
+        if (!empty($fu['ok'])) {
+            $fu['filename'] = mb_substr((string)($_FILES['fu_file']['name'] ?? ''), 0, 120);
+            $_SESSION['mi_field_update'] = $fu;
+            echo json_encode(memberImportFieldUpdateView($fu), JSON_UNESCAPED_UNICODE);
+        } else {
+            unset($_SESSION['mi_field_update']);
+            echo json_encode(['ok' => false, 'error' => (string)($fu['error'] ?? 'Update असफल।')], JSON_UNESCAPED_UNICODE);
+        }
+        exit;
+    }
+
     if ($ajaxAction === 'process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json; charset=UTF-8');
         $jobId = (int)($_POST['job_id'] ?? 0);
@@ -311,33 +334,26 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <strong>नाम, मोबाइल, KYM वा अरू कुनै data छोइँदैन</strong> · नयाँ सदस्य बन्दैन ·
                     खाली मान = पुरानो नै रहन्छ · सिस्टममा नभएको Member ID छोडिन्छ (problems CSV मा आउँछ)।
                 </p>
-                <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2">
+                <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-end gap-2" id="fuForm">
                     <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
                     <input type="hidden" name="field_update" value="1">
                     <div class="flex-grow-1">
                         <label for="fuFile" class="form-label small fw-semibold">CSV फाइल (member_id, monthly_saving)</label>
                         <input type="file" name="fu_file" id="fuFile" class="form-control" accept=".csv,text/csv" required>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="upload" aria-hidden="true"></i>Update गर्नुहोस्</button>
+                    <button type="submit" class="btn btn-primary" id="fuSubmit"><i class="lucide-icon me-1" data-lucide="upload" aria-hidden="true"></i>Update गर्नुहोस्</button>
                     <a href="member-import-sample.php?type=monthly_saving" class="btn btn-outline-primary"><i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Sample</a>
                 </form>
                 <div class="form-text">मान: <code>नियमित</code> / <code>नियमित नभएको</code> (वा <code>1</code> / <code>0</code>, <code>yes</code> / <code>no</code>, <code>regular</code> / <code>irregular</code>)।</div>
-                <?php if (is_array($fuLast)): ?>
-                <div class="border rounded p-2 mt-3 small bg-light">
-                    <div class="fw-semibold mb-1">पछिल्लो update<?php echo !empty($fuLast['filename']) ? ' — ' . htmlspecialchars((string)$fuLast['filename']) : ''; ?></div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="badge bg-secondary">Rows <?php echo (int)$fuLast['total']; ?></span>
-                        <span class="badge bg-success">परिवर्तन <?php echo (int)$fuLast['changed']; ?></span>
-                        <span class="badge bg-info text-dark">पहिले नै उही <?php echo (int)$fuLast['unchanged']; ?></span>
-                        <span class="badge bg-light text-dark border">खाली <?php echo (int)$fuLast['blank']; ?></span>
-                        <span class="badge bg-warning text-dark">Member ID छैन <?php echo (int)$fuLast['not_found']; ?></span>
-                        <span class="badge bg-danger">गलत मान <?php echo (int)$fuLast['invalid']; ?></span>
+                <div id="fuProgress" class="fu-progress d-none" aria-live="polite">
+                    <div class="d-flex justify-content-between small fw-semibold mb-1"><span id="fuPhase">Upload…</span><span id="fuPct">0%</span></div>
+                    <div class="progress" style="height:12px" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="fuBarWrap">
+                        <div id="fuBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div>
                     </div>
-                    <?php if (!empty($fuLast['problems'])): ?>
-                    <a class="btn btn-sm btn-outline-danger mt-2" href="member-import.php?fu_errors=1">Problems CSV download</a>
-                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
+                <div id="fuError" class="alert alert-danger small mt-3 d-none" role="alert"></div>
+                <div id="fuResult" class="fu-result mt-3 d-none"></div>
+                <script type="application/json" id="fuLastJson"><?php echo is_array($fuLast) ? json_encode(memberImportFieldUpdateView($fuLast), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) : 'null'; ?></script>
             </div>
         </div>
     </div>
@@ -581,6 +597,107 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     <?php if ($resumeJobId > 0): ?>
     startJob(<?php echo (int)$resumeJobId; ?>);
     <?php endif; ?>
+})();
+</script>
+<script>
+/* मासिक बचत field-only update: upload % → processing → result (counts, % of rows, problem rows) */
+(function () {
+    var form = document.getElementById('fuForm');
+    if (!form || !window.XMLHttpRequest || !window.FormData) return; /* no-JS: normal POST still works */
+    var wrap = document.getElementById('fuProgress'), bar = document.getElementById('fuBar'),
+        barWrap = document.getElementById('fuBarWrap'), phase = document.getElementById('fuPhase'),
+        pctEl = document.getElementById('fuPct'), errBox = document.getElementById('fuError'),
+        result = document.getElementById('fuResult'), btn = document.getElementById('fuSubmit');
+    var LABELS = [
+        ['changed', 'परिवर्तन भयो', 'fu-seg--changed'],
+        ['unchanged', 'पहिले नै उही', 'fu-seg--unchanged'],
+        ['blank', 'खाली (छोडियो)', 'fu-seg--blank'],
+        ['not_found', 'Member ID छैन', 'fu-seg--notfound'],
+        ['invalid', 'गलत मान', 'fu-seg--invalid']
+    ];
+    function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+    function setBar(p, label) {
+        p = Math.max(0, Math.min(100, Math.round(p)));
+        bar.style.width = p + '%'; pctEl.textContent = p + '%'; phase.textContent = label;
+        barWrap.setAttribute('aria-valuenow', String(p));
+    }
+    function render(d, isLast) {
+        result.textContent = '';
+        if (!d || !d.ok) { result.classList.add('d-none'); return; }
+        var head = el('div', 'fu-result-head');
+        head.appendChild(el('strong', '', (isLast ? 'पछिल्लो update' : 'Update सकियो') + (d.filename ? ' — ' + d.filename : '')));
+        head.appendChild(el('span', 'fu-result-total', 'जम्मा ' + d.total + ' row · सफल ' + d.success_pct + '%'));
+        result.appendChild(head);
+        var stack = el('div', 'fu-stack'); stack.setAttribute('aria-hidden', 'true');
+        var legend = el('ul', 'fu-legend');
+        LABELS.forEach(function (L) {
+            var c = d.counts[L[0]] || {n: 0, pct: 0};
+            if (c.n > 0) { var seg = el('span', 'fu-seg ' + L[2]); seg.style.width = c.pct + '%'; seg.title = L[1] + ': ' + c.n; stack.appendChild(seg); }
+            var li = el('li', ''); li.appendChild(el('span', 'fu-dot ' + L[2]));
+            li.appendChild(el('span', 'fu-legend-label', L[1]));
+            li.appendChild(el('strong', '', c.n + ' (' + c.pct + '%)'));
+            legend.appendChild(li);
+        });
+        result.appendChild(stack); result.appendChild(legend);
+        if (d.problems_total > 0) {
+            result.appendChild(el('div', 'fu-problems-title', 'समस्या भएका row (' + d.problems_total + ') — यी row मा केही परिवर्तन भएन'));
+            var tw = el('div', 'table-responsive fu-problems');
+            var t = el('table', 'table table-sm align-middle mb-0');
+            var th = el('thead'); var hr = el('tr');
+            ['Row', 'Member ID', 'monthly_saving', 'कारण'].forEach(function (h) { hr.appendChild(el('th', '', h)); });
+            th.appendChild(hr); t.appendChild(th);
+            var tb = el('tbody');
+            d.problems.forEach(function (p) {
+                var tr = el('tr');
+                tr.appendChild(el('td', '', String(p.row)));
+                tr.appendChild(el('td', 'font-monospace', p.member_id || '—'));
+                tr.appendChild(el('td', '', p.value || '—'));
+                tr.appendChild(el('td', 'text-danger', p.reason));
+                tb.appendChild(tr);
+            });
+            t.appendChild(tb); tw.appendChild(t); result.appendChild(tw);
+            var more = el('div', 'd-flex flex-wrap align-items-center gap-2 mt-2');
+            if (d.problems_total > d.problems.length) more.appendChild(el('span', 'small text-muted', 'पहिलो ' + d.problems.length + ' मात्र देखाइएको — सबै CSV मा।'));
+            var a = el('a', 'btn btn-sm btn-outline-danger', 'Problems CSV download'); a.href = 'member-import.php?fu_errors=1';
+            more.appendChild(a); result.appendChild(more);
+        } else {
+            result.appendChild(el('div', 'fu-ok', '✓ कुनै समस्या छैन — सबै row ठीक।'));
+        }
+        result.classList.remove('d-none');
+    }
+    try { render(JSON.parse(document.getElementById('fuLastJson').textContent || 'null'), true); } catch (e) {}
+
+    form.addEventListener('submit', function (ev) {
+        var f = document.getElementById('fuFile');
+        if (!f.files || !f.files[0]) return;
+        ev.preventDefault();
+        errBox.classList.add('d-none'); result.classList.add('d-none');
+        wrap.classList.remove('d-none'); btn.disabled = true;
+        bar.classList.remove('bg-success', 'bg-danger'); bar.classList.add('progress-bar-animated'); setBar(0, 'Upload गर्दै…');
+        var fd = new FormData(form); fd.append('ajax', 'field_update');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'member-import.php');
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) setBar(e.loaded / e.total * 90, 'Upload गर्दै… ' + Math.round(e.loaded / e.total * 100) + '%');
+        };
+        xhr.upload.onload = function () { setBar(92, 'जाँच्दै र सेभ गर्दै… (पेज बन्द नगर्नुहोस्)'); };
+        xhr.onload = function () {
+            btn.disabled = false; bar.classList.remove('progress-bar-animated');
+            var d = null; try { d = JSON.parse(xhr.responseText); } catch (e) {}
+            if (!d || !d.ok) {
+                bar.classList.add('bg-danger'); setBar(100, 'असफल');
+                errBox.textContent = (d && d.error) ? d.error : ('Server error (HTTP ' + xhr.status + ')');
+                errBox.classList.remove('d-none'); return;
+            }
+            bar.classList.add('bg-success'); setBar(100, 'सकियो'); render(d, false);
+            form.reset();
+        };
+        xhr.onerror = function () {
+            btn.disabled = false; bar.classList.remove('progress-bar-animated'); bar.classList.add('bg-danger'); setBar(100, 'असफल');
+            errBox.textContent = 'Network error — फेरि प्रयास गर्नुहोस्।'; errBox.classList.remove('d-none');
+        };
+        xhr.send(fd);
+    });
 })();
 </script>
 
