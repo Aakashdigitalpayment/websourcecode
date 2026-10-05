@@ -19,6 +19,11 @@ if (!isAdminLoggedIn()) {
     header('Location: ' . ADMIN_URL . 'index.php');
     exit;
 }
+/* page-boot login is skipped here (JSON 401 for AJAX) — run the custom-role matrix check ourselves */
+require_once __DIR__ . '/../includes/auth-roles.php';
+if (function_exists('coop_perm_enforce_request')) {
+    coop_perm_enforce_request();
+}
 
 ensureMemberTables();
 $pdo = null;

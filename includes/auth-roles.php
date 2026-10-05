@@ -141,8 +141,18 @@ if (!function_exists('role_level')) {
     }
 }
 
+require_once __DIR__ . '/admin-permissions.php';
+
 if (!function_exists('has_role')) {
     function has_role(string $minRole): bool {
+        /* Custom-role users: the permission matrix of the page in use decides (never superadmin).
+           Lets existing inline require_role('admin') checks follow what the role was granted. */
+        if (function_exists('coop_perm_current') && coop_perm_current() !== null) {
+            if (role_level($minRole) >= 3) {
+                return false;
+            }
+            return coop_perm_current_request_allowed()['ok'];
+        }
         return role_level(current_admin_role()) >= role_level($minRole);
     }
 }

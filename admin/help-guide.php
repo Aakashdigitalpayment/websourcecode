@@ -802,6 +802,14 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <tr><td><span class="hg-badge hg-badge-yellow">Editor</span></td><td>Content मात्र (News, Notices, Gallery)</td></tr>
         <tr><td><span class="hg-badge">Staff</span></td><td>View only + basic status updates</td></tr>
       </table>
+      <h5>🛡️ आफ्नै भूमिका (menu अनुसार अनुमति):</h5>
+      <ol class="hg-steps-list">
+        <li>Superadmin → <a href="admin-roles.php">भूमिका र अनुमति</a> → <span class="kbd">नयाँ भूमिका</span>।</li>
+        <li>नाम राख्नुहोस् (उदा. "ऋण शाखा staff") — चाहे भने <b>Preset</b> बाट सुरु गर्नुहोस्।</li>
+        <li>हरेक menu मा <b>हेर्ने / थप्ने / सम्पादन / हटाउने</b> छान्नुहोस् (थप्ने/सम्पादन/हटाउने छान्दा हेर्ने आफैँ आउँछ)। सेभ।</li>
+        <li><a href="manage-admins.php">Admin व्यवस्थापन</a> मा user को Role मा त्यो भूमिका छान्नुहोस्।</li>
+      </ol>
+      <div class="hg-info">भूमिका भएका admin ले छानिएका menu मात्र देख्छन्; अरू पेज URL बाट खोल्दा पनि रोकिन्छ। Admin users, सुरक्षा, Backup, DB सेटअप जस्ता पेज superadmin मात्र। भूमिका नदिइएका Admin / Editor पहिलेजस्तै।</div>
       <div class="hg-danger">🚨 <b>Super Admin role</b> विश्वसनीय व्यक्तिलाई मात्र दिनुहोस् — सबै data delete गर्ने अधिकार हुन्छ।</div>
     </section>
 
