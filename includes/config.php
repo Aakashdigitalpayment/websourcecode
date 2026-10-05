@@ -3703,19 +3703,38 @@ function ensureLoginAttemptsTable(): void {
 }
 
 /**
- * checkLoginAttempts — DB-आधारित brute force protection
- * Returns false (block) यदि पछिल्लो 15 मिनेटमा 5+ failed attempts भए।
- * Session-based छैन — cookie clear गरेर bypass गर्न मिल्दैन।
+ * checkLoginAttempts — DB-आधारित brute force protection (tiered, per account).
+ * Offices share one public IP (NAT), so one person's typos must not lock the whole network:
+ *   - same username + same IP : $maxAttempts in the window → that user (on that network) waits
+ *   - same username, any IP   : 2 × $maxAttempts → that username waits (distributed guessing)
+ *   - same IP, any usernames  : COOP_LOGIN_IP_SPRAY_LIMIT (30) → only then the IP waits (password spraying)
+ * Session-based छैन — cookie clear गरेर bypass गर्न मिल्दैन। Returns false = block.
  */
+if (!defined('COOP_LOGIN_IP_SPRAY_LIMIT')) {
+    define('COOP_LOGIN_IP_SPRAY_LIMIT', 30);
+}
 function checkLoginAttempts(string $username, string $ip, int $maxAttempts = 5, int $windowSeconds = 900): bool {
     ensureLoginAttemptsTable();
+    $username = substr($username, 0, 100);
+    $ip = substr($ip, 0, 45);
     try {
         $db = getDB();
-        $stmt = $db->prepare("SELECT COUNT(*) FROM login_attempts
-                              WHERE (username = ? OR ip_address = ?)
-                              AND attempted_at > (NOW() - INTERVAL ? SECOND)");
-        $stmt->execute([$username, $ip, $windowSeconds]);
-        return ((int)$stmt->fetchColumn()) < $maxAttempts;
+        $stmt = $db->prepare("SELECT
+                SUM(username = ? AND ip_address = ?) AS user_here,
+                SUM(username = ?)                     AS user_any,
+                SUM(ip_address = ?)                   AS ip_any
+              FROM login_attempts
+             WHERE (username = ? OR ip_address = ?)
+               AND attempted_at > (NOW() - INTERVAL ? SECOND)");
+        $stmt->execute([$username, $ip, $username, $ip, $username, $ip, $windowSeconds]);
+        $r = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        if ((int)($r['user_here'] ?? 0) >= $maxAttempts) {
+            return false;
+        }
+        if ((int)($r['user_any'] ?? 0) >= $maxAttempts * 2) {
+            return false;
+        }
+        return (int)($r['ip_any'] ?? 0) < COOP_LOGIN_IP_SPRAY_LIMIT;
     } catch (\Throwable $e) {
         return true; /* DB issue — block गर्दैन (legit users disrupt नगर्न) */
     }
@@ -3730,11 +3749,12 @@ function recordLoginAttempt(string $username, string $ip): void {
     } catch (\Throwable $e) { /* silent */ }
 }
 
+/** Successful login clears only that account's failures — never other users on the same network. */
 function resetLoginAttempts(string $username, string $ip): void {
     try {
         $db = getDB();
-        $stmt = $db->prepare("DELETE FROM login_attempts WHERE username = ? OR ip_address = ?");
-        $stmt->execute([$username, $ip]);
+        $stmt = $db->prepare("DELETE FROM login_attempts WHERE username = ?");
+        $stmt->execute([substr($username, 0, 100)]);
     } catch (\Throwable $e) { /* silent */ }
 }
 
