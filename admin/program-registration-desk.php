@@ -249,15 +249,20 @@ if (function_exists('coopThemeLink')) {
             <div id="deskMemberNo" class="desk-idcard-no"></div>
             <dl id="deskFields" class="desk-idcard-fields"></dl>
             <div id="deskSaving" class="desk-saving d-none">
-              <span class="desk-saving-label" id="deskSavingLbl">मासिक बचत</span>
-              <span id="deskSavingBadge"></span>
-              <div class="btn-group btn-group-sm ms-choice" role="radiogroup" aria-labelledby="deskSavingLbl">
-                <input type="radio" class="btn-check" name="monthly_saving" id="deskMs1" value="1" disabled>
-                <label class="btn btn-outline-success" for="deskMs1">नियमित</label>
-                <input type="radio" class="btn-check" name="monthly_saving" id="deskMs0" value="0" disabled>
-                <label class="btn btn-outline-warning" for="deskMs0">नियमित नभएको</label>
+              <div class="desk-saving-row">
+                <span class="desk-saving-label">मासिक बचत (हाल)</span>
+                <span id="deskSavingBadge" class="ms-badge ms-badge--unset"></span>
               </div>
-              <span id="deskSavingMsg" class="small" role="status" aria-live="polite"></span>
+              <div class="desk-saving-row">
+                <span class="desk-saving-label" id="deskSavingLbl">बदल्नुहोस्</span>
+                <div class="ms-choice" role="radiogroup" aria-labelledby="deskSavingLbl">
+                  <input type="radio" class="btn-check" name="monthly_saving" id="deskMs1" value="1" disabled>
+                  <label class="ms-opt ms-opt--yes" for="deskMs1">नियमित</label>
+                  <input type="radio" class="btn-check" name="monthly_saving" id="deskMs0" value="0" disabled>
+                  <label class="ms-opt ms-opt--no" for="deskMs0">नियमित नभएको</label>
+                </div>
+                <span id="deskSavingMsg" class="desk-saving-msg" role="status" aria-live="polite"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -392,8 +397,9 @@ if (function_exists('coopThemeLink')) {
   var msRadios = savingBox ? savingBox.querySelectorAll('input[name="monthly_saving"]') : [];
   function savingBadgeSet(v) {
     if (!savingBadge) return;
-    savingBadge.className = 'badge ' + (v === 1 ? 'bg-success' : (v === 0 ? 'bg-warning text-dark' : 'bg-secondary'));
-    savingBadge.textContent = v === 1 ? 'नियमित' : (v === 0 ? 'नियमित नभएको' : 'नतोकिएको');
+    /* same look as coop_monthly_saving_badge_html() */
+    savingBadge.className = 'ms-badge ms-badge--' + (v === 1 ? 'yes' : (v === 0 ? 'no' : 'unset'));
+    savingBadge.textContent = v === 1 ? '✓ नियमित' : (v === 0 ? '! नियमित नभएको' : 'नतोकिएको');
   }
   function renderSaving(m) {
     if (!savingBox) return;
@@ -404,7 +410,7 @@ if (function_exists('coopThemeLink')) {
       r.checked = v !== null && String(v) === r.value;
       r.disabled = savingMemberPk < 1;
     });
-    if (savingMsg) { savingMsg.textContent = v === null ? 'अहिलेसम्म नतोकिएको — छान्नुहोस्' : ''; savingMsg.className = 'small text-muted'; }
+    if (savingMsg) { savingMsg.textContent = v === null ? 'अहिलेसम्म नतोकिएको — छान्नुहोस्' : ''; savingMsg.className = 'desk-saving-msg text-muted'; }
     savingBox.classList.toggle('desk-saving--unset', v === null);
     savingBox.classList.remove('d-none');
   }
@@ -416,17 +422,17 @@ if (function_exists('coopThemeLink')) {
       fd.append('monthly_saving', r.value);
       var tok = form ? form.querySelector('[name="csrf_token"]') : null;
       if (tok) fd.append('csrf_token', tok.value);
-      if (savingMsg) { savingMsg.textContent = 'सेभ गर्दै…'; savingMsg.className = 'small text-muted'; }
+      if (savingMsg) { savingMsg.textContent = 'सेभ गर्दै…'; savingMsg.className = 'desk-saving-msg text-muted'; }
       fetch('api/member-monthly-saving.php', { method: 'POST', body: fd, credentials: 'same-origin' })
         .then(function (res) { return res.json(); })
         .then(function (d) {
           if (!d || !d.ok) throw new Error((d && d.error_np) || 'save failed');
           savingBadgeSet(d.value);
           savingBox.classList.remove('desk-saving--unset');
-          if (savingMsg) { savingMsg.textContent = d.changed ? '✓ सेभ भयो' : '✓ पहिले नै यही'; savingMsg.className = 'small text-success'; }
+          if (savingMsg) { savingMsg.textContent = d.changed ? '✓ सेभ भयो' : '✓ पहिले नै यही'; savingMsg.className = 'desk-saving-msg text-success'; }
         })
         .catch(function (err) {
-          if (savingMsg) { savingMsg.textContent = (err && err.message && err.message !== 'save failed' ? err.message : 'सेभ भएन') + ' — Confirm गर्दा पनि save हुन्छ'; savingMsg.className = 'small text-danger'; }
+          if (savingMsg) { savingMsg.textContent = (err && err.message && err.message !== 'save failed' ? err.message : 'सेभ भएन') + ' — Confirm गर्दा पनि save हुन्छ'; savingMsg.className = 'desk-saving-msg text-danger'; }
         });
     });
   });
