@@ -19,6 +19,21 @@ if (empty($_SESSION['is_superadmin'])) {
 }
 
 $db = getDB();
+require_once __DIR__ . '/../includes/admin-permissions.php';
+coop_perm_ensure_schema($db);
+$customRoles = [];
+try {
+    $customRoles = $db->query('SELECT id, name FROM admin_roles ORDER BY name')->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+} catch (Throwable $e) { $customRoles = []; }
+
+/** Role picker value → [db role, custom_role_id|null]; null when invalid. "custom:ID" = permission-matrix role. */
+$maParseRole = static function (string $v) use ($customRoles): ?array {
+    if (preg_match('/^custom:(\d+)$/', $v, $m)) {
+        return isset($customRoles[(int)$m[1]]) ? ['editor', (int)$m[1]] : null;
+    }
+    $r = function_exists('admin_canonical_db_role') ? admin_canonical_db_role($v) : $v;
+    return in_array($r, ['admin', 'editor'], true) ? [$r, null] : null;
+};
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
@@ -37,10 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username    = trim($_POST['username']        ?? '');
         $fullName    = trim($_POST['full_name']       ?? '');
         $email       = trim($_POST['email']           ?? '');
-        $role        = $_POST['role']                 ?? 'admin';
-        if (function_exists('admin_canonical_db_role')) {
-            $role = admin_canonical_db_role($role);
-        }
+        $roleParsed  = $maParseRole((string)($_POST['role'] ?? 'admin'));
+        $role        = $roleParsed[0] ?? '';
+        $customRoleId = $roleParsed[1] ?? null;
         $newPass     = $_POST['new_password']         ?? '';
         $confirmPass = $_POST['confirm_password']     ?? '';
         $isActive    = isset($_POST['is_active']) ? 1 : 0;
@@ -74,7 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                       VALUES (?, ?, ?, ?, ?, ?, NOW())")
                            ->execute([$username, $hashed, $fullName, $email ?: null, $role, $isActive]);
                     }
-                    setFlash('success', '"' . htmlspecialchars($fullName) . '" admin user सफलतापूर्वक बनाइयो।');
+                    if ($customRoleId !== null) {
+                        $db->prepare('UPDATE admin_users SET custom_role_id = ? WHERE username = ?')->execute([$customRoleId, $username]);
+                    }
+                    setFlash('success', '"' . htmlspecialchars($fullName) . '" admin user सफलतापूर्वक बनाइयो।'
+                        . ($customRoleId !== null ? ' भूमिका: ' . htmlspecialchars((string)$customRoles[$customRoleId]) : ''));
                 }
             } catch (Exception $e) {
                 error_log('[manage-admins] ' . $e->getMessage());
@@ -85,6 +103,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     /* ── २. Password Reset ── */
+    /* Change an admin's role / custom permission role (superadmin rows untouched) */
+    if ($action === 'assign_role') {
+        $aid = (int)($_POST['admin_id'] ?? 0);
+        $parsed = $maParseRole((string)($_POST['role'] ?? ''));
+        $st = $db->prepare('SELECT username, role FROM admin_users WHERE id = ?');
+        $st->execute([$aid]);
+        $target = $st->fetch(PDO::FETCH_ASSOC);
+        if (!$target || $parsed === null) {
+            setFlash('error', 'गलत user वा भूमिका।');
+        } elseif (function_exists('admin_db_role_is_superadmin') && admin_db_role_is_superadmin((string)$target['role'])) {
+            setFlash('error', 'Super Admin को भूमिका यहाँबाट बदल्न मिल्दैन।');
+        } else {
+            $db->prepare('UPDATE admin_users SET role = ?, custom_role_id = ? WHERE id = ?')->execute([$parsed[0], $parsed[1], $aid]);
+            $label = $parsed[1] !== null ? (string)$customRoles[$parsed[1]] : ucfirst($parsed[0]);
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog('admin_role_assign', $target['username'] . ' → ' . $label, 'admin_user', $aid);
+            }
+            setFlash('success', '"' . htmlspecialchars((string)$target['username']) . '" को भूमिका: ' . htmlspecialchars($label) . ' (अर्को पेज खोल्दा लागू हुन्छ)।');
+        }
+        redirect('manage-admins.php');
+    }
+
     if ($action === 'reset_password') {
         $targetId    = (int)($_POST['target_id']      ?? 0);
         $newPass     = $_POST['new_password']          ?? '';
@@ -428,6 +468,11 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                     <span class="badge rounded-pill ma-role-badge ma-role-super">
                                         <i class="lucide-icon me-1" data-lucide="crown" aria-hidden="true"></i>Super Admin
                                     </span>
+                                    <?php else:
+                                        $admCustom = (int)($adm['custom_role_id'] ?? 0);
+                                        $admRoleVal = $admCustom > 0 && isset($customRoles[$admCustom]) ? 'custom:' . $admCustom : (string)$adm['role']; ?>
+                                    <?php if ($admRoleVal !== (string)$adm['role']): ?>
+                                    <span class="badge rounded-pill ma-role-badge ma-role-custom"><i class="lucide-icon me-1" data-lucide="shield-check" aria-hidden="true"></i><?php echo htmlspecialchars((string)$customRoles[$admCustom]); ?></span>
                                     <?php elseif ($adm['role'] === 'admin'): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-role-admin">
                                         <i class="lucide-icon me-1" data-lucide="shield-user" aria-hidden="true"></i>Admin
@@ -436,6 +481,19 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                     <span class="badge rounded-pill bg-secondary">
                                         <i class="lucide-icon me-1" data-lucide="pen" aria-hidden="true"></i>Editor
                                     </span>
+                                    <?php endif; ?>
+                                    <form method="post" class="mt-1 ma-role-form">
+                                        <?php echo csrfField(); ?>
+                                        <input type="hidden" name="action" value="assign_role">
+                                        <input type="hidden" name="admin_id" value="<?php echo (int)$adm['id']; ?>">
+                                        <select name="role" class="form-select form-select-sm" aria-label="भूमिका बदल्नुहोस् — <?php echo htmlspecialchars((string)$adm['username']); ?>" onchange="if (confirm('भूमिका बदल्ने?')) this.form.submit(); else this.value = this.dataset.cur;" data-cur="<?php echo htmlspecialchars($admRoleVal); ?>">
+                                            <option value="admin"<?php echo $admRoleVal === 'admin' ? ' selected' : ''; ?>>Admin</option>
+                                            <option value="editor"<?php echo $admRoleVal === 'editor' ? ' selected' : ''; ?>>Editor</option>
+                                            <?php if ($customRoles): ?><optgroup label="भूमिका (अनुमति matrix)"><?php foreach ($customRoles as $crId => $crName): ?>
+                                            <option value="custom:<?php echo (int)$crId; ?>"<?php echo $admRoleVal === 'custom:' . (int)$crId ? ' selected' : ''; ?>><?php echo htmlspecialchars((string)$crName); ?></option>
+                                            <?php endforeach; ?></optgroup><?php endif; ?>
+                                        </select>
+                                    </form>
                                     <?php endif; ?>
                                 </td>
 
@@ -742,7 +800,12 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 <select name="role" id="ma_role" class="form-select">
                                     <option value="admin">Admin — सबै काम गर्न सक्छ</option>
                                     <option value="editor">Editor — content मात्र edit गर्न सक्छ</option>
+                                    <?php if ($customRoles): ?><optgroup label="भूमिका (अनुमति matrix)"><?php foreach ($customRoles as $crId => $crName): ?>
+                                    <option value="custom:<?php echo (int)$crId; ?>"><?php echo htmlspecialchars((string)$crName); ?></option>
+                                    <?php endforeach; ?></optgroup><?php endif; ?>
                                 </select>
+                            </div>
+                            <div class="form-text"><a href="admin-roles.php">भूमिका र अनुमति</a> मा menu अनुसार हेर्ने/थप्ने/सम्पादन/हटाउने तोक्नुहोस्।
                             </div>
                         </div>
 

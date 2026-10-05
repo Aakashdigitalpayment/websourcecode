@@ -90,7 +90,7 @@ if (!function_exists('kycExportAmlLabelMap')) {
     function kycExportHeaders(): array
     {
         $base = [
-            'ID', 'Tracking ID', 'Member ID', 'Full Name', 'Full Name EN',
+            'ID', 'Tracking ID', 'Member ID', 'मासिक बचत', 'Full Name', 'Full Name EN',
             'DOB BS', 'DOB AD', 'Gender', 'Marital Status', 'Nationality',
             'Mobile', 'Email', 'Permanent Address', 'Temporary Address',
             'Perm Province', 'Perm District', 'Perm Municipality', 'Perm Ward', 'Perm Tole',
@@ -154,6 +154,8 @@ if (!function_exists('kycExportAmlLabelMap')) {
             (string)(int)($row['id'] ?? 0),
             $track,
             (string)($row['member_id'] ?? ''),
+            /* from the linked member (SSOT) — joined in the export query */
+            coop_monthly_saving_label(coop_monthly_saving_from_db($row['ms_member'] ?? null)),
             (string)($row['full_name'] ?? ''),
             (string)($row['full_name_en'] ?? ''),
             (string)($row['dob_bs'] ?? ''),
@@ -740,16 +742,30 @@ if ($exportMode === 'csv' || $exportMode === 'excel') {
         exit;
     }
     $exportId = (int)($_GET['id'] ?? 0);
+    /* मासिक बचत comes from the linked member (SSOT). If that sub-select fails on an older
+       DB (e.g. collation mismatch), fall back to the plain export rather than failing it. */
+    if (function_exists('coop_monthly_saving_ensure_column')) {
+        coop_monthly_saving_ensure_column($db);
+    }
+    $kycExportSelect = static function (string $tail, array $bind) use ($db): array {
+        $ms = '(SELECT m.' . COOP_MONTHLY_SAVING_COL . ' FROM members m WHERE m.sadasyata_number = kyc_applications.member_id'
+            . " AND kyc_applications.member_id <> '' ORDER BY m.id LIMIT 1) AS ms_member";
+        try {
+            $st = $db->prepare('SELECT kyc_applications.*, ' . $ms . ' FROM kyc_applications ' . $tail);
+            $st->execute($bind);
+        } catch (Throwable $eMs) {
+            error_log('[kyc-export] monthly saving join skipped: ' . $eMs->getMessage());
+            $st = $db->prepare('SELECT * FROM kyc_applications ' . $tail);
+            $st->execute($bind);
+        }
+        return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    };
     try {
         if ($exportId > 0) {
-            $ex = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
-            $ex->execute([$exportId]);
-            $exportRows = $ex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $exportRows = $kycExportSelect('WHERE id=? LIMIT 1', [$exportId]);
             $fname = 'kyc-' . $exportId . '-' . date('Ymd-His') . '.csv';
         } else {
-            $ex = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT 10000");
-            $ex->execute($params2);
-            $exportRows = $ex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $exportRows = $kycExportSelect('WHERE ' . $where . ' ORDER BY created_at DESC LIMIT 10000', $params2);
             $fname = 'kyc-export-' . date('Ymd-His') . '.csv';
             if ($dateFrom !== '' || $dateTo !== '') {
                 $fname = 'kyc-' . ($dateFrom !== '' ? $dateFrom : 'start') . '_to_' . ($dateTo !== '' ? $dateTo : 'end') . '-' . date('His') . '.csv';

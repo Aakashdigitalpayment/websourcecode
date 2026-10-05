@@ -56,5 +56,12 @@ $deskSrc = $read('admin/program-registration-desk.php');
 check(str_contains($deskSrc, 'मासिक बचत (हाल)') && str_contains($deskSrc, 'बदल्नुहोस्'), 'desk separates current value from change buttons');
 check(str_contains($read('assets/css/admin-ux-deep-patch.css'), '.ms-choice .btn-check:checked + .ms-opt--yes'), 'shared ms-opt checked styles');
 
+$view = memberImportFieldUpdateView(['total' => 4, 'changed' => 1, 'unchanged' => 1, 'blank' => 0, 'not_found' => 1, 'invalid' => 1,
+    'problems' => [[3, 'X-1', '1', 'Member ID सिस्टममा छैन'], [4, 'M-1', 'maybe', 'monthly_saving गलत']]]);
+check($view['success_pct'] === 50.0 && $view['counts']['not_found']['pct'] === 25.0, 'field-update view: % of rows per outcome');
+check($view['problems_total'] === 2 && $view['problems'][1]['reason'] !== '', 'field-update view: problem rows with reason');
+$imp = $read('admin/member-import.php');
+check(str_contains($imp, "ajaxAction === 'field_update'") && str_contains($imp, 'xhr.upload.onprogress'), 'field-update shows upload % and result on page (AJAX)');
+
 echo "\n{$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);

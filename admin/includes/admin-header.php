@@ -462,6 +462,12 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></span>
                                 </a>
                             </li>
+                            <li class="<?php echo $currentPage === 'admin-roles' ? 'active' : ''; ?>">
+                                <a href="admin-roles.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i></span>
+                                    <span><?php echo $adminT('भूमिका र अनुमति', 'Roles & Permissions'); ?></span>
+                                </a>
+                            </li>
                             <li class="<?php echo $currentPage === 'menu-control' ? 'active' : ''; ?>">
                                 <a href="menu-control.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
@@ -1124,6 +1130,25 @@ set_exception_handler(function (\Throwable $ex) {
                 </a>
             </div>
         </aside>
+        <?php $__navAllowed = function_exists('coop_perm_allowed_menu_pages') ? coop_perm_allowed_menu_pages() : null; if ($__navAllowed !== null): ?>
+        <script>
+        /* Custom role: hide menus the role cannot open (UX only — admin-page-boot enforces on the server) */
+        (function () {
+          var ok = <?php echo json_encode($__navAllowed); ?>;
+          var nav = document.querySelector('aside.sidebar');
+          if (!nav) return;
+          nav.querySelectorAll('a[href]').forEach(function (a) {
+            var h = (a.getAttribute('href') || '').split(/[?#]/)[0].split('/').pop();
+            if (!/\.php$/.test(h) || ok.indexOf(h) !== -1) return;
+            var li = a.closest('li');
+            (li || a).remove();
+          });
+          nav.querySelectorAll('.nav-group-wrap').forEach(function (g) {
+            if (!g.querySelector('.nav-submenu li')) g.remove();
+          });
+        })();
+        </script>
+        <?php endif; unset($__navAllowed); ?>
 
         <!-- Main Content -->
         <main id="main-content" class="main-content" tabindex="-1">
@@ -1291,6 +1316,7 @@ set_exception_handler(function (\Throwable $ex) {
                                 <?php else: ?>
                                     <!-- Superadmin — SA tools एउटै समूहमा पनि छन्; shortcut यहाँ -->
                                     <a href="manage-admins.php"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i> <?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></a>
+                                    <a href="admin-roles.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> <?php echo $adminT('भूमिका र अनुमति', 'Roles & Permissions'); ?></a>
                                     <a href="menu-control.php"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i> <?php echo $adminT('Menu Control', 'Menu Control'); ?></a>
                                     <a href="footer-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i> <?php echo $adminT('फुटर सेटिङ', 'Footer Settings'); ?></a>
                                     <a href="security-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> <?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></a>

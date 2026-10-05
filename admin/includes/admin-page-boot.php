@@ -63,6 +63,10 @@ if (empty($GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN']) && !defined('ADMIN_PAGE_BOOT_S
             require_role($__minRole);
         }
         unset($__minRole);
+        /* Custom roles: per-menu view / create / edit / delete (no-op for other users) */
+        if (function_exists('coop_perm_enforce_request')) {
+            coop_perm_enforce_request();
+        }
     }
     unset($__authRoles);
 }

@@ -275,7 +275,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     if (empty($username) || empty($password)) {
         $error = 'कृपया युजरनेम र पासवर्ड भर्नुहोस्।';
     } elseif (function_exists('checkLoginAttempts') && !checkLoginAttempts($username, $ip)) {
-        $error = 'धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुन: प्रयास गर्नुहोस्।';
+        /* Locks this account only — other staff on the same office network can still log in */
+        $error = 'यो युजरनेमबाट धेरै पटक गलत प्रयास भयो। १५ मिनेट पछि पुन: प्रयास गर्नुहोस् (अरू staff को login मा असर छैन)।';
     } else {
         try {
             $db = getDB();

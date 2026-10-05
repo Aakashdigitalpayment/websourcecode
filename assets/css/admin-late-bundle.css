@@ -5730,6 +5730,37 @@ body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !impo
 .ms-choice .btn-check:checked + .ms-opt--no    { background: #f59e0b !important; border-color: #d97706; color: #111827 !important; }
 .ms-choice .btn-check:checked + .ms-opt--unset { background: #475569 !important; border-color: #475569; color: #fff !important; }
 .ms-choice .btn-check:checked + .ms-opt::before { content: "✓"; margin-right: .35rem; font-weight: 800; }
+
+/* Member import — मासिक बचत field update progress + result */
+.fu-progress { margin-top: 1rem; }
+.fu-result { border: 1px solid #e2e8f0; border-radius: 12px; padding: .9rem 1rem; background: #f8fafc; }
+.fu-result-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem; margin-bottom: .6rem; font-size: 14px; }
+.fu-result-total { font-weight: 700; color: #166534; }
+.fu-stack { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: #e5e7eb; margin-bottom: .6rem; }
+.fu-seg { display: block; height: 100%; }
+.fu-seg--changed { background: #15803d; }
+.fu-seg--unchanged { background: #60a5fa; }
+.fu-seg--blank { background: #cbd5e1; }
+.fu-seg--notfound { background: #f59e0b; }
+.fu-seg--invalid { background: #dc2626; }
+.fu-legend { list-style: none; padding: 0 !important; margin: 0 0 .5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .3rem .9rem; font-size: 13.5px; }
+.fu-legend li { display: flex; align-items: center; gap: .45rem; }
+.fu-legend-label { color: #334155; flex: 1; }
+.fu-dot { display: inline-block; width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+.fu-problems-title { font-weight: 700; color: #991b1b; font-size: 13.5px; margin: .5rem 0 .35rem; }
+.fu-problems { max-height: 320px; overflow: auto; border: 1px solid #fecaca; border-radius: 8px; background: #fff; }
+.fu-problems thead th { position: sticky; top: 0; z-index: 1; }
+.fu-ok { color: #166534; font-weight: 700; font-size: 13.5px; }
+
+/* भूमिका र अनुमति — permission matrix */
+.roles-matrix-wrap { max-height: 65vh; overflow: auto; border: 1px solid #e2e8f0; border-radius: 10px; }
+.roles-matrix thead th { position: sticky; top: 0; z-index: 2; background: #f1f5f9 !important; }
+.roles-matrix .roles-group-row > * { background: #ecfdf5 !important; font-weight: 700 !important; color: #14532d !important; font-size: 13.5px !important; text-transform: none !important; }
+.roles-matrix tbody td .font-monospace { font-weight: 400; color: #64748b !important; font-size: 11.5px; }
+.roles-matrix td, .roles-matrix th { padding: .45rem .6rem !important; }
+.roles-matrix .form-check-input { width: 1.15em; height: 1.15em; margin: 0; cursor: pointer; }
+.roles-page .prog-row-actions { display: flex; gap: 6px; align-items: center; }
+.ma-role-custom { background: #ede9fe !important; color: #4c1d95 !important; border: 1px solid #c4b5fd; }
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */
