@@ -3241,6 +3241,16 @@ if (!function_exists('portalLangToggleUrl')) {
     }
 }
 
+if (!function_exists('coopLangSwitchUrl')) {
+    /** Same page + same query, only `lang` set — `href="?lang=en"` alone dropped ?id=… on detail pages. */
+    function coopLangSwitchUrl(string $lang): string {
+        $path = strtok((string)($_SERVER['REQUEST_URI'] ?? '/'), '?');
+        $q = $_GET;
+        $q['lang'] = $lang === 'en' ? 'en' : 'np';
+        return ($path === false || $path === '' ? '/' : $path) . '?' . http_build_query($q);
+    }
+}
+
 if (!function_exists('portalLangToggleBadge')) {
     function portalLangToggleBadge(): string {
         return isEnglish() ? 'NP' : 'EN';
