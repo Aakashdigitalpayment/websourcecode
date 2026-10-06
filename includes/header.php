@@ -1854,6 +1854,41 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
     </script>
     <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-mobile.js') : '6.9'; ?>" defer></script>
     <script>
+    /* Desktop: keep logo + main menu on one line. If the menu row still doesn't fit (wide logo,
+       long custom menus), step down: hide item icons (.nav-tight), smaller text (.nav-tighter),
+       and only as a last resort let it wrap (.nav-wrap) — never overlap the logo. */
+    (function () {
+        function fitNav() {
+            var nav = document.getElementById('mainNavV2');
+            var menu = nav && nav.querySelector('.nav-menu');
+            var brand = document.querySelector('.pfl-brand-area');
+            if (!menu) return;
+            nav.classList.remove('nav-tight', 'nav-tighter', 'nav-wrap');
+            if (window.innerWidth < 992) return;
+            var over = function () {
+                var items = Array.prototype.filter.call(menu.children, function (li) { return li.offsetParent; });
+                if (!items.length) return false;
+                var first = items[0].getBoundingClientRect(), last = items[items.length - 1].getBoundingClientRect();
+                var limitLeft = brand ? brand.getBoundingClientRect().right : 0;
+                return Math.abs(last.top - first.top) > 4                 /* wrapped */
+                    || first.left < limitLeft - 1                          /* runs under the logo */
+                    || last.right > document.documentElement.clientWidth;  /* runs off screen */
+            };
+            if (!over()) return;
+            nav.classList.add('nav-tight');
+            if (!over()) return;
+            nav.classList.add('nav-tighter');
+            if (!over()) return;
+            nav.classList.add('nav-wrap');
+        }
+        var t;
+        window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fitNav, 120); });
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fitNav); else fitNav();
+        window.addEventListener('load', fitNav);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
+    })();
+    </script>
+    <script>
     /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {
         function bindCascadeParents() {
