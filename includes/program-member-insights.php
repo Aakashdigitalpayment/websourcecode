@@ -342,3 +342,179 @@ if (!function_exists('programDesksForProgram')) {
         return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
+
+if (!function_exists('programBreakdownFilterSpec')) {
+    /**
+     * Drill-down filters for the attendance breakdown (gender / staff / desk / location / method /
+     * मासिक बचत / search). Keys match the 'key' of each breakdown row so a click = a filter.
+     *
+     * @return array{gender:string,staff:string,desk:string,location:string,method:string,ms:string,q:string}
+     */
+    function programBreakdownFilterSpec(array $src): array
+    {
+        $f = [];
+        foreach (['gender', 'staff', 'desk', 'location', 'method', 'ms', 'q'] as $k) {
+            $f[$k] = mb_substr(trim((string)($src[$k] ?? '')), 0, 120);
+        }
+        if (!in_array($f['gender'], ['', 'male', 'female', 'other', 'unknown'], true)) $f['gender'] = '';
+        if ($f['staff'] !== '' && !ctype_digit($f['staff'])) $f['staff'] = '';
+        if ($f['desk'] !== '' && !ctype_digit($f['desk'])) $f['desk'] = '';
+        if (!in_array($f['ms'], ['', '1', '0', 'none'], true)) $f['ms'] = '';
+        return $f;
+    }
+}
+
+if (!function_exists('programBreakdownBaseSql')) {
+    /**
+     * FROM + WHERE shared by the summary groups and the detail list, with filters applied.
+     *
+     * @return array{0:string,1:list<mixed>,2:string} [fromWhereSql, params, genderExpr]
+     */
+    function programBreakdownBaseSql(PDO $db, int $scopeId, array $f): array
+    {
+        $kyc = programKycJoinParts($db);
+        $g = 'LOWER(TRIM(' . $kyc['gender'] . '))';
+        $sql = "FROM member_program_attendance a
+                LEFT JOIN members m ON m.id = a.member_id
+                {$kyc['join']}
+                LEFT JOIN program_registration_desks d ON d.id = a.desk_id
+                LEFT JOIN program_occurrences o ON o.id = d.occurrence_id
+                LEFT JOIN admin_users u ON u.id = a.staff_admin_id
+                WHERE a.attendance_scope_key = ? AND a.attendance_status = 'VALID'";
+        $p = [$scopeId];
+        $gm = ['male' => ['male', 'm', 'man', 'पुरुष', 'purush', 'purus', 'boy'],
+               'female' => ['female', 'f', 'woman', 'महिला', 'mahila', 'स्त्री', 'girl'],
+               'other' => ['other', 'o', 'others', 'अन्य', 'third', 'third gender', 'तेस्रो लिङ्गी']];
+        if ($f['gender'] !== '') {
+            if ($f['gender'] === 'unknown') {
+                $all = array_merge(...array_values($gm));
+                $sql .= " AND ({$g} = '' OR {$g} NOT IN (" . implode(',', array_fill(0, count($all), '?')) . '))';
+                $p = array_merge($p, $all);
+            } else {
+                $sql .= " AND {$g} IN (" . implode(',', array_fill(0, count($gm[$f['gender']]), '?')) . ')';
+                $p = array_merge($p, $gm[$f['gender']]);
+            }
+        }
+        if ($f['staff'] !== '') {
+            $sql .= $f['staff'] === '0' ? ' AND (a.staff_admin_id IS NULL OR a.staff_admin_id = 0)' : ' AND a.staff_admin_id = ?';
+            if ($f['staff'] !== '0') $p[] = (int)$f['staff'];
+        }
+        if ($f['desk'] !== '') {
+            $sql .= $f['desk'] === '0' ? ' AND (a.desk_id IS NULL OR a.desk_id = 0)' : ' AND a.desk_id = ?';
+            if ($f['desk'] !== '0') $p[] = (int)$f['desk'];
+        }
+        if ($f['location'] !== '') {
+            $sql .= " AND COALESCE(NULLIF(a.location_label,''), 'मुख्य स्थान') = ?";
+            $p[] = $f['location'];
+        }
+        if ($f['method'] !== '') {
+            $sql .= ' AND a.attendance_method = ?';
+            $p[] = $f['method'];
+        }
+        if ($f['ms'] !== '' && function_exists('coop_monthly_saving_ensure_column')) {
+            coop_monthly_saving_ensure_column($db);
+            $col = 'm.' . COOP_MONTHLY_SAVING_COL;
+            $sql .= $f['ms'] === 'none' ? " AND {$col} IS NULL" : " AND {$col} = " . (int)$f['ms'];
+        }
+        if ($f['q'] !== '') {
+            $sql .= ' AND (a.member_card_no LIKE ? OR m.name LIKE ? OR m.phone LIKE ?)';
+            $like = '%' . $f['q'] . '%';
+            array_push($p, $like, $like, $like);
+        }
+        return [$sql, $p, $kyc['gender']];
+    }
+}
+
+if (!function_exists('programAttendanceBreakdownFiltered')) {
+    /**
+     * Same groups as programAttendanceBreakdown(), each row with a 'key' usable as a filter value.
+     *
+     * @return array<string, list<array{key:string,label:string,count:int}>>
+     */
+    function programAttendanceBreakdownFiltered(PDO $db, int $scopeId, array $f): array
+    {
+        $out = ['gender' => [], 'desk' => [], 'staff' => [], 'method' => [], 'location' => []];
+        if ($scopeId < 1) return $out;
+        [$base, $p, $gExpr] = programBreakdownBaseSql($db, $scopeId, $f);
+        $q = static function (string $sel, string $group) use ($db, $base, $p): array {
+            $st = $db->prepare("SELECT {$sel}, COUNT(*) AS c {$base} GROUP BY {$group} ORDER BY c DESC");
+            $st->execute($p);
+            return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        };
+        $g = ['male' => 0, 'female' => 0, 'other' => 0, 'unknown' => 0];
+        foreach ($q("{$gExpr} AS gender_raw", 'gender_raw') as $r) {
+            $g[programGenderKey($r['gender_raw'] ?? '')] += (int)$r['c'];
+        }
+        foreach ($g as $k => $c) {
+            if ($c > 0) $out['gender'][] = ['key' => $k, 'label' => programGenderLabel($k), 'count' => $c];
+        }
+        foreach ($q('a.desk_id, d.desk_label, o.location_name', 'a.desk_id, d.desk_label, o.location_name') as $r) {
+            $id = (int)($r['desk_id'] ?? 0);
+            $out['desk'][] = ['key' => (string)$id, 'count' => (int)$r['c'], 'label' => $id > 0
+                ? (string)($r['desk_label'] ?: 'Desk #' . $id) . (!empty($r['location_name']) ? ' — ' . $r['location_name'] : '')
+                : 'Desk नतोकिएको (QR / approve / default)'];
+        }
+        try {
+            foreach ($q('a.staff_admin_id, u.full_name, u.username', 'a.staff_admin_id, u.full_name, u.username') as $r) {
+                $id = (int)($r['staff_admin_id'] ?? 0);
+                $out['staff'][] = ['key' => (string)$id, 'count' => (int)$r['c'], 'label' => $id > 0
+                    ? trim((string)($r['full_name'] ?: $r['username'] ?: 'Admin #' . $id)) . (!empty($r['username']) ? ' (@' . $r['username'] . ')' : '')
+                    : 'Staff बिना (सदस्य आफैं / QR)'];
+            }
+        } catch (Throwable $e) {
+            error_log('[program-insights] staff breakdown: ' . $e->getMessage());
+        }
+        foreach ($q('a.attendance_method', 'a.attendance_method') as $r) {
+            $out['method'][] = ['key' => (string)($r['attendance_method'] ?? ''), 'label' => programAttendanceMethodLabel($r['attendance_method'] ?? ''), 'count' => (int)$r['c']];
+        }
+        foreach ($q("COALESCE(NULLIF(a.location_label,''), 'मुख्य स्थान') AS loc", 'loc') as $r) {
+            $out['location'][] = ['key' => (string)$r['loc'], 'label' => (string)$r['loc'], 'count' => (int)$r['c']];
+        }
+        if (function_exists('coop_monthly_saving_ensure_column')) {
+            coop_monthly_saving_ensure_column($db);
+            $out['ms'] = [];
+            try {
+                foreach ($q('m.' . COOP_MONTHLY_SAVING_COL . ' AS ms', 'ms') as $r) {
+                    $v = coop_monthly_saving_from_db($r['ms']);
+                    $out['ms'][] = ['key' => $v === null ? 'none' : (string)$v, 'label' => coop_monthly_saving_label($v), 'count' => (int)$r['c']];
+                }
+            } catch (Throwable $e) {
+                error_log('[program-insights] monthly saving breakdown: ' . $e->getMessage());
+            }
+        }
+        return $out;
+    }
+}
+
+if (!function_exists('programAttendanceDetailRows')) {
+    /**
+     * Who attended (with filters): one row per attendance. $limit 0 = all (export).
+     *
+     * @return array{total:int, rows:list<array<string,mixed>>}
+     */
+    function programAttendanceDetailRows(PDO $db, int $scopeId, array $f, int $limit = 0, int $offset = 0): array
+    {
+        if ($scopeId < 1) return ['total' => 0, 'rows' => []];
+        [$base, $p, $gExpr] = programBreakdownBaseSql($db, $scopeId, $f);
+        $ms = 'NULL';
+        if (function_exists('coop_monthly_saving_ensure_column')) {
+            coop_monthly_saving_ensure_column($db);
+            $ms = 'm.' . COOP_MONTHLY_SAVING_COL;
+        }
+        $hasFather = str_contains(programKycJoinParts($db)['join'], 'kyc_applications');
+        $st = $db->prepare("SELECT COUNT(*) {$base}");
+        $st->execute($p);
+        $total = (int)$st->fetchColumn();
+        $sql = "SELECT a.id, a.member_card_no, m.name, m.phone, m.address, {$gExpr} AS gender_raw,
+                       " . ($hasFather ? "COALESCE(k.father_name,'')" : "''") . " AS father_name, {$ms} AS monthly_saving,
+                       COALESCE(NULLIF(a.location_label,''), 'मुख्य स्थान') AS loc, a.desk_id, d.desk_label,
+                       a.staff_admin_id, u.full_name AS staff_name, u.username AS staff_user, a.attendance_method, a.attended_at
+                {$base} ORDER BY a.attended_at ASC, a.id ASC";
+        if ($limit > 0) {
+            $sql .= ' LIMIT ' . (int)$limit . ' OFFSET ' . max(0, (int)$offset);
+        }
+        $st = $db->prepare($sql);
+        $st->execute($p);
+        return ['total' => $total, 'rows' => $st->fetchAll(PDO::FETCH_ASSOC) ?: []];
+    }
+}
