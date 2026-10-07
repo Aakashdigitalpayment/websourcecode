@@ -206,7 +206,7 @@ $loanTypes = [
                             <div class="text-muted small mb-1">
                                 <?php echo isEnglish() ? 'Total Interest' : 'कुल ब्याज'; ?>
                             </div>
-                            <div class="fw-bold text-warning" style="font-size:1.4rem;" id="resInterest">—</div>
+                            <div class="fw-bold emi-interest" style="font-size:1.4rem;" id="resInterest">—</div>
                             <div class="small text-muted" id="resInterestPct"></div>
                         </div>
                     </div>
@@ -547,7 +547,7 @@ function renderTable(yearly) {
                 <td class="small">${row.label}</td>
                 <td class="text-end">${fmtRsDec(row.emi)}</td>
                 <td class="text-end text-success">${fmtRsDec(row.principal)}</td>
-                <td class="text-end text-warning">${fmtRsDec(row.interest)}</td>
+                <td class="text-end emi-interest">${fmtRsDec(row.interest)}</td>
                 <td class="text-end ${row.balance < 1 ? 'text-success fw-bold' : ''}">${fmtRsDec(row.balance)}</td>
             `;
             tbody.appendChild(tr);
@@ -577,7 +577,7 @@ function renderTable(yearly) {
                 <td>${isEn ? 'Year ' + yr.year : 'वर्ष ' + yr.year} <small class="text-muted">(${yr.count} ${isEn ? 'months' : 'महिना'})</small></td>
                 <td class="text-end">${fmtRsDec(yr.emi)}</td>
                 <td class="text-end text-success">${fmtRsDec(yr.principal)}</td>
-                <td class="text-end text-warning">${fmtRsDec(yr.interest)}</td>
+                <td class="text-end emi-interest">${fmtRsDec(yr.interest)}</td>
                 <td class="text-end ${yr.balance < 1 ? 'text-success fw-bold' : ''}">${fmtRsDec(yr.balance)}</td>
             `;
             tbody.appendChild(tr);
@@ -590,7 +590,7 @@ function renderTable(yearly) {
         <td colspan="2" class="text-end fw-bold">${isEn ? 'TOTAL' : 'जम्मा'}</td>
         <td class="text-end fw-bold">${fmtRsDec(grandEmi)}</td>
         <td class="text-end fw-bold text-success">${fmtRsDec(grandPrincipal)}</td>
-        <td class="text-end fw-bold text-warning">${fmtRsDec(grandInterest)}</td>
+        <td class="text-end fw-bold emi-interest">${fmtRsDec(grandInterest)}</td>
         <td class="text-end">—</td>
     `;
     tfoot.appendChild(tftr);

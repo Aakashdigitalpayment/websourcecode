@@ -2486,7 +2486,6 @@ textarea:focus-visible,
   .call-to-action,
   .mobile-app-section,
   .app-download-section,
-  .form-header,
   .home-ip-preview-head,
   .card-header.appt-form-card-head,
   .card > .card-header.bg-primary,
@@ -2528,7 +2527,6 @@ textarea:focus-visible,
   .call-to-action,
   .mobile-app-section,
   .app-download-section,
-  .form-header,
   .home-ip-preview-head,
   .card-header.appt-form-card-head,
   .card > .card-header.bg-primary,
@@ -2567,7 +2565,6 @@ textarea:focus-visible,
   .auc2-hero-txt,
   .cta-section,
   .cta-block,
-  .form-header,
   .gradient-card-header
 ) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
   color: rgba(255, 255, 255, 0.92) !important;
@@ -2623,7 +2620,6 @@ body.dark-mode :is(
   .call-to-action,
   .mobile-app-section,
   .app-download-section,
-  .form-header,
   .home-ip-preview-head,
   .card-header.appt-form-card-head,
   .card > .card-header.bg-primary,
@@ -2667,7 +2663,6 @@ body.dark-mode :is(
   .call-to-action,
   .mobile-app-section,
   .app-download-section,
-  .form-header,
   .home-ip-preview-head,
   .card-header.appt-form-card-head,
   .card > .card-header.bg-primary,
@@ -2705,7 +2700,6 @@ body.dark-mode :is(
   .auc2-hero-txt,
   .cta-section,
   .cta-block,
-  .form-header,
   .gradient-card-header,
   .mobile-app-section
 ) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
@@ -2732,7 +2726,6 @@ body.dark-mode :is(
   .rates-header,
   .rates-header-modern,
   .rates-box-enhanced .rates-header,
-  .form-header,
   .gradient-card-header,
   .card-header.bg-gradient-primary,
   .card > .card-header.bg-primary
@@ -3778,6 +3771,144 @@ button.qh-item {
     display: inline !important;
     font-size: 0.72rem !important;
   }
+}
+
+/* Light chips inside dark heads keep their own ink — the white-text rule above
+   made «Pre-reg खुला» (white pill) white-on-white */
+.cp-card-head .cp-head-right .cp-open-badge.cp-open-badge,
+.cp-card-head .cp-head-right .cp-open-badge.cp-open-badge * {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* EMI calculator interest figures: Bootstrap text-warning yellow was unreadable on white */
+.emi-interest {
+  color: #b45309 !important;
+  -webkit-text-fill-color: #b45309 !important;
+}
+body.dark-mode .emi-interest {
+  color: #fbbf24 !important;
+  -webkit-text-fill-color: #fbbf24 !important;
+}
+
+/* ── Dark mode readability ───────────────────────────────────────
+   Dark mode turns text light, but these surfaces kept a hard-coded
+   white / pale background (light text on white), or the reverse
+   (dark text on a dark card). `html body.dark-mode` beats the
+   public looks (html[data-ui-look] .x) that load after this file. */
+html body.dark-mode :is(
+  .value-card, .hours-box, .hour-item, .cp-howto-card, .cp-tab:not(.active),
+  .ds-service-card:not(.active):not(.selected), .ds-coop-option:not(:has(input:checked)), .tracking-form,
+  .grievance-form-box, .account-form-box, .kyc-form-box, .vendor-form-card,
+  .claim-form-card, .claim-types-sidebar, .notices-body,
+  .report-quick-link, .profile-title-link
+) {
+  background: var(--bg-card, #1a2535) !important;
+  background-image: none !important;
+  border-color: var(--border-color, #2a3a50) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode :is(.hour-item, .ds-coop-option:not(:has(input:checked)), .tracking-form, .cp-tab:not(.active)) {
+  background: var(--bg-soft, #1f2a3a) !important;
+}
+html body.dark-mode .emi-table tfoot td,
+html body.dark-mode table tfoot td.fw-bold {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode .rates-note {
+  background: rgba(251, 191, 36, 0.12) !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode .rates-note :is(h5, h6, p, li, strong, span) {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode :is(.notices-body, .report-quick-link, .profile-title-link, .value-card) :is(a, span, h5, h6, p, small) {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode .notices-body .notice-meta {
+  color: var(--text-secondary, #b0bcc6) !important;
+  -webkit-text-fill-color: var(--text-secondary, #b0bcc6) !important;
+}
+/* dark cards whose text stayed dark */
+html body.dark-mode :is(.history-text p, .rate-card-enhanced .rate-name, .service-detail-card .service-features li) {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+/* brand-green text / outline buttons on dark surfaces → lighter brand ink */
+html body.dark-mode :is(.input-group-text, .section-badge),
+html body.dark-mode :is(.why-us-section, .app-features-section, .ct-quick-card) :is(.btn-outline-primary, .home-btn-outline-primary),
+html body.dark-mode .kyc-form-section .btn-outline-secondary {
+  color: var(--primary-on-dark, #9fc5a7) !important;
+  -webkit-text-fill-color: var(--primary-on-dark, #9fc5a7) !important;
+  border-color: var(--primary-on-dark, #9fc5a7) !important;
+}
+html body.dark-mode .input-group-text {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: var(--border-color, #2a3a50) !important;
+}
+html body.dark-mode .section-badge {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, transparent) !important;
+}
+/* white CTA buttons keep dark brand text */
+html body.dark-mode :is(.cta-section, .cta-buttons) .btn-light {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+}
+html body.dark-mode .ds-coop-option:has(input:checked) {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--bg-card, #1a2535)) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode .ds-coop-option:has(input:checked) span {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+/* form sections inside the public forms used a pale gradient */
+html body.dark-mode :is(.grievance-form, .appointment-form, .account-form, .digital-service-form, .kyc-form, .loan-form, .claim-form-card, .vendor-form-card, .kyc-form-box) .form-section {
+  background: var(--bg-soft, #1f2a3a) !important;
+  background-image: none !important;
+  border-color: var(--border-color, #2a3a50) !important;
+}
+html body.dark-mode .type-option input:not(:checked) + .type-box {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: var(--border-color, #2a3a50) !important;
+}
+html body.dark-mode .type-option input:checked + .type-box {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--bg-card, #1a2535)) !important;
+}
+html body.dark-mode .type-box :is(span, small, i, svg) {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+/* home notices list + tools "थप विवरण": hard-coded dark ink */
+html body.dark-mode .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content :is(h6, h6 a) {
+  color: var(--text-primary, #e8eef2) !important;
+  -webkit-text-fill-color: var(--text-primary, #e8eef2) !important;
+}
+html body.dark-mode .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta,
+html body.dark-mode .tools-widget-section .tools-mini-link .tools-mini-more {
+  color: var(--text-secondary, #b0bcc6) !important;
+  -webkit-text-fill-color: var(--text-secondary, #b0bcc6) !important;
+}
+/* «Pre-reg खुला» chip: dark-mode head rule forces white text → glass chip */
+html body.dark-mode .cp-card-head .cp-open-badge {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+/* white CTA buttons: in dark mode --primary-ink turns light → keep brand ink inside the CTA */
+html body.dark-mode .cta-section { --primary-ink: var(--primary-color, #1a5f2a); }
+html body.dark-mode .notices-section :is(.section-header, .section-header-unified) .section-badge {
+  color: var(--primary-on-dark, #9fc5a7) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, transparent) !important;
+}
+/* faint grey sub-labels on white: digital-services English name, downloads file-type chip */
+body:not(.dark-mode) .ds-service-card .ds-label small,
+body:not(.dark-mode) .download-info .file-type {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
 }
 /* ===== END ui-readability-safe-patch.css ===== */
 
