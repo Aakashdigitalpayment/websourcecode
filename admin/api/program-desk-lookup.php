@@ -4,6 +4,7 @@ header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
 /* config.php starts the admin session (coop_session); a bare session_start() here opens PHPSESSID and loses the login */
 require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../../includes/auth-roles.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';
 require_once __DIR__ . '/../../includes/program-member-insights.php';
@@ -122,6 +123,8 @@ echo json_encode([
         'attended_at' => (string)($existing['attended_at'] ?? ''),
         'method' => programAttendanceMethodLabel($existing['attendance_method'] ?? ''),
         'method_code' => (string)($existing['attendance_method'] ?? ''),
+        'attendance_id' => (int)$existing['id'],
+        'can_void' => programCanVoidAttendance($existing),
     ] + array_intersect_key(programAttendanceRecordedBy($db, $existing), ['by' => 1, 'desk' => 1]) : null,
     'window' => [
         'open' => !empty($window['ok']),

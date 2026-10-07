@@ -5064,3 +5064,91 @@ html[data-ui-look="harbor"] .section-header h2 {
     max-width: 20vw !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   READABILITY GUARD — a look that repaints a dark surface light
+   must also flip its text (white-on-white was unreadable).
+   Soft untouched. Checked with an automated contrast scan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Page hero breadcrumb: looks give .breadcrumb a light pill, but inside the
+   dark page banner its text is white → glass pill instead */
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(4px);
+}
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb a,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  opacity: 1 !important;
+}
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active {
+  opacity: 0.85 !important;
+}
+
+/* Contact page info card: Editorial / Airy paint it paper → dark ink */
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box {
+  color: var(--text-dark, #1f2937) !important;
+}
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, li),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, li) {
+  color: var(--text-dark, #1f2937) !important;
+  -webkit-text-fill-color: var(--text-dark, #1f2937) !important;
+}
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box :is(h4, h6),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box :is(h4, h6) {
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box > p,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box > p {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box .btn,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box .btn,
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box .btn :is(span, i),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box .btn :is(span, i) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* Inner-page CTA band (सेवा, ब्याज दर …): Airy / Harbor tint it light → dark ink */
+html[data-ui-look="airy"] body .cta-section.cta-section.cta-section.cta-section :is(h2, h3, .home-heading-unified),
+html[data-ui-look="harbor"] body .cta-section.cta-section.cta-section.cta-section :is(h2, h3, .home-heading-unified) {
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+html[data-ui-look="airy"] body .cta-section.cta-section.cta-section.cta-section :is(p, .cta-sub),
+html[data-ui-look="harbor"] body .cta-section.cta-section.cta-section.cta-section :is(p, .cta-sub) {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+html[data-ui-look="airy"] body .cta-section.cta-section.cta-section.cta-section .cta-content :is(.btn-light, .ir-cta-btn),
+html[data-ui-look="harbor"] body .cta-section.cta-section.cta-section.cta-section .cta-content :is(.btn-light, .ir-cta-btn) {
+  background: var(--primary-color, var(--primary)) !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+html[data-ui-look="airy"] body .cta-section.cta-section.cta-section.cta-section .cta-content .btn-outline-light,
+html[data-ui-look="harbor"] body .cta-section.cta-section.cta-section.cta-section .cta-content .btn-outline-light {
+  background: transparent !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+
+/* About → history "no photo" note: Editorial / Sharp make the box light */
+html[data-ui-look="editorial"] body:not(.dark-mode) .history-empty-photo-note,
+html[data-ui-look="sharp"] body:not(.dark-mode) .history-empty-photo-note {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}

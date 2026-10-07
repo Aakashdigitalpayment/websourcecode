@@ -590,6 +590,25 @@ if (!function_exists('voidProgramAttendance')) {
     }
 }
 
+if (!function_exists('programCanVoidAttendance')) {
+    /**
+     * Who may cancel (void) an attendance from the Registration Desk:
+     * admin+ any record; staff/editor only the ones they recorded themselves;
+     * custom roles need «हटाउने» on the desk menu.
+     */
+    function programCanVoidAttendance(array $row): bool
+    {
+        if (function_exists('coop_perm_current') && coop_perm_current() !== null) {
+            return coop_perm_can('program-registration-desk.php', 'd');
+        }
+        if (function_exists('current_admin_role') && function_exists('role_level') && role_level(current_admin_role()) >= role_level('admin')) {
+            return true;
+        }
+        $me = (int)($_SESSION['admin_id'] ?? 0);
+        return $me > 0 && (int)($row['staff_admin_id'] ?? 0) === $me;
+    }
+}
+
 if (!function_exists('programCountUniqueAttended')) {
     function programCountUniqueAttended(PDO $db, int $parentProgramId): int
     {

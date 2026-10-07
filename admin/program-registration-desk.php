@@ -73,14 +73,44 @@ if ($prog) {
     }
 }
 
+$voided = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'remove_attendance') {
+    /* गलत उपस्थिति रद्द — record stays (VOID + कारण + को/कहिले), member can be recorded again */
+    checkCSRF();
+    $attId = (int)($_POST['attendance_id'] ?? 0);
+    $reason = trim((string)($_POST['void_reason'] ?? ''));
+    $st = $db->prepare("SELECT a.*, m.name AS member_name FROM member_program_attendance a LEFT JOIN members m ON m.id = a.member_id
+                        WHERE a.id = ? AND a.attendance_status = 'VALID' LIMIT 1");
+    $st->execute([$attId]);
+    $row = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    $rowScope = $prog ? programResolveScopeId($prog, $occurrenceId) : 0;
+    if (!$row || $programId <= 0 || (int)$row['attendance_scope_key'] !== $rowScope) {
+        $error = 'यो कार्यक्रमको उपस्थिति record फेला परेन (पहिले नै रद्द भएको हुनसक्छ)।';
+    } elseif (!programCanVoidAttendance($row)) {
+        $error = 'अरूले दर्ता गरेको उपस्थिति रद्द गर्न admin अनुमति चाहिन्छ।';
+    } elseif ($reason === '') {
+        $error = 'रद्द गर्नुको कारण लेख्नुहोस्।';
+    } else {
+        $res = voidProgramAttendance($db, $attId, $myAdminId, 'Desk: ' . $reason);
+        if (!empty($res['ok'])) {
+            $voided = $row;
+        } else {
+            $error = $res['error_np'] ?? 'रद्द गर्न सकिएन।';
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confirm') {
     checkCSRF();
     $memberQuery = trim((string)($_POST['member_id_input'] ?? ''));
+    $lookedUp = trim((string)($_POST['lookup_q'] ?? ''));
     $member = null;
     if ($programId <= 0) {
         $error = 'कार्यक्रम छान्नुहोस्।';
     } elseif ($memberQuery === '') {
         $error = 'Member ID (सदस्यता नं.) राख्नुहोस्।';
+    } elseif ($lookedUp !== '' && strcasecmp($lookedUp, $memberQuery) !== 0) {
+        $error = 'Member ID बदलियो — सदस्य फेरि हेरेर (Lookup) मात्र Confirm गर्नुहोस्।';
     } elseif (!($member = programResolveMemberBySadasyata($db, $memberQuery))) {
         $error = 'Member ID "' . $memberQuery . '" सिस्टममा फेला परेन।';
     } elseif ($prog && (int)($prog['is_multi_location'] ?? 0) === 1 && $occurrenceId <= 0) {
@@ -151,6 +181,14 @@ if (function_exists('coopThemeLink')) {
     </div>
     <?php endif; ?>
 
+    <?php if ($voided): ?>
+    <div class="alert alert-warning mb-3" role="status">
+      <i class="lucide-icon me-1" data-lucide="undo-2" aria-hidden="true"></i>
+      <strong>उपस्थिति रद्द भयो:</strong> <?php echo htmlspecialchars((string)($voided['member_name'] ?? '')); ?> — <?php echo htmlspecialchars((string)($voided['member_card_no'] ?? '')); ?>.
+      कारण र रद्द गर्ने व्यक्ति audit मा राखियो। चाहिए फेरि दर्ता गर्न सकिन्छ।
+    </div>
+    <?php endif; ?>
+
     <?php if ($duplicate && $existingInfo): ?>
     <div class="desk-duplicate p-3 mb-3">
       <div class="fw-bold"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i> Already Attended</div>
@@ -189,6 +227,7 @@ if (function_exists('coopThemeLink')) {
     <form method="POST" id="deskForm">
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="confirm">
+      <input type="hidden" name="lookup_q" id="deskLookupQ" value="">
       <div class="row g-3 mb-3">
         <div class="col-md-6"><label class="form-label" for="deskProgram">कार्यक्रम *</label>
           <select name="program_id" id="deskProgram" class="form-select" required onchange="location.href='program-registration-desk.php?program_id='+this.value">
@@ -272,11 +311,20 @@ if (function_exists('coopThemeLink')) {
 
       <label class="form-label desk-member-id" for="deskMemberInput">Member ID (कार्ड / सदस्यता नं.) *</label>
       <input type="text" name="member_id_input" id="deskMemberInput" class="form-control form-control-lg desk-member-id mb-2" placeholder="कार्डमा भएको Member ID — उदा. AKS-2080-0001" autocomplete="off" autocapitalize="characters" autofocus required>
-      <div class="desk-kbd mb-3">Member ID टाइप गर्नुहोस् → auto lookup → Confirm · <kbd>Esc</kbd> clear</div>
+      <div class="desk-kbd mb-3">Member ID टाइप → <kbd>Enter</kbd> = सदस्य हेर्ने (दर्ता हुँदैन) → विवरण मिलेपछि <strong>Confirm</strong> (वा फेरि <kbd>Enter</kbd>) · <kbd>Esc</kbd> clear</div>
       <div class="d-flex gap-2">
         <button type="button" id="deskLookupBtn" class="btn btn-outline-primary btn-lg flex-fill">Lookup</button>
         <button type="submit" id="deskConfirmBtn" class="btn btn-success btn-lg flex-fill" disabled>Confirm Attendance</button>
       </div>
+    </form>
+    <form method="POST" id="deskVoidForm" class="d-none">
+      <?php echo csrfField(); ?>
+      <input type="hidden" name="action" value="remove_attendance">
+      <input type="hidden" name="program_id" value="<?php echo (int)$programId; ?>">
+      <input type="hidden" name="occurrence_id" value="<?php echo (int)$occurrenceId; ?>">
+      <input type="hidden" name="desk_id" value="<?php echo (int)$deskId; ?>">
+      <input type="hidden" name="attendance_id" value="">
+      <input type="hidden" name="void_reason" value="">
     </form>
 
   </div>
@@ -452,6 +500,33 @@ if (function_exists('coopThemeLink')) {
     addField(dl, 'स्थान', ex.location);
     addField(dl, 'समय', ex.attended_at);
     dupInfo.appendChild(dl);
+    if (ex.attendance_id) {
+      var act = document.createElement('div');
+      act.className = 'mt-2';
+      if (ex.can_void) {
+        var vb = document.createElement('button');
+        vb.type = 'button';
+        vb.className = 'btn btn-outline-danger btn-sm';
+        vb.textContent = '↶ गलत भएको हो? उपस्थिति रद्द गर्नुहोस्';
+        vb.addEventListener('click', function () {
+          var r = window.prompt('यो उपस्थिति किन रद्द गर्ने? (कारण अनिवार्य — audit मा रहन्छ)');
+          if (!r || !r.trim()) return;
+          var vf = document.getElementById('deskVoidForm');
+          vf.attendance_id.value = String(ex.attendance_id);
+          vf.void_reason.value = r.trim();
+          var oc = document.getElementById('deskOccurrence');
+          if (oc) vf.occurrence_id.value = oc.value || '0';
+          if (deskSel) vf.desk_id.value = deskSel.value || '0';
+          vb.disabled = true;
+          vf.submit();
+        });
+        act.appendChild(vb);
+      } else {
+        act.className = 'mt-2 small text-muted';
+        act.textContent = 'अरूले दर्ता गरेको — रद्द गर्न admin लाई भन्नुहोस्।';
+      }
+      dupInfo.appendChild(act);
+    }
     dupInfo.classList.remove('d-none');
   }
 
@@ -465,7 +540,12 @@ if (function_exists('coopThemeLink')) {
     deskSel.addEventListener('change', function () { localStorage.setItem(deskKey, deskSel.value); });
   }
 
-  function lookup(){
+  /* Enter never records by itself: it looks the member up and moves focus to Confirm;
+     the Confirm button (or Enter while it is focused) records. Typing again un-readies it. */
+  var readyFor = '';
+  var focusConfirm = false;
+  function lookup(fromEnter){
+    focusConfirm = fromEnter === true;
     var q = (input && input.value || '').trim();
     if (!q) { resetPreview(); return; }
     var pid = document.getElementById('deskProgram') ? document.getElementById('deskProgram').value : '';
@@ -485,6 +565,7 @@ if (function_exists('coopThemeLink')) {
           showInline((d.error_np || 'Lookup असफल।') + ' Confirm थिच्दा server ले फेरि जाँच गर्छ।', true);
           confirmBtn.disabled = false;
           lookupReady = true;
+          readyFor = q;
           return;
         }
         if (!d.ok) {
@@ -511,9 +592,11 @@ if (function_exists('coopThemeLink')) {
           confirmBtn.disabled = true;
           lookupReady = false;
         } else {
-          showInline('✓ दर्ता गर्न तयार — Enter थिच्नुहोस् वा Confirm', false);
+          showInline('✓ विवरण मिलाउनुहोस् — ठिक भए Confirm थिच्नुहोस् (वा फेरि Enter)', false);
           confirmBtn.disabled = false;
           lookupReady = true;
+          readyFor = q;
+          if (focusConfirm) confirmBtn.focus();
         }
       })
       .catch(function(){
@@ -522,21 +605,28 @@ if (function_exists('coopThemeLink')) {
         showInline('Lookup असफल (network)। Confirm थिच्दा server ले फेरि जाँच गर्छ।', true);
         confirmBtn.disabled = false;
         lookupReady = true;
+        readyFor = q;
       });
   }
 
   var submitting = false;
   if (form) form.addEventListener('submit', function(e){
     if (submitting) { e.preventDefault(); return; }
+    var cur = (input && input.value || '').trim();
+    if (!lookupReady || readyFor !== cur) { e.preventDefault(); lookup(true); return; }
+    var lq = document.getElementById('deskLookupQ');
+    if (lq) lq.value = readyFor;
     submitting = true;
     if (confirmBtn) confirmBtn.disabled = true;
   });
 
-  if (lookupBtn) lookupBtn.addEventListener('click', lookup);
+  if (lookupBtn) lookupBtn.addEventListener('click', function () { lookup(true); });
   if (input) {
     input.addEventListener('input', function(){
       this.value = this.value.toUpperCase();
       clearTimeout(lookupTimer);
+      lookupReady = false; readyFor = '';
+      if (confirmBtn) confirmBtn.disabled = true;
       if ((this.value || '').trim().length < 3) { resetPreview(); return; }
       lookupTimer = setTimeout(lookup, 450);
     });
@@ -544,10 +634,11 @@ if (function_exists('coopThemeLink')) {
       if (e.key === 'Escape') { this.value = ''; resetPreview(); this.focus(); e.preventDefault(); return; }
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (lookupReady && confirmBtn && !confirmBtn.disabled) {
-          if (form.requestSubmit) { form.requestSubmit(confirmBtn); } else { form.submit(); }
+        clearTimeout(lookupTimer);
+        if (lookupReady && readyFor === (this.value || '').trim() && confirmBtn && !confirmBtn.disabled) {
+          confirmBtn.focus(); /* card already shown — next Enter (on Confirm) records */
         } else {
-          lookup();
+          lookup(true);
         }
       }
     });
