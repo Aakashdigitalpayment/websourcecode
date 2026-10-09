@@ -86,6 +86,9 @@
   --radius-md:            10px;
   --radius-lg:            16px;
   --radius-pill:          999px;
+  /* component tokens shared by public / member / admin (single source) */
+  --card-radius:          12px;
+  --control-radius:       10px;
 
   /* ━━━ SPACING SCALE (4px base) ━━━ */
   --space-1:              4px;

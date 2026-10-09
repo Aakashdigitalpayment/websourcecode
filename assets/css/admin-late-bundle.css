@@ -3839,7 +3839,7 @@ body:not(.dark-mode) .download-info .file-type {
  */
 
 :root {
-  --admin-ux-radius: 12px;
+  --admin-ux-radius: var(--card-radius, 12px);
   --admin-ux-radius-sm: 8px;
   --admin-ux-shadow: 0 2px 12px rgba(15, 31, 23, 0.06);
   --admin-ux-shadow-hover: 0 6px 20px rgba(15, 31, 23, 0.1);
@@ -4935,7 +4935,7 @@ body[class*="admin-page-"] .modal .admin-fancy-input {
   font-family: var(--admin-font-body, 'Noto Sans Devanagari', system-ui, sans-serif) !important;
   font-size: max(0.9rem, 14px) !important;
   line-height: 1.4 !important;
-  min-height: 42px;
+  min-height: var(--adm-control-h, 40px);
 }
 
 body[class*="admin-page-"] .main-content textarea.form-control,
@@ -4947,7 +4947,7 @@ body[class*="admin-page-"] .modal textarea.admin-fancy-input {
 
 body[class*="admin-page-"] .main-content input[type="file"].form-control,
 body[class*="admin-page-"] .modal input[type="file"].form-control {
-  min-height: 42px;
+  min-height: var(--adm-control-h, 40px);
   padding-top: 0.5rem !important;
   padding-bottom: 0.5rem !important;
 }
@@ -4959,7 +4959,7 @@ body[class*="admin-page-"] .modal .form-select {
 
 body[class*="admin-page-"] .main-content .input-group-text,
 body[class*="admin-page-"] .modal .input-group-text {
-  min-height: 42px;
+  min-height: var(--adm-control-h, 40px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5688,7 +5688,7 @@ body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not
   align-items: center !important;
   justify-content: center !important;
   gap: 0.4rem !important;
-  min-height: 38px !important;
+  min-height: var(--adm-control-h, 40px) !important;
   width: auto;
   min-width: 0 !important;
   padding: 0 14px !important;
@@ -5697,7 +5697,7 @@ body[class*="admin-page-"]:not(.dark-mode) .main-content .btn:not(.btn-link):not
   line-height: 1.2 !important;
   border-width: 1px !important;   /* colour comes from the variant rules below (this rule is more specific) */
   border-style: solid !important;
-  border-radius: 8px !important;
+  border-radius: var(--control-radius, 10px) !important;
   box-shadow: none !important;
   white-space: nowrap;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease;
@@ -5902,7 +5902,8 @@ body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !impo
    same. Tokens: --primary-color / --text-on-primary (Admin Settings).
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --adm-form-radius: 10px;
+  --adm-form-radius: var(--control-radius, 10px);
+  --adm-control-h: 40px; /* one height for inputs, selects and buttons on every admin form / filter */
   --adm-form-border: color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #d7dedb);
   --adm-form-label: #1a2b22;
   --adm-form-muted: #5b6b62;
@@ -5964,6 +5965,7 @@ body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-s
   box-shadow: none;
   padding: 0.55rem 0.85rem !important;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: var(--adm-control-h) !important;
 }
 body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input)::placeholder {
   color: #93a09a !important;
@@ -6027,8 +6029,8 @@ body[class*="admin-page-"] :is(.main-content, .modal) form .form-check.form-swit
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  min-height: 42px;
-  padding: 0.45rem 0.85rem 0.45rem 0.85rem !important;
+  min-height: var(--adm-control-h);
+  padding: 0.4rem 0.85rem !important;
   margin: 0 0 0.6rem !important;
   border: 1px solid var(--adm-form-border);
   border-radius: var(--adm-form-radius);
@@ -6197,7 +6199,7 @@ body[class*="admin-page-"] .modal .modal-footer:has(.btn[type="submit"], .btn[fo
 /* primary save button — same size and weight on every form */
 body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) .btn[type="submit"]:not(.btn-sm):not(.adm-icon-btn):not(.btn-link):not(.btn-outline-danger):not(.btn-danger):not(.admin-bulk-btn):not(table *):not(.input-group *) {
   min-width: 9rem;
-  min-height: 42px;
+  min-height: var(--adm-control-h);
   padding: 0.55rem 1.4rem !important;
   font-weight: 600 !important;
   font-size: 0.9rem !important;
@@ -6227,8 +6229,8 @@ body[class*="admin-page-"] :is(.main-content, .modal) form .btn[type="submit"] :
 /* cancel / reset next to save: neutral outline, same height */
 body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) :is(.admin-form-actions, .prog-form-actions, .form-actions, .card-footer, .modal-footer) :is(.btn-outline-secondary, .btn-light, .btn-secondary, [type="reset"], .btn-cancel),
 body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) .btn[type="submit"]:not(.btn-sm) ~ :is(.btn-outline-secondary, .btn-light, .btn-secondary, [type="reset"], a.btn:not(.btn-success):not(.btn-primary)) {
-  min-height: 42px;
-  padding: 0.55rem 1.1rem !important;
+  min-height: var(--adm-control-h);
+  padding: 0.5rem 1.1rem !important;
   border-radius: var(--adm-form-radius) !important;
   font-weight: 600 !important;
   font-size: 0.9rem !important;
@@ -11807,4 +11809,7 @@ main section:has([data-aos]) {
   padding-top: var(--pub-section-y) !important;
   padding-bottom: var(--pub-section-y) !important;
 }
+
+/* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
+.card:not(.stat-card):not(.svc-flat-top-card):not(.sl-flat-top):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
 /* ===== END final-ui-polish.css ===== */

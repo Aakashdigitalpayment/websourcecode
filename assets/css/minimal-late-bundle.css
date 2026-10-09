@@ -9268,4 +9268,7 @@ main section:has([data-aos]) {
   padding-top: var(--pub-section-y) !important;
   padding-bottom: var(--pub-section-y) !important;
 }
+
+/* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
+.card:not(.stat-card):not(.svc-flat-top-card):not(.sl-flat-top):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
 /* ===== END final-ui-polish.css ===== */
