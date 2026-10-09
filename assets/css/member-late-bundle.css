@@ -2384,6 +2384,10 @@ body.verify-auth-page .vp-secure {
 .idcard-note-muted {
   color: #4b5563 !important;   /* on the amber note background #6b7280 was 4.47 */
 }
+
+/* Push-notification bell: state colour from a class, not inline style (Lucide's icon swap dropped it) */
+.mem-push-btn :is(.lucide-icon, svg.lucide) { color: #f59e0b !important; }
+.mem-push-btn.is-on :is(.lucide-icon, svg.lucide) { color: var(--primary-color, #1a5f2a) !important; }
 /* ===== END member-shell-polish.css ===== */
 
 /* ===== BEGIN lucide-icon-utils.css ===== */

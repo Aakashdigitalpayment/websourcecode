@@ -6399,6 +6399,55 @@ body[class*="admin-page-"] .main-content form[method="get" i] .btn:not(.btn-sm):
     max-width: 100% !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN SPACING RHYTHM — one gap token for every page
+   Audit (119 pages): outer padding 20/22px everywhere, but pages that
+   wrap content in .container-fluid added 14/10 or 24/24 more; block gaps
+   were 14 / 20 / 21 / 24 / 13 / 8 / 0 px. Now: page padding from
+   .page-content only, blocks 1rem apart, 1.5rem after a stat strip.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --adm-gap: 1rem;
+  --adm-gap-lg: 1.5rem;
+}
+body[class*="admin-page-"] .page-content > :is(.container-fluid, .container) {
+  padding: 0 !important;
+  max-width: none;
+}
+body[class*="admin-page-"] .page-content > :is(.container-fluid, .container) > *,
+body[class*="admin-page-"] .page-content:not(:has(> .container-fluid, > .container)) > * {
+  margin-bottom: var(--adm-gap) !important;
+}
+/* the main/last block ends the page; page-content padding closes it */
+body[class*="admin-page-"] .page-content > :is(.container-fluid, .container) > :last-child,
+body[class*="admin-page-"] .page-content:not(:has(> .container-fluid, > .container)) > :last-child {
+  margin-bottom: 0 !important;
+}
+/* stat strips get the larger step before the content */
+body[class*="admin-page-"] .page-content :is(.stat-mini-row, .stats-row, .admin-stat-grid, .row:has(> [class*="col"] > .stat-card)):not(:last-child) {
+  margin-bottom: var(--adm-gap-lg) !important;
+}
+/* tab bar sits flush on its content; hidden helpers take no space */
+body[class*="admin-page-"] .page-content :is(.nav-tabs, .admin-nav-tabs, .ds-tabs) {
+  margin-bottom: 0 !important;
+}
+body[class*="admin-page-"] .page-content > :is(.container-fluid, .container) > :is(script, style, template, .d-none, [hidden], input[type="hidden"], .visually-hidden, .modal, .toast-container, .offcanvas, .collapse:not(.show)),
+body[class*="admin-page-"] .page-content:not(:has(> .container-fluid, > .container)) > :is(script, style, template, .d-none, [hidden], input[type="hidden"], .visually-hidden, .modal, .toast-container, .offcanvas, .collapse:not(.show)) {
+  margin-bottom: 0 !important;
+}
+/* page header → first block: same step as everything else */
+body[class*="admin-page-"] .admin-page-header {
+  margin-bottom: var(--adm-gap) !important;
+}
+/* cards inside grids keep their row gutter; cards stacked in a column share the token */
+body[class*="admin-page-"] .page-content .row > [class*="col"] > .card:not(:last-child) {
+  margin-bottom: var(--adm-gap) !important;
+}
+@media (max-width: 575.98px) {
+  :root { --adm-gap: 0.85rem; --adm-gap-lg: 1.15rem; }
+  body[class*="admin-page-"] .page-content { padding: 0.85rem 0.75rem !important; }
+}
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */
