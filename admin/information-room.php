@@ -237,7 +237,7 @@ if ($editId > 0) {
 
 <div class="tab-content">
     <div class="tab-pane fade <?php echo $editRow ? '' : 'show active'; ?>" id="ir-list">
-        <div class="card admin-table-card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
+        <div class="card admin-table-card svc-flat-top-card">
             <div class="card-body p-0">
                 <form method="POST">
                     <?php echo csrfField(); ?>
@@ -334,7 +334,7 @@ if ($editId > 0) {
     </div>
 
     <div class="tab-pane fade <?php echo $editRow ? 'show active' : ''; ?>" id="ir-form">
-        <div class="card admin-table-card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
+        <div class="card admin-table-card svc-flat-top-card">
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data">
                     <?php echo csrfField(); ?>

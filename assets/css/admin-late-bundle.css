@@ -5892,6 +5892,452 @@ body[class*="admin-page-"] .main-content .badge.text-info { color: #055160 !impo
 .roles-matrix .form-check-input { width: 1.15em; height: 1.15em; margin: 0; cursor: pointer; }
 .roles-page .prog-row-actions { display: flex; gap: 6px; align-items: center; }
 .ma-role-custom { background: #ede9fe !important; color: #4c1d95 !important; border: 1px solid #c4b5fd; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN FORM SYSTEM — one look for every add / edit form
+   (main pages, tab panes and modals). Single source: change here only.
+   The frozen base has 30+ competing .form-label rules (one turns every
+   label uppercase via `.row.g-3 .form-label`), five form-header classes
+   and a dozen action-row markups — these rules make them all render the
+   same. Tokens: --primary-color / --text-on-primary (Admin Settings).
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --adm-form-radius: 10px;
+  --adm-form-border: color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #d7dedb);
+  --adm-form-label: #1a2b22;
+  --adm-form-muted: #5b6b62;
+  --adm-form-soft: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff);
+}
+
+/* 1. Labels — same size, weight, colour and case everywhere (no uppercase, no green/grey variants) */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label,
+body[class*="admin-page-"] :is(.main-content, .modal) label.form-label,
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label.small,
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label.text-success,
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label.text-muted,
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label.fw-bold,
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label.form-label-sm,
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.row.g-3, .row.g-2, .row.mb-3, .tab-content, .card, .modal-body) .form-label {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--adm-form-label) !important;
+  -webkit-text-fill-color: var(--adm-form-label) !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.4 !important;
+  margin-bottom: 0.4rem !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label > :is(.lucide-icon, svg.lucide, .fas, .far) {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  margin: 0 0.35rem 0 0 !important;
+  flex-shrink: 0;
+}
+/* required star — every page marks it differently */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label :is(.text-danger, .ntc-required, .required, .req) {
+  color: #c53030 !important;
+  -webkit-text-fill-color: #c53030 !important;
+  font-weight: 700;
+  margin-left: 0 !important;
+}
+/* optional / hint words inside a label */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-label :is(small, .text-muted, .fw-normal) {
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: var(--adm-form-muted) !important;
+  -webkit-text-fill-color: var(--adm-form-muted) !important;
+}
+
+/* 2. Controls — one height, radius and border */
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input):not(.form-control-sm):not(.form-select-sm):not(.form-control-color) {
+  border-radius: var(--adm-form-radius) !important;
+  border: 1px solid var(--adm-form-border) !important;
+  background-color: #fff !important;
+  color: #14201a !important;
+  box-shadow: none;
+  padding: 0.55rem 0.85rem !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input)::placeholder {
+  color: #93a09a !important;
+  opacity: 1;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input):focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent) !important;
+  outline: 0;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select)[disabled],
+body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select)[readonly] {
+  background-color: #f4f7f5 !important;
+  color: #4b5a52 !important;
+}
+/* input-group: the add-on and the field read as one control */
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > :is(.form-control, .form-select):not(:first-child) {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > :is(.form-control, .form-select):not(:last-child) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > .input-group-text,
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > .btn {
+  border-radius: 0 !important;
+  border-color: var(--adm-form-border) !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > :first-child {
+  border-top-left-radius: var(--adm-form-radius) !important;
+  border-bottom-left-radius: var(--adm-form-radius) !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > :last-child {
+  border-top-right-radius: var(--adm-form-radius) !important;
+  border-bottom-right-radius: var(--adm-form-radius) !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) .input-group > .input-group-text {
+  background: var(--adm-form-soft) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* 3. Help text under a field — one muted style (form-text, small.text-muted, page aliases) */
+body[class*="admin-page-"] :is(.main-content, .modal) form :is(.form-text, .help-block, small.text-muted, .small.text-muted, .ntc-muted, .tm-muted, .stg-muted, .sl-muted, .svc-muted, .form-hint) {
+  display: block;
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
+  color: var(--adm-form-muted) !important;
+  -webkit-text-fill-color: var(--adm-form-muted) !important;
+  margin-top: 0.3rem;
+  font-style: normal !important;
+  font-weight: 500 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-label :is(small, .small) {
+  display: inline;
+  margin-top: 0;
+}
+
+/* 4. Switches / checkboxes inside forms — same chip on every page (team, services, admins …) */
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-check.form-switch:has(> .form-check-label):not(table *):not(.adm-filter-bar *):not(.form-check-inline) {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 42px;
+  padding: 0.45rem 0.85rem 0.45rem 0.85rem !important;
+  margin: 0 0 0.6rem !important;
+  border: 1px solid var(--adm-form-border);
+  border-radius: var(--adm-form-radius);
+  background: var(--adm-form-soft);
+  font-size: 0.875rem !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-check.form-switch:not(table *) .form-check-input {
+  float: none !important;
+  margin: 0 !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-check.form-switch:not(table *) .form-check-label {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--adm-form-label) !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-check.form-switch:has(> .form-check-label):has(.form-check-input:checked):not(table *) {
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 40%, #d7dedb);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 9%, #fff);
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-check:not(.form-switch):not(table *) .form-check-label {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* 5. Form card header — the five page-specific header classes render as one */
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary),
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header,
+body[class*="admin-page-"] .modal .modal-header:is(.bg-primary, .bg-success, .gradient-card-header) {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a) 0%, color-mix(in srgb, var(--primary-color, #1a5f2a) 72%, #ffffff) 100%) !important;
+  color: var(--text-on-primary, #fff) !important;
+  border-bottom: 0 !important;
+  padding: 0.85rem 1.1rem !important;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary) :is(h1, h2, h3, h4, h5, h6, .card-title),
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header :is(h1, h2, h3, h4, h5, h6, .card-title),
+body[class*="admin-page-"] .modal .modal-header:is(.bg-primary, .bg-success, .gradient-card-header) .modal-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary) :is(h1, h2, h3, h4, h5, h6) :is(.lucide-icon, svg.lucide, .fas),
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header :is(h1, h2, h3, h4, h5, h6) :is(.lucide-icon, svg.lucide, .fas) {
+  width: 18px;
+  height: 18px;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  margin: 0 !important;
+}
+/* "back to list" / secondary buttons that sit in the header: glass look, white text */
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary) .btn,
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header .btn {
+  background: color-mix(in srgb, #fff 16%, transparent) !important;
+  border: 1px solid color-mix(in srgb, #fff 34%, transparent) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  font-weight: 600;
+  border-radius: 999px !important;
+  padding: 0.35rem 0.9rem !important;
+  box-shadow: none !important;
+}
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary) .btn :is(.lucide-icon, svg, .fas),
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header .btn :is(.lucide-icon, svg, .fas) {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-header-grad, .gradient-card-header, .sl-form-header, .appfeat-form-header, .gof-card-header, .ir-head-primary) .btn:is(:hover, :focus-visible),
+body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header .btn:is(:hover, :focus-visible) {
+  background: color-mix(in srgb, #fff 28%, transparent) !important;
+}
+/* a form card that follows a tab bar sits flush under it */
+body[class*="admin-page-"] .main-content .tab-content > .tab-pane > .card:first-child {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  margin-top: -1px;
+}
+body[class*="admin-page-"] .main-content .card > .card-body:has(> form) ,
+body[class*="admin-page-"] .main-content .card > .card-body > form {
+  padding-top: 0.25rem;
+}
+
+/* 6. Section titles inside a form — same as the public forms the site already uses */
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-section-title,
+body[class*="admin-page-"] :is(.main-content, .modal) form fieldset > legend,
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-section > :is(h4, h5, h6):first-child,
+body[class*="admin-page-"] :is(.main-content, .modal) form :is(h5, h6).border-bottom,
+body[class*="admin-page-"] :is(.main-content, .modal) form .col-12 > :is(h5, h6):only-child {
+  display: flex !important;
+  align-items: center;
+  gap: 0.6rem;
+  float: none;
+  width: 100%;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin: 0.25rem 0 0.9rem !important;
+  padding: 0 0 0.55rem !important;
+  border: 0 !important;
+  border-bottom: 2px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form :is(.form-section-title, fieldset > legend, .form-section > :is(h4, h5, h6):first-child, :is(h5, h6).border-bottom) > :is(.lucide-icon, svg.lucide, .fas, .far) {
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form fieldset,
+body[class*="admin-page-"] :is(.main-content, .modal) form .form-section {
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb) !important;
+  border-radius: var(--adm-form-radius) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 2.5%, #fff) !important;
+  padding: 1rem 1rem 0.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* 7. Action row (save / cancel) — one footer whatever markup the page used.
+      Only POST forms with real fields; GET filter bars are not touched. */
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) :is(.admin-form-actions, .prog-form-actions, .form-actions),
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]):has(textarea, input[type="file"], .form-switch, select.form-select) > :is(div, .d-flex, .text-end):not([class*="col-"]):not(.row):not(.input-group):not(.form-check):has(> .btn[type="submit"], > button:not([type])):last-child,
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]):has(textarea, input[type="file"], .form-switch, select.form-select) > .row > .col-12:has(> .btn[type="submit"]):last-child,
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]):has(textarea, input[type="file"], .form-switch, select.form-select) > .row > .col-12 > :is(div, .d-flex):has(> .btn[type="submit"]):only-child,
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) > .card-footer,
+body[class*="admin-page-"] .modal form .modal-footer,
+body[class*="admin-page-"] .modal .modal-footer:has(.btn[type="submit"], .btn[form]) {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 0.6rem !important;
+  margin-top: 1.25rem !important;
+  padding: 1rem 0 0 !important;
+  border: 0 !important;
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb) !important;
+  background: transparent !important;
+  text-align: left;
+}
+body[class*="admin-page-"] .modal .modal-footer:has(.btn[type="submit"], .btn[form]) {
+  padding: 0.85rem 1rem !important;
+  margin-top: 0 !important;
+  justify-content: flex-end !important;
+}
+/* primary save button — same size and weight on every form */
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) .btn[type="submit"]:not(.btn-sm):not(.adm-icon-btn):not(.btn-link):not(.btn-outline-danger):not(.btn-danger):not(.admin-bulk-btn):not(table *):not(.input-group *) {
+  min-width: 9rem;
+  min-height: 42px;
+  padding: 0.55rem 1.4rem !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  border-radius: var(--adm-form-radius) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+/* page-specific submit colours collapse to the brand button */
+body[class*="admin-page-"] :is(.main-content, .modal) form .btn[type="submit"]:is(.ntc-submit, .tm-btn-submit, .stg-save-btn, .btn-primary, .btn-success):not(.btn-sm):not(.btn-outline-primary):not(.btn-outline-success):not(table *) {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color, #1a5f2a) 24%, transparent);
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .btn[type="submit"]:is(.ntc-submit, .tm-btn-submit, .stg-save-btn, .btn-primary, .btn-success):not(.btn-sm):not(table *):is(:hover, :focus-visible) {
+  background: var(--primary-dark, color-mix(in srgb, var(--primary-color, #1a5f2a) 82%, #000)) !important;
+  border-color: var(--primary-dark, color-mix(in srgb, var(--primary-color, #1a5f2a) 82%, #000)) !important;
+}
+body[class*="admin-page-"] :is(.main-content, .modal) form .btn[type="submit"] :is(.lucide-icon, svg, .fas) {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  margin: 0 !important;
+}
+/* cancel / reset next to save: neutral outline, same height */
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) :is(.admin-form-actions, .prog-form-actions, .form-actions, .card-footer, .modal-footer) :is(.btn-outline-secondary, .btn-light, .btn-secondary, [type="reset"], .btn-cancel),
+body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) .btn[type="submit"]:not(.btn-sm) ~ :is(.btn-outline-secondary, .btn-light, .btn-secondary, [type="reset"], a.btn:not(.btn-success):not(.btn-primary)) {
+  min-height: 42px;
+  padding: 0.55rem 1.1rem !important;
+  border-radius: var(--adm-form-radius) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  background: #fff !important;
+  border: 1px solid var(--adm-form-border) !important;
+  color: #33453c !important;
+  -webkit-text-fill-color: #33453c !important;
+  box-shadow: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* 8. Page tabs (सूची | नयाँ थप्नुहोस् …) — every .nav-tabs gets the segmented look admin-nav-tabs already has */
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 0 !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb) !important;
+  border-bottom: 0 !important;
+  border-radius: var(--admin-ux-radius) var(--admin-ux-radius) 0 0;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #f8faf9);
+  scrollbar-width: thin;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-item {
+  margin: 0 !important;
+  flex: 0 0 auto;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: var(--adm-form-muted) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.95rem !important;
+  min-height: 40px;
+  margin: 0 !important;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link :is(.lucide-icon, svg.lucide, .fas) {
+  width: 16px;
+  height: 16px;
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+  margin: 0 !important;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link:is(:hover, :focus-visible) {
+  background: #fff !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link.active {
+  background: #fff !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 1px 4px rgba(15, 31, 23, 0.08), inset 0 -2px 0 var(--primary-color, #1a5f2a);
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link .badge {
+  font-size: 0.7rem;
+  padding: 0.2em 0.5em;
+}
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) + .tab-content > .tab-pane > .card:first-child,
+body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) + .tab-content > .tab-pane > .card.svc-flat-top-card {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+/* 9. Phone: stacked fields, full-width actions, tabs scroll sideways */
+@media (max-width: 575.98px) {
+  body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) :is(.admin-form-actions, .prog-form-actions, .form-actions, .card-footer) .btn,
+  body[class*="admin-page-"] :is(.main-content, .modal) form:not([method="get" i]) > :is(div, .d-flex):has(> .btn[type="submit"]):last-child .btn {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  body[class*="admin-page-"] .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+/* 10. Dark mode (admin) — same system, dark surfaces */
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) .form-label,
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) form .form-check.form-switch:not(table *) .form-check-label {
+  color: #e6ede9 !important;
+  -webkit-text-fill-color: #e6ede9 !important;
+}
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input) {
+  background-color: #182230 !important;
+  border-color: #2b3a4d !important;
+  color: #e6ede9 !important;
+}
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) form .form-check.form-switch:not(table *),
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) form :is(fieldset, .form-section),
+body[class*="admin-page-"].dark-mode :is(.main-content, .modal) .input-group > .input-group-text,
+body[class*="admin-page-"].dark-mode .main-content .nav-tabs:not(.admin-nav-tabs) {
+  background: #1f2a3a !important;
+  border-color: #2b3a4d !important;
+}
+body[class*="admin-page-"].dark-mode .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link.active,
+body[class*="admin-page-"].dark-mode .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link:is(:hover, :focus-visible) {
+  background: #182230 !important;
+}
 /* ===== END admin-ux-deep-patch.css ===== */
 
 /* ===== BEGIN final-ui-polish.css ===== */
