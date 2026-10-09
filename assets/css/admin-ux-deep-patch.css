@@ -2617,3 +2617,67 @@ body[class*="admin-page-"] .page-content .row > [class*="col"] > .card:not(:last
   :root { --adm-gap: var(--space-3, 0.75rem); --adm-gap-lg: var(--space-5, 1.25rem); }
   body[class*="admin-page-"] .page-content { padding: 0.85rem 0.75rem !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN SURFACE UNIFORMITY — badges, table heads, card headers, small buttons
+   Audit (40 pages): badges in 7 shapes (6px / pill, 22–30px, 9.5–12px text),
+   table <th> in 2, card headers in 2 paddings, .btn-sm in 3. One of each now.
+   ═══════════════════════════════════════════════════════════════════ */
+/* badges: one text size (readable floor), one weight, one padding; pills stay pills */
+body[class*="admin-page-"] .main-content .badge:not(.rounded-circle):not(.mem-notif-dot) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  padding: 0.3em 0.6em !important;
+  border-radius: 6px !important;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  vertical-align: middle;
+}
+body[class*="admin-page-"] .main-content .badge.rounded-pill:not(.rounded-circle),
+body[class*="admin-page-"] .main-content .nav-link .badge,
+body[class*="admin-page-"] .main-content .btn .badge {
+  border-radius: 999px !important;
+}
+body[class*="admin-page-"] .main-content .badge :is(.lucide-icon, svg.lucide, .fas) {
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
+  margin: 0 !important;
+}
+/* table heads: one height, size and weight */
+body[class*="admin-page-"] .main-content table.table thead th {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 0.8rem 0.95rem !important;
+  line-height: 1.3 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+/* card headers: one padding (gradient form headers keep theirs — set in the form system) */
+body[class*="admin-page-"] .main-content .card > .card-header:not(.svc-form-header-grad):not(.gradient-card-header):not(.sl-form-header):not(.appfeat-form-header):not(.gof-card-header):not(.ir-head-primary) {
+  padding: 0.85rem 1.1rem !important;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+body[class*="admin-page-"] .main-content .card > .card-header > :is(h1, h2, h3, h4, h5, h6, .card-title) {
+  margin: 0 !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+/* small buttons: one radius and height */
+body[class*="admin-page-"] .main-content .btn.btn-sm:not(.btn-link):not(.btn-close):not(.btn-check + .btn):not(.adm-icon-btn) {
+  min-height: 32px !important;
+  border-radius: calc(var(--control-radius, 10px) - 2px) !important;
+  font-size: 12.5px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
