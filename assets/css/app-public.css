@@ -72,8 +72,6 @@
 
     /* ── State Colors ── */
     --success: #28a745;
-    --danger:  #dc3545;
-    --warning: #ffc107;
 
     /* ── Spacing (consistent spacing) ── */
     --section-py: 60px;          /* section top/bottom padding */
@@ -368,7 +366,6 @@ body.page-loaded .page-loader {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
 }
 
 .loader-logo img {
@@ -382,8 +379,6 @@ body.page-loaded .page-loader {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
 }
 
 .loader-progress {
@@ -715,10 +710,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
         pointer-events: none;
     }
 
-    .nav-menu .has-dropdown.open > a i {
-        transform: rotate(180deg);
-    }
-
     /* Make parent dropdown link full width clickable */
     .nav-menu .has-dropdown > a {
         display: flex;
@@ -937,10 +928,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     font-size: 1.5rem;
 }
 
-.popup-body {
-    padding: 25px;
-}
-
 .popup-body h4 {
     color: var(--primary-color);
     margin-bottom: 15px;
@@ -1028,14 +1015,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 .slider-content h1 {
@@ -1176,11 +1155,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
    ============================================== */
 .section-padding {
     padding: 70px 0;
-}
-
-.section-header {
-    margin-bottom: 50px;
-    position: relative;
 }
 
 /* ── section-header h2 — pseudo dividers हटाइयो ──────────────────────────
@@ -1749,10 +1723,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     gap: 12px;
 }
 
-.rate-item:last-child {
-    border-bottom: none;
-}
-
 .rate-item:hover {
     background: rgba(26,95,42,0.04);
 }
@@ -2061,11 +2031,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     opacity: 0.5;
 }
 
-.app-content {
-    position: relative;
-    z-index: 1;
-}
-
 .app-content h2 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -2108,10 +2073,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     border-radius: 10px;
     text-decoration: none;
     transition: all 0.3s;
-}
-
-.app-btn i {
-    font-size: 28px;
 }
 
 .app-btn span {
@@ -2170,11 +2131,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     box-shadow: 0 20px 50px rgba(0,0,0,0.4);
 }
 
-.app-mockup i {
-    font-size: 80px;
-    color: rgba(255,255,255,0.3);
-}
-
 .app-image img + .app-mockup {
     display: none;
 }
@@ -2225,10 +2181,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
    ============================================== */
 .app-features-section {
     background: var(--white);
-}
-
-.section-badge-wrap {
-    margin-bottom: 15px;
 }
 
 .section-badge {
@@ -2459,10 +2411,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     from {
         opacity: 0;
         transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
     }
 }
 
@@ -3387,10 +3335,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     transition: opacity 0.3s;
 }
 
-.gallery-card:hover .gallery-overlay {
-    opacity: 1;
-}
-
 .gallery-overlay i {
     font-size: 30px;
     color: var(--white);
@@ -3579,12 +3523,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     box-shadow: 0 5px 20px rgba(46, 125, 50, 0.2);
 }
 
-.leader-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
 .photo-placeholder {
     width: 100%;
     height: 100%;
@@ -3607,10 +3545,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     color: var(--primary-color);
     font-size: 0.9rem;
     font-weight: 500;
-}
-
-.message-body {
-    position: relative;
 }
 
 .quote-icon {
@@ -4504,12 +4438,6 @@ textarea.form-control {
     position: relative;
 }
 
-.contact-social h6 {
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-    opacity: 0.9;
-}
-
 .contact-social a {
     display: inline-flex;
     align-items: center;
@@ -4521,12 +4449,6 @@ textarea.form-control {
     border-radius: 10px;
     margin-right: 10px;
     transition: all 0.3s ease;
-}
-
-.contact-social a:hover {
-    background: var(--white);
-    color: var(--primary-color);
-    transform: translateY(-3px);
 }
 
 /* Application Form Styles */
@@ -4816,7 +4738,6 @@ textarea.form-control {
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
 }
 
@@ -5656,11 +5577,6 @@ textarea.form-control {
     color: var(--white);
 }
 
-.report-info {
-    flex: 1;
-    margin-bottom: 15px;
-}
-
 .report-info h5 {
     font-size: 1rem;
     margin-bottom: 5px;
@@ -5908,17 +5824,6 @@ textarea.form-control {
 .empty-icon i {
     font-size: 40px;
     color: var(--primary-light);
-}
-
-.empty-state h4 {
-    color: var(--text-color);
-    margin-bottom: 10px;
-}
-
-.empty-state p {
-    color: var(--text-light);
-    max-width: 400px;
-    margin: 0 auto;
 }
 
 /* ==============================================
@@ -7215,21 +7120,6 @@ body.chatbot-open {
     box-shadow: 0 10px 30px rgba(26, 95, 42, 0.25);
 }
 
-.tool-widget-card:hover .widget-icon,
-.tool-widget-card.highlight-widget:hover .widget-icon {
-    background: var(--white) !important;
-}
-
-.tool-widget-card:hover .widget-icon i,
-.tool-widget-card.highlight-widget:hover .widget-icon i {
-    color: var(--primary-color) !important;
-}
-
-.tool-widget-card:hover h5,
-.tool-widget-card.highlight-widget:hover h5 {
-    color: var(--white) !important;
-}
-
 /* FIX: Text overflow on widget hover - ensure text doesn't get cut off */
 .tool-widget-card h5 {
     font-size: 0.9rem;
@@ -7295,11 +7185,6 @@ body.chatbot-open {
 /* ==============================================
    FIX: HEADER NAME - Center when 2 lines
    ============================================== */
-.logo-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
 
 .logo-name {
     font-size: 1.1rem;
@@ -7312,10 +7197,6 @@ body.chatbot-open {
 @media (max-width: 576px) {
     .logo-name {
         font-size: 0.95rem;
-        text-align: center;
-    }
-
-    .logo-text {
         text-align: center;
     }
 }
@@ -7687,10 +7568,6 @@ body.chatbot-open {
     color: var(--primary-color);
 }
 
-.tools-mini-link:hover span {
-    color: var(--primary-dark);
-}
-
 .tools-mini-link:hover .tools-mini-more {
     color: var(--primary-color);
     opacity: 1;
@@ -7709,12 +7586,6 @@ body.chatbot-open {
     font-weight: 700;
     letter-spacing: 0.02em;
     z-index: 2;
-}
-
-.tools-mini-link:hover i {
-    background: var(--primary-color);
-    color: var(--text-on-primary, #fff);
-    transform: scale(1.06);
 }
 
 @keyframes toolsIconSpin {
@@ -7921,13 +7792,6 @@ body.chatbot-open {
 
 .app-image {
     position: relative;
-}
-
-.app-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 0;
-    background: transparent;
 }
 
 .app-mockup {
@@ -8178,24 +8042,8 @@ input[readonly].nepali-datepicker:hover,
     opacity: 0.9;
 }
 
-.bar-good {
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
-}
-
-.bar-warning {
-    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-}
-
 .bar-danger {
     background: linear-gradient(90deg, #dc3545, var(--secondary-color));
-}
-
-.bar-info {
-    background: linear-gradient(90deg, var(--primary-light), var(--secondary-color));
-}
-
-.bar-teal {
-    background: linear-gradient(90deg, var(--primary-dark), var(--primary-color));
 }
 
 /* Homepage institutional card: tighter, cleaner, hover polish */
@@ -15324,9 +15172,7 @@ body.dark-mode .pfl-brand-area {
 }
 body.dark-mode .pfl-brand-area::before { background: #1c1c2e !important; }
 /* Dark mode: white blend-strip लाई dark navy मा बदल्ने (नत्र brand र nav बीचमा सेतो stripe देखिन्छ) */
-body.dark-mode .pfl-brand-area::after {
-    background: linear-gradient(to right, #1c1c2e 0%, rgba(28,28,46,0.7) 60%, transparent 100%) !important;
-}
+
 body.dark-mode .pfl-nav-area {
     background: transparent;
 }
@@ -17612,7 +17458,6 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     transition: transform .2s;
 }
 .share-btn.facebook  { background: #3b5998; }
-.share-btn.twitter   { background: #1da1f2; }
 .share-btn.whatsapp  { background: #25d366; }
 .share-btn:hover     { transform: scale(1.12); color: var(--white, #fff); }
 .news-navigation     { text-align: center; }
@@ -23019,11 +22864,6 @@ body.auth-page,
         color: #1f2937 !important;
         font-size: .86rem !important;
         font-weight: 640 !important;
-    }
-
-    html body.header-v2 #mainNavV2 .dropdown li + li,
-    html body.header-v2 #mainNavV2 .sub-menu li + li {
-        margin-top: 6px !important;
     }
 
     html body.header-v2 #mainNavV2 .dropdown li a i,

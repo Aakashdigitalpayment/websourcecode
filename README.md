@@ -77,6 +77,10 @@ python3 scripts/build-css-late-bundles.py
 Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 `python3 scripts/build-css-late-bundles.py --check` (also run by `smoke-css-order.php`) fails if a bundle drifted from its sources.
 
+**Behaviour-neutral dedupe of the frozen bases:** `python3 scripts/dedupe-app-css.py app-public.css [--write]` drops
+exact duplicate rules (same @media context, selector and declarations — the earlier copy) and `:root` token
+declarations whose value is identical to `global.css`. Same verification as pruning: regenerate shadows, screenshot diff.
+
 **Dead-rule pruning of the frozen bases** (the one sanctioned edit to `app-*.css`):
 `python3 scripts/prune-app-css-dead-rules.py app-core.css` (dry run) → `--write`. A rule goes only when every
 selector consists solely of classes that appear nowhere in PHP/JS/JSON/vendor JS (dash-prefixes and

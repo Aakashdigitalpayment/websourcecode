@@ -68,24 +68,14 @@
 
   /* Borders */
   --border: #e2e8e5;
-  --border-strong: #cbd5d0;
   --border-focus: var(--brand-primary-glow);
 
   /* Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
 
   /* Spacing scale (4px base) */
   --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(15, 31, 23, 0.05);
@@ -636,10 +626,6 @@ body {
 .sidebar-nav ul {
     list-style: none;
     padding: 6px 0;
-}
-
-.sidebar-nav li {
-    margin: 1px 8px;
 }
 
 .sidebar-nav a {
@@ -1803,10 +1789,6 @@ body {
 
 .data-table tbody tr:nth-child(even):hover {
     background: #f0f8f2;
-}
-
-.data-table tbody tr:last-child td {
-    border-bottom: none;
 }
 
 .data-table tbody tr:last-child td:first-child {
@@ -3501,12 +3483,7 @@ body.dark-mode .dark-mode-toggle .fa-moon {
 }
 
 /* Scrollbar — custom thin scrollbar for sidebar */
-.sidebar::-webkit-scrollbar {
-    width: 4px;
-}
-.sidebar::-webkit-scrollbar-track {
-    background: transparent;
-}
+
 .sidebar::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.2);
     border-radius: 2px;
@@ -3624,10 +3601,6 @@ body.dark-mode .dark-mode-toggle .fa-moon {
    — .admin-name: admin को नाम देखाउने span
    — .admin-menu: drop-down list (hidden by default, hover मा देखिन्छ)
    ============================================================= */
-.header-item {
-    display: flex;
-    align-items: center;
-}
 
 /* Admin नाम र dropdown wrapper */
 .admin-info {
@@ -3730,10 +3703,6 @@ body.dark-mode .dark-mode-toggle .fa-moon {
     text-align: center;
     color: var(--primary-color);
     font-size: 0.88rem;
-}
-.admin-menu a:hover {
-    background: #f0f8f2;
-    color: var(--primary-color);
 }
 /* Logout link — रातो */
 .admin-menu a:last-child {
@@ -4487,10 +4456,6 @@ textarea.form-control {
     background: linear-gradient(135deg, var(--primary-color), var(--color-success)) !important;
     color: #fff !important;
     border-radius: 12px 12px 0 0 !important;
-}
-.modal-header .modal-title {
-    color: #fff !important;
-    font-weight: 700 !important;
 }
 .modal-header .btn-close {
     filter: invert(1) !important;
@@ -5845,8 +5810,7 @@ textarea.form-control {
 }
 
 /* ── Scrollbar in sidebar ── */
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-track { background: transparent; }
+
 .sidebar::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.15);
     border-radius: 4px;
@@ -6099,10 +6063,6 @@ textarea.form-control { min-height: 100px !important; }
     color: var(--primary-color) !important;
     border-radius: 9px !important;
     font-weight: 600 !important;
-}
-.btn-outline-primary:hover {
-    background: var(--primary-color) !important;
-    color: #fff !important;
 }
 /* Icon-only delete/action buttons — छोटो */
 .btn-sm { border-radius: 7px !important; }
@@ -6454,15 +6414,12 @@ textarea.form-control { min-height: 100px !important; }
     --green-800: #166534;
     --green-900: #14532d;
     --glow-green: rgba(26, 95, 42, 0.15);
-    --radius-sm: 6px;
-    --radius-md: 10px;
     --radius-lg: 14px;
     --radius-xl: 18px;
     --shadow-sm:  0 1px 4px rgba(0,0,0,0.06);
     --shadow-md:  0 4px 16px rgba(0,0,0,0.09);
     --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
     --shadow-card: 0 2px 12px rgba(26,95,42,0.07), 0 1px 3px rgba(0,0,0,0.04);
-    --transition-fast: 0.15s ease;
     --transition-mid: 0.25s ease;
 }
 
@@ -7245,7 +7202,7 @@ textarea.form-control {
 /* ─────────────────────────────────────────────────────────────────────────
    20. SCROLLBAR — Thin green scrollbar
    ───────────────────────────────────────────────────────────────────────── */
-.sidebar::-webkit-scrollbar { width: 4px; }
+
 .sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(74,222,128,0.3); border-radius: 4px; }
 .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(74,222,128,0.5); }
@@ -7441,7 +7398,6 @@ input[type="file"].form-control {
 .notif-toggle-btn:focus { outline: none; }
 
 /* Wrapper — dropdown को anchor point */
-.notif-wrapper { position: relative; }
 
 /* Dropdown panel */
 .notif-dropdown {

@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
- * Source bytes=61914 sha256=63341f01c39ee44f
+ * Source bytes=61523 sha256=2786c435e37f9f2f
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -22,8 +22,6 @@
     --mem-shadow:   0 2px 16px rgba(0,0,0,0.07);
     /* ── Shared tokens (used by login + member pages) ── */
     --font-primary: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --radius-sm:    6px;
-    --radius-md:    10px;
     --radius-lg:    14px;
     --accent-rgb:   245, 158, 11;
 }
@@ -42,9 +40,6 @@
 }
 
 /* Shared centered content wrappers for member pages */
-.mp-main {
-    width: 100%;
-}
 
 .mp-container {
     width: 100%;
@@ -169,9 +164,6 @@
     box-sizing: border-box;
     width: 100%;
 }
-.mem-topbar-avatar-fallback--show {
-    display: flex;
-}
 .mem-topbar-avatar-stack .mem-topbar-avatar-fallback {
     position: absolute;
     left: 0;
@@ -241,8 +233,6 @@
     border: 1px solid var(--mem-border);
 }
 
-.mem-nav::-webkit-scrollbar { display: none; }
-
 .mem-nav-item {
     display: flex;
     flex-direction: column;
@@ -302,8 +292,6 @@
     align-items: center;
     gap: 7px;
 }
-
-.mem-card-body { padding: 18px; }
 
 /* ── Profile page — minimal glass tab rail ── */
 .mem-profile-tab-shell {
@@ -1413,10 +1401,8 @@
         gap: 1px;
         flex-wrap: nowrap;
     }
-    .mem-nav::-webkit-scrollbar { display: none; }
     .mem-nav-item { flex: 0 0 auto; padding: 5px 10px !important; font-size: .6rem !important; min-width: 48px; }
     .mem-nav-item i { font-size: .9rem !important; }
-    .mp-bottom-nav { display: none !important; }
 }
 
 /* ── Mobile topbar improvements ── */
@@ -1424,12 +1410,12 @@
     .mem-topbar { padding: 6px 12px; min-height: 48px; }
     .mem-topbar-right { gap: 8px; }
     /* Logout: icon only on mobile — saves ~60px */
-    .mem-logout-text { display: none; }
+    
     .mem-topbar-logout { padding: 5px 8px; min-width: 32px; justify-content: center; }
     /* Lang badge — always show, compact */
     .mem-lang-code { font-size: 0.65rem; }
     /* Name hidden below 768 */
-    .mem-topbar-name { display: none; }
+    
     /* Logo image max-width tighter on mobile */
     .mem-topbar-brand img { max-height: 38px; max-width: min(160px, 42vw); padding: 3px 6px; }
 }

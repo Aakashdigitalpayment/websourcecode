@@ -34,9 +34,6 @@
     --primary:          #1a5f2a;
     --primary-color:     var(--primary);  /* backward compat */
     --primary-dark:      #144a21;
-    --primary-light:     #2e8b4a;
-    --primary-glow:      #4caf6a;
-    --secondary:         #c0392b;
     --secondary-color:   var(--secondary);
     --header-color:      #c0392b;
     --header-dark:       #922b21;
@@ -45,19 +42,12 @@
     --text-on-footer:    #ffffff;
     /* Surface */
     --bg-page:           #f8faf9;
-    --bg-card:           #ffffff;
-    --bg-soft:           #f5faf6;
-    --bg-muted:          #e8f5e9;
 
     /* Text */
     --text-primary:      #1a2e1f;
-    --text-secondary:    #4a5a4f;
-    --text-muted:        #6b7280;
-    --text-on-primary:   #ffffff;
 
     /* Border & status */
     --border-color:      #e5e7eb;
-    --border-soft:       #f0f0f0;
     --color-info:        var(--secondary);
 
     /* Shadows */
@@ -65,7 +55,6 @@
 
     /* Container */
     --container-max:     1280px;
-    --container-pad:     20px;
 
     /* AkashDigital-style Font Sizes — rem-based (base 14px) */
     --text-xs:           0.75rem;   /* 12px */
