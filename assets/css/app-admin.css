@@ -3883,7 +3883,6 @@ th.action-col {
     margin-left: 2px;
 }
 
-
   /* ── Modal font size fixes (reduced oversized text) ── */
   .modal-title {
       font-size: 1.1rem !important;
@@ -3917,7 +3916,6 @@ th.action-col {
   #whatsappCta, .whatsapp-cta, .whatsapp-btn {
       z-index: 1060 !important;
   }
-
 
   /* ══════════════════════════════════════════════════
      TOGGLE SWITCH (form-switch) FONT SIZE FIX
@@ -4031,7 +4029,6 @@ th.action-col {
       padding: 3px 8px !important;
       font-weight: 600;
   }
-
 
 /* ══════════════════════════════════════════════════════════════
    UNIVERSAL ADMIN UI — admin-ui.php helpers ko consistent design
@@ -4279,7 +4276,6 @@ textarea.form-control {
     font-weight: 700;
     color: var(--primary-color);
 }
-
 
 /* ══════════════════════════════════════════════════════════════
    NEPALI DATEPICKER — Calendar Popup Styling
@@ -5436,7 +5432,6 @@ input:focus, select:focus, textarea:focus {
     color: #fff !important;
 }
 
-
 /* ╔══════════════════════════════════════════════════════════════╗
    ║  UNIFORM DESIGN SYSTEM v3  —  एकरूप रंग, आकार, font size  ║
    ║  सबै तालिका, फर्म, बटन, badge, count-box एकरूप            ║
@@ -5858,7 +5853,6 @@ textarea.form-control {
 }
 .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
 
-
 /* ═══════════════════════════════════════════════════════════════
    VISUAL UPGRADE 2.0 — Public page जस्तो eye-catching admin UI
    यहाँका rules सबैभन्दा पछि load हुन्छन् — highest priority
@@ -6126,17 +6120,6 @@ textarea.form-control { min-height: 100px !important; }
 /* ══════════════════════════════════════════════════
    DASHBOARD MINI CARDS (db-mini-card) — Better hover
    ══════════════════════════════════════════════════ */
-.db-mini-card {
-    border-radius: 12px !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.14) !important;
-    transition: transform 0.18s, box-shadow 0.18s !important;
-}
-.db-mini-card:hover {
-    transform: translateY(-4px) scale(1.01) !important;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
-}
-.db-mini-num { font-size: 1.55rem !important; }
-.db-mini-lbl { font-size: 0.7rem !important; }
 
 /* ══════════════════════════════════════════════════
    MODAL — Rounded, modern look
@@ -7214,15 +7197,6 @@ textarea.form-control {
 }
 
 /* Mini stat cards on dashboard */
-.db-mini-card {
-    border-radius: var(--radius-lg) !important;
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
-}
-
-.db-mini-card:hover {
-    transform: translateY(-3px) scale(1.01) !important;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.2) !important;
-}
 
 /* ─────────────────────────────────────────────────────────────────────────
    18. BREADCRUMB STRIP — Under topbar
@@ -7873,7 +7847,6 @@ input[type="file"].form-control {
         word-break: break-word;
     }
 }
-
 
 /* ── Admin Filter Bar (.afb-*) — global, used on all list pages ── */
 .adm-filter-form { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; }
@@ -9153,117 +9126,6 @@ textarea.form-control:focus {
 .notif-item-count.notif-tone-bg-blue { background: #0d6efd; }
 
 /* Staff page inline-style cleanup classes */
-.stf-page-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.stf-title {
-    margin: 0;
-    color: var(--primary-color);
-}
-
-.stf-subtitle {
-    color: var(--text-muted);
-    margin: 6px 0 0;
-}
-
-.stf-card-table-wrap {
-    padding: 0;
-    overflow: hidden;
-}
-
-.stf-table {
-    font-family: var(--font-primary);
-}
-
-.stf-soft-head {
-    background: var(--bg-soft);
-}
-
-.stf-align-right {
-    text-align: right;
-}
-
-.stf-status-dot {
-    font-weight: 600;
-}
-
-.stf-status-active {
-    color: var(--color-success);
-}
-
-.stf-status-inactive {
-    color: var(--color-danger);
-}
-
-.stf-inline-form {
-    display: inline;
-}
-
-.stf-self-note {
-    color: var(--text-muted);
-}
-
-.stf-mt24 {
-    margin-top: 24px;
-}
-
-.stf-section-title {
-    color: var(--primary-color);
-    margin-top: 0;
-}
-
-.stf-table-no-margin {
-    margin: 0;
-}
-
-.stf-modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-}
-
-.stf-modal-card {
-    width: 92%;
-}
-
-.stf-modal-card-lg {
-    max-width: 480px;
-}
-
-.stf-modal-card-sm {
-    max-width: 420px;
-}
-
-.stf-grid-gap {
-    display: grid;
-    gap: 12px;
-}
-
-.stf-muted-note {
-    color: var(--text-muted);
-}
-
-.stf-actions-row {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.stf-actions-row-lg {
-    margin-top: 18px;
-}
-
-.stf-actions-row-sm {
-    margin-top: 14px;
-}
 
 /* Members page class-based style cleanup */
 .mem-avatar-lg {
@@ -9453,35 +9315,6 @@ textarea.form-control:focus {
 .dash-val-review { color: #1e40af; }
 .dash-val-approved { color: #166534; }
 
-.wf-summary-bar {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin: 0 0 18px;
-}
-
-.wf-stat-chip {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    min-height: 90px;
-    padding: 14px 16px;
-    border: 1px solid rgba(15, 23, 42, .08);
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, .05);
-    text-decoration: none;
-    color: #0f172a;
-    transition: box-shadow .18s, transform .18s;
-}
-
-.wf-stat-chip:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 5px 18px rgba(15, 23, 42, .10);
-    text-decoration: none;
-}
-
 .wf-stat-chip .val {
     font-size: 1.6rem;
     line-height: 1;
@@ -9496,18 +9329,6 @@ textarea.form-control:focus {
     margin-top: 3px;
     line-height: 1.35;
     min-height: 2em;
-}
-
-.wf-stat-icon {
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 36px;
-    border-radius: 9px;
-    font-size: 0.88rem;
-    margin-bottom: 10px;
 }
 
 .wf-stat-icon.pending {
@@ -9581,9 +9402,6 @@ textarea.form-control:focus {
 }
 
 @media (max-width: 768px) {
-    .wf-summary-bar {
-        grid-template-columns: 1fr;
-    }
 
     .wf-type-row {
         grid-template-columns: 42px minmax(0, 1fr);
@@ -9917,10 +9735,6 @@ body.admin-auth-page {
     color: var(--primary-color);
     font-weight: 600;
     font-size: .78rem;
-}
-
-.pf-discount-badge {
-    font-size: .85rem;
 }
 
 .hc-col-order {
@@ -12743,7 +12557,7 @@ body.admin-shell { padding-bottom: 70px; }
 .ds-card:hover .ds-icon.danger { transform: scale(1.1) rotate(5deg); box-shadow: 0 6px 20px rgba(var(--secondary-rgb), .4); }
 .ds-val { font-size: 1.8rem; font-weight: 900; line-height: 1; color: var(--primary-dark); transition: all .3s; }
 .ds-card:hover .ds-val { color: var(--primary-color); transform: scale(1.05); }
-.ds-lbl { font-size: .78rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; margin-top: .2rem; }
+
 .dash-title-main { font-size: 1.6rem; font-weight: 800; color: var(--primary-dark); margin: 0; display: flex; align-items: center; gap: .75rem; background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .ds-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--surface-color), color-mix(in srgb, var(--primary-color) 5%, white)); border-radius: 12px; padding: 4px; box-shadow: 0 2px 12px rgba(var(--primary-rgb), .1); overflow-x: auto; }
 .ds-tab { flex: 1; min-width: 120px; padding: .75rem 1rem; border: none; background: transparent; color: var(--text-muted); font-weight: 600; font-size: .88rem; cursor: pointer; border-radius: 8px; transition: all .3s; position: relative; overflow: hidden; }
@@ -13171,7 +12985,7 @@ body.admin-auth-page { font-family: var(--font-primary,'Mukta','Noto Sans Devana
 .nav-submenu li a .badge { margin-left: auto; background: #e53e3e !important; color: #fff !important; font-size: .6rem; font-weight: 800; padding: 2px 6px; border-radius: 20px; min-width: 18px; text-align: center; line-height: 1.4; box-shadow: 0 1px 4px rgba(229,62,62,.45); flex-shrink: 0; }
 .nav-submenu li a { display: flex !important; align-items: center; }
 .nav-group-wrap { margin-top: 4px; }
-.sa-label-badge { background: var(--primary-color); color: #fff; font-size: .55rem; font-weight: 700; padding: 1px 5px; border-radius: 7px; margin-left: 4px; flex-shrink: 0; }
+
 .nav-total-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e53e3e; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(229,62,62,.3); animation: badge-pulse 1.8s ease-in-out infinite; }
 .sidebar-header { overflow: hidden !important; }
 .sidebar-brand.has-logo { display: flex !important; align-items: center !important; gap: 10px !important; padding: 8px 14px !important; text-decoration: none !important; overflow: hidden !important; min-width: 0 !important; }
@@ -14600,7 +14414,6 @@ body{ background: var(--bg-soft, #f6faf7); }
 .qh-ic.chat{ background:#0ea5e9; }
 .qh-ic.links{ background:#6366f1; }
 
-
 /* ════════════════════════════════════════════════════════════
  * v11.5 — Targeted UI fixes (2026-05-14)
  * - Hide all legacy floating triggers on EVERY breakpoint
@@ -14766,14 +14579,7 @@ html body .useful-links-float .useful-links-close{
 }
 
 /* 7. HRM Employee modal -> inline admin panel (no popup overlay) */
-#empModal.stf-modal-backdrop{
-  position:static !important;
-  background:transparent !important;
-  inset:auto !important;
-  padding:0 !important; margin:0 0 1.25rem 0 !important;
-  z-index:auto !important;
-  display:none;
-}
+
 #empModal.stf-modal-backdrop.open,
 #empModal.stf-modal-backdrop[style*="display:flex"],
 #empModal.stf-modal-backdrop[style*="display: flex"],
@@ -16120,29 +15926,7 @@ footer.main-footer,
 #pane-programs .stat-card-value{ font-size: 1.12rem !important; line-height: 1 !important; }
 #pane-programs .stat-card-label{ font-size: .7rem !important; line-height: 1.2 !important; }
 #pane-welfare .dash-section-title{ font-size: .98rem !important; }
-#pane-welfare .wf-summary-bar{
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  margin-bottom: 12px !important;
-}
-#pane-welfare .wf-stat-chip{
-  min-height: 66px !important;
-  padding: 10px 12px !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 14px rgba(15,23,42,.05) !important;
-  align-items: center !important;
-}
-#pane-welfare .wf-stat-chip:hover{
-  transform: none !important;
-  box-shadow: 0 5px 16px rgba(15,23,42,.08) !important;
-}
-#pane-welfare .wf-stat-icon{
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  border-radius: 10px !important;
-  font-size: .92rem !important;
-}
+
 #pane-welfare .wf-stat-chip .val{ font-size: 1.15rem !important; line-height: 1 !important; }
 #pane-welfare .wf-stat-chip .lbl{ font-size: .72rem !important; line-height: 1.2 !important; }
 @media (max-width: 768px){
@@ -16254,7 +16038,6 @@ body.auth-page,
   color-scheme: light !important;
   background: #fff !important;
 }
-
 
 /* ════════════════════════════════════════════════════════════
  * ICON CLIP FIX — v11.3

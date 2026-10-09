@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=7910 sha256=bce46d2db096c5f0
+ * Source bytes=7747 sha256=03bf5cda12107665
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -82,22 +82,13 @@
    ADMIN: Hamburger Menu Fix (Desktop Should NOT Show)
    ───────────────────────────────────────────────────────────── */
 
-.hp-burger {
-  display: grid !important;
-  place-items: center;
-}
-
 /* Hide burger on desktop, show on tablet/mobile */
 @media (min-width: 900px) {
-  .hp-burger {
-    display: none !important;
-  }
+
 }
 
 @media (max-width: 899px) {
-  .hp-burger {
-    display: grid !important;
-  }
+
 }
 
 /* ─────────────────────────────────────────────────────────────

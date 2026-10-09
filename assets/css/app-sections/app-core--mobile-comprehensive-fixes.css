@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=9664 sha256=2d3ce3b675a504aa
+ * Source bytes=8398 sha256=1549241c29d6d5d1
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -15,57 +15,14 @@
 
 /* Desktop: Hide hamburger, show sidebar (≥769px) */
 @media (min-width: 769px) {
-  .hp-burger {
-    display: none !important;
-  }
-  .adminSidebar {
-    display: block !important;
-    position: relative;
-    transform: none !important;
-    z-index: auto !important;
-  }
+
 }
 
 /* Tablet: Show hamburger, sidebar hidden by default (481px - 768px) */
 @media (max-width: 768px) {
-  .hp-burger {
-    display: grid !important;
-    place-items: center;
-    cursor: pointer;
-    background: var(--hp-soft, #f8fafc);
-    border: 1px solid var(--hp-border, #e2e8f0);
-    border-radius: 10px;
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
-    transition: all 0.2s ease;
-  }
-
-  .hp-burger:active,
-  .hp-burger:focus {
-    background: #e2e8f0;
-    box-shadow: 0 0 0 3px rgba(26, 95, 42, 0.1);
-    outline: none;
-  }
-
-  .hp-burger:hover {
-    background: #e2e8f0;
-    transform: scale(1.05);
-  }
 
   /* Sidebar toggle animation on mobile */
-  .adminSidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: white;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-  }
+  
 
   .adminSidebar.open {
     transform: translateX(0);
@@ -88,15 +45,7 @@
 
 /* Mobile: Optimize for very small screens (≤480px) */
 @media (max-width: 480px) {
-  .hp-burger {
-    width: 38px;
-    height: 38px;
-    font-size: 15px;
-  }
 
-  .adminSidebar {
-    width: 75vw;
-  }
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -292,14 +241,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (min-width: 769px) {
   /* Desktop: Show full sidebar */
-  .adminSidebar {
-    display: block !important;
-    position: relative;
-    transform: none !important;
-    width: 260px;
-    height: auto;
-    box-shadow: none;
-  }
+  
 
   /* Desktop menu hover effects */
   .sidebar-menu-item {

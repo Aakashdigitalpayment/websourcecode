@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=82655 sha256=ace0acb302235e5e
+ * Source bytes=77785 sha256=2e7d028f652cba6b
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -31,7 +31,6 @@
    1. FONT IMPORTS — see coopThemeGoogleFonts() (duplicate @import removed)
    ════════════════════════════════════════════════════════════ */
 /* @import removed */
-
 
 /* ════════════════════════════════════════════════════════════
    2. BASE RESET & BODY
@@ -82,7 +81,6 @@ img { max-width: 100%; height: auto; }
     color: var(--text-on-primary, #fff);
 }
 
-
 /* ════════════════════════════════════════════════════════════
    3. LAYOUT UTILITIES
    ════════════════════════════════════════════════════════════ */
@@ -112,7 +110,6 @@ img { max-width: 100%; height: auto; }
 .coop-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .coop-grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .coop-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-
 
 /* ════════════════════════════════════════════════════════════
    4. CARDS — सबै portal मा एकरूप
@@ -186,7 +183,6 @@ a.card, .card-link {
     display: block; color: inherit; text-decoration: none;
 }
 a.card:hover { color: inherit; }
-
 
 /* ════════════════════════════════════════════════════════════
    5. BUTTONS — सबै panel मा एकरूप
@@ -263,7 +259,6 @@ a.card:hover { color: inherit; }
     border-color: var(--border-color);
 }
 .btn-ghost:hover { background: var(--bg-soft); color: var(--text-primary); }
-
 
 /* ════════════════════════════════════════════════════════════
    6. FORMS — सबै portal मा एकरूप
@@ -345,7 +340,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 }
 .form-section-title i { color: var(--primary-color); }
 
-
 /* ════════════════════════════════════════════════════════════
    7. TABLES — सबै panel मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -385,7 +379,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     overflow: hidden;
 }
 .table-card .table { margin-bottom: 0; }
-
 
 /* ════════════════════════════════════════════════════════════
    8. BADGES & STATUS CHIPS — सबै panel मा एकरूप
@@ -440,7 +433,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .status-dot.inactive { background: #94a3b8; }
 .status-dot.pending  { background: var(--color-warning); }
 
-
 /* ════════════════════════════════════════════════════════════
    9. ALERTS — सबै panel मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -479,7 +471,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 }
 .coop-alert-close:hover { opacity: 1; }
 
-
 /* ════════════════════════════════════════════════════════════
    10. MODALS — सबै panel मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -502,7 +493,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 .modal-backdrop.show { opacity: 0.5; }
-
 
 /* ════════════════════════════════════════════════════════════
    11. PAGE BANNER — सबै public pages मा एकरूप
@@ -531,7 +521,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .page-banner .breadcrumb-item.active { color: rgba(255,255,255,0.95); }
 .page-banner .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.45); }
 
-
 /* ════════════════════════════════════════════════════════════
    12. SECTION HEADER — सबै pages मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -555,7 +544,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     margin: 0.5rem auto 1rem;
     border-radius: var(--radius-full);
 }
-
 
 /* ════════════════════════════════════════════════════════════
    13. MOBILE-FIRST RESPONSIVE — सबै portal एकरूप
@@ -627,7 +615,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.25rem; }
 }
-
 
 /* ════════════════════════════════════════════════════════════
    14. UTILITY CLASSES
@@ -798,7 +785,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .flash-inline.warning { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid var(--color-warning-border); }
 .flash-inline.info    { background: var(--color-info-bg); color: var(--color-info); border: 1px solid var(--color-info-border); }
 
-
 /* ════════════════════════════════════════════════════════════
    2. BREADCRUMB — सबै portal मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -823,7 +809,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .page-banner .coop-breadcrumb a, .page-banner .coop-breadcrumb { color: rgba(255,255,255,0.75); }
 .page-banner .coop-breadcrumb li.active { color: #fff; }
 .page-banner .coop-breadcrumb li::after { color: rgba(255,255,255,0.4) !important; }
-
 
 /* ════════════════════════════════════════════════════════════
    3. DATA TABLE WRAPPER — admin र member मा एकरूप
@@ -878,7 +863,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 }
 .table-empty-row i { display: block; font-size: 2rem; color: var(--text-light); margin-bottom: 8px; }
 
-
 /* ════════════════════════════════════════════════════════════
    4. ACTION BUTTONS — admin table rows मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -904,7 +888,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .btn-action.toggle  { background: var(--color-warning-bg); color: var(--color-warning); }
 .btn-action.approve { background: var(--color-success-bg); color: var(--color-success); }
 .btn-action:hover   { filter: brightness(0.9); transform: scale(1.08); }
-
 
 /* ════════════════════════════════════════════════════════════
    5. SIDEBAR — Admin र Member दुवैमा एकरूप structure
@@ -996,7 +979,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     .coop-main-content { margin-left: 0 !important; }
 }
 
-
 /* ════════════════════════════════════════════════════════════
    6. TOPBAR / HEADER — Admin र Member मा एकरूप
    ════════════════════════════════════════════════════════════ */
@@ -1072,7 +1054,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     display: flex; align-items: center; justify-content: center;
     border: 1.5px solid var(--bg-card);
 }
-
 
 /* ════════════════════════════════════════════════════════════
    7. AUTH PAGES — Login/Register — सबै portal एकरूप
@@ -1156,7 +1137,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 }
 .password-toggle:hover { color: var(--primary-color); }
 
-
 /* ════════════════════════════════════════════════════════════
    8. PORTAL-SPECIFIC HEADER OVERRIDES
    ════════════════════════════════════════════════════════════ */
@@ -1190,7 +1170,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 }
 .verify-result-success { border-top: 4px solid var(--color-success); }
 .verify-result-error   { border-top: 4px solid var(--color-danger); }
-
 
 /* ════════════════════════════════════════════════════════════
    9. ID CARD COMPONENT — Member portal print view
@@ -1232,7 +1211,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 @media print {
     .id-card { box-shadow: none; border: 1px solid #ccc; }
 }
-
 
 /* ════════════════════════════════════════════════════════════
    10. PRINT STYLES — सबै portal shared
@@ -1452,18 +1430,16 @@ h1,h2,h3,h4,h5,h6,.card-title {
 .cr-meta-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.4rem; }
 .cr-meta-item { display:flex; align-items:flex-start; gap:.5rem; font-size:.85rem; color:var(--text-secondary,#475569); }
 .cr-meta-item i { color:var(--primary-color,#1a5f2a); margin-top:.2rem; flex-shrink:0; width:14px; text-align:center; }
-.cr-detail-grid { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start; }
-@media (max-width:992px) { .cr-detail-grid { grid-template-columns:1fr; } }
+
+@media (max-width:992px) { }
 .cr-sidebar { background:#fff; border-radius:14px; border:1.5px solid var(--border-color,#e5e7eb); overflow:hidden; position:sticky; top:80px; }
 .cr-sidebar-header { padding:1rem 1.2rem; background:linear-gradient(135deg,var(--primary-color,#1a5f2a),var(--primary-dark,#145021)); color:#fff; }
 .cr-sidebar-body { padding:1rem 1.2rem; }
-.cr-apply-btn { display:flex; align-items:center; justify-content:center; gap:.5rem; width:100%; padding:.8rem; border-radius:10px; background:var(--primary-color,#1a5f2a); color:#fff; font-weight:700; font-size:.95rem; border:none; cursor:pointer; transition:all .2s; text-decoration:none; }
-.cr-apply-btn:hover { background:var(--primary-dark,#145021); color:#fff; transform:translateY(-1px); }
+
 .cr-benefit-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.5rem; }
 .cr-benefit-item { display:flex; align-items:flex-start; gap:.5rem; font-size:.85rem; color:var(--text-secondary,#475569); }
 .cr-benefit-item i { color:var(--primary-color,#1a5f2a); margin-top:.2rem; flex-shrink:0; width:14px; text-align:center; }
-.cr-divider { height:1px; background:var(--border-color,#e5e7eb); margin:1rem 0; }
-.cr-section-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted,#9ca3af); margin-bottom:.6rem; }
+
 .cr-empty { text-align:center; padding:3rem 1rem; }
 .cr-empty-icon { font-size:3rem; color:var(--border-color,#e5e7eb); margin-bottom:1rem; }
 
@@ -1686,24 +1662,10 @@ h1,h2,h3,h4,h5,h6,.card-title {
     box-shadow:0 20px 44px rgba(15,23,42,.07);
     padding:2rem; box-sizing:border-box; overflow:hidden;
 }
-.vp-icon {
-    width:56px; height:56px; border-radius:16px;
-    background:linear-gradient(135deg,var(--primary-color,#1a5f2a),var(--primary-dark,#145021));
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.5rem; color:#fff; margin:0 auto 1rem;
-}
+
 .vp-field { margin-bottom:.85rem; }
 .vp-field label { font-size:.82rem; font-weight:600; color:var(--text-secondary,#475569); display:block; margin-bottom:.35rem; }
 .vp-field input { width:100%; box-sizing:border-box; }
-.vp-submit {
-    width:100%; padding:.75rem;
-    background:var(--primary-color,#1a5f2a); color:#fff;
-    border:none; border-radius:10px; font-size:.95rem; font-weight:700;
-    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.5rem;
-    transition:background .2s;
-}
-.vp-submit:hover { background:var(--primary-dark,#145021); }
-.vp-sub { max-width:36rem; margin-left:auto; margin-right:auto; padding:0 4px; line-height:1.65; }
 
 /* ═══════════════════════════════════════════════════════════════
    FIX 14: MEMBER PORTAL MOBILE
@@ -1726,7 +1688,7 @@ h1,h2,h3,h4,h5,h6,.card-title {
    FIX 15: GLOBAL UTILITIES — All portals
    ─────────────────────────────────────────────────────────────── */
 /* Skeleton loader */
-.skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size:200% 100%; animation:skeleton-shimmer 1.4s infinite; border-radius:4px; }
+
 @keyframes skeleton-shimmer { to { background-position:-200% 0; } }
 
 /* Text clamp */
@@ -1759,7 +1721,7 @@ button:focus-visible, a:focus-visible { border-radius:4px; }
     padding:2rem 0; color:#fff;
 }
 /* ── Verify page logo — strict size limit ── */
-.vp-page-logo { text-align: center; }
+
 .vp-page-logo img,
 body.auth-portal-page .vp-page-logo img,
 body[class*="auth"] .vp-page-logo img {
@@ -1843,140 +1805,17 @@ body[class*="auth"] .vp-page-logo img {
     box-shadow: 0 0 0 4px rgba(255,255,255,.2);
 }
 
-
 /* ════════════════════════════════════════════════════════════
  * Institutional Profile — Document Preview Button + Modal
  * ════════════════════════════════════════════════════════════ */
 
 /* Header button (inside green card header) */
-.ip-doc-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 14px;
-    border-radius: 7px;
-    background: rgba(255,255,255,0.18);
-    color: inherit;
-    border: 1px solid rgba(255,255,255,0.38);
-    font-size: 0.84em;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s, transform 0.12s;
-    line-height: 1.4;
-    flex-shrink: 0;
-}
-.ip-doc-btn:hover {
-    background: rgba(255,255,255,0.30);
-    transform: translateY(-1px);
-    color: inherit;
-    text-decoration: none;
-}
-.ip-doc-btn-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 5px;
-    background: rgba(255,255,255,0.22);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.9rem;
-}
 
 /* Below-data preview row */
-.ip-doc-preview-row {
-    padding: 14px 16px;
-    border-top: 1px solid #f0f2f0;
-    background: #fafbfa;
-}
-.ip-doc-preview-icon-btn-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.ip-doc-preview-icon-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 18px;
-    border-radius: 10px;
-    border: 1.5px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 22%, #e5e7eb);
-    background: #fff;
-    color: var(--primary-dark, #1a5f2a);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: box-shadow 0.15s, border-color 0.15s, transform 0.12s;
-    flex: 1;
-    text-align: left;
-    max-width: 380px;
-}
-.ip-doc-preview-icon-btn:hover {
-    border-color: var(--primary-color, #1a5f2a);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-color,#1a5f2a) 18%, transparent);
-    transform: translateY(-1px);
-}
-.ip-doc-preview-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 9px;
-    background: color-mix(in srgb, var(--primary-color,#1a5f2a) 10%, #fff);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    color: var(--primary-color, #1a5f2a);
-    flex-shrink: 0;
-    border: 1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 18%, #e5e7eb);
-}
-.ip-doc-preview-icon-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
-}
-.ip-doc-preview-icon-text small {
-    font-size: 0.72rem;
-    color: #9ca3af;
-    font-weight: 400;
-}
-.ip-doc-preview-play {
-    font-size: 1.1rem;
-    color: var(--primary-color, #1a5f2a);
-    opacity: 0.7;
-    flex-shrink: 0;
-    transition: opacity 0.15s;
-}
-.ip-doc-preview-icon-btn:hover .ip-doc-preview-play {
-    opacity: 1;
-}
-.ip-doc-download-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 9px;
-    background: #f0fdf4;
-    border: 1.5px solid #bbf7d0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #166534;
-    text-decoration: none;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    transition: background 0.15s;
-}
-.ip-doc-download-btn:hover {
-    background: #dcfce7;
-    color: #14532d;
-}
 
 /* Responsive: stack on very small screens */
 @media (max-width: 480px) {
-    .ip-doc-preview-icon-btn { max-width: 100%; }
-    .ip-doc-preview-icon-btn-wrap { flex-wrap: wrap; }
+
 }
 
 /* ════════════════════════════════════════════════════════════════════

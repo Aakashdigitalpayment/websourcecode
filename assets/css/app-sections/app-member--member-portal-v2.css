@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
- * Source bytes=31906 sha256=848ea9ddbf6c4f7f
+ * Source bytes=31506 sha256=0e9690c2cfbbf8ea
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -631,19 +631,6 @@
     background: rgba(var(--primary-rgb,26,95,42), .08);
 }
 /* Scan center button — bigger */
-.mp-nav-scan {
-    position: relative;
-}
-.mp-nav-scan i {
-    background: var(--primary-color, #1a5f2a);
-    color: var(--text-on-primary, #fff) !important;
-    border-radius: 50%;
-    width: 44px; height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px !important;
-    margin-top: -10px;
-    box-shadow: 0 4px 12px rgba(var(--primary-rgb,26,95,42), .3);
-}
 
 /* ═══════════════════════════════════════════
    9. NOTIFICATION BELL DROPDOWN
