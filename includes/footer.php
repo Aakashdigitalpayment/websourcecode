@@ -943,6 +943,8 @@ try {
     <!-- Universal Phone/Email Validation — form pages -->
     <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
     <?php endif; ?>
+    <!-- Shared accessibility shim (every public page): labels for placeholder-only inputs, names for icon buttons -->
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-a11y.js?v=<?php echo $__jsVer('assets/js/coop-a11y.js'); ?>" defer></script>
 
     <!-- Enhanced Search with Voice Support (issue #7) -->
     <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>

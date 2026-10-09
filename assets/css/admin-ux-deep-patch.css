@@ -2690,3 +2690,14 @@ body[class*="admin-page-"] .main-content .btn.btn-sm:not(.btn-link):not(.btn-clo
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
+
+/* ── Tap targets (audit, 390px): sidebar logout was 14×19 ── */
+body[class*="admin-page-"] .sidebar-strip-logout,
+body[class*="admin-page-"] .sidebar-user-logout,
+body[class*="admin-page-"] a[href*="logout"]:not(.dropdown-item):not(.btn):not(.nav-link) {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

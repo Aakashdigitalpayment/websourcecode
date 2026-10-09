@@ -132,7 +132,7 @@ $pageTitle = ($_t('कल्याण दाबी', 'Welfare Claims')) . ' — 
 
 /* ── Resolve PRG flash messages from GET params ── */
 if (!empty($_GET['submitted']) && !empty($_GET['tid'])) {
-    $tid = htmlspecialchars($_GET['tid']);
+    $tid = htmlspecialchars((string)($_GET['tid'] ?? ''));
     $successMsg = isEnglish()
         ? "Claim submitted successfully! Tracking ID: <strong>$tid</strong> — You will be notified after admin review."
         : "दाबी सफलतापूर्वक दर्ता भयो! Tracking ID: <strong>$tid</strong> — Admin ले समीक्षा गरेपछि सूचित गरिनेछ।";

@@ -9270,4 +9270,29 @@ main section:has([data-aos]) {
 
 /* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
 .card:not(.stat-card):not([class*="flat-top"]):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
+
+/* ── Tap targets (audit, 390px): topbar EN/NP 30×30, password eye 24×24 → 36px minimum on touch screens ── */
+@media (pointer: coarse), (max-width: 767.98px) {
+  /* the frozen base (app-public.css ~23846) pins these to 30×30 at (0,4,1); same specificity here, later load */
+  body.header-v2 .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  body .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  .pfl-topbar .pfl-lang-link,
+  .lang-btn {
+    width: auto !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 8px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .pw-toggle, .toggle-password, .password-toggle, [data-toggle-password] {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
 /* ===== END final-ui-polish.css ===== */

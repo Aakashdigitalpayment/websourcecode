@@ -588,16 +588,17 @@ function htmlEsc(s) {
                               ['label'=>'Rounded',   'cls'=>'rounded-pill','val'=>'',        'ph'=>'Pill-shaped field',     'help'=>''],
                               ['label'=>'Flat',      'cls'=>'rounded-0', 'val'=>'',          'ph'=>'No border-radius',      'help'=>''],
                           ];
-                          foreach ($states as $s):
+                          foreach ($states as $shIdx => $s):
                               $extra = isset($s['extra']) ? $s['extra'] : '';
+                              $shFieldId = 'sh_field_12_' . (int)$shIdx;
                           ?>
                           <div class="col-md-6 col-xl-4">
-                              <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_12"><?php echo e($s['label']); ?></label>
+                              <label class="form-label fw-semibold small text-muted mb-1" for="<?php echo $shFieldId; ?>"><?php echo e($s['label']); ?></label>
                               <input type="text"
                                      class="form-control <?php echo e($s['cls']); ?>"
                                      value="<?php echo htmlspecialchars($s['val']); ?>"
                                      placeholder="<?php echo htmlspecialchars($s['ph']); ?>"
-                                     <?php echo $extra; ?> id="sh_field_12">
+                                     <?php echo $extra; ?> id="<?php echo $shFieldId; ?>">
                               <?php if (!empty($s['err'])): ?>
                                   <div class="invalid-feedback"><?php echo e($s['err']); ?></div>
                               <?php endif; ?>

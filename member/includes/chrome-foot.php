@@ -148,6 +148,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
 <script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/vendor/bootstrap.bundle.min.js') : '5'; ?>" defer></script>
 <script src="<?php echo $_fnUrl; ?>assets/js/v9-mobile-fix.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/v9-mobile-fix.js') : '9.7'; ?>" defer></script>
 <script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/form-validation.js?v=<?php echo (int)(@filemtime(dirname(__DIR__, 2) . '/assets/js/form-validation.js') ?: time()); ?>" defer></script>
+<script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-a11y.js?v=<?php echo (int)(@filemtime(dirname(__DIR__, 2) . '/assets/js/coop-a11y.js') ?: time()); ?>" defer></script>
 <script>
 (function () {
     /* ── Bell dropdown ── */

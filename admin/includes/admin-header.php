@@ -393,7 +393,7 @@ set_exception_handler(function (\Throwable $ex) {
 
     <!-- PWA manifest + Apple tags -->
     <?php if (function_exists('coopThemeColorMeta')) { coopThemeColorMeta(); } else { ?>
-    <meta name="theme-color" content="<?php echo htmlspecialchars(function_exists('getSetting') ? (string)getSetting('primary_color', '#1a5f2a') : '#1a5f2a', ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="theme-color" content="<?php echo htmlspecialchars(function_exists('coopThemeColorHex') ? coopThemeColorHex() : '#1a5f2a', ENT_QUOTES, 'UTF-8'); ?>">
     <?php } ?>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

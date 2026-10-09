@@ -70,7 +70,7 @@ function buildEmailHtml($subject, $eventLabel, $details, $trackingId = '') {
     $siteName  = getSetting('site_name', 'आकाश सहकारी');
     $siteUrl   = defined('SITE_URL') ? SITE_URL : '';
     $year      = date('Y');
-    $primaryColor   = getSetting('primary_color', '#1a5f2a');
+    $primaryColor   = (function_exists('coopThemeColorHex') ? coopThemeColorHex() : getSetting('primary_color', '#1a5f2a'));
     $secondaryColor = getSetting('secondary_color', '#c0392b');
     $primaryLight   = getSetting('primary_light', $primaryColor);
     $emailBg        = 'color-mix(in srgb, ' . $primaryColor . ' 7%, white)';
@@ -478,7 +478,7 @@ function sendMemberStatusUpdate(
 
     $siteName = getSetting('site_name', 'आकाश सहकारी');
     $siteUrl  = defined('SITE_URL') ? SITE_URL : '';
-    $primaryColor = getSetting('primary_color', '#1a5f2a');
+    $primaryColor = (function_exists('coopThemeColorHex') ? coopThemeColorHex() : getSetting('primary_color', '#1a5f2a'));
     $primaryLight = getSetting('primary_light', $primaryColor);
     $emailBg      = 'color-mix(in srgb, ' . $primaryColor . ' 7%, white)';
     $emailCardBg  = 'white';
@@ -825,7 +825,7 @@ function sendEmailNotificationRaw($eventType, $subject, $bodyText, $details, $tr
     $fromEmail = getSetting('notify_email_from', getSetting('site_email', 'noreply@localhost'));
 
     /* Wrap plain-text body into HTML (preserve newlines) */
-    $primaryColor = getSetting('primary_color', '#1a5f2a');
+    $primaryColor = (function_exists('coopThemeColorHex') ? coopThemeColorHex() : getSetting('primary_color', '#1a5f2a'));
     $emailBg      = 'color-mix(in srgb, ' . $primaryColor . ' 7%, #f9f9f9)';
     $emailCardBorder = 'color-mix(in srgb, ' . $primaryColor . ' 14%, #e5e7eb)';
     $htmlBody = '<div style="font-family:Arial,sans-serif;color:var(--text-color,#333);line-height:1.6;padding:20px;background:' . $emailBg . ';">'

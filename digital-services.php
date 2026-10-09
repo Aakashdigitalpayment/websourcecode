@@ -593,7 +593,7 @@ $L = getLangStrings();
 (function () {
     var wasPosted  = <?php echo ($_SERVER['REQUEST_METHOD'] === 'POST') ? 'true' : 'false'; ?>;
     var hasError   = <?php echo $error ? 'true' : 'false'; ?>;
-    var preService = <?php echo json_encode($_POST['service_type'] ?? ''); ?>;
+    var preService = <?php echo json_encode((string)($_POST['service_type'] ?? ''), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
     var serviceEl  = document.getElementById('serviceType');
     var formSection= document.getElementById('ds-form-section');

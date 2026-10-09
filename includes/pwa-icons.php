@@ -216,7 +216,7 @@ if (!function_exists('pwaBuildIconPng')) {
         imagealphablending($canvas, false);
         imagesavealpha($canvas, true);
 
-        $theme = function_exists('getSetting') ? trim((string) getSetting('primary_color', '#1a5f2a')) : '#1a5f2a';
+        $theme = function_exists('coopThemeColorHex') ? coopThemeColorHex() : '#1a5f2a';
         if (!preg_match('/^#([A-Fa-f0-9]{6})$/', $theme, $m)) {
             $theme = '#1a5f2a';
             $m = [1 => '1a5f2a'];

@@ -4,12 +4,18 @@ header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
 /* config.php starts the admin session (coop_session); a bare session_start() here opens PHPSESSID and loses the login */
 require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../../includes/auth-roles.php';
 require_once __DIR__ . '/../../includes/program-tables.php';
 require_once __DIR__ . '/../../includes/program-attendance-helpers.php';
 
 if (!isAdminLoggedIn()) {
     http_response_code(401);
     echo json_encode(['ok' => false, 'error' => 'unauthorized']);
+    exit;
+}
+if (function_exists('has_role') && !has_role('staff')) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'forbidden', 'error_np' => 'अनुमति छैन।'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
