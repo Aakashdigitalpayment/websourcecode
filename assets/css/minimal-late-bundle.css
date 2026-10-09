@@ -9259,4 +9259,13 @@ html body.dark-mode .form-check-input[type="checkbox"]:not(.form-switch *):not(:
 main section:has([data-aos]) {
   overflow-x: clip;
 }
+
+/* ── Public section rhythm: one token (audit found .stats-section 50px and .committees-section 24px beside the 60px norm) ── */
+:root { --pub-section-y: clamp(2.25rem, 4.5vw, 3.75rem); }
+.section-padding, .section-py,
+.stats-section,
+.committees-section.section-padding {
+  padding-top: var(--pub-section-y) !important;
+  padding-bottom: var(--pub-section-y) !important;
+}
 /* ===== END final-ui-polish.css ===== */
