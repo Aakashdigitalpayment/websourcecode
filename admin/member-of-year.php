@@ -158,7 +158,7 @@ $flash = getFlash();
 
     <!-- ══ TAB 1: सूची ══ -->
     <div class="tab-pane fade show active" id="mot-list">
-        <div class="card admin-table-card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
+        <div class="card admin-table-card svc-flat-top-card">
 
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3" style="flex-wrap:wrap">
@@ -329,8 +329,8 @@ $flash = getFlash();
 
     <!-- ══ TAB 2: Add / Edit Form ══ -->
     <div class="tab-pane fade" id="mot-form">
-        <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
+        <div class="card svc-flat-top-card">
+            <div class="card-header d-flex justify-content-between align-items-center gradient-card-header">
                 <h5 class="mb-0 fw-bold" id="motFormTitle">
                     <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ Spotlight थप्नुहोस्
                 </h5>

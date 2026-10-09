@@ -16,6 +16,12 @@ if (!isAdminLoggedIn()) {
     exit;
 }
 
+if (function_exists('has_role') && !has_role('staff')) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'forbidden', 'error_np' => 'अनुमति छैन।'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $memberQuery = trim((string)($_GET['member_id'] ?? ''));
 $programId = (int)($_GET['program_id'] ?? 0);
 $occurrenceId = (int)($_GET['occurrence_id'] ?? 0);

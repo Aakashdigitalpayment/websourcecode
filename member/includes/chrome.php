@@ -259,12 +259,12 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 
         <!-- Push Notification Enable Button -->
         <button type="button" id="pushEnableBtn"
-                class="mem-pwa-btn"
+                class="mem-pwa-btn mem-push-btn"
                 title="<?php echo $_t('Push Notification सक्षम गर्नुहोस्', 'Enable Push Notifications'); ?>"
                 aria-label="<?php echo $_t('Push Notification सक्षम गर्नुहोस्', 'Enable Push Notifications'); ?>"
                 style="display:none;"
                 onclick="coopSubscribePush()">
-            <i class="lucide-icon" data-lucide="bell-off" aria-hidden="true" id="pushBellIcon" style="color:#f59e0b;"></i>
+            <i class="lucide-icon" data-lucide="bell-off" aria-hidden="true" id="pushBellIcon"></i>
         </button>
 
         <!-- Bell -->
@@ -464,9 +464,8 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
       /* Early (before the shared helper is printed / Lucide ran): just rename the <i> */
       bell.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
     }
-    if (bell) {
-      bell.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
-    }
+    /* colour comes from CSS (.mem-push-btn / .is-on) so the Lucide swap can't drop it */
+    btn.classList.toggle('is-on', !!yes);
     btn.title = yes ? 'Push Notification सक्षम छ' : 'Push Notification सक्षम गर्नुहोस्';
   }
 

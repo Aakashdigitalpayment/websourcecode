@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=49306 sha256=8cf2e5599283f7b2
+ * Source bytes=47127 sha256=deae53ea4134edd9
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -84,7 +84,6 @@ a:hover { color: var(--primary-dark, #144a21); }
 header a, .mem-topbar a,
 footer a, .site-footer a { color: inherit; }
 
-
 /* ════════════════════════════════════════════════════════════════
    §2  TYPOGRAPHY SCALE — cross-portal consistent
    ════════════════════════════════════════════════════════════════ */
@@ -103,7 +102,6 @@ h6 { font-size: .88rem;                         font-weight: 600; }
     line-height: 1.2;
 }
 
-
 /* ════════════════════════════════════════════════════════════════
    §3  SCROLLBAR
    ════════════════════════════════════════════════════════════════ */
@@ -116,7 +114,6 @@ h6 { font-size: .88rem;                         font-weight: 600; }
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(var(--primary-rgb, 26,95,42), .6);
 }
-
 
 /* ════════════════════════════════════════════════════════════════
    §4  BOOTSTRAP OVERRIDES — brand palette, cross-portal
@@ -304,7 +301,6 @@ body:not([class*="admin-page-"]) .nav-tabs .nav-link.active {
 .modal-header .btn-close { filter: invert(1) brightness(2); }
 .modal-title { font-weight: 700 !important; }
 
-
 /* ════════════════════════════════════════════════════════════════
    §5  CARDS — cross-portal uniform
    ════════════════════════════════════════════════════════════════ */
@@ -371,7 +367,6 @@ body:not([class*="admin-page-"]) .nav-tabs .nav-link.active {
     }
 }
 
-
 /* ════════════════════════════════════════════════════════════════
    §7  PAGE BANNER (.page-banner) — all inner pages
    ════════════════════════════════════════════════════════════════ */
@@ -409,7 +404,6 @@ body:not([class*="admin-page-"]) .nav-tabs .nav-link.active {
 .page-banner .breadcrumb-item.active { color: rgba(255,255,255,.95); }
 .page-banner .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,.45); }
 
-
 /* ════════════════════════════════════════════════════════════════
    §8  SECTION HEADERS — uniform across all pages
    ════════════════════════════════════════════════════════════════ */
@@ -435,7 +429,6 @@ body:not([class*="admin-page-"]) .nav-tabs .nav-link.active {
 }
 .section-header h2::after,
 .section-header h3::after { display: none; }
-
 
 /* ════════════════════════════════════════════════════════════════
    §9  FORMS — uniform field style
@@ -504,7 +497,6 @@ body:not([class*="admin-page-"]) .nav-tabs .nav-link.active {
 .coop-prose img { max-width: 100%; height: auto; border-radius: var(--radius-md, 10px); }
 .coop-prose table { max-width: 100%; display: block; overflow-x: auto; }
 .coop-prose--full { max-width: none; margin-inline: 0; }
-
 
 /* ════════════════════════════════════════════════════════════════
    §10  LOGO & BRAND MARKS (cross-portal)
@@ -611,7 +603,6 @@ footer a:hover, .site-footer a:hover, .footer a:hover { color: var(--text-on-foo
 .slider-content h1 * { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
 .hero-subtitle-modern,
 .slider-content p { color: rgba(255,255,255,.92); }
-
 
 /* ════════════════════════════════════════════════════════════════
    §11  PUBLIC MOBILE DRAWER
@@ -796,7 +787,6 @@ footer a:hover, .site-footer a:hover, .footer a:hover { color: var(--text-on-foo
     body.header-v2 .main-nav .nav-menu .sub-menu li a:hover { background: rgba(255,255,255,.12); color: #fff; }
 }
 
-
 /* ════════════════════════════════════════════════════════════════
    §12  ADMIN PANEL
    ════════════════════════════════════════════════════════════════ */
@@ -823,7 +813,6 @@ body.admin-nav-open { overflow: hidden; }
     border: 1px solid rgba(20,83,45,.25) !important; border-radius: 8px !important;
 }
 
-
 /* ════════════════════════════════════════════════════════════════
    §13  MEMBER PORTAL
    ════════════════════════════════════════════════════════════════ */
@@ -834,7 +823,6 @@ body.mem-wrapper { background: #f6faf7; margin: 0; }
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px; margin: 0 0 18px; padding: 0; list-style: none;
 }
-
 
 /* ════════════════════════════════════════════════════════════════
    §14  AUTH PORTAL PAGES — login, verify
@@ -927,7 +915,6 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
 body.auth-portal-page:not(.verify-auth-page) .page-back { left: auto; right: 20px; }
 body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; left: 20px; }
 
-
 /* ════════════════════════════════════════════════════════════════
    §15  UTILITY CLASSES (.coop-*)
    ════════════════════════════════════════════════════════════════ */
@@ -979,7 +966,6 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; le
         z-index: 9986;
     }
 }
-
 
 /* ════════════════════════════════════════════════════════════════
    §16  MOBILE-FIRST RESPONSIVE
@@ -1143,7 +1129,6 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; le
     .row > [class*="col-"] { padding-left: 8px; padding-right: 8px; }
 }
 
-
 /* ════════════════════════════════════════════════════════════════
    §18  STF-* SHARED COMPONENT CLASSES  (HRM / Staff forms)
    ────────────────────────────────────────────────────────────────
@@ -1154,67 +1139,17 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; le
    ════════════════════════════════════════════════════════════════ */
 
 /* ── Page head row ─────────────────────────────────────────────── */
-.stf-page-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 24px;
-}
 
 /* ── Headings ───────────────────────────────────────────────────── */
-.stf-title {
-    margin: 0;
-    color: var(--primary-color, #1a5f2a);
-}
-.stf-subtitle {
-    color: var(--text-muted, #6b7280);
-    margin: 6px 0 0;
-    font-size: .88rem;
-}
-.stf-section-title {
-    color: var(--primary-color, #1a5f2a);
-    margin-top: 0;
-}
 
 /* ── Table helpers ─────────────────────────────────────────────── */
-.stf-card-table-wrap {
-    padding: 0;
-    overflow: hidden;
-}
-.stf-table {
-    font-family: var(--font-primary, 'Mukta', 'Noto Sans Devanagari', sans-serif);
-    font-size: .875rem;
-}
-.stf-table-no-margin { margin: 0; }
-.stf-soft-head       { background: var(--bg-soft, #f5faf6); }
-.stf-align-right     { text-align: right; }
 
 /* ── Status dots ───────────────────────────────────────────────── */
-.stf-status-dot      { font-weight: 600; }
-.stf-status-active   { color: var(--color-success, #28a745); }
-.stf-status-inactive { color: var(--color-danger,  #dc3545); }
 
 /* ── Misc utilities ────────────────────────────────────────────── */
-.stf-inline-form { display: inline; }
-.stf-self-note   { color: var(--text-muted, #6b7280); font-size: .82rem; }
-.stf-muted-note  { color: var(--text-muted, #6b7280); font-size: .82rem; }
-.stf-mt24        { margin-top: 24px; }
-.stf-grid-gap    { display: grid; gap: 12px; }
 
 /* ── Modal backdrop ────────────────────────────────────────────── */
-.stf-modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .52);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    overflow-y: auto;
-}
+
 /* JS opens the modal by setting display:flex */
 .stf-modal-backdrop[style*="flex"],
 .stf-modal-backdrop.open {
@@ -1222,39 +1157,12 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; le
 }
 
 /* ── Modal card sizes ──────────────────────────────────────────── */
-.stf-modal-card {
-    width: 92%;
-    max-width: 520px;
-    background: var(--bg-card, #fff);
-    border-radius: var(--radius-md, 10px);
-    padding: 24px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, .16);
-    position: relative;
-}
-.stf-modal-card-lg { max-width: 880px; }
-.stf-modal-card-sm { max-width: 420px; }
 
 /* ── Action rows (buttons at bottom of form) ───────────────────── */
-.stf-actions-row {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-}
-.stf-actions-row-lg { margin-top: 18px; }
-.stf-actions-row-sm { margin-top: 14px; }
 
 /* ── Responsive: full-width modals on very small screens ───────── */
 @media (max-width: 480px) {
-    .stf-modal-card,
-    .stf-modal-card-lg,
-    .stf-modal-card-sm {
-        width: 100%;
-        max-width: 100%;
-        border-radius: var(--radius-sm, 6px);
-        padding: 16px;
-    }
-    .stf-actions-row { flex-direction: column-reverse; }
+
     .stf-actions-row .btn-coop,
     .stf-actions-row button { width: 100%; justify-content: center; }
 }

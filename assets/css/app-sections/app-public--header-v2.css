@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-public.css — do not edit app-* for polish.
- * Source bytes=36324 sha256=e17d59e4b0a67920
+ * Source bytes=36175 sha256=6588b7652ccb0537
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -781,9 +781,7 @@ body.dark-mode .pfl-brand-area {
 }
 body.dark-mode .pfl-brand-area::before { background: #1c1c2e !important; }
 /* Dark mode: white blend-strip लाई dark navy मा बदल्ने (नत्र brand र nav बीचमा सेतो stripe देखिन्छ) */
-body.dark-mode .pfl-brand-area::after {
-    background: linear-gradient(to right, #1c1c2e 0%, rgba(28,28,46,0.7) 60%, transparent 100%) !important;
-}
+
 body.dark-mode .pfl-nav-area {
     background: transparent;
 }

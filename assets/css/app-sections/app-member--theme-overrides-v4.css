@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
- * Source bytes=95673 sha256=0dc7fcac76a2b0aa
+ * Source bytes=94996 sha256=e170259e5e636872
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -820,7 +820,6 @@ body{ background: var(--bg-soft, #f6faf7); }
 .qh-ic.help{ background:var(--primary-color,#1a5f2a); }
 .qh-ic.chat{ background:#0ea5e9; }
 .qh-ic.links{ background:#6366f1; }
-
 
 /* ════════════════════════════════════════════════════════════
  * v11.5 — Targeted UI fixes (2026-05-14)
@@ -2333,29 +2332,7 @@ footer.main-footer,
 #pane-programs .stat-card-value{ font-size: 1.12rem !important; line-height: 1 !important; }
 #pane-programs .stat-card-label{ font-size: .7rem !important; line-height: 1.2 !important; }
 #pane-welfare .dash-section-title{ font-size: .98rem !important; }
-#pane-welfare .wf-summary-bar{
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  margin-bottom: 12px !important;
-}
-#pane-welfare .wf-stat-chip{
-  min-height: 66px !important;
-  padding: 10px 12px !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 14px rgba(15,23,42,.05) !important;
-  align-items: center !important;
-}
-#pane-welfare .wf-stat-chip:hover{
-  transform: none !important;
-  box-shadow: 0 5px 16px rgba(15,23,42,.08) !important;
-}
-#pane-welfare .wf-stat-icon{
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  border-radius: 10px !important;
-  font-size: .92rem !important;
-}
+
 #pane-welfare .wf-stat-chip .val{ font-size: 1.15rem !important; line-height: 1 !important; }
 #pane-welfare .wf-stat-chip .lbl{ font-size: .72rem !important; line-height: 1.2 !important; }
 @media (max-width: 768px){
@@ -2467,7 +2444,6 @@ body.auth-page,
   color-scheme: light !important;
   background: #fff !important;
 }
-
 
 /* ═══════════════════════════════════════════════════
    stat-mini-row fix — stat-card.php v12

@@ -77,6 +77,17 @@ python3 scripts/build-css-late-bundles.py
 Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 `python3 scripts/build-css-late-bundles.py --check` (also run by `smoke-css-order.php`) fails if a bundle drifted from its sources.
 
+**Behaviour-neutral dedupe of the frozen bases:** `python3 scripts/dedupe-app-css.py app-public.css [--write]` drops
+exact duplicate rules (same @media context, selector and declarations — the earlier copy) and `:root` token
+declarations whose value is identical to `global.css`. Same verification as pruning: regenerate shadows, screenshot diff.
+
+**Dead-rule pruning of the frozen bases** (the one sanctioned edit to `app-*.css`):
+`python3 scripts/prune-app-css-dead-rules.py app-core.css` (dry run) → `--write`. A rule goes only when every
+selector consists solely of classes that appear nowhere in PHP/JS/JSON/vendor JS (dash-prefixes and
+`'badge-' . $x` concatenations count as used). Removed rules are listed in `scripts/reports/<sheet>.pruned.txt`.
+After `--write`, regenerate the shadows (`scripts/extract-app-css-section.py --write --all-{first,second,third}-pr`)
+and verify with full-page screenshot diffs (public + member + admin, 1366 and 390) before committing.
+
 `assets/css/app-sections/` holds **non-live** extract shadows of frozen `app-*.css` blocks — see that folder’s README; never load them in production theme order.
 
 ### Safe theme / UX rules
@@ -117,6 +128,7 @@ Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 | **मासिक बचत** | `members.monthly_saving_regular` (1 = नियमित, 0 = नियमित नभएको, NULL = नतोकिएको) — one helper `includes/member-monthly-saving.php`. Edited from Members, KYM (writes the linked member), member import column `monthly_saving`, **field-only import** (Member ID + monthly_saving; touches nothing else) and Program Registration Desk (inline save) |
 | **Notice date** | Exception to AD storage: `notices.notice_date` holds **बि.सं.** (admin form is BS). Read via `coop_notice_date_bs()` (display) / `coop_notice_date_ad()` (sitemap, JSON-LD); save via `coop_notice_date_normalize_input()` — legacy AD rows still display correctly |
 | **Admin buttons & layout** | One button system for every admin page (`body[class*="admin-page-"]` in `admin-ux-deep-patch.css`): solid green/red/amber/slate, neutral outline, green/red/amber outline; custom gradient buttons (`.dash-btn-*`) keep their look. `.admin-wrapper > .main-content { min-width:0 }` keeps pages within the screen (wide tables scroll inside their wrapper) |
+| **Admin forms (add / edit)** | One form system for every admin form, tab pane and modal (`ADMIN FORM SYSTEM` block at the end of `admin-ux-deep-patch.css`): labels (one size, no uppercase, no per-page green/grey), controls, help text, switch chips, the five form-header classes, section titles, save/cancel action row and page tabs. Scoped to POST forms — GET filter bars are untouched. New admin forms need no page CSS: `form` + `row g-3` + `.form-label` + `.form-switch` + a last `div` holding the submit button |
 | **Program module UI** | Form sections, switches, `prog-*` helpers for `admin-page-program*` pages. All time fields are one select style: `programScheduleTimeSelectOptions()` (event) / `programWindowTimeSelectHtml()` (window + QR, posts `H:i`) |
 | **Custom roles (अनुमति matrix)** | Superadmin → `admin/admin-roles.php`: per sidebar menu हेर्ने/थप्ने/सम्पादन/हटाउने; assign in Admin व्यवस्थापन (`admin_users.custom_role_id`). Engine `includes/admin-permissions.php` (registry = sidebar; sub-pages via aliases), enforced in `admin-page-boot.php`; `has_role()` follows the matrix for those users. Superadmin pages never grantable. Users without a custom role unchanged |
 | **Login lockout** | `checkLoginAttempts()` is per account: same user+IP 5 / same user 10 / same IP across users 30 (spray) in 15 min — one person's typos never lock the office network |
@@ -184,3 +196,9 @@ PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 
 *Internal property of Aakash Cooperative — Not for redistribution.*  
 **Last updated: 2026-09-18** (popup expiry, राहत Opening, import DOB BS, brand/contact icons, center UI polish)
+| **Admin spacing** | One gap token: `--adm-gap` (1rem) between every top-level block, `--adm-gap-lg` (1.5rem) after stat strips, page padding from `.page-content` only (inner `.container-fluid` padding zeroed) — `ADMIN SPACING RHYTHM` block in `admin-ux-deep-patch.css`. Do not add `mb-*` / `py-*` utilities on page-level blocks to tune spacing; change the token |
+| **Member spacing** | `--mem-gap` (1rem) between every top-level block of `.mem-main-content` (`member-shell-polish.css`); page markup should not carry `mb-*` / `mt-*` on those blocks |
+| **Spacing scale (single source)** | `global.css` `--space-*` feeds `--adm-gap` / `--adm-gap-lg` (admin), `--mem-gap` (member) and `--pub-section-y` (public `.section-padding` rhythm, `final-ui-polish.css`). Intentional bands keep their own padding: page banners, `.cta-section`, filter bars (`py-4`), page-specific heroes |
+| **Component tokens (single source)** | `global.css`: `--card-radius` (12px, every card on every panel via `final-ui-polish.css`; member `--mem-radius` reads it), `--control-radius` (10px). Admin: `--adm-control-h` (40px) = one height for inputs, selects, filter controls and buttons (`admin-ux-deep-patch.css`). Runtime audit: all design tokens resolve to the same value on public, member and admin |
+| **Admin surfaces** | Badges (12px / 600 / 6px radius; pills stay pills), table `<th>`, plain card headers and `.btn-sm` each have one shape — `ADMIN SURFACE UNIFORMITY` block in `admin-ux-deep-patch.css`. New admin pages need no per-page badge/table CSS |
+| **Accessibility shim** | `assets/js/coop-a11y.js` (public footer, member chrome-foot, admin footer): placeholder-only inputs get `aria-label`, `.btn-close` and icon-only action buttons get names, re-run for AJAX/modal content. Markup should still carry real labels; the shim is the safety net. Touch targets ≥36px on phones (topbar EN/NP, password eye, sidebar logout) |

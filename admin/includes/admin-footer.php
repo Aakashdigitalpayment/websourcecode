@@ -59,6 +59,7 @@
 
     <!-- PWA — Service Worker + Install Handler -->
     <script src="../assets/js/pwa-register.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/pwa-register.js') : '3.2'; ?>" defer></script>
+    <script src="../assets/js/coop-a11y.js?v=<?php echo function_exists('coopThemeCssVer') ? coopThemeCssVer('assets/js/coop-a11y.js') : '1'; ?>" defer></script>
 
     <script>
     /* =====================================================

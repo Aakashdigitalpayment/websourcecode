@@ -230,7 +230,7 @@ $formOpen = $edit || !empty($errors) || isset($_GET['new']);
 
 <div class="tab-content">
     <div class="tab-pane fade <?php echo $formOpen ? '' : 'show active'; ?>" id="mss-list">
-        <div class="card admin-table-card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
+        <div class="card admin-table-card svc-flat-top-card">
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3" style="flex-wrap:wrap">
                 <div class="input-group input-group-sm" style="max-width:300px">
                     <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>

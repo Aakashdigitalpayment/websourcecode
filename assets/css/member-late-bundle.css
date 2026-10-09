@@ -2384,6 +2384,22 @@ body.verify-auth-page .vp-secure {
 .idcard-note-muted {
   color: #4b5563 !important;   /* on the amber note background #6b7280 was 4.47 */
 }
+
+/* Push-notification bell: state colour from a class, not inline style (Lucide's icon swap dropped it) */
+.mem-push-btn :is(.lucide-icon, svg.lucide) { color: #f59e0b !important; }
+.mem-push-btn.is-on :is(.lucide-icon, svg.lucide) { color: var(--primary-color, #1a5f2a) !important; }
+
+/* ── Member spacing rhythm: one gap between every top-level block (audit: 16 / 18 / 20 / 14 px mixed) ── */
+:root { --mem-gap: var(--space-4, 1rem); } /* shared spacing scale, global.css */
+.mem-main-content > *:not(script):not(style):not(.d-none):not([hidden]) {
+  margin-bottom: var(--mem-gap) !important;
+}
+.mem-main-content > *:last-child,
+.mem-main-content > :nth-last-child(1 of :not(script):not(style):not(.d-none):not([hidden])) { margin-bottom: 0 !important; }
+.mem-main-content > .midx-card-mt { margin-top: 0 !important; }
+.mem-main-content > :is(.stat-mini-row, .mem-profile-tab-shell, .mem-grid-2) { margin-bottom: var(--mem-gap) !important; }
+.mem-main-content > .mem-grid-2 { gap: var(--mem-gap); }
+@media (max-width: 575.98px) { :root { --mem-gap: var(--space-3, 0.75rem); } }
 /* ===== END member-shell-polish.css ===== */
 
 /* ===== BEGIN lucide-icon-utils.css ===== */
@@ -9277,5 +9293,41 @@ html body.dark-mode .form-check-input[type="checkbox"]:not(.form-switch *):not(:
    so sticky headers keep working; only sections that hold AOS elements are affected. */
 main section:has([data-aos]) {
   overflow-x: clip;
+}
+
+/* ── Public section rhythm: one token (audit found .stats-section 50px and .committees-section 24px beside the 60px norm) ── */
+:root { --pub-section-y: clamp(2.25rem, 4.5vw, 3.75rem); }
+.section-padding, .section-py,
+.stats-section {
+  padding-top: var(--pub-section-y) !important;
+  padding-bottom: var(--pub-section-y) !important;
+}
+
+/* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
+.card:not(.stat-card):not([class*="flat-top"]):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
+
+/* ── Tap targets (audit, 390px): topbar EN/NP 30×30, password eye 24×24 → 36px minimum on touch screens ── */
+@media (pointer: coarse), (max-width: 767.98px) {
+  /* the frozen base (app-public.css ~23846) pins these to 30×30 at (0,4,1); same specificity here, later load */
+  body.header-v2 .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  body .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  .pfl-topbar .pfl-lang-link,
+  .lang-btn {
+    width: auto !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 8px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .pw-toggle, .toggle-password, .password-toggle, [data-toggle-password] {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+  }
 }
 /* ===== END final-ui-polish.css ===== */

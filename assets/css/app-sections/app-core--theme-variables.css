@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=8684 sha256=d9a27c04dbce3b5f
+ * Source bytes=8619 sha256=5166428124945de0
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -153,11 +153,6 @@ h6 { font-size: 0.85rem; font-weight: var(--font-weight-bold); line-height: var(
 p {
     margin-bottom: var(--spacing-md);
     line-height: 1.6;
-}
-
-.np-text p {
-    line-height: 1.7;
-    letter-spacing: 0.3px;
 }
 
 /* ══════════════════════════════════════════════════════════════

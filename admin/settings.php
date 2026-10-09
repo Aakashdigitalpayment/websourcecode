@@ -1212,7 +1212,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 ['icon'=>'banknote','title'=>$__t('ऋण','Loan'),'val'=>'12%'],
                                 ['icon'=>'users','title'=>$__t('सदस्य','Members'),'val'=>'५,२००'],
                             ];
-                            foreach ($cards as $card): ?>
+                            foreach ($cards as $loop => $card): ?>
                             <div style="flex:1;background:#fff;border-radius:8px;padding:10px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)">
                                 <div id="prev-card-icon-<?php echo $loop ?? 0; ?>" style="width:28px;height:28px;border-radius:7px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">
                                     <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo e($card['icon']); ?>"></i>

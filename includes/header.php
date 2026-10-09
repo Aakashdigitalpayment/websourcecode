@@ -1001,7 +1001,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         $psUrl = function_exists('coop_safe_cta_url')
                             ? coop_safe_cta_url(getSetting('play_store_url', ''))
                             : (function_exists('safe_http_url') ? safe_http_url(getSetting('play_store_url', '')) : trim((string) getSetting('play_store_url', '')));
-                        if ($psUrl): ?>
+                        if ($psUrl && $psUrl !== '#'): ?>
                         <li>
                             <a href="<?php echo htmlspecialchars($psUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-android"><i class="fab fa-google-play"></i></span>
@@ -1016,7 +1016,7 @@ $__pflSiteNameCss = json_encode((string) $siteName, JSON_UNESCAPED_UNICODE | JSO
                         $asUrl = function_exists('coop_safe_cta_url')
                             ? coop_safe_cta_url(getSetting('app_store_url', ''))
                             : (function_exists('safe_http_url') ? safe_http_url(getSetting('app_store_url', '')) : trim((string) getSetting('app_store_url', '')));
-                        if ($asUrl): ?>
+                        if ($asUrl && $asUrl !== '#'): ?>
                         <li>
                             <a href="<?php echo htmlspecialchars($asUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-ios"><i class="fab fa-apple"></i></span>

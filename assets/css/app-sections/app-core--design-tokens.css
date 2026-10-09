@@ -1,5 +1,5 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
- * Source bytes=13255 sha256=b0f62c8d4bab74ae
+ * Source bytes=12774 sha256=5ebe47d500c34075
  * Future PR: thin @import shim; keep app-* frozen until verified.
  * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
@@ -21,9 +21,6 @@
     --primary:          #1a5f2a;
     --primary-color:     var(--primary);  /* backward compat */
     --primary-dark:      #144a21;
-    --primary-light:     #2e8b4a;
-    --primary-glow:      #4caf6a;
-    --secondary:         #c0392b;
     --secondary-color:   var(--secondary);
     --header-color:      #c0392b;
     --header-dark:       #922b21;
@@ -32,19 +29,12 @@
     --text-on-footer:    #ffffff;
     /* Surface */
     --bg-page:           #f8faf9;
-    --bg-card:           #ffffff;
-    --bg-soft:           #f5faf6;
-    --bg-muted:          #e8f5e9;
 
     /* Text */
     --text-primary:      #1a2e1f;
-    --text-secondary:    #4a5a4f;
-    --text-muted:        #6b7280;
-    --text-on-primary:   #ffffff;
 
     /* Border & status */
     --border-color:      #e5e7eb;
-    --border-soft:       #f0f0f0;
     --color-info:        var(--secondary);
 
     /* Shadows */
@@ -52,7 +42,6 @@
 
     /* Container */
     --container-max:     1280px;
-    --container-pad:     20px;
 
     /* AkashDigital-style Font Sizes — rem-based (base 14px) */
     --text-xs:           0.75rem;   /* 12px */
@@ -281,8 +270,6 @@ input, select, textarea, button {
 /* fw-* font-weight utility (Bootstrap only has fw-bold/normal) */
 .fw-500, .fw-medium   { font-weight: 500 !important; }
 .fw-600, .fw-semibold { font-weight: 600 !important; }
-.fw-700               { font-weight: 700 !important; }
-.fw-800, .fw-extrabold{ font-weight: 800 !important; }
 
 /* Stat card animation — generic (used by stat-card.php component) */
 .stat-card {

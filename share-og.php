@@ -43,10 +43,7 @@ if (!is_file($logoAbs)) {
     }
 }
 
-$primary = trim((string) (function_exists('getSetting') ? getSetting('primary_color', '#1a5f2a') : '#1a5f2a'));
-if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $primary)) {
-    $primary = '#1a5f2a';
-}
+$primary = function_exists('coopThemeColorHex') ? coopThemeColorHex() : '#1a5f2a'; /* one validator: includes/theme-assets.php */
 $siteName = trim((string) (function_exists('getSetting') ? getSetting('site_name', 'सहकारी') : 'सहकारी'));
 if ($siteName === '') {
     $siteName = 'सहकारी';

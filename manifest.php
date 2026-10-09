@@ -13,7 +13,7 @@ header('Cache-Control: public, max-age=300');
 
 $appName    = function_exists('getSetting') ? trim((string) getSetting('pwa_app_name',  '')) : '';
 $shortName  = function_exists('getSetting') ? trim((string) getSetting('pwa_short_name', '')) : '';
-$themeColor = function_exists('getSetting') ? trim((string) getSetting('primary_color',  '#1a5f2a')) : '#1a5f2a';
+$themeColor = function_exists('coopThemeColorHex') ? coopThemeColorHex() : '#1a5f2a'; /* one validator: includes/theme-assets.php */
 $siteName   = function_exists('getSetting') ? trim((string) getSetting('site_name', 'सहकारी')) : 'सहकारी';
 $desc       = function_exists('getSetting') ? trim((string) getSetting('meta_description', '')) : '';
 

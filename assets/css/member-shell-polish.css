@@ -1339,3 +1339,20 @@ body.verify-auth-page .vp-secure {
 .idcard-note-muted {
   color: #4b5563 !important;   /* on the amber note background #6b7280 was 4.47 */
 }
+
+/* Push-notification bell: state colour from a class, not inline style (Lucide's icon swap dropped it) */
+.mem-push-btn :is(.lucide-icon, svg.lucide) { color: #f59e0b !important; }
+.mem-push-btn.is-on :is(.lucide-icon, svg.lucide) { color: var(--primary-color, #1a5f2a) !important; }
+
+/* ── Member spacing rhythm: one gap between every top-level block (audit: 16 / 18 / 20 / 14 px mixed) ── */
+:root { --mem-gap: var(--space-4, 1rem); } /* shared spacing scale, global.css */
+.mem-main-content > *:not(script):not(style):not(.d-none):not([hidden]) {
+  margin-bottom: var(--mem-gap) !important;
+}
+.mem-main-content > *:last-child,
+.mem-main-content > :nth-last-child(1 of :not(script):not(style):not(.d-none):not([hidden])) { margin-bottom: 0 !important; }
+.mem-main-content > .midx-card-mt { margin-top: 0 !important; }
+.mem-main-content > :is(.stat-mini-row, .mem-profile-tab-shell, .mem-grid-2) { margin-bottom: var(--mem-gap) !important; }
+.mem-main-content > .mem-grid-2 { gap: var(--mem-gap); }
+@media (max-width: 575.98px) { :root { --mem-gap: var(--space-3, 0.75rem); } }
+
