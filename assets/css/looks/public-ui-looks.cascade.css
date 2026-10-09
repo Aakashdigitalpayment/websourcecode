@@ -1,0 +1,792 @@
+/* AUTO-GENERATED: public-ui-looks.cascade.css — do not edit.
+ * Source: assets/css/public-ui-looks.css (edit there), then
+ * python3 scripts/build-public-ui-looks.py
+ */
+
+html[data-ui-look="cascade"] {
+  --look-radius: 0.65rem;
+  --look-radius-lg: 0.85rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 2%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f3f6f4);
+  --look-ink-rail: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 70%, #64748b);
+}
+
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 9 — Bold / Airy / Cascade (new looks; Soft–Compact untouched)
+   Same pages / text / brand tokens. Distinct chrome + flex rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Tokens already set above; body wash —— */
+html[data-ui-look="bold"] body,
+html[data-ui-look="airy"] body,
+html[data-ui-look="cascade"] body {
+  background-color: var(--look-wash);
+}
+
+/* ───────────── CASCADE — services→tools waterfall ───────────── */
+html[data-ui-look="cascade"] .pfl-main-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+
+html[data-ui-look="cascade"] .pfl-header-wrapper,
+html[data-ui-look="cascade"] .pfl-drop,
+html[data-ui-look="cascade"] .pfl-login-menu,
+html[data-ui-look="cascade"] .mobile-nav-drawer,
+html[data-ui-look="cascade"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  padding: 0.42rem 0.6rem !important;
+  border-left: 2px solid transparent;
+}
+
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  border-left-color: color-mix(in srgb, var(--secondary-color, var(--secondary)) 70%, #fff) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li.open > a i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="cascade"] .hero-slider,
+html[data-ui-look="cascade"] .hero-carousel-modern,
+html[data-ui-look="cascade"] .hero-slide-modern,
+html[data-ui-look="cascade"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+
+html[data-ui-look="cascade"] .hero-title-modern {
+  font-weight: 700 !important;
+  border-left: var(--look-ink-rail) !important;
+  padding-left: 0.7rem;
+  max-width: min(36rem, 100%);
+  overflow-wrap: anywhere;
+}
+
+/* Soft underline accent → cascade rail only (avoid double chrome) */
+html[data-ui-look="cascade"] .hero-title-modern::after,
+html[data-ui-look="cascade"] .hero-title-modern::before {
+  display: none !important;
+}
+
+html[data-ui-look="cascade"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="cascade"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="cascade"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="cascade"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="cascade"] .hero-btn-modern,
+html[data-ui-look="cascade"] .btn,
+html[data-ui-look="cascade"] .btn-primary,
+html[data-ui-look="cascade"] .home-btn-primary,
+html[data-ui-look="cascade"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="cascade"] .hero-slider .carousel-indicators button {
+  border-radius: 2px !important;
+  width: 14px !important;
+  height: 4px !important;
+}
+
+html[data-ui-look="cascade"] .card,
+html[data-ui-look="cascade"] .service-card,
+html[data-ui-look="cascade"] .service-card-modern,
+html[data-ui-look="cascade"] .notice-card,
+html[data-ui-look="cascade"] .news-card,
+html[data-ui-look="cascade"] .feature-card,
+html[data-ui-look="cascade"] .why-choose-card,
+html[data-ui-look="cascade"] .award-card,
+html[data-ui-look="cascade"] .rate-card,
+html[data-ui-look="cascade"] .rate-card-enhanced,
+html[data-ui-look="cascade"] .coop-card,
+html[data-ui-look="cascade"] .ds-coop-card,
+html[data-ui-look="cascade"] .tools-category-card,
+html[data-ui-look="cascade"] .feature-box,
+html[data-ui-look="cascade"] .value-card,
+html[data-ui-look="cascade"] .gallery-card,
+html[data-ui-look="cascade"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #dce3df) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="cascade"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e5e7eb) !important;
+}
+
+html[data-ui-look="cascade"] .tools-mini-link > svg.lucide,
+html[data-ui-look="cascade"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+
+html[data-ui-look="cascade"] .tools-links-grid {
+  gap: 0.45rem !important;
+}
+
+html[data-ui-look="cascade"] .section-padding,
+html[data-ui-look="cascade"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) - 10px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) - 10px) !important;
+}
+
+html[data-ui-look="cascade"] .section-header h2,
+html[data-ui-look="cascade"] .section-header-unified h2 {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+}
+
+html[data-ui-look="cascade"] .institutional-profile-bar,
+html[data-ui-look="cascade"] .rates-box-enhanced,
+html[data-ui-look="cascade"] .notices-box-enhanced,
+html[data-ui-look="cascade"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #dce3df);
+  border-left: var(--look-ink-rail);
+  background: var(--look-paper);
+  box-shadow: none !important;
+}
+
+html[data-ui-look="cascade"] .tools-widget-section {
+  padding-block: 1rem !important;
+  border-block: 1px dashed color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent);
+}
+
+html[data-ui-look="cascade"] .page-banner {
+  border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  color: var(--text-on-primary, #fff);
+}
+
+html[data-ui-look="cascade"] .page-banner h1,
+html[data-ui-look="cascade"] .page-banner .page-title-modern {
+  font-weight: 700 !important;
+  color: var(--text-on-primary, #fff) !important;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+}
+
+html[data-ui-look="cascade"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="cascade"] .main-footer .footer-widget h4 {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Shared safety: no hover translate clip */
+html[data-ui-look="bold"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="airy"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="cascade"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* Soft-matching hero scrim for new looks (photo + text stay clear) */
+html[data-ui-look="bold"] .hero-overlay-modern,
+html[data-ui-look="bold"] .slider-overlay,
+html[data-ui-look="airy"] .hero-overlay-modern,
+html[data-ui-look="airy"] .slider-overlay,
+html[data-ui-look="cascade"] .hero-overlay-modern,
+html[data-ui-look="cascade"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+/* ── PASS 9 flex shells + homepage serial ── */
+html[data-ui-look="bold"] #main-content:has(> .hero-slider),
+html[data-ui-look="airy"] #main-content:has(> .hero-slider),
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="airy"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="cascade"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="bold"] .pfl-quick-links,
+html[data-ui-look="airy"] .pfl-quick-links,
+html[data-ui-look="cascade"] .pfl-quick-links,
+html[data-ui-look="bold"] .pfl-nav-area .nav-menu,
+html[data-ui-look="airy"] .pfl-nav-area .nav-menu,
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu,
+html[data-ui-look="bold"] .main-footer .footer-top .row,
+html[data-ui-look="airy"] .main-footer .footer-top .row,
+html[data-ui-look="cascade"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+html[data-ui-look="bold"] #main-content > .hero-slider,
+html[data-ui-look="airy"] #main-content > .hero-slider,
+html[data-ui-look="cascade"] #main-content > .hero-slider { order: 1;
+}
+
+html[data-ui-look="bold"] #main-content > .institutional-profile-section,
+html[data-ui-look="airy"] #main-content > .institutional-profile-section,
+html[data-ui-look="cascade"] #main-content > .institutional-profile-section { order: 2;
+}
+
+/* Cascade — services→tools→rates then why+CTA */
+html[data-ui-look="cascade"] #main-content > .services-section { order: 3;
+}
+
+html[data-ui-look="cascade"] #main-content > .tools-widget-section { order: 4;
+}
+
+html[data-ui-look="cascade"] #main-content > .rates-notices-section { order: 5;
+}
+
+html[data-ui-look="cascade"] #main-content > .why-us-section { order: 6;
+}
+
+html[data-ui-look="cascade"] #main-content > .cta-section { order: 7;
+}
+
+/* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="cascade"] #main-content > .leadership-messages-section { order: 8;
+}
+
+html[data-ui-look="cascade"] #main-content > .news-section { order: 9;
+}
+
+html[data-ui-look="cascade"] #main-content > .awards-section { order: 10;
+}
+
+html[data-ui-look="cascade"] #main-content > .mobile-app-section { order: 11;
+}
+
+html[data-ui-look="cascade"] #main-content > .app-features-section { order: 12;
+}
+
+html[data-ui-look="cascade"] #main-content > .member-spotlight-section { order: 13;
+}
+
+/* —— Top utility serial —— */
+html[data-ui-look="bold"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="cascade"] .pfl-quick-links > li.has-drop { order: 20;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 1;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 2;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 3;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4;
+}
+
+html[data-ui-look="cascade"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 5;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 2;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 3;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 8;
+}
+
+html[data-ui-look="cascade"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 9;
+}
+
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-5 { order: 1;
+}
+
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-3 { order: 2;
+}
+
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 { order: 3;
+}
+
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  justify-content: center;
+}
+
+html[data-ui-look="bold"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="airy"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="cascade"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Dark-mode paper for new looks */
+html[data-ui-look="bold"] body.dark-mode,
+html[data-ui-look="airy"] body.dark-mode,
+html[data-ui-look="cascade"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #1a1f1c);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #121512);
+}
+
+html[data-ui-look="bold"] body.dark-mode .service-card,
+html[data-ui-look="bold"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="airy"] body.dark-mode .service-card,
+html[data-ui-look="airy"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .service-card,
+html[data-ui-look="cascade"] body.dark-mode .rate-card-enhanced {
+  background: var(--look-paper) !important;
+}
+
+/* Forms */
+html[data-ui-look="bold"] .form-control,
+html[data-ui-look="bold"] .form-select,
+html[data-ui-look="cascade"] .form-control,
+html[data-ui-look="cascade"] .form-select {
+  border-radius: var(--look-radius) !important;
+}
+
+/* Devanagari wrap safety */
+html[data-ui-look="bold"] .hero-title-modern,
+html[data-ui-look="airy"] .hero-title-modern,
+html[data-ui-look="cascade"] .hero-title-modern,
+html[data-ui-look="bold"] .tools-mini-link span,
+html[data-ui-look="airy"] .tools-mini-link span,
+html[data-ui-look="cascade"] .tools-mini-link span,
+html[data-ui-look="bold"] .value-card h5,
+html[data-ui-look="airy"] .value-card h5,
+html[data-ui-look="cascade"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 9.1 — Bold / Airy / Cascade polish (Soft–Compact untouched)
+   Nav open/hover child contrast, dropdown radius, mobile close,
+   since-badge circle safety, secondary-page accents.
+   ════════════════════════════════════════════════════════════ */
+
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu .sub-menu,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="bold"] .pfl-mobile-toggle,
+html[data-ui-look="bold"] .close-menu,
+html[data-ui-look="cascade"] .pfl-mobile-toggle,
+html[data-ui-look="cascade"] .close-menu {
+  border-radius: var(--look-radius) !important;
+}
+
+/* Since seal: keep Soft year-only circle; never oval from look radius */
+html[data-ui-look="bold"] .pfl-since-badge,
+html[data-ui-look="airy"] .pfl-since-badge,
+html[data-ui-look="cascade"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html[data-ui-look="bold"] .pfl-since-badge .since-text,
+html[data-ui-look="airy"] .pfl-since-badge .since-text,
+html[data-ui-look="cascade"] .pfl-since-badge .since-text {
+  display: none !important;
+}
+
+html[data-ui-look="bold"] .section-badge,
+html[data-ui-look="cascade"] .section-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.03em;
+}
+
+html[data-ui-look="bold"] .ip-home-stat,
+html[data-ui-look="cascade"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="bold"] .breadcrumb,
+html[data-ui-look="cascade"] .breadcrumb {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="bold"] .public-form-shell .form-control,
+html[data-ui-look="bold"] .public-form-shell .form-select,
+html[data-ui-look="cascade"] .public-form-shell .form-control,
+html[data-ui-look="cascade"] .public-form-shell .form-select {
+  border-radius: var(--look-radius) !important;
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .nav-menu > li > a,
+  html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: var(--look-radius) !important;
+}
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="bold"] body.header-v2 #mainNavV2 .close-menu,
+  html[data-ui-look="cascade"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: var(--look-radius) !important;
+}
+}
+
+html[data-ui-look="cascade"] .cta-section,
+html[data-ui-look="summit"] .cta-section {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail);
+  box-shadow: none !important;
+}
+
+html[data-ui-look="cascade"] .cta-section .cta-content .btn-light,
+html[data-ui-look="cascade"] .cta-section .cta-content a.btn,
+html[data-ui-look="summit"] .cta-section .cta-content .btn-light,
+html[data-ui-look="summit"] .cta-section .cta-content a.btn,
+html[data-ui-look="cascade"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="summit"] .cta-section .cta-content .ir-cta-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+}
+
+html[data-ui-look="bold"] .notice-ticker,
+html[data-ui-look="cascade"] .notice-ticker,
+html[data-ui-look="summit"] .notice-ticker {
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+}
+
+html[data-ui-look="cascade"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail) !important;
+  box-shadow: none !important;
+}
+
+/* —— Breadcrumb —— */
+html[data-ui-look="pulse"] .breadcrumb,
+html[data-ui-look="summit"] .breadcrumb,
+html[data-ui-look="cascade"] .breadcrumb,
+html[data-ui-look="bold"] .breadcrumb {
+  border-radius: var(--look-radius) !important;
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+
+/* —— Section divider / badge polish —— */
+html[data-ui-look="bold"] .section-divider,
+html[data-ui-look="pulse"] .section-divider,
+html[data-ui-look="cascade"] .section-divider,
+html[data-ui-look="summit"] .section-divider {
+  border-radius: var(--look-radius) !important;
+  height: 3px !important;
+}
+
+/* —— Bottom public nav —— */
+html[data-ui-look="bold"] .pub-bottom-nav,
+html[data-ui-look="pulse"] .pub-bottom-nav,
+html[data-ui-look="cascade"] .pub-bottom-nav,
+html[data-ui-look="summit"] .pub-bottom-nav,
+html[data-ui-look="bold"] .mobile-bottom-nav,
+html[data-ui-look="pulse"] .mobile-bottom-nav,
+html[data-ui-look="cascade"] .mobile-bottom-nav,
+html[data-ui-look="summit"] .mobile-bottom-nav {
+  border-top: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+}
+
+/* —— Tools category headers —— */
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* —— Pagination / tables light touch —— */
+html[data-ui-look="bold"] .pagination .page-link,
+html[data-ui-look="pulse"] .pagination .page-link,
+html[data-ui-look="cascade"] .pagination .page-link,
+html[data-ui-look="summit"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+}
+
+/* —— Dark-mode paper for remaining cards —— */
+html[data-ui-look="bold"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="airy"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="cascade"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="pulse"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="summit"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="harbor"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="bold"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="bold"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .notices-box-enhanced {
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="cascade"] .why-us-section .feature-box,
+html[data-ui-look="summit"] .why-us-section .feature-box {
+  border-radius: var(--look-radius) !important;
+  border-left: var(--look-ink-rail) !important;
+  box-shadow: none !important;
+}
+
+/* —— Devanagari wrap for CTA / section titles —— */
+html[data-ui-look="bold"] .cta-section h2,
+html[data-ui-look="airy"] .cta-section h2,
+html[data-ui-look="cascade"] .cta-section h2,
+html[data-ui-look="pulse"] .cta-section h2,
+html[data-ui-look="summit"] .cta-section h2,
+html[data-ui-look="harbor"] .cta-section h2,
+html[data-ui-look="bold"] .section-header h2,
+html[data-ui-look="airy"] .section-header h2,
+html[data-ui-look="cascade"] .section-header h2,
+html[data-ui-look="pulse"] .section-header h2,
+html[data-ui-look="summit"] .section-header h2,
+html[data-ui-look="harbor"] .section-header h2 {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+/* ══ Header: logo + main menu on ONE line (desktop, every look except Soft which already fits) ══
+   Editorial wrapped the menu (flex-wrap + wider pill padding) so the last item ("थप") fell under
+   "गृहपृष्ठ" next to a wide logo strip. Keep one row; spacing and the logo give way first.
+   header.php adds .nav-tight / .nav-tighter only if the row still overflows (long custom menus). */
+@media (min-width: 992px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding-inline: clamp(7px, 0.62vw, 13.6px) !important;
+    white-space: nowrap;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-area {
+    flex: 0 0 auto;
+    max-width: none !important;
+  }
+  /* shrink the logo image (not the area) so the since-badge always stays whole */
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: min(400px, 27vw) !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  html[data-ui-look] .pfl-main-header .pfl-nav-area { min-width: 0; }
+  /* Overflow fallbacks (any look) — set by the fit script in header.php */
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a { padding-inline: 6px !important; gap: 3px; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a .mnav-main-icon { display: none !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tighter .nav-menu > li > a { font-size: 12.5px !important; padding-inline: 4px !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-wrap .nav-menu { flex-wrap: wrap !important; justify-content: flex-end; row-gap: 2px !important; }
+}
+
+/* Small laptops: give the menu more room — the logo strip shrinks first */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: 20vw !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   READABILITY GUARD — a look that repaints a dark surface light
+   must also flip its text (white-on-white was unreadable).
+   Soft untouched. Checked with an automated contrast scan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Page hero breadcrumb: looks give .breadcrumb a light pill, but inside the
+   dark page banner its text is white → glass pill instead */
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(4px);
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb a,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active {
+  opacity: 0.85 !important;
+}

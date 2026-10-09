@@ -1,0 +1,1458 @@
+/* AUTO-GENERATED: public-ui-looks.sharp.css — do not edit.
+ * Source: assets/css/public-ui-looks.css (edit there), then
+ * python3 scripts/build-public-ui-looks.py
+ */
+
+/* Surfaces tinted from brand tokens only (Soft does not set these). */
+html[data-ui-look="sharp"] {
+  --look-radius: 0.125rem;
+  --look-radius-lg: 0.2rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 3%, #fff);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f3f5f4);
+  --look-ink-rail: 3px solid var(--primary-color, var(--primary));
+}
+
+/* ════════════════════════════════════════════════════════════
+   SHARP — formal / government feel
+   ════════════════════════════════════════════════════════════ */
+html[data-ui-look="sharp"] body {
+  background-color: var(--look-wash);
+}
+
+html[data-ui-look="sharp"] .pfl-top-bar {
+  border-bottom: 1px solid color-mix(in srgb, #fff 22%, transparent);
+}
+
+html[data-ui-look="sharp"] .pfl-header-wrapper,
+html[data-ui-look="sharp"] .pfl-main-header,
+html[data-ui-look="sharp"] .pfl-drop,
+html[data-ui-look="sharp"] .pfl-login-menu,
+html[data-ui-look="sharp"] .mobile-nav-drawer,
+html[data-ui-look="sharp"] .mobile-nav-panel {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-main-header {
+  box-shadow: none !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent);
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area a,
+html[data-ui-look="sharp"] .pfl-quick-links a,
+html[data-ui-look="sharp"] .navbar .nav-link,
+html[data-ui-look="sharp"] .pfl-top-right > li > a,
+html[data-ui-look="sharp"] .pfl-bell-btn,
+html[data-ui-look="sharp"] .pfl-lang-wrap a {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links > li > a {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Hero — boxed / notice-board */
+html[data-ui-look="sharp"] .hero-slider,
+html[data-ui-look="sharp"] .hero-carousel-modern,
+html[data-ui-look="sharp"] .hero-slide-modern,
+html[data-ui-look="sharp"] .hero-bg-modern,
+html[data-ui-look="sharp"] .hero-content-modern,
+html[data-ui-look="sharp"] .hero-btn-modern,
+html[data-ui-look="sharp"] .hero-text-wrapper {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .hero-slider {
+  margin-inline: 0;
+  box-shadow: none !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary));
+}
+
+/* Soft-matching hero scrim — no left-side brand wash; photo + text stay clear */
+html[data-ui-look="sharp"] .hero-overlay-modern,
+html[data-ui-look="sharp"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+html[data-ui-look="sharp"] .hero-title-modern {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+  text-transform: none;
+  border-left: var(--look-ink-rail) !important;
+  padding-left: 0.75rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-look="sharp"] .hero-title-modern::after,
+html[data-ui-look="sharp"] .hero-title-modern::before {
+  /* Soft underline accent → ledger rail only */
+  display: none !important;
+}
+
+html[data-ui-look="sharp"] .hero-subtitle-modern {
+  max-width: 34rem;
+  opacity: 0.92;
+}
+
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important
+}
+
+*/
+html[data-ui-look="sharp"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="sharp"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="sharp"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="sharp"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="sharp"] .hero-btn-modern,
+html[data-ui-look="sharp"] .btn,
+html[data-ui-look="sharp"] .btn-primary,
+html[data-ui-look="sharp"] .btn-outline-primary,
+html[data-ui-look="sharp"] .home-btn-primary,
+html[data-ui-look="sharp"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+html[data-ui-look="sharp"] .hero-slider .carousel-indicators button {
+  border-radius: 0 !important;
+  width: 18px !important;
+  height: 4px !important;
+}
+
+/* Cards / tiles — ledger boxes */
+html[data-ui-look="sharp"] .card,
+html[data-ui-look="sharp"] .service-card,
+html[data-ui-look="sharp"] .service-card-modern,
+html[data-ui-look="sharp"] .notice-card,
+html[data-ui-look="sharp"] .news-card,
+html[data-ui-look="sharp"] .feature-card,
+html[data-ui-look="sharp"] .why-choose-card,
+html[data-ui-look="sharp"] .award-card,
+html[data-ui-look="sharp"] .rate-card,
+html[data-ui-look="sharp"] .rate-card-enhanced,
+html[data-ui-look="sharp"] .coop-card,
+html[data-ui-look="sharp"] .ds-coop-card,
+html[data-ui-look="sharp"] .tools-category-card,
+html[data-ui-look="sharp"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="sharp"] .service-card,
+html[data-ui-look="sharp"] .service-card-modern,
+html[data-ui-look="sharp"] .rate-card-enhanced,
+html[data-ui-look="sharp"] .news-card,
+html[data-ui-look="sharp"] .tools-category-card {
+  border-left: var(--look-ink-rail) !important;
+}
+
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-forms h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-tools h5,
+html[data-ui-look="sharp"] .tools-category-card.tools-cat-member h5 {
+  border-radius: 0 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+}
+
+html[data-ui-look="sharp"] .tools-mini-link > svg.lucide,
+html[data-ui-look="sharp"] .tools-mini-link i,
+html[data-ui-look="sharp"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .tools-link-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.58rem !important;
+}
+
+html[data-ui-look="sharp"] .service-card:hover,
+html[data-ui-look="sharp"] .service-card-modern:hover,
+html[data-ui-look="sharp"] .news-card:hover,
+html[data-ui-look="sharp"] .rate-card:hover,
+html[data-ui-look="sharp"] .rate-card-enhanced:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .service-icon,
+html[data-ui-look="sharp"] .service-icon-modern {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .service-card::before,
+html[data-ui-look="sharp"] .rate-card::before {
+  display: none !important;
+}
+
+html[data-ui-look="sharp"] .new-badge,
+html[data-ui-look="sharp"] .new-badge-modern,
+html[data-ui-look="sharp"] .section-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.68rem !important;
+  font-weight: 800;
+}
+
+html[data-ui-look="sharp"] .section-divider {
+  width: 2.75rem !important;
+  height: 3px !important;
+  border-radius: 0 !important;
+  margin-inline: auto;
+}
+
+html[data-ui-look="sharp"] .section-header h2,
+html[data-ui-look="sharp"] .section-header-unified h2 {
+  letter-spacing: 0.02em;
+  font-weight: 800;
+}
+
+html[data-ui-look="sharp"] .page-banner {
+  border-radius: 0 !important;
+  background-image: none !important;
+  background-color: var(--primary-color, var(--primary)) !important;
+  border-bottom: 3px solid var(--secondary-color, var(--secondary));
+}
+
+html[data-ui-look="sharp"] .page-banner::before,
+html[data-ui-look="sharp"] .page-banner::after {
+  opacity: 0.25;
+}
+
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="sharp"] .page-banner .page-title-modern,
+html[data-ui-look="sharp"] .page-banner-modern h1,
+html[data-ui-look="sharp"] .page-banner-modern .page-title-modern {
+  letter-spacing: 0.04em !important;
+  font-weight: 800 !important;
+  text-transform: none;
+}
+
+/* Footer — striped formal */
+html[data-ui-look="sharp"] footer,
+html[data-ui-look="sharp"] .site-footer,
+html[data-ui-look="sharp"] .footer-top {
+  border-top: 4px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 85%, transparent);
+}
+
+html[data-ui-look="sharp"] .footer-widget h4,
+html[data-ui-look="sharp"] .footer-widget h5 {
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-bottom: 1px solid color-mix(in srgb, #fff 22%, transparent);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+html[data-ui-look="sharp"] .footer-bottom {
+  border-top: 1px dashed color-mix(in srgb, #fff 30%, transparent);
+}
+
+html[data-ui-look="sharp"] .footer-social a,
+html[data-ui-look="sharp"] .whatsapp-float,
+html[data-ui-look="sharp"] #wa-float-btn,
+html[data-ui-look="sharp"] #float-chat-btn {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] [data-aos],
+html[data-ui-look="sharp"] .aos-animate {
+  transition-duration: 0.18s !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 2 — homepage bands, forms, popup, dark, inner pages
+   Soft still untouched above.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Shared public forms / breadcrumbs (non-Soft) ── */
+html[data-ui-look="sharp"] .form-control,
+html[data-ui-look="sharp"] .form-select,
+html[data-ui-look="sharp"] .input-group-text,
+html[data-ui-look="sharp"] .breadcrumb,
+html[data-ui-look="sharp"] .accordion-item,
+html[data-ui-look="sharp"] .accordion-button,
+html[data-ui-look="sharp"] .modal-content,
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-dialog {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .form-control,
+html[data-ui-look="sharp"] .form-select {
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #ced4da) !important;
+  box-shadow: none !important;
+}
+
+/* Beat Bootstrap / late-bundle control radius (incl. input-group + #contactModal) */
+html[data-ui-look="sharp"] form .form-control,
+html[data-ui-look="sharp"] form .form-select,
+html[data-ui-look="sharp"] .contact-form .form-control,
+html[data-ui-look="sharp"] .contact-form .form-select,
+html[data-ui-look="sharp"] main .form-control,
+html[data-ui-look="sharp"] main .form-select,
+html[data-ui-look="sharp"] .input-group > .form-control,
+html[data-ui-look="sharp"] .input-group > .form-select,
+html[data-ui-look="sharp"] .input-group:not(.has-validation) > .form-control,
+html[data-ui-look="sharp"] .input-group:not(.has-validation) > .form-select,
+html[data-ui-look="sharp"] #contactModal .form-control,
+html[data-ui-look="sharp"] #contactModal .form-select,
+html[data-ui-look="sharp"] .modal .form-control,
+html[data-ui-look="sharp"] .modal .form-select,
+html[data-ui-look="sharp"] .modal-body .form-control,
+html[data-ui-look="sharp"] .modal-body .form-select,
+html[data-ui-look="sharp"] .public-form-shell .form-control,
+html[data-ui-look="sharp"] .public-form-shell .form-select {
+  border-radius: var(--look-radius) !important;
+}
+
+/* ── Sharp: institutional / rates / notices / awards / app ── */
+html[data-ui-look="sharp"] .institutional-profile-bar,
+html[data-ui-look="sharp"] .ip-home-snapshot,
+html[data-ui-look="sharp"] .ip-home-stat,
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced,
+html[data-ui-look="sharp"] .notice-item-enhanced,
+html[data-ui-look="sharp"] .notice-date-box,
+html[data-ui-look="sharp"] .award-card,
+html[data-ui-look="sharp"] .award-image,
+html[data-ui-look="sharp"] .award-icon,
+html[data-ui-look="sharp"] .app-download-section .card,
+html[data-ui-look="sharp"] .app-download-section .btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .institutional-profile-bar {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d7ddd9);
+  border-left: var(--look-ink-rail);
+  background: var(--look-paper);
+}
+
+html[data-ui-look="sharp"] .ip-home-snapshot {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9);
+  background: var(--look-paper);
+}
+
+html[data-ui-look="sharp"] .ip-home-stat {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e5e7eb) !important;
+  background: var(--bg-card, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .ip-home-stat:hover {
+  transform: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9);
+  border-top: 3px solid var(--primary-color, var(--primary));
+  background: var(--look-paper);
+}
+
+html[data-ui-look="sharp"] .rates-header,
+html[data-ui-look="sharp"] .notices-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #e5e7eb);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+html[data-ui-look="sharp"] .notice-date-box {
+  border-radius: var(--look-radius) !important;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .notice-item-enhanced {
+  border-bottom: 1px dashed color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent);
+}
+
+html[data-ui-look="sharp"] .latest-badge,
+html[data-ui-look="sharp"] .tools-link-badge {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.62rem !important;
+}
+
+html[data-ui-look="sharp"] .award-card {
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+
+html[data-ui-look="sharp"] .award-image img {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .rates-notices-section.bg-light,
+html[data-ui-look="sharp"] .awards-section.bg-light {
+  background: var(--look-wash) !important;
+}
+
+html[data-ui-look="sharp"] .report-quick-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #e5e7eb) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+
+/* ── Notice popup chrome ── */
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-dialog {
+  box-shadow: none !important;
+  border: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 35%, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .notice-popup-enhanced .popup-close-btn {
+  border-radius: var(--look-radius) !important;
+}
+
+/* ── Why-choose / news list pages ── */
+html[data-ui-look="sharp"] .why-choose-card,
+html[data-ui-look="sharp"] .feature-card {
+  border-left: var(--look-ink-rail) !important;
+}
+
+/* ── Dark mode: keep Soft empty; tune other looks ── */
+html[data-ui-look="sharp"] body.dark-mode,
+html[data-ui-look="editorial"] body.dark-mode,
+html[data-ui-look="compact"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #1a2332);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #121820);
+}
+
+html[data-ui-look="sharp"] body.dark-mode .service-card,
+html[data-ui-look="sharp"] body.dark-mode .service-card-modern,
+html[data-ui-look="sharp"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="sharp"] body.dark-mode .ip-home-snapshot,
+html[data-ui-look="editorial"] body.dark-mode .service-card,
+html[data-ui-look="editorial"] body.dark-mode .service-card-modern,
+html[data-ui-look="editorial"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="compact"] body.dark-mode .service-card,
+html[data-ui-look="compact"] body.dark-mode .service-card-modern,
+html[data-ui-look="compact"] body.dark-mode .rate-card-enhanced {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+
+html[data-ui-look="sharp"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="sharp"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .awards-section.bg-light {
+  background: var(--look-wash) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 3 — Header / main menu / footer personality
+   Soft stays empty. Brand colors from global-theme only.
+   ════════════════════════════════════════════════════════════ */
+
+/* ───────────── SHARP chrome shell ───────────── */
+html[data-ui-look="sharp"] .pfl-header-wrapper {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .pfl-top-bar {
+  border-bottom: 1px solid color-mix(in srgb, #fff 18%, transparent);
+  letter-spacing: 0.03em;
+}
+
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a {
+  border-radius: var(--look-radius) !important;
+  text-transform: uppercase;
+  font-size: 0.7rem !important;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding-inline: 0.45rem !important;
+}
+
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a .lucide-icon,
+html[data-ui-look="sharp"] .pfl-top-bar .pfl-quick-links > li > a svg {
+  /* formal: slightly smaller utility icons */
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+
+html[data-ui-look="sharp"] .pfl-drop,
+html[data-ui-look="sharp"] .pfl-login-menu,
+html[data-ui-look="sharp"] .pfl-bell-drop {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #d1d5db) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-bell-header,
+html[data-ui-look="sharp"] .pfl-bell-footer {
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .pfl-main-header {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 3px solid var(--primary-color, var(--primary)) !important;
+  background-image: none !important;
+}
+
+html[data-ui-look="sharp"] .pfl-main-header::after,
+html[data-ui-look="sharp"] .pfl-brand-area::before,
+html[data-ui-look="sharp"] .pfl-brand-area::after {
+  opacity: 0.35 !important;
+  filter: none !important;
+}
+
+html[data-ui-look="sharp"] .pfl-since-badge {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 30%, transparent) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-since-badge::after {
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .pfl-brand-logo {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-mobile-toggle,
+html[data-ui-look="sharp"] .close-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+/* Sharp main nav — ledger tabs */
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+  padding: 0.45rem 0.55rem !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-bottom: 2px solid transparent;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a > .lucide-icon:first-child {
+  /* keep icons but tighter */
+  margin-right: 0.25rem;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  border-radius: var(--look-radius) !important;
+  /* Solid brand pill — light wash + late-bundle white text was unreadable */
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  border-bottom-color: var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d1d5db) !important;
+  border-left: 3px solid var(--primary-color, var(--primary)) !important;
+  padding: 0.25rem 0 !important;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+  border-radius: 0 !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.01em;
+}
+
+html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a:hover {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #fff) !important;
+  transform: none !important;
+}
+
+html[data-ui-look="sharp"] .nav-new-badge,
+html[data-ui-look="sharp"] .nav-new-badge--top {
+  border-radius: var(--look-radius) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Sharp footer — formal strip */
+html[data-ui-look="sharp"] .main-footer {
+  border-top: 4px solid var(--secondary-color, var(--secondary));
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top {
+  padding-top: 2.25rem !important;
+  padding-bottom: 1.75rem !important;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-widget h4 {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.78rem !important;
+  font-weight: 800;
+  border-bottom: 2px solid color-mix(in srgb, #fff 28%, transparent);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-links a,
+html[data-ui-look="sharp"] .main-footer .footer-contact li,
+html[data-ui-look="sharp"] .main-footer .footer-policy-links a {
+  border-radius: var(--look-radius);
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-links a:hover {
+  padding-left: 0.35rem;
+  border-left: 2px solid color-mix(in srgb, #fff 55%, transparent);
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-social a {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, #fff 28%, transparent);
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-bottom {
+  border-top: 1px dashed color-mix(in srgb, #fff 32%, transparent);
+  letter-spacing: 0.02em;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-logo img {
+  border-radius: var(--look-radius) !important;
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 4 — Deep UI personality gaps
+   Surfaces that still looked Soft-like across looks:
+   CTA band, why-us feature boxes, mobile-app tiles, store buttons,
+   rates/notices/rate cards, section badges, Quick Actions FAB,
+   contact cards, tables, pagination, public bottom nav.
+   Soft remains empty.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Shared high-specificity radius beaters (late-bundle pills) ── */
+html[data-ui-look="sharp"] .rates-notices-section .rates-box-enhanced,
+html[data-ui-look="sharp"] .rates-notices-section .notices-box-enhanced,
+html[data-ui-look="sharp"] .rates-body .rate-card-enhanced,
+html[data-ui-look="sharp"] .rates-notices-section .rate-card-enhanced,
+html[data-ui-look="sharp"] .section-header .section-badge,
+html[data-ui-look="sharp"] .section-header-unified .section-badge,
+html[data-ui-look="sharp"] .section-badge-wrap .section-badge {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+/* ───────────── SHARP — formal ledger on remaining bands ───────────── */
+html[data-ui-look="sharp"] .cta-section,
+html[data-ui-look="sharp"] .cta-section .cta-content {
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .cta-section {
+  border-top: 3px solid color-mix(in srgb, #fff 35%, transparent);
+  border-bottom: 3px solid color-mix(in srgb, #000 18%, transparent);
+}
+
+html[data-ui-look="sharp"] .cta-section h2,
+html[data-ui-look="sharp"] .cta-section .home-heading-unified {
+  letter-spacing: 0.04em;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: clamp(1.15rem, 2.2vw, 1.65rem) !important;
+}
+
+html[data-ui-look="sharp"] .cta-section .cta-content .btn-light,
+html[data-ui-look="sharp"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="sharp"] .cta-section .cta-content a.btn,
+html[data-ui-look="sharp"] .cta-section .cta-content .btn-outline-light {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.82rem !important;
+  font-weight: 800;
+}
+
+html[data-ui-look="sharp"] .why-us-section .feature-box,
+html[data-ui-look="sharp"] .feature-box {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="sharp"] .feature-box:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .feature-box .feature-icon,
+html[data-ui-look="sharp"] .feature-box .feature-icon-wrap {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .mobile-app-section,
+html[data-ui-look="sharp"] .app-features-section {
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .app-feature-item {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 14%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="sharp"] .app-feature-item .feature-icon-wrap {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .app-btn,
+html[data-ui-look="sharp"] .mobile-app-section .app-btn,
+html[data-ui-look="sharp"] .mobile-app-section a.app-store,
+html[data-ui-look="sharp"] .mobile-app-section a.btn {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.03em;
+  font-weight: 700;
+}
+
+html[data-ui-look="sharp"] .home-btn-outline-primary,
+html[data-ui-look="sharp"] .home-btn-outline-secondary,
+html[data-ui-look="sharp"] a.home-btn-outline-primary,
+html[data-ui-look="sharp"] a.home-btn-outline-secondary {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+html[data-ui-look="sharp"] .qh-fab,
+html[data-ui-look="sharp"] .qh-ic,
+html[data-ui-look="sharp"] .qh-item,
+html[data-ui-look="sharp"] button.qh-item {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .qh-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 22%, #d1d5db) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .contact-info-box,
+html[data-ui-look="sharp"] .office-hours .card,
+html[data-ui-look="sharp"] .office-hours .feature-box {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+}
+
+html[data-ui-look="sharp"] .table,
+html[data-ui-look="sharp"] table.table {
+  border-radius: var(--look-radius) !important;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 18%, #d7ddd9) !important;
+}
+
+html[data-ui-look="sharp"] .table thead th,
+html[data-ui-look="sharp"] table.table thead th {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.72rem !important;
+  font-weight: 800;
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+  margin-inline: 0.1rem;
+  font-weight: 700;
+}
+
+html[data-ui-look="sharp"] .mp-bottom-nav,
+html[data-ui-look="sharp"] .mobile-bottom-nav,
+html[data-ui-look="sharp"] .pub-bottom-nav {
+  border-radius: 0 !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .mp-bottom-nav a,
+html[data-ui-look="sharp"] .mp-bottom-nav__item,
+html[data-ui-look="sharp"] .mobile-bottom-nav .nav-item-btn {
+  border-radius: var(--look-radius) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.62rem !important;
+  font-weight: 800;
+}
+
+html[data-ui-look="sharp"] .section-divider {
+  width: 2.75rem !important;
+  height: 3px !important;
+  border-radius: 0 !important;
+}
+
+html[data-ui-look="sharp"] .section-header .section-badge,
+html[data-ui-look="sharp"] .section-header-unified .section-badge {
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+}
+
+/* Dark: remaining gap surfaces */
+html[data-ui-look="sharp"] body.dark-mode .feature-box,
+html[data-ui-look="sharp"] body.dark-mode .app-feature-item,
+html[data-ui-look="sharp"] body.dark-mode .contact-info-box,
+html[data-ui-look="editorial"] body.dark-mode .feature-box,
+html[data-ui-look="editorial"] body.dark-mode .app-feature-item,
+html[data-ui-look="editorial"] body.dark-mode .contact-info-box,
+html[data-ui-look="compact"] body.dark-mode .feature-box,
+html[data-ui-look="compact"] body.dark-mode .app-feature-item,
+html[data-ui-look="compact"] body.dark-mode .contact-info-box {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 5 — Glanceable diffs (Soft untouched)
+   First-viewport cues so side-by-side ?ui_look= compare is obvious.
+   Brand colors unchanged; tools Soft tile geometry preserved.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Sharp: ledger chrome (square + flat + ink rail) —— */
+html[data-ui-look="sharp"] .pfl-top-bar {
+  box-shadow: none !important;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area a,
+html[data-ui-look="sharp"] .navbar .nav-link {
+  font-weight: 700 !important;
+  letter-spacing: 0.015em;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area a.active,
+html[data-ui-look="sharp"] .pfl-nav-area .nav-link.active,
+html[data-ui-look="sharp"] .navbar .nav-link.active {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .pfl-logo img,
+html[data-ui-look="sharp"] .navbar-brand img {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .tools-widget-section {
+  background: var(--look-paper);
+  border-top: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent);
+  padding-block: 1.35rem !important;
+}
+
+html[data-ui-look="sharp"] .tools-category-card {
+  overflow: hidden !important;
+}
+
+html[data-ui-look="sharp"] .ip-home-snapshot,
+html[data-ui-look="sharp"] .report-quick-links,
+html[data-ui-look="sharp"] .institutional-profile-bar {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+}
+
+html[data-ui-look="sharp"] .rates-box-enhanced,
+html[data-ui-look="sharp"] .notices-box-enhanced {
+  border-left: var(--look-ink-rail) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 6 — Soft-preserving flow serial (menu + home sections)
+   Soft keeps DOM order. Sharp / Editorial / Compact reorder via
+   CSS flex order only — same pages/text/brand, different rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+/* Shared flex shells (non-Soft only) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Flex children need a definite cross-size so % widths inside (carousel) resolve */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+
+/* Notice ticker = menu तल / hero-slider माथि (order 0 beats hero at 1; Soft stays DOM) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links,
+html[data-ui-look="editorial"] .pfl-quick-links,
+html[data-ui-look="compact"] .pfl-quick-links,
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu,
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu,
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu,
+html[data-ui-look="sharp"] .main-footer .footer-top .row,
+html[data-ui-look="editorial"] .main-footer .footer-top .row,
+html[data-ui-look="compact"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* footer-links-cols stays CSS grid (Soft baseline) — order still works on grid items */
+
+/* —— Soft DOM baseline (unchanged):
+   hero → institutional → services → tools → rates → why → leadership
+   → mobile-app → app-features → news → awards → spotlight → cta —— */
+
+/* Shared: संस्थागत प्रोफाइल always directly under hero (order 2) */
+html[data-ui-look="sharp"] #main-content > .hero-slider,
+html[data-ui-look="editorial"] #main-content > .hero-slider,
+html[data-ui-look="compact"] #main-content > .hero-slider { order: 1;
+}
+
+html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
+html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
+html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2;
+}
+
+/* Sharp — why-us under institutional, rates later; CTA after why-us */
+html[data-ui-look="sharp"] #main-content > .why-us-section { order: 3;
+}
+
+/* किन हामीलाई छान्ने? after institutional */
+html[data-ui-look="sharp"] #main-content > .cta-section { order: 4;
+}
+
+/* सदस्य बन्नुहोस् after why-us */
+html[data-ui-look="sharp"] #main-content > .tools-widget-section { order: 5;
+}
+
+html[data-ui-look="sharp"] #main-content > .services-section { order: 6;
+}
+
+html[data-ui-look="sharp"] #main-content > .rates-notices-section { order: 7;
+}
+
+/* ब्याज तथा सूचना where why-us was */
+html[data-ui-look="sharp"] #main-content > .leadership-messages-section { order: 8;
+}
+
+html[data-ui-look="sharp"] #main-content > .news-section { order: 9;
+}
+
+html[data-ui-look="sharp"] #main-content > .awards-section { order: 10;
+}
+
+html[data-ui-look="sharp"] #main-content > .mobile-app-section { order: 11;
+}
+
+html[data-ui-look="sharp"] #main-content > .app-features-section { order: 12;
+}
+
+html[data-ui-look="sharp"] #main-content > .member-spotlight-section { order: 13;
+}
+
+/* —— Top utility serial (href-based; Soft untouched) —— */
+/* Sharp/Compact: keep dropdowns (छिटो लिंक) at the end */
+html[data-ui-look="sharp"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="compact"] .pfl-quick-links > li.has-drop {
+  order: 20;
+}
+
+/* Soft: Auction → Download → Career → Contact → Digital */
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 1;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 3;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 5;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4;
+}
+
+/* —— Main nav serial (desktop + drawer) —— */
+/* Soft: Home → About → Services → Rates → Notice → Gallery → Team → More → Contact */
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 2;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 5;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7;
+}
+
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9;
+}
+
+/* सम्पर्क last */
+
+/* More dropdown (href="#") stays near end */
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8;
+}
+
+/* —— Footer: column + quick-link serial —— */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-3 { order: 1;
+}
+
+/* contact first */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-5 { order: 2;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 { order: 3;
+}
+
+/* Shared: brand column (col-lg-4) — logo + summary + social centered inside */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 {
+  /* Sharp/Editorial: column stays on the right */
+  text-align: center;
+  display: flex;
+  justify-content: flex-end;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 {
+    text-align: left;
+    display: block;
+    justify-content: flex-start;
+}
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+    margin-left: 0;
+    margin-right: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    max-width: none;
+}
+}
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="reports.php"]) { order: 1;
+}
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="about.php"]) { order: 2;
+}
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="services.php"]) { order: 3;
+}
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="service-centers.php"]) { order: 4;
+}
+
+html[data-ui-look="sharp"] .footer-links > li:has(a[href*="faqs.php"]) { order: 5;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 7 — Secondary public pages (Soft unchanged)
+   About / gallery / downloads cards inherit Soft until here.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Sharp: ledger tiles on about / gallery / downloads —— */
+html[data-ui-look="sharp"] .value-card,
+html[data-ui-look="sharp"] .about-content-box,
+html[data-ui-look="sharp"] .history-image-box,
+html[data-ui-look="sharp"] .history-content-v2,
+html[data-ui-look="sharp"] .gallery-card,
+html[data-ui-look="sharp"] .gallery-album-card,
+html[data-ui-look="sharp"] .gallery-tabs-wrapper,
+html[data-ui-look="sharp"] .download-card {
+  border-radius: var(--look-radius) !important;
+  box-shadow: none !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 16%, #d7ddd9) !important;
+  border-left: var(--look-ink-rail) !important;
+  background: var(--look-paper) !important;
+  transform: none !important;
+}
+
+html[data-ui-look="sharp"] .value-card:hover,
+html[data-ui-look="sharp"] .gallery-card:hover,
+html[data-ui-look="sharp"] .download-card:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="sharp"] .value-icon,
+html[data-ui-look="sharp"] .history-icon-ring,
+html[data-ui-look="sharp"] .history-badge,
+html[data-ui-look="sharp"] .history-year-badge,
+html[data-ui-look="sharp"] .gallery-tab,
+html[data-ui-look="sharp"] .download-card .download-icon {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="sharp"] .value-card h5 {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 8 — Brand-token + no-clip / icon safety (Soft empty)
+   Admin colors (global-theme.php) already drive every look via
+   --primary-color / --secondary-color / --text-on-* / --*-ink.
+   Looks only tint with color-mix of those tokens — no brand hex.
+   ════════════════════════════════════════════════════════════ */
+
+/* Hover lift inside overflow:hidden category cards → chop risk.
+   Non-Soft: keep shadow/border hover, kill translate. Soft Soft
+   keeps a milder Soft-shell lift + grid pad (shell polish). */
+html[data-ui-look="sharp"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* Icon wells: never collapse Lucide to 0×0; allow stroke paint */
+html[data-ui-look="sharp"] .tools-mini-link > svg.lucide,
+html[data-ui-look="sharp"] .tools-mini-link .lucide-icon,
+html[data-ui-look="editorial"] .tools-mini-link > svg.lucide,
+html[data-ui-look="editorial"] .tools-mini-link .lucide-icon,
+html[data-ui-look="compact"] .tools-mini-link > svg.lucide,
+html[data-ui-look="compact"] .tools-mini-link .lucide-icon,
+html[data-ui-look="sharp"] .feature-box .feature-icon svg,
+html[data-ui-look="editorial"] .feature-box .feature-icon svg,
+html[data-ui-look="compact"] .feature-box .feature-icon svg,
+html[data-ui-look="sharp"] .value-icon svg,
+html[data-ui-look="editorial"] .value-icon svg,
+html[data-ui-look="compact"] .value-icon svg {
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+  flex-shrink: 0;
+}
+
+/* Devanagari / long labels — wrap, never mid-glyph clip */
+html[data-ui-look="sharp"] .hero-title-modern,
+html[data-ui-look="editorial"] .hero-title-modern,
+html[data-ui-look="compact"] .hero-title-modern,
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .tools-mini-link span,
+html[data-ui-look="editorial"] .tools-mini-link span,
+html[data-ui-look="compact"] .tools-mini-link span,
+html[data-ui-look="sharp"] .value-card h5,
+html[data-ui-look="editorial"] .value-card h5,
+html[data-ui-look="compact"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Brand fills in looks keep WCAG text-on-* from admin auto contrast */
+html[data-ui-look="sharp"] .page-banner,
+html[data-ui-look="editorial"] .page-banner,
+html[data-ui-look="compact"] .page-banner {
+  color: var(--text-on-primary, #fff);
+}
+
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .page-banner .page-title-modern,
+html[data-ui-look="editorial"] .page-banner .page-title-modern,
+html[data-ui-look="compact"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* ══ Header: logo + main menu on ONE line (desktop, every look except Soft which already fits) ══
+   Editorial wrapped the menu (flex-wrap + wider pill padding) so the last item ("थप") fell under
+   "गृहपृष्ठ" next to a wide logo strip. Keep one row; spacing and the logo give way first.
+   header.php adds .nav-tight / .nav-tighter only if the row still overflows (long custom menus). */
+@media (min-width: 992px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding-inline: clamp(7px, 0.62vw, 13.6px) !important;
+    white-space: nowrap;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-area {
+    flex: 0 0 auto;
+    max-width: none !important;
+  }
+  /* shrink the logo image (not the area) so the since-badge always stays whole */
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: min(400px, 27vw) !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  html[data-ui-look] .pfl-main-header .pfl-nav-area { min-width: 0; }
+  /* Overflow fallbacks (any look) — set by the fit script in header.php */
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a { padding-inline: 6px !important; gap: 3px; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a .mnav-main-icon { display: none !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tighter .nav-menu > li > a { font-size: 12.5px !important; padding-inline: 4px !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-wrap .nav-menu { flex-wrap: wrap !important; justify-content: flex-end; row-gap: 2px !important; }
+}
+
+/* Small laptops: give the menu more room — the logo strip shrinks first */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: 20vw !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   READABILITY GUARD — a look that repaints a dark surface light
+   must also flip its text (white-on-white was unreadable).
+   Soft untouched. Checked with an automated contrast scan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Page hero breadcrumb: looks give .breadcrumb a light pill, but inside the
+   dark page banner its text is white → glass pill instead */
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(4px);
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb a,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active {
+  opacity: 0.85 !important;
+}
+
+/* About → history "no photo" note: Editorial / Sharp make the box light */
+html[data-ui-look="editorial"] body:not(.dark-mode) .history-empty-photo-note,
+html[data-ui-look="sharp"] body:not(.dark-mode) .history-empty-photo-note {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}

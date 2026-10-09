@@ -1,0 +1,1469 @@
+/* AUTO-GENERATED: public-ui-looks.editorial.css — do not edit.
+ * Source: assets/css/public-ui-looks.css (edit there), then
+ * python3 scripts/build-public-ui-looks.py
+ */
+
+html[data-ui-look="editorial"] {
+  --look-radius: 1.15rem;
+  --look-radius-lg: 1.5rem;
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 7%, #fff);
+  --look-wash: color-mix(in srgb, var(--secondary-color, var(--secondary)) 9%, #faf7f4);
+}
+
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important
+}
+
+/* ════════════════════════════════════════════════════════════
+   EDITORIAL — calmer / story-led magazine
+   ════════════════════════════════════════════════════════════ */
+html[data-ui-look="editorial"] body {
+  background-color: var(--look-wash);
+}
+
+html[data-ui-look="editorial"] .pfl-header-wrapper,
+html[data-ui-look="editorial"] .pfl-main-header {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+
+/* Top utility: login/dark/lang LEFT · डिजिटल सेवा / quick links RIGHT */
+html[data-ui-look="editorial"] .pfl-top-bar .container {
+  flex-direction: row-reverse;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li.has-drop .pfl-drop {
+  left: auto;
+  right: 0;
+}
+
+/* Left cluster: lang → search → dark → install → bell → login (bell near login) */
+html[data-ui-look="editorial"] .pfl-top-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-lang-wrap { order: 1;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > li:has(#topbarSearchBtn) { order: 2;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-dark-wrap { order: 3;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-pwa-wrap { order: 4;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-bell-wrap { order: 5;
+}
+
+html[data-ui-look="editorial"] .pfl-top-right > .pfl-login-drop-wrap { order: 6;
+}
+
+html[data-ui-look="editorial"] .pfl-login-menu {
+  right: auto;
+  left: 0;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area a,
+html[data-ui-look="editorial"] .pfl-quick-links a,
+html[data-ui-look="editorial"] .navbar .nav-link,
+html[data-ui-look="editorial"] .pfl-login-btn > a,
+html[data-ui-look="editorial"] .pfl-top-right > li > a,
+html[data-ui-look="editorial"] .pfl-bell-btn,
+html[data-ui-look="editorial"] .pfl-lang-wrap a {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .pfl-drop,
+html[data-ui-look="editorial"] .pfl-login-menu {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li > a {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Hero — full-bleed (no side gaps); flex shell needs explicit width */
+html[data-ui-look="editorial"] .hero-slider,
+html[data-ui-look="editorial"] .hero-carousel-modern {
+  border-radius: 0 !important;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  align-self: stretch;
+  box-shadow: none;
+}
+
+html[data-ui-look="editorial"] .hero-overlay-modern,
+html[data-ui-look="editorial"] .slider-overlay {
+  /* Same Soft scrim — photo clear, light left darken for type only */
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+html[data-ui-look="editorial"] .hero-title-modern {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  /* Nepali headlines need room — 18ch clipped Devanagari mid-phrase */
+  max-width: min(36rem, 100%);
+  overflow-wrap: anywhere;
+  white-space: normal;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="editorial"] .hero-subtitle-modern {
+  max-width: 38rem;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+html[data-ui-look="editorial"] .hero-btn-modern,
+html[data-ui-look="editorial"] .btn,
+html[data-ui-look="editorial"] .btn-primary,
+html[data-ui-look="editorial"] .btn-outline-primary,
+html[data-ui-look="editorial"] .home-btn-primary,
+html[data-ui-look="editorial"] .view-all-btn,
+html[data-ui-look="editorial"] .service-link-modern {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .hero-slider .carousel-indicators button {
+  border-radius: 999px !important;
+  width: 9px !important;
+  height: 9px !important;
+}
+
+/* Cards — soft paper */
+html[data-ui-look="editorial"] .card,
+html[data-ui-look="editorial"] .service-card,
+html[data-ui-look="editorial"] .service-card-modern,
+html[data-ui-look="editorial"] .notice-card,
+html[data-ui-look="editorial"] .news-card,
+html[data-ui-look="editorial"] .feature-card,
+html[data-ui-look="editorial"] .why-choose-card,
+html[data-ui-look="editorial"] .award-card,
+html[data-ui-look="editorial"] .rate-card,
+html[data-ui-look="editorial"] .rate-card-enhanced,
+html[data-ui-look="editorial"] .coop-card,
+html[data-ui-look="editorial"] .ds-coop-card,
+html[data-ui-look="editorial"] .tools-category-card {
+  border-radius: var(--look-radius) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e6e2dc) !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary-color, var(--primary)) 7%, transparent) !important;
+  overflow: hidden !important;
+}
+
+/* Match Soft tile geometry (~12px cards, ~14px icon wells) — never oval 999px pills */
+html[data-ui-look="editorial"] .tools-mini-link {
+  border-radius: 12px !important;
+  background: var(--bg-card, #fff) !important;
+  border: 1.5px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e8e4de) !important;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-color, var(--primary)) 5%, transparent);
+  padding: 14px 8px !important;
+}
+
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-forms h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-tools h5,
+html[data-ui-look="editorial"] .tools-category-card.tools-cat-member h5 {
+  border-radius: var(--look-radius) var(--look-radius) 0 0 !important;
+}
+
+html[data-ui-look="editorial"] .tools-mini-link > svg.lucide,
+html[data-ui-look="editorial"] .tools-mini-link i,
+html[data-ui-look="editorial"] .tools-mini-link .lucide-icon {
+  /* Soft baseline uses ~14px rounded square wells, not circles */
+  border-radius: 14px !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+}
+
+html[data-ui-look="editorial"] .tools-link-badge {
+  border-radius: 4px !important;
+  top: 5px !important;
+  right: 5px !important;
+  z-index: 2;
+  font-size: 0.58rem !important;
+  padding: 2px 5px !important;
+}
+
+html[data-ui-look="editorial"] .service-icon,
+html[data-ui-look="editorial"] .service-icon-modern {
+  border-radius: 1.25rem !important;
+}
+
+html[data-ui-look="editorial"] .new-badge,
+html[data-ui-look="editorial"] .new-badge-modern,
+html[data-ui-look="editorial"] .section-badge {
+  border-radius: 999px !important;
+  padding-inline: 0.85rem !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+html[data-ui-look="editorial"] .section-divider {
+  width: 4rem !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .section-padding,
+html[data-ui-look="editorial"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) + 18px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) + 18px) !important;
+}
+
+html[data-ui-look="editorial"] .section-header,
+html[data-ui-look="editorial"] .section-header-unified {
+  margin-bottom: 2.25rem !important;
+}
+
+html[data-ui-look="editorial"] .section-header h2,
+html[data-ui-look="editorial"] .section-header-unified h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+html[data-ui-look="editorial"] .page-banner {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3.5rem !important;
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary-color, var(--primary)) 90%, #000),
+    color-mix(in srgb, var(--primary-color, var(--primary)) 62%, var(--secondary-color, var(--secondary)))
+  ) !important;
+}
+
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner .page-title-modern,
+html[data-ui-look="editorial"] .page-banner-modern h1,
+html[data-ui-look="editorial"] .page-banner-modern .page-title-modern {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+  text-transform: none !important;
+}
+
+html[data-ui-look="editorial"] .services-section,
+html[data-ui-look="editorial"] .tools-widget-section,
+html[data-ui-look="editorial"] .rates-notices-section,
+html[data-ui-look="editorial"] .news-section,
+html[data-ui-look="editorial"] .app-download-section {
+  background: transparent;
+}
+
+/* Footer — roomy */
+html[data-ui-look="editorial"] .footer-top {
+  padding-top: 3.25rem !important;
+  padding-bottom: 2.75rem !important;
+}
+
+html[data-ui-look="editorial"] .footer-widget h4,
+html[data-ui-look="editorial"] .footer-widget h5 {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-size: 1.05rem;
+}
+
+html[data-ui-look="editorial"] .footer-social a,
+html[data-ui-look="editorial"] .whatsapp-float,
+html[data-ui-look="editorial"] #wa-float-btn,
+html[data-ui-look="editorial"] #float-chat-btn {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .row.g-3 {
+  --bs-gutter-x: 1.35rem;
+  --bs-gutter-y: 1.35rem;
+}
+
+@media (max-width: 767.98px) {
+html[data-ui-look="editorial"] .hero-slider,
+  html[data-ui-look="editorial"] .hero-carousel-modern {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+}
+}
+
+html[data-ui-look="editorial"] .form-control,
+html[data-ui-look="editorial"] .form-select,
+html[data-ui-look="editorial"] .input-group-text,
+html[data-ui-look="editorial"] .breadcrumb,
+html[data-ui-look="editorial"] .accordion-item,
+html[data-ui-look="editorial"] .accordion-button,
+html[data-ui-look="editorial"] .modal-content,
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-dialog {
+  border-radius: calc(var(--look-radius) - 0.25rem) !important;
+}
+
+html[data-ui-look="editorial"] form .form-control,
+html[data-ui-look="editorial"] form .form-select,
+html[data-ui-look="editorial"] main .form-control,
+html[data-ui-look="editorial"] main .form-select,
+html[data-ui-look="editorial"] .input-group > .form-control,
+html[data-ui-look="editorial"] .input-group > .form-select,
+html[data-ui-look="editorial"] .input-group:not(.has-validation) > .form-control,
+html[data-ui-look="editorial"] .input-group:not(.has-validation) > .form-select,
+html[data-ui-look="editorial"] #contactModal .form-control,
+html[data-ui-look="editorial"] #contactModal .form-select,
+html[data-ui-look="editorial"] .modal .form-control,
+html[data-ui-look="editorial"] .modal .form-select,
+html[data-ui-look="editorial"] .public-form-shell .form-control,
+html[data-ui-look="editorial"] .public-form-shell .form-select {
+  border-radius: calc(var(--look-radius) - 0.25rem) !important;
+}
+
+html[data-ui-look="editorial"] .form-control:focus,
+html[data-ui-look="editorial"] .form-select:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent) !important;
+}
+
+/* ── Editorial: same bands, softer magazine ── */
+html[data-ui-look="editorial"] .institutional-profile-bar,
+html[data-ui-look="editorial"] .ip-home-snapshot,
+html[data-ui-look="editorial"] .ip-home-stat,
+html[data-ui-look="editorial"] .rates-box-enhanced,
+html[data-ui-look="editorial"] .notices-box-enhanced,
+html[data-ui-look="editorial"] .notice-item-enhanced,
+html[data-ui-look="editorial"] .award-card,
+html[data-ui-look="editorial"] .report-quick-link {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e6e2dc) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="editorial"] .institutional-profile-section {
+  padding-block: 1.25rem;
+}
+
+html[data-ui-look="editorial"] .ip-home-snapshot-grid {
+  gap: 1rem !important;
+}
+
+html[data-ui-look="editorial"] .ip-home-stat {
+  border-radius: var(--look-radius) !important;
+  padding: 1rem 1.1rem !important;
+  border: 0 !important;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+}
+
+html[data-ui-look="editorial"] .notice-date-box,
+html[data-ui-look="editorial"] .award-icon,
+html[data-ui-look="editorial"] .latest-badge {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .rates-header,
+html[data-ui-look="editorial"] .notices-header {
+  border-bottom: 0;
+  padding-bottom: 0.35rem;
+}
+
+html[data-ui-look="editorial"] .rates-header h3,
+html[data-ui-look="editorial"] .notices-header h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+html[data-ui-look="editorial"] .notice-item-enhanced {
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent);
+  padding-block: 0.85rem;
+}
+
+html[data-ui-look="editorial"] .award-image,
+html[data-ui-look="editorial"] .award-image img {
+  border-radius: calc(var(--look-radius) - 0.35rem) !important;
+}
+
+html[data-ui-look="editorial"] .rates-notices-section.bg-light,
+html[data-ui-look="editorial"] .awards-section.bg-light,
+html[data-ui-look="editorial"] .app-download-section {
+  background: color-mix(in srgb, var(--secondary-color, var(--secondary)) 6%, #faf7f4) !important;
+}
+
+html[data-ui-look="editorial"] .breadcrumb {
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-dialog {
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent) !important;
+}
+
+html[data-ui-look="editorial"] .notice-popup-enhanced .popup-close-btn {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .news-card .news-image,
+html[data-ui-look="editorial"] .news-card img {
+  border-radius: calc(var(--look-radius) - 0.4rem) !important;
+}
+
+/* ── Dark mode: keep Soft empty; tune other looks ── */
+html[data-ui-look="sharp"] body.dark-mode,
+html[data-ui-look="editorial"] body.dark-mode,
+html[data-ui-look="compact"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #1a2332);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #121820);
+}
+
+html[data-ui-look="sharp"] body.dark-mode .service-card,
+html[data-ui-look="sharp"] body.dark-mode .service-card-modern,
+html[data-ui-look="sharp"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="sharp"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="sharp"] body.dark-mode .ip-home-snapshot,
+html[data-ui-look="editorial"] body.dark-mode .service-card,
+html[data-ui-look="editorial"] body.dark-mode .service-card-modern,
+html[data-ui-look="editorial"] body.dark-mode .rate-card-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="editorial"] body.dark-mode .institutional-profile-bar,
+html[data-ui-look="compact"] body.dark-mode .service-card,
+html[data-ui-look="compact"] body.dark-mode .service-card-modern,
+html[data-ui-look="compact"] body.dark-mode .rate-card-enhanced {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+
+html[data-ui-look="sharp"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="sharp"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="editorial"] body.dark-mode .awards-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .rates-notices-section.bg-light,
+html[data-ui-look="compact"] body.dark-mode .awards-section.bg-light {
+  background: var(--look-wash) !important;
+}
+
+/* ───────────── EDITORIAL chrome shell ───────────── */
+html[data-ui-look="editorial"] .pfl-header-wrapper {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  overflow: visible;
+}
+
+html[data-ui-look="editorial"] .pfl-top-bar {
+  padding-block: 0.35rem !important;
+  border-bottom: 0;
+}
+
+html[data-ui-look="editorial"] .pfl-top-bar .pfl-quick-links > li > a {
+  border-radius: 999px !important;
+  padding: 0.28rem 0.7rem !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: color-mix(in srgb, #fff 10%, transparent);
+}
+
+html[data-ui-look="editorial"] .pfl-top-bar .pfl-quick-links > li > a:hover {
+  background: color-mix(in srgb, #fff 22%, transparent);
+}
+
+html[data-ui-look="editorial"] .pfl-drop,
+html[data-ui-look="editorial"] .pfl-login-menu,
+html[data-ui-look="editorial"] .pfl-bell-drop {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 12%, #e8e4de) !important;
+  padding: 0.45rem !important;
+}
+
+html[data-ui-look="editorial"] .pfl-main-header {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 12%, transparent) !important;
+  padding-block: 0.55rem !important;
+}
+
+html[data-ui-look="editorial"] .pfl-since-badge {
+  /* Year-only circular seal — no padding (padding forced vertical letter wrap) */
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  box-sizing: border-box !important;
+}
+
+html[data-ui-look="editorial"] .pfl-since-badge .since-text {
+  display: none !important;
+}
+
+html[data-ui-look="editorial"] .pfl-since-badge .since-year {
+  font-size: 13px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-ui-look="editorial"] .pfl-brand-logo {
+  border-radius: 0.85rem !important;
+}
+
+html[data-ui-look="editorial"] .pfl-mobile-toggle,
+html[data-ui-look="editorial"] .close-menu {
+  border-radius: 999px !important;
+}
+
+/* Editorial main nav — soft pills */
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu {
+  gap: 0.25rem !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: 999px !important;
+  padding: 0.5rem 0.85rem !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-bottom: 0 !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  border-radius: 999px !important;
+  /* Soft-clear: solid primary + on-primary text (light wash hid white labels) */
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color, var(--primary)) 22%, transparent) !important;
+  border-bottom: 0 !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li.active > a i,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover i {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, var(--primary)) 10%, #e8e4de) !important;
+  padding: 0.55rem !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+  border-radius: 999px !important;
+  padding: 0.45rem 0.75rem !important;
+}
+
+html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu .dropdown li a:hover {
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #fff) !important;
+}
+
+html[data-ui-look="editorial"] .nav-new-badge,
+html[data-ui-look="editorial"] .nav-new-badge--top {
+  border-radius: 999px !important;
+}
+
+/* Editorial footer — roomy magazine */
+html[data-ui-look="editorial"] .main-footer {
+  border-top: 0;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top {
+  padding-top: 3.5rem !important;
+  padding-bottom: 3rem !important;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-widget h4 {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 1.1rem !important;
+  font-weight: 600;
+  border-bottom: 0;
+  margin-bottom: 1.1rem;
+  position: relative;
+  padding-bottom: 0.65rem;
+}
+
+/* Centered contact title: keep underline under text (not stranded left) */
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4::after {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  width: 2.75rem;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color, var(--primary)),
+    color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent)
+  );
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-about-text {
+  line-height: 1.7;
+  max-width: 28rem;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-links a {
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  margin-left: -0.45rem;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-links a:hover {
+  background: color-mix(in srgb, #fff 12%, transparent);
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-social {
+  gap: 0.55rem !important;
+  margin-top: 1.1rem !important;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-social a {
+  border-radius: 999px !important;
+  width: 2.45rem !important;
+  height: 2.45rem !important;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-bottom {
+  border-top: 1px solid color-mix(in srgb, #fff 14%, transparent);
+  padding-block: 1.1rem !important;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-policy-links a {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-logo img {
+  border-radius: 0.85rem !important;
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+html[data-ui-look="editorial"] .rates-notices-section .rates-box-enhanced,
+html[data-ui-look="editorial"] .rates-notices-section .notices-box-enhanced,
+html[data-ui-look="editorial"] .rates-body .rate-card-enhanced,
+html[data-ui-look="editorial"] .section-header .section-badge,
+html[data-ui-look="editorial"] .section-header-unified .section-badge {
+  border-radius: var(--look-radius) !important;
+}
+
+/* ───────────── EDITORIAL — magazine air on remaining bands ───────────── */
+html[data-ui-look="editorial"] .cta-section {
+  border-radius: var(--look-radius-lg) !important;
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--primary-color, var(--primary)) 16%, transparent);
+}
+
+/* Beat flex-shell section width:100% so CTA keeps magazine side inset */
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .cta-section {
+  width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.5rem));
+  max-width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.5rem));
+  margin-inline: auto;
+  align-self: center;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="editorial"] .cta-section h2,
+html[data-ui-look="editorial"] .cta-section .home-heading-unified {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  text-transform: none;
+}
+
+html[data-ui-look="editorial"] .cta-section .cta-content .btn-light,
+html[data-ui-look="editorial"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="editorial"] .cta-section .cta-content a.btn,
+html[data-ui-look="editorial"] .cta-section .cta-content .btn-outline-light {
+  border-radius: 999px !important;
+  padding-inline: 1.35rem !important;
+  font-weight: 600;
+}
+
+html[data-ui-look="editorial"] .why-us-section .feature-box,
+html[data-ui-look="editorial"] .feature-box {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+  background: var(--look-paper) !important;
+  padding: 2rem 1.5rem !important;
+}
+
+html[data-ui-look="editorial"] .feature-box .feature-icon,
+html[data-ui-look="editorial"] .feature-box .feature-icon-wrap {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .app-feature-item {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 9%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="editorial"] .app-feature-item .feature-icon-wrap {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .app-btn,
+html[data-ui-look="editorial"] .mobile-app-section .app-btn,
+html[data-ui-look="editorial"] .mobile-app-section a.app-store,
+html[data-ui-look="editorial"] .mobile-app-section a.btn {
+  border-radius: 999px !important;
+  padding-inline: 1.1rem !important;
+}
+
+html[data-ui-look="editorial"] .home-btn-outline-primary,
+html[data-ui-look="editorial"] .home-btn-outline-secondary,
+html[data-ui-look="editorial"] a.home-btn-outline-primary,
+html[data-ui-look="editorial"] a.home-btn-outline-secondary {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .qh-fab {
+  border-radius: 999px !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+}
+
+html[data-ui-look="editorial"] .qh-menu {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 20px 50px color-mix(in srgb, var(--primary-color, var(--primary)) 18%, transparent) !important;
+  padding: 0.55rem !important;
+}
+
+html[data-ui-look="editorial"] .qh-ic,
+html[data-ui-look="editorial"] .qh-item,
+html[data-ui-look="editorial"] button.qh-item {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .contact-info-box,
+html[data-ui-look="editorial"] .office-hours .card {
+  border-radius: var(--look-radius) !important;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+  border: 0 !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="editorial"] .table,
+html[data-ui-look="editorial"] table.table {
+  border-radius: var(--look-radius) !important;
+  overflow: hidden;
+}
+
+html[data-ui-look="editorial"] .pagination .page-link {
+  border-radius: 999px !important;
+  margin-inline: 0.15rem;
+}
+
+html[data-ui-look="editorial"] .mp-bottom-nav,
+html[data-ui-look="editorial"] .mobile-bottom-nav {
+  border-radius: var(--look-radius-lg) var(--look-radius-lg) 0 0 !important;
+  box-shadow: 0 -8px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+  border-top: 0 !important;
+}
+
+html[data-ui-look="editorial"] .mp-bottom-nav a,
+html[data-ui-look="editorial"] .mp-bottom-nav__item,
+html[data-ui-look="editorial"] .mobile-bottom-nav .nav-item-btn {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .section-divider {
+  width: 3.5rem !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .section-header .section-badge,
+html[data-ui-look="editorial"] .section-header-unified .section-badge {
+  border-radius: 999px !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+}
+
+html[data-ui-look="editorial"] .hero-title-modern {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+html[data-ui-look="editorial"] .hero-title-modern::after {
+  border-radius: 999px !important;
+  height: 4px !important;
+  width: 3.25rem !important;
+}
+
+/* Dark: remaining gap surfaces */
+html[data-ui-look="sharp"] body.dark-mode .feature-box,
+html[data-ui-look="sharp"] body.dark-mode .app-feature-item,
+html[data-ui-look="sharp"] body.dark-mode .contact-info-box,
+html[data-ui-look="editorial"] body.dark-mode .feature-box,
+html[data-ui-look="editorial"] body.dark-mode .app-feature-item,
+html[data-ui-look="editorial"] body.dark-mode .contact-info-box,
+html[data-ui-look="compact"] body.dark-mode .feature-box,
+html[data-ui-look="compact"] body.dark-mode .app-feature-item,
+html[data-ui-look="compact"] body.dark-mode .contact-info-box {
+  background: var(--look-paper) !important;
+  border-color: color-mix(in srgb, var(--primary-color, var(--primary)) 28%, #334155) !important;
+}
+
+/* —— Editorial: magazine inset + airy paper —— */
+html[data-ui-look="editorial"] .pfl-nav-area a.active,
+html[data-ui-look="editorial"] .pfl-nav-area .nav-link.active,
+html[data-ui-look="editorial"] .navbar .nav-link.active {
+  border-radius: 999px !important;
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent) !important;
+}
+
+html[data-ui-look="editorial"] .pfl-logo img,
+html[data-ui-look="editorial"] .navbar-brand img {
+  border-radius: calc(var(--look-radius) - 0.35rem) !important;
+}
+
+html[data-ui-look="editorial"] .tools-widget-section,
+html[data-ui-look="editorial"] .services-section > .container,
+html[data-ui-look="editorial"] .rates-notices-section > .container,
+html[data-ui-look="editorial"] .institutional-profile-section > .container,
+html[data-ui-look="editorial"] .tools-widget-section > .container {
+  max-width: min(1120px, 100%);
+}
+
+html[data-ui-look="editorial"] .tools-widget-section {
+  padding-block: 1.75rem !important;
+}
+
+html[data-ui-look="editorial"] .section-header h2,
+html[data-ui-look="editorial"] .section-header-unified h2,
+html[data-ui-look="editorial"] .home-heading-unified {
+  font-weight: 600 !important;
+  letter-spacing: -0.025em;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem) !important;
+}
+
+html[data-ui-look="editorial"] .section-header p,
+html[data-ui-look="editorial"] .section-header-unified p {
+  font-size: 1.02rem !important;
+  line-height: 1.65 !important;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+html[data-ui-look="editorial"] .ip-home-snapshot-grid {
+  gap: 1.15rem !important;
+}
+
+html[data-ui-look="editorial"] .rates-box-enhanced,
+html[data-ui-look="editorial"] .notices-box-enhanced {
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary-color, var(--primary)) 9%, transparent) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 6 — Soft-preserving flow serial (menu + home sections)
+   Soft keeps DOM order. Sharp / Editorial / Compact reorder via
+   CSS flex order only — same pages/text/brand, different rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+/* Shared flex shells (non-Soft only) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Flex children need a definite cross-size so % widths inside (carousel) resolve */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Editorial hero: full-bleed (beats section max-width; no side gaps) */
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .hero-slider {
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+
+/* Notice ticker = menu तल / hero-slider माथि (order 0 beats hero at 1; Soft stays DOM) */
+html[data-ui-look="sharp"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="editorial"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="compact"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="sharp"] .pfl-quick-links,
+html[data-ui-look="editorial"] .pfl-quick-links,
+html[data-ui-look="compact"] .pfl-quick-links,
+html[data-ui-look="sharp"] .pfl-nav-area .nav-menu,
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu,
+html[data-ui-look="compact"] .pfl-nav-area .nav-menu,
+html[data-ui-look="sharp"] .main-footer .footer-top .row,
+html[data-ui-look="editorial"] .main-footer .footer-top .row,
+html[data-ui-look="compact"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* footer-links-cols stays CSS grid (Soft baseline) — order still works on grid items */
+
+/* —— Soft DOM baseline (unchanged):
+   hero → institutional → services → tools → rates → why → leadership
+   → mobile-app → app-features → news → awards → spotlight → cta —— */
+
+/* Shared: संस्थागत प्रोफाइल always directly under hero (order 2) */
+html[data-ui-look="sharp"] #main-content > .hero-slider,
+html[data-ui-look="editorial"] #main-content > .hero-slider,
+html[data-ui-look="compact"] #main-content > .hero-slider { order: 1;
+}
+
+html[data-ui-look="sharp"] #main-content > .institutional-profile-section,
+html[data-ui-look="editorial"] #main-content > .institutional-profile-section,
+html[data-ui-look="compact"] #main-content > .institutional-profile-section { order: 2;
+}
+
+/* Editorial — story magazine: app pair together, then CTA (avoids green-on-green clash) */
+html[data-ui-look="editorial"] #main-content > .services-section { order: 3;
+}
+
+html[data-ui-look="editorial"] #main-content > .why-us-section { order: 4;
+}
+
+html[data-ui-look="editorial"] #main-content > .mobile-app-section { order: 5;
+}
+
+html[data-ui-look="editorial"] #main-content > .app-features-section { order: 6;
+}
+
+html[data-ui-look="editorial"] #main-content > .cta-section { order: 7;
+}
+
+/* सदस्य बन्नुहोस् after app features */
+html[data-ui-look="editorial"] #main-content > .tools-widget-section { order: 8;
+}
+
+html[data-ui-look="editorial"] #main-content > .rates-notices-section { order: 9;
+}
+
+html[data-ui-look="editorial"] #main-content > .leadership-messages-section { order: 10;
+}
+
+html[data-ui-look="editorial"] #main-content > .news-section { order: 11;
+}
+
+html[data-ui-look="editorial"] #main-content > .awards-section { order: 12;
+}
+
+html[data-ui-look="editorial"] #main-content > .member-spotlight-section { order: 13;
+}
+
+/* Editorial right cluster: छिटो लिंक first (away from edge clip) → Digital → … */
+html[data-ui-look="editorial"] .pfl-quick-links > li.has-drop { order: 1;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 3;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 4;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 5;
+}
+
+html[data-ui-look="editorial"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 6;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 2;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 4;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9;
+}
+
+html[data-ui-look="editorial"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8;
+}
+
+/* Editorial: quick links left · contact center · logo/summary/social right */
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-5 { order: 1;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 { order: 2;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 { order: 3;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 {
+  text-align: center;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4 {
+  text-align: center;
+  display: block;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact li {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Shared: brand column (col-lg-4) — logo + summary + social centered inside */
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 {
+  /* Sharp/Editorial: column stays on the right */
+  text-align: center;
+  display: flex;
+  justify-content: flex-end;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo.footer-logo-stacked,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text {
+  max-width: 28rem;
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 {
+    text-align: left;
+    display: block;
+    justify-content: flex-start;
+}
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4 {
+    text-align: left;
+}
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-widget h4::after {
+    left: 0 !important;
+    transform: none;
+}
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="sharp"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-3 .footer-contact,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="editorial"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+  html[data-ui-look="compact"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+    margin-left: 0;
+    margin-right: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    max-width: none;
+}
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="services.php"]) { order: 1;
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="about.php"]) { order: 2;
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="reports.php"]) { order: 3;
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="news.php"]) { order: 4;
+}
+
+html[data-ui-look="editorial"] .footer-links > li:has(a[href*="faqs.php"]) { order: 5;
+}
+
+/* —— Editorial: soft magazine cards —— */
+html[data-ui-look="editorial"] .value-card,
+html[data-ui-look="editorial"] .about-content-box,
+html[data-ui-look="editorial"] .history-image-box,
+html[data-ui-look="editorial"] .gallery-card,
+html[data-ui-look="editorial"] .gallery-album-card,
+html[data-ui-look="editorial"] .gallery-tabs-wrapper,
+html[data-ui-look="editorial"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border: 0 !important;
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--primary-color, var(--primary)) 11%, transparent) !important;
+  background: var(--look-paper) !important;
+}
+
+html[data-ui-look="editorial"] .value-card {
+  padding: 2rem 1.35rem !important;
+}
+
+html[data-ui-look="editorial"] .value-icon,
+html[data-ui-look="editorial"] .history-icon-ring,
+html[data-ui-look="editorial"] .history-badge,
+html[data-ui-look="editorial"] .gallery-tab {
+  border-radius: 999px !important;
+}
+
+html[data-ui-look="editorial"] .about-content-box h2,
+html[data-ui-look="editorial"] .history-content-v2 h2,
+html[data-ui-look="editorial"] .value-card h5 {
+  font-weight: 600 !important;
+  letter-spacing: -0.015em;
+}
+
+html[data-ui-look="editorial"] .gallery-section,
+html[data-ui-look="editorial"] .about-section,
+html[data-ui-look="editorial"] .values-section,
+html[data-ui-look="editorial"] .history-section-v2 {
+  background: transparent;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 8 — Brand-token + no-clip / icon safety (Soft empty)
+   Admin colors (global-theme.php) already drive every look via
+   --primary-color / --secondary-color / --text-on-* / --*-ink.
+   Looks only tint with color-mix of those tokens — no brand hex.
+   ════════════════════════════════════════════════════════════ */
+
+/* Hover lift inside overflow:hidden category cards → chop risk.
+   Non-Soft: keep shadow/border hover, kill translate. Soft Soft
+   keeps a milder Soft-shell lift + grid pad (shell polish). */
+html[data-ui-look="sharp"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* Icon wells: never collapse Lucide to 0×0; allow stroke paint */
+html[data-ui-look="sharp"] .tools-mini-link > svg.lucide,
+html[data-ui-look="sharp"] .tools-mini-link .lucide-icon,
+html[data-ui-look="editorial"] .tools-mini-link > svg.lucide,
+html[data-ui-look="editorial"] .tools-mini-link .lucide-icon,
+html[data-ui-look="compact"] .tools-mini-link > svg.lucide,
+html[data-ui-look="compact"] .tools-mini-link .lucide-icon,
+html[data-ui-look="sharp"] .feature-box .feature-icon svg,
+html[data-ui-look="editorial"] .feature-box .feature-icon svg,
+html[data-ui-look="compact"] .feature-box .feature-icon svg,
+html[data-ui-look="sharp"] .value-icon svg,
+html[data-ui-look="editorial"] .value-icon svg,
+html[data-ui-look="compact"] .value-icon svg {
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+  flex-shrink: 0;
+}
+
+/* Devanagari / long labels — wrap, never mid-glyph clip */
+html[data-ui-look="sharp"] .hero-title-modern,
+html[data-ui-look="editorial"] .hero-title-modern,
+html[data-ui-look="compact"] .hero-title-modern,
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .tools-mini-link span,
+html[data-ui-look="editorial"] .tools-mini-link span,
+html[data-ui-look="compact"] .tools-mini-link span,
+html[data-ui-look="sharp"] .value-card h5,
+html[data-ui-look="editorial"] .value-card h5,
+html[data-ui-look="compact"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Brand fills in looks keep WCAG text-on-* from admin auto contrast */
+html[data-ui-look="sharp"] .page-banner,
+html[data-ui-look="editorial"] .page-banner,
+html[data-ui-look="compact"] .page-banner {
+  color: var(--text-on-primary, #fff);
+}
+
+html[data-ui-look="sharp"] .page-banner h1,
+html[data-ui-look="editorial"] .page-banner h1,
+html[data-ui-look="compact"] .page-banner h1,
+html[data-ui-look="sharp"] .page-banner .page-title-modern,
+html[data-ui-look="editorial"] .page-banner .page-title-modern,
+html[data-ui-look="compact"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="sharp"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="editorial"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="compact"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* ══ Header: logo + main menu on ONE line (desktop, every look except Soft which already fits) ══
+   Editorial wrapped the menu (flex-wrap + wider pill padding) so the last item ("थप") fell under
+   "गृहपृष्ठ" next to a wide logo strip. Keep one row; spacing and the logo give way first.
+   header.php adds .nav-tight / .nav-tighter only if the row still overflows (long custom menus). */
+@media (min-width: 992px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding-inline: clamp(7px, 0.62vw, 13.6px) !important;
+    white-space: nowrap;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-area {
+    flex: 0 0 auto;
+    max-width: none !important;
+  }
+  /* shrink the logo image (not the area) so the since-badge always stays whole */
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: min(400px, 27vw) !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  html[data-ui-look] .pfl-main-header .pfl-nav-area { min-width: 0; }
+  /* Overflow fallbacks (any look) — set by the fit script in header.php */
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a { padding-inline: 6px !important; gap: 3px; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a .mnav-main-icon { display: none !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tighter .nav-menu > li > a { font-size: 12.5px !important; padding-inline: 4px !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-wrap .nav-menu { flex-wrap: wrap !important; justify-content: flex-end; row-gap: 2px !important; }
+}
+
+/* Small laptops: give the menu more room — the logo strip shrinks first */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: 20vw !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   READABILITY GUARD — a look that repaints a dark surface light
+   must also flip its text (white-on-white was unreadable).
+   Soft untouched. Checked with an automated contrast scan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Page hero breadcrumb: looks give .breadcrumb a light pill, but inside the
+   dark page banner its text is white → glass pill instead */
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(4px);
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb a,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active {
+  opacity: 0.85 !important;
+}
+
+/* Contact page info card: Editorial / Airy paint it paper → dark ink */
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box {
+  color: var(--text-dark, #1f2937) !important;
+}
+
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, li),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box :is(h1, h2, h3, h4, h5, h6, p, a, span, strong, small, li) {
+  color: var(--text-dark, #1f2937) !important;
+  -webkit-text-fill-color: var(--text-dark, #1f2937) !important;
+}
+
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box :is(h4, h6),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box :is(h4, h6) {
+  color: var(--primary-color, var(--primary)) !important;
+  -webkit-text-fill-color: var(--primary-color, var(--primary)) !important;
+}
+
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box > p,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box > p {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
+
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box .btn,
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box .btn,
+html[data-ui-look="editorial"] body:not(.dark-mode) .contact-info-box .btn :is(span, i),
+html[data-ui-look="airy"] body:not(.dark-mode) .contact-info-box .btn :is(span, i) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* About → history "no photo" note: Editorial / Sharp make the box light */
+html[data-ui-look="editorial"] body:not(.dark-mode) .history-empty-photo-note,
+html[data-ui-look="sharp"] body:not(.dark-mode) .history-empty-photo-note {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
