@@ -151,7 +151,7 @@
      Brand fill still comes from global-theme.php (--primary-color). */
   --shell-font-body:      var(--font-primary);
   --shell-font-head:      var(--font-heading);
-  --shell-radius:         12px;
+  --shell-radius:         var(--card-radius, 12px);
   --shell-radius-sm:      9px;
   --shell-border:         #d7e0db;
   --shell-border-focus:   var(--primary-color, var(--primary));

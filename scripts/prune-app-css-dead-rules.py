@@ -14,6 +14,10 @@ project markup / scripts (PHP, JS, JSON, HTML). Conservative:
   * @keyframes, @font-face, @supports/@media wrappers, comments and the section
     banners stay (the smoke tests assert the banners).
 
+Blind spot: class names that live only in database content (CMS page HTML,
+notice bodies) are not seen — check `scripts/reports/<sheet>.pruned.txt`
+against live content before --write.
+
 Dry run prints a report; --write rewrites the file and writes
 scripts/reports/<sheet>.pruned.txt with every removed rule for review.
 
@@ -27,13 +31,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CSS = ROOT / "assets" / "css"
 SRC_EXT = {".php", ".js", ".json", ".html", ".htm", ".txt", ".md", ".py"}
-SKIP_DIRS = {"node_modules", ".git", "css", "reports"}
+SKIP_RELS = ("assets/css/", "scripts/reports/", "node_modules/", ".git/")
 
 
 def source_blob() -> str:
     parts = []
     for p in ROOT.rglob("*"):
-        if p.suffix.lower() not in SRC_EXT or any(d in p.parts for d in SKIP_DIRS):
+        rel = p.relative_to(ROOT).as_posix()
+        if p.suffix.lower() not in SRC_EXT or rel.startswith(SKIP_RELS) or "/node_modules/" in rel:
             continue
         if p.name.endswith(".pruned.txt"):
             continue

@@ -1349,12 +1349,10 @@ body.verify-auth-page .vp-secure {
 .mem-main-content > *:not(script):not(style):not(.d-none):not([hidden]) {
   margin-bottom: var(--mem-gap) !important;
 }
-.mem-main-content > *:last-child { margin-bottom: 0 !important; }
+.mem-main-content > *:last-child,
+.mem-main-content > :nth-last-child(1 of :not(script):not(style):not(.d-none):not([hidden])) { margin-bottom: 0 !important; }
 .mem-main-content > .midx-card-mt { margin-top: 0 !important; }
 .mem-main-content > :is(.stat-mini-row, .mem-profile-tab-shell, .mem-grid-2) { margin-bottom: var(--mem-gap) !important; }
 .mem-main-content > .mem-grid-2 { gap: var(--mem-gap); }
 @media (max-width: 575.98px) { :root { --mem-gap: var(--space-3, 0.75rem); } }
 
-/* ── Member cards use the shared card radius (was 14 / 16px while public + admin are 12px) ── */
-:root { --mem-radius: var(--card-radius, 12px); }
-.mem-main-content :is(.mem-card, .card):not(.stat-card) { border-radius: var(--card-radius, 12px) !important; }

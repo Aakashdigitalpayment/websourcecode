@@ -10264,12 +10264,11 @@ main section:has([data-aos]) {
 /* ── Public section rhythm: one token (audit found .stats-section 50px and .committees-section 24px beside the 60px norm) ── */
 :root { --pub-section-y: clamp(2.25rem, 4.5vw, 3.75rem); }
 .section-padding, .section-py,
-.stats-section,
-.committees-section.section-padding {
+.stats-section {
   padding-top: var(--pub-section-y) !important;
   padding-bottom: var(--pub-section-y) !important;
 }
 
 /* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
-.card:not(.stat-card):not(.svc-flat-top-card):not(.sl-flat-top):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
+.card:not(.stat-card):not([class*="flat-top"]):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
 /* ===== END final-ui-polish.css ===== */

@@ -2133,6 +2133,10 @@ body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-s
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   min-height: var(--adm-control-h) !important;
 }
+/* the shorthand above would also reset the chevron clearance Bootstrap selects need */
+body[class*="admin-page-"] :is(.main-content, .modal) .form-select:not(.form-select-sm):not(.form-control-sm):not(.form-control-color) {
+  padding-right: 2.25rem !important;
+}
 body[class*="admin-page-"] :is(.main-content, .modal) :is(.form-control, .form-select, .admin-fancy-input)::placeholder {
   color: #93a09a !important;
   opacity: 1;
@@ -2279,11 +2283,16 @@ body[class*="admin-page-"] .main-content .card > .card-header:is(.svc-form-heade
 body[class*="admin-page-"] .main-content .card.cmt-top-border-green > .card-header .btn:is(:hover, :focus-visible) {
   background: color-mix(in srgb, #fff 28%, transparent) !important;
 }
-/* a form card that follows a tab bar sits flush under it */
-body[class*="admin-page-"] .main-content .tab-content > .tab-pane > .card:first-child {
+/* a card that follows a tab bar sits flush under it — one rule for every page's
+   flat-top variant (svc- / cmt- / ir- / sl- / appfeat-flat-top) and for tab panes */
+body[class*="admin-page-"] .main-content .tab-content > .tab-pane > .card:first-child,
+body[class*="admin-page-"] .main-content .card[class*="flat-top"] {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
-  margin-top: -1px;
+  border-bottom-left-radius: var(--card-radius, 12px) !important;
+  border-bottom-right-radius: var(--card-radius, 12px) !important;
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb) !important;
+  margin-top: -1px !important;
 }
 body[class*="admin-page-"] .main-content .card > .card-body:has(> form) ,
 body[class*="admin-page-"] .main-content .card > .card-body > form {

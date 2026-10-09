@@ -2394,15 +2394,12 @@ body.verify-auth-page .vp-secure {
 .mem-main-content > *:not(script):not(style):not(.d-none):not([hidden]) {
   margin-bottom: var(--mem-gap) !important;
 }
-.mem-main-content > *:last-child { margin-bottom: 0 !important; }
+.mem-main-content > *:last-child,
+.mem-main-content > :nth-last-child(1 of :not(script):not(style):not(.d-none):not([hidden])) { margin-bottom: 0 !important; }
 .mem-main-content > .midx-card-mt { margin-top: 0 !important; }
 .mem-main-content > :is(.stat-mini-row, .mem-profile-tab-shell, .mem-grid-2) { margin-bottom: var(--mem-gap) !important; }
 .mem-main-content > .mem-grid-2 { gap: var(--mem-gap); }
 @media (max-width: 575.98px) { :root { --mem-gap: var(--space-3, 0.75rem); } }
-
-/* ── Member cards use the shared card radius (was 14 / 16px while public + admin are 12px) ── */
-:root { --mem-radius: var(--card-radius, 12px); }
-.mem-main-content :is(.mem-card, .card):not(.stat-card) { border-radius: var(--card-radius, 12px) !important; }
 /* ===== END member-shell-polish.css ===== */
 
 /* ===== BEGIN lucide-icon-utils.css ===== */
@@ -9301,12 +9298,11 @@ main section:has([data-aos]) {
 /* ── Public section rhythm: one token (audit found .stats-section 50px and .committees-section 24px beside the 60px norm) ── */
 :root { --pub-section-y: clamp(2.25rem, 4.5vw, 3.75rem); }
 .section-padding, .section-py,
-.stats-section,
-.committees-section.section-padding {
+.stats-section {
   padding-top: var(--pub-section-y) !important;
   padding-bottom: var(--pub-section-y) !important;
 }
 
 /* ── Shared component radius: every card on every panel reads --card-radius (global.css) ── */
-.card:not(.stat-card):not(.svc-flat-top-card):not(.sl-flat-top):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
+.card:not(.stat-card):not([class*="flat-top"]):not(.tab-pane > .card:first-child):not(.cmt-top-border-green) { border-radius: var(--card-radius, 12px) !important; }
 /* ===== END final-ui-polish.css ===== */

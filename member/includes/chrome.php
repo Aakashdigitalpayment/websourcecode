@@ -465,7 +465,6 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
       bell.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
     }
     /* colour comes from CSS (.mem-push-btn / .is-on) so the Lucide swap can't drop it */
-    btn.classList.add('mem-push-btn');
     btn.classList.toggle('is-on', !!yes);
     btn.title = yes ? 'Push Notification सक्षम छ' : 'Push Notification सक्षम गर्नुहोस्';
   }

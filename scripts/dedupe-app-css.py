@@ -25,6 +25,22 @@ NORM = lambda s: re.sub(r"\s+", " ", s.strip())
 def global_tokens() -> dict[str, str]:
     """token → normalised value as global.css :root declares it (last wins)."""
     t = re.sub(r"/\*.*?\*/", "", (CSS / "global.css").read_text(), flags=re.S)
+    # top level only: cut every @media / @supports block (nested braces) first
+    out, depth, i = [], 0, 0
+    while i < len(t):
+        if depth == 0 and t[i] == "@":
+            j = t.find("{", i)
+            if j < 0:
+                break
+            depth, k = 1, j + 1
+            while k < len(t) and depth:
+                depth += (t[k] == "{") - (t[k] == "}")
+                k += 1
+            depth = 0
+            i = k
+            continue
+        out.append(t[i]); i += 1
+    t = "".join(out)
     toks: dict[str, str] = {}
     for m in re.finditer(r"(?:^|\})\s*:root\s*\{([^{}]*)\}", t):
         for k, v in re.findall(r"(--[\w-]+)\s*:\s*([^;]+)", m.group(1)):
