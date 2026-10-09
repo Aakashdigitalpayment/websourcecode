@@ -26,3 +26,7 @@ assets/uploads/member-imports/*
 # Generated Open Graph landscape cards
 assets/uploads/og_cards/*
 !assets/uploads/og_cards/.gitkeep
+
+# Python bytecode (scripts/)
+__pycache__/
+*.pyc
