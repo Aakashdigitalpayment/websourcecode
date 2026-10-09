@@ -77,6 +77,11 @@ python3 scripts/build-css-late-bundles.py
 Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 `python3 scripts/build-css-late-bundles.py --check` (also run by `smoke-css-order.php`) fails if a bundle drifted from its sources.
 
+**Public looks are split per look:** `assets/css/public-ui-looks.css` is the SOURCE (all ten looks, not loaded).
+`python3 scripts/build-public-ui-looks.py` writes `assets/css/looks/public-ui-looks.<look>.css`; the theme loader links only
+the active look's file (Editorial ≈ 56 KB instead of 224 KB on every public page). `--check` runs in `smoke-css-order.php`.
+Edit the source, rebuild, commit both.
+
 **Behaviour-neutral dedupe of the frozen bases:** `python3 scripts/dedupe-app-css.py app-public.css [--write]` drops
 exact duplicate rules (same @media context, selector and declarations — the earlier copy) and `:root` token
 declarations whose value is identical to `global.css`. Same verification as pruning: regenerate shadows, screenshot diff.

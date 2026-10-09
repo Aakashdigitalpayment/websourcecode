@@ -483,8 +483,18 @@ if (!function_exists('coopThemeCssUrl')) {
         } else {
             /* public + default shell */
             coopThemeLink('assets/css/public-late-bundle.css');
-            /* Public look personality AFTER late bundle — Soft has zero rules */
-            coopThemeLink('assets/css/public-ui-looks.css');
+            /* Public look personality AFTER late bundle — only the ACTIVE look's file
+               (assets/css/looks/, built from public-ui-looks.css by
+               scripts/build-public-ui-looks.py). Soft has (almost) zero rules. */
+            $__lookForCss = function_exists('coopPublicUiLook') ? coopPublicUiLook() : 'soft';
+            $__lookForCss = preg_replace('/[^a-z0-9_-]/', '', (string) $__lookForCss) ?: 'soft';
+            $__lookFile = 'assets/css/looks/public-ui-looks.' . $__lookForCss . '.css';
+            if (is_file((defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/')) . $__lookFile)) {
+                coopThemeLink($__lookFile);
+            } else {
+                /* split files missing (not rebuilt / not uploaded): fall back to the full source */
+                coopThemeLink('assets/css/public-ui-looks.css');
+            }
         }
     }
 

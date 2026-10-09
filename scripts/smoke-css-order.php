@@ -826,5 +826,20 @@ if ($__py !== '') {
 }
 unset($__py, $__out, $__code);
 
+/* Per-look public CSS files must match their source (public-ui-looks.css) */
+$__py = trim((string) @shell_exec('command -v python3 2>/dev/null'));
+if ($__py !== '' && is_file($root . '/scripts/build-public-ui-looks.py')) {
+    $__out = [];
+    $__code = 1;
+    exec(escapeshellarg($__py) . ' ' . escapeshellarg($root . '/scripts/build-public-ui-looks.py') . ' --check 2>&1', $__out, $__code);
+    if ($__code === 0) {
+        ok('per-look public CSS files in sync with public-ui-looks.css');
+    } else {
+        fail('per-look public CSS out of sync — ' . implode(' ', $__out));
+    }
+}
+unset($__py, $__out, $__code);
+assertContains('includes/theme-assets.php', 'public-ui-looks.\' . $__lookForCss . \'.css', 'theme loader picks the active look file');
+
 echo "\n{$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);

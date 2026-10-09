@@ -1,0 +1,765 @@
+/* AUTO-GENERATED: public-ui-looks.pulse.css — do not edit.
+ * Source: assets/css/public-ui-looks.css (edit there), then
+ * python3 scripts/build-public-ui-looks.py
+ */
+
+html[data-ui-look="pulse"] {
+  --look-radius: 0.55rem;
+  --look-radius-lg: 0.75rem;
+  --look-paper: #fff;
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 5%, #f5f7f6);
+  --look-ink-rail: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary)));
+}
+
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 10 — Pulse / Summit / Harbor (new looks; Soft–Harbor-1 untouched)
+   Same pages / text / brand tokens. Distinct chrome + flex rhythm.
+   ════════════════════════════════════════════════════════════ */
+
+html[data-ui-look="pulse"] body,
+html[data-ui-look="summit"] body,
+html[data-ui-look="harbor"] body {
+  background-color: var(--look-wash);
+}
+
+/* ───────────── PULSE — rates+news first ───────────── */
+html[data-ui-look="pulse"] .pfl-main-header {
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 45%, var(--primary-color, var(--primary))) !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-look="pulse"] .pfl-header-wrapper,
+html[data-ui-look="pulse"] .pfl-drop,
+html[data-ui-look="pulse"] .pfl-login-menu,
+html[data-ui-look="pulse"] .mobile-nav-drawer,
+html[data-ui-look="pulse"] .mobile-nav-panel,
+html[data-ui-look="pulse"] .pfl-mobile-toggle,
+html[data-ui-look="pulse"] .close-menu {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li > a {
+  font-weight: 700;
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+  padding: 0.45rem 0.65rem !important;
+}
+
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+  background: var(--primary-color, var(--primary)) !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 70%, #fff) !important;
+}
+
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-label,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .mnav-main-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a .lucide-icon,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.active > a svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a:hover svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li:hover > a svg,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li.open > a svg {
+  color: var(--text-on-primary, #fff) !important;
+  stroke: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu .dropdown,
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu .sub-menu {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary))) !important;
+}
+
+html[data-ui-look="pulse"] .hero-slider,
+html[data-ui-look="pulse"] .hero-carousel-modern,
+html[data-ui-look="pulse"] .hero-slide-modern,
+html[data-ui-look="pulse"] .hero-bg-modern {
+  border-radius: var(--look-radius-lg) !important;
+}
+
+html[data-ui-look="pulse"] .hero-title-modern {
+  font-weight: 800 !important;
+  max-width: min(34rem, 100%);
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-look="pulse"] .hero-slider .btn.hero-btn-modern,
+html[data-ui-look="pulse"] #heroCarousel .btn.hero-btn-modern,
+html[data-ui-look="pulse"] .hero-slider a.hero-btn-modern,
+html[data-ui-look="pulse"] #heroCarousel a.hero-btn-modern,
+html[data-ui-look="pulse"] .hero-btn-modern,
+html[data-ui-look="pulse"] .btn,
+html[data-ui-look="pulse"] .btn-primary,
+html[data-ui-look="pulse"] .home-btn-primary,
+html[data-ui-look="pulse"] .view-all-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700 !important;
+}
+
+html[data-ui-look="pulse"] .hero-slider .carousel-indicators button {
+  border-radius: 2px !important;
+  width: 14px !important;
+  height: 4px !important;
+}
+
+html[data-ui-look="pulse"] .card,
+html[data-ui-look="pulse"] .service-card,
+html[data-ui-look="pulse"] .service-card-modern,
+html[data-ui-look="pulse"] .notice-card,
+html[data-ui-look="pulse"] .news-card,
+html[data-ui-look="pulse"] .feature-card,
+html[data-ui-look="pulse"] .why-choose-card,
+html[data-ui-look="pulse"] .award-card,
+html[data-ui-look="pulse"] .rate-card,
+html[data-ui-look="pulse"] .rate-card-enhanced,
+html[data-ui-look="pulse"] .coop-card,
+html[data-ui-look="pulse"] .ds-coop-card,
+html[data-ui-look="pulse"] .tools-category-card,
+html[data-ui-look="pulse"] .feature-box,
+html[data-ui-look="pulse"] .value-card,
+html[data-ui-look="pulse"] .gallery-card,
+html[data-ui-look="pulse"] .download-card {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 50%, var(--primary-color, var(--primary))) !important;
+  background: var(--look-paper) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color, var(--primary)) 8%, transparent) !important;
+}
+
+html[data-ui-look="pulse"] .rates-box-enhanced,
+html[data-ui-look="pulse"] .notices-box-enhanced,
+html[data-ui-look="pulse"] .institutional-profile-bar {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, var(--primary-color, var(--primary)));
+  background: var(--look-paper);
+}
+
+html[data-ui-look="pulse"] .tools-mini-link {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="pulse"] .tools-mini-link > svg.lucide,
+html[data-ui-look="pulse"] .tools-mini-link .lucide-icon {
+  border-radius: var(--look-radius) !important;
+  min-width: 1rem !important;
+  min-height: 1rem !important;
+  overflow: visible !important;
+}
+
+html[data-ui-look="pulse"] .section-padding,
+html[data-ui-look="pulse"] .section-py {
+  padding-top: calc(var(--space-2xl, 64px) - 8px) !important;
+  padding-bottom: calc(var(--space-2xl, 64px) - 8px) !important;
+}
+
+html[data-ui-look="pulse"] .section-header h2,
+html[data-ui-look="pulse"] .section-header-unified h2 {
+  font-weight: 800 !important;
+}
+
+html[data-ui-look="pulse"] .page-banner {
+  border-radius: 0 0 var(--look-radius-lg) var(--look-radius-lg) !important;
+  color: var(--text-on-primary, #fff);
+}
+
+html[data-ui-look="pulse"] .page-banner h1,
+html[data-ui-look="pulse"] .page-banner .page-title-modern {
+  color: var(--text-on-primary, #fff) !important;
+  font-weight: 800 !important;
+  overflow-wrap: anywhere;
+}
+
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+html[data-ui-look="pulse"] .qh-fab,
+html[data-ui-look="pulse"] .section-badge {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="pulse"] .pfl-since-badge {
+  border-radius: 50% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-ui-look="pulse"] .pfl-since-badge .since-text { display: none !important;
+}
+
+/* Shared Soft-matching hero scrim */
+html[data-ui-look="pulse"] .hero-overlay-modern,
+html[data-ui-look="pulse"] .slider-overlay,
+html[data-ui-look="summit"] .hero-overlay-modern,
+html[data-ui-look="summit"] .slider-overlay,
+html[data-ui-look="harbor"] .hero-overlay-modern,
+html[data-ui-look="harbor"] .slider-overlay {
+  background:
+    linear-gradient(
+      100deg,
+      var(--hero-scrim-left, rgba(5, 8, 12, 0.42)) 0%,
+      var(--hero-scrim-mid, rgba(5, 8, 12, 0.18)) 42%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 55%,
+      rgba(0, 0, 0, 0.28) 100%
+    ),
+    linear-gradient(
+      135deg,
+      var(--hero-scrim-edge, rgba(var(--primary-rgb, 26, 95, 42), 0.12)) 0%,
+      transparent 55%
+    ) !important;
+}
+
+html[data-ui-look="pulse"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="summit"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="harbor"] .tools-widget-section .tools-mini-link:hover,
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card:hover,
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card:hover {
+  transform: none !important;
+}
+
+/* ── PASS 10 flex shells + homepage serial ── */
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider),
+html[data-ui-look="summit"] #main-content:has(> .hero-slider),
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > section,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > section {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker),
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > :not(section):not(.notice-ticker) {
+  order: 90;
+}
+
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="summit"] #main-content:has(> .hero-slider) > .notice-ticker,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > .notice-ticker {
+  order: 0;
+  width: 100%;
+  max-width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links,
+html[data-ui-look="summit"] .pfl-quick-links,
+html[data-ui-look="harbor"] .pfl-quick-links,
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu,
+html[data-ui-look="summit"] .pfl-nav-area .nav-menu,
+html[data-ui-look="harbor"] .pfl-nav-area .nav-menu,
+html[data-ui-look="pulse"] .main-footer .footer-top .row,
+html[data-ui-look="summit"] .main-footer .footer-top .row,
+html[data-ui-look="harbor"] .main-footer .footer-top .row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+html[data-ui-look="pulse"] #main-content > .hero-slider,
+html[data-ui-look="summit"] #main-content > .hero-slider,
+html[data-ui-look="harbor"] #main-content > .hero-slider { order: 1;
+}
+
+html[data-ui-look="pulse"] #main-content > .institutional-profile-section,
+html[data-ui-look="summit"] #main-content > .institutional-profile-section,
+html[data-ui-look="harbor"] #main-content > .institutional-profile-section { order: 2;
+}
+
+/* Pulse — rates+news early, then join CTA */
+html[data-ui-look="pulse"] #main-content > .rates-notices-section { order: 3;
+}
+
+/* ब्याज तथा सूचना early */
+html[data-ui-look="pulse"] #main-content > .news-section { order: 4;
+}
+
+html[data-ui-look="pulse"] #main-content > .cta-section { order: 5;
+}
+
+/* सदस्य बन्नुहोस् after news */
+html[data-ui-look="pulse"] #main-content > .services-section { order: 6;
+}
+
+html[data-ui-look="pulse"] #main-content > .tools-widget-section { order: 7;
+}
+
+html[data-ui-look="pulse"] #main-content > .why-us-section { order: 8;
+}
+
+html[data-ui-look="pulse"] #main-content > .leadership-messages-section { order: 9;
+}
+
+html[data-ui-look="pulse"] #main-content > .awards-section { order: 10;
+}
+
+html[data-ui-look="pulse"] #main-content > .mobile-app-section { order: 11;
+}
+
+html[data-ui-look="pulse"] #main-content > .app-features-section { order: 12;
+}
+
+html[data-ui-look="pulse"] #main-content > .member-spotlight-section { order: 13;
+}
+
+/* —— Top utility serial —— */
+html[data-ui-look="pulse"] .pfl-quick-links > li.has-drop,
+html[data-ui-look="summit"] .pfl-quick-links > li.has-drop { order: 20;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="downloads.php"]) { order: 1;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="digital-services.php"]) { order: 2;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="auction.php"]) { order: 3;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="career.php"]) { order: 4;
+}
+
+html[data-ui-look="pulse"] .pfl-quick-links > li:has(a[href*="contact.php"]) { order: 5;
+}
+
+/* —— Main nav serial —— */
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="index.php"]) { order: 1;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="notices.php"]) { order: 2;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="interest-rates.php"]) { order: 3;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="services.php"]) { order: 4;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="about.php"]) { order: 5;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="gallery.php"]) { order: 6;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="team.php"]) { order: 7;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href="#"]) { order: 8;
+}
+
+html[data-ui-look="pulse"] .pfl-nav-area .nav-menu > li:has(> a[href*="contact.php"]) { order: 9;
+}
+
+/* —— Footer column serial —— */
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-3 { order: 1;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-5 { order: 2;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 { order: 3;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 > .footer-widget {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-logo,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-about-text,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  justify-content: center;
+}
+
+html[data-ui-look="pulse"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="summit"] .main-footer .footer-top .row > .col-lg-4 .footer-social,
+html[data-ui-look="harbor"] .main-footer .footer-top .row > .col-lg-4 .footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Dark mode + wrap safety */
+html[data-ui-look="pulse"] body.dark-mode,
+html[data-ui-look="summit"] body.dark-mode,
+html[data-ui-look="harbor"] body.dark-mode {
+  --look-paper: color-mix(in srgb, var(--primary-color, var(--primary)) 8%, #1a1f1c);
+  --look-wash: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #121512);
+}
+
+html[data-ui-look="pulse"] .hero-title-modern,
+html[data-ui-look="summit"] .hero-title-modern,
+html[data-ui-look="harbor"] .hero-title-modern,
+html[data-ui-look="pulse"] .tools-mini-link span,
+html[data-ui-look="summit"] .tools-mini-link span,
+html[data-ui-look="harbor"] .tools-mini-link span,
+html[data-ui-look="pulse"] .value-card h5,
+html[data-ui-look="summit"] .value-card h5,
+html[data-ui-look="harbor"] .value-card h5 {
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+  max-width: 100%;
+}
+
+html[data-ui-look="pulse"] .form-control,
+html[data-ui-look="pulse"] .form-select,
+html[data-ui-look="summit"] .form-control,
+html[data-ui-look="summit"] .form-select {
+  border-radius: var(--look-radius) !important;
+}
+
+@media (max-width: 991.98px) {
+html[data-ui-look="pulse"] body.header-v2 #mainNavV2 .nav-menu > li > a,
+  html[data-ui-look="summit"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: var(--look-radius) !important;
+}
+}
+
+/* ════════════════════════════════════════════════════════════
+   PASS 11 — Final polish for last 6 looks (Bold→Harbor)
+   Soft / Sharp / Editorial / Compact untouched.
+   CTA bands, hero accents, ticker, leadership cards, forms,
+   breadcrumbs, bottom-nav — so each look feels finished.
+   ════════════════════════════════════════════════════════════ */
+
+/* —— Hero Soft Soft underline: give each look a clear accent —— */
+/* Bold / Pulse: ledger-clean — Soft Soft underline off */
+html[data-ui-look="bold"] .hero-title-modern::after,
+html[data-ui-look="bold"] .hero-title-modern::before,
+html[data-ui-look="pulse"] .hero-title-modern::after,
+html[data-ui-look="pulse"] .hero-title-modern::before {
+  display: none !important;
+}
+
+html[data-ui-look="pulse"] .hero-title-modern {
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--secondary-color, var(--secondary)) 55%, #fff);
+  padding-bottom: 0.35rem;
+  display: inline-block;
+}
+
+/* —— CTA bands (early CTAs need clear personality) —— */
+html[data-ui-look="bold"] .cta-section,
+html[data-ui-look="pulse"] .cta-section {
+  border-radius: var(--look-radius-lg) !important;
+  border-block: 3px solid color-mix(in srgb, var(--primary-color, var(--primary)) 40%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary-color, var(--primary)) 14%, transparent);
+}
+
+html[data-ui-look="bold"] #main-content:has(> .hero-slider) > .cta-section,
+html[data-ui-look="pulse"] #main-content:has(> .hero-slider) > .cta-section,
+html[data-ui-look="harbor"] #main-content:has(> .hero-slider) > .cta-section {
+  width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.35rem));
+  max-width: calc(100% - 2 * clamp(0.5rem, 2vw, 1.35rem));
+  margin-inline: auto;
+  align-self: center;
+  box-sizing: border-box;
+}
+
+html[data-ui-look="bold"] .cta-section h2,
+html[data-ui-look="bold"] .cta-section .home-heading-unified,
+html[data-ui-look="pulse"] .cta-section h2,
+html[data-ui-look="pulse"] .cta-section .home-heading-unified {
+  font-weight: 800 !important;
+  letter-spacing: -0.015em;
+}
+
+html[data-ui-look="bold"] .cta-section .cta-content .btn-light,
+html[data-ui-look="bold"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="bold"] .cta-section .cta-content a.btn,
+html[data-ui-look="bold"] .cta-section .cta-content .btn-outline-light,
+html[data-ui-look="pulse"] .cta-section .cta-content .btn-light,
+html[data-ui-look="pulse"] .cta-section .cta-content .ir-cta-btn,
+html[data-ui-look="pulse"] .cta-section .cta-content a.btn,
+html[data-ui-look="pulse"] .cta-section .cta-content .btn-outline-light {
+  border-radius: var(--look-radius) !important;
+  font-weight: 800 !important;
+  padding-inline: 1.25rem !important;
+}
+
+/* —— Notice ticker (Pulse especially) —— */
+html[data-ui-look="pulse"] .notice-ticker {
+  border-bottom: 2px solid color-mix(in srgb, var(--secondary-color, var(--secondary)) 45%, var(--primary-color, var(--primary)));
+  font-weight: 600;
+}
+
+/* —— Leadership / awards cards —— */
+html[data-ui-look="bold"] .leadership-profile-card,
+html[data-ui-look="pulse"] .leadership-profile-card {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-color, var(--primary)) 10%, transparent) !important;
+}
+
+html[data-ui-look="summit"] .leadership-profile-card .profile-btn,
+html[data-ui-look="bold"] .leadership-profile-card .profile-btn,
+html[data-ui-look="pulse"] .leadership-profile-card .profile-btn {
+  border-radius: var(--look-radius) !important;
+  font-weight: 700;
+}
+
+/* —— Breadcrumb —— */
+html[data-ui-look="pulse"] .breadcrumb,
+html[data-ui-look="summit"] .breadcrumb,
+html[data-ui-look="cascade"] .breadcrumb,
+html[data-ui-look="bold"] .breadcrumb {
+  border-radius: var(--look-radius) !important;
+  padding: 0.35rem 0.75rem;
+  background: color-mix(in srgb, var(--primary-color, var(--primary)) 6%, #fff);
+}
+
+/* —— Section divider / badge polish —— */
+html[data-ui-look="bold"] .section-divider,
+html[data-ui-look="pulse"] .section-divider,
+html[data-ui-look="cascade"] .section-divider,
+html[data-ui-look="summit"] .section-divider {
+  border-radius: var(--look-radius) !important;
+  height: 3px !important;
+}
+
+/* —— Bottom public nav —— */
+html[data-ui-look="bold"] .pub-bottom-nav,
+html[data-ui-look="pulse"] .pub-bottom-nav,
+html[data-ui-look="cascade"] .pub-bottom-nav,
+html[data-ui-look="summit"] .pub-bottom-nav,
+html[data-ui-look="bold"] .mobile-bottom-nav,
+html[data-ui-look="pulse"] .mobile-bottom-nav,
+html[data-ui-look="cascade"] .mobile-bottom-nav,
+html[data-ui-look="summit"] .mobile-bottom-nav {
+  border-top: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 28%, transparent) !important;
+}
+
+/* —— Rates / notices boxes for Pulse glanceability —— */
+html[data-ui-look="pulse"] .rates-notices-section {
+  padding-block: 1.1rem !important;
+}
+
+html[data-ui-look="pulse"] .rates-header,
+html[data-ui-look="pulse"] .notices-header {
+  letter-spacing: 0.03em;
+  font-weight: 800;
+}
+
+/* —— Tools category headers —— */
+html[data-ui-look="bold"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="pulse"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="cascade"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="summit"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="airy"] .tools-widget-section .tools-category-card h5,
+html[data-ui-look="harbor"] .tools-widget-section .tools-category-card h5 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* —— Pagination / tables light touch —— */
+html[data-ui-look="bold"] .pagination .page-link,
+html[data-ui-look="pulse"] .pagination .page-link,
+html[data-ui-look="cascade"] .pagination .page-link,
+html[data-ui-look="summit"] .pagination .page-link {
+  border-radius: var(--look-radius) !important;
+}
+
+/* —— Dark-mode paper for remaining cards —— */
+html[data-ui-look="bold"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="airy"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="cascade"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="pulse"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="summit"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="harbor"] body.dark-mode .leadership-profile-card,
+html[data-ui-look="bold"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .rates-box-enhanced,
+html[data-ui-look="bold"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="airy"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="cascade"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="pulse"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="summit"] body.dark-mode .notices-box-enhanced,
+html[data-ui-look="harbor"] body.dark-mode .notices-box-enhanced {
+  background: var(--look-paper) !important;
+}
+
+/* —— QH FAB consistency —— */
+html[data-ui-look="pulse"] .qh-fab,
+html[data-ui-look="summit"] .qh-fab {
+  border-radius: var(--look-radius) !important;
+}
+
+html[data-ui-look="bold"] .why-us-section .feature-box,
+html[data-ui-look="pulse"] .why-us-section .feature-box {
+  border-radius: var(--look-radius) !important;
+  border-top: 3px solid var(--primary-color, var(--primary)) !important;
+}
+
+/* —— Devanagari wrap for CTA / section titles —— */
+html[data-ui-look="bold"] .cta-section h2,
+html[data-ui-look="airy"] .cta-section h2,
+html[data-ui-look="cascade"] .cta-section h2,
+html[data-ui-look="pulse"] .cta-section h2,
+html[data-ui-look="summit"] .cta-section h2,
+html[data-ui-look="harbor"] .cta-section h2,
+html[data-ui-look="bold"] .section-header h2,
+html[data-ui-look="airy"] .section-header h2,
+html[data-ui-look="cascade"] .section-header h2,
+html[data-ui-look="pulse"] .section-header h2,
+html[data-ui-look="summit"] .section-header h2,
+html[data-ui-look="harbor"] .section-header h2 {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+/* ══ Header: logo + main menu on ONE line (desktop, every look except Soft which already fits) ══
+   Editorial wrapped the menu (flex-wrap + wider pill padding) so the last item ("थप") fell under
+   "गृहपृष्ठ" next to a wide logo strip. Keep one row; spacing and the logo give way first.
+   header.php adds .nav-tight / .nav-tighter only if the row still overflows (long custom menus). */
+@media (min-width: 992px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding-inline: clamp(7px, 0.62vw, 13.6px) !important;
+    white-space: nowrap;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-area {
+    flex: 0 0 auto;
+    max-width: none !important;
+  }
+  /* shrink the logo image (not the area) so the since-badge always stays whole */
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: min(400px, 27vw) !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  html[data-ui-look] .pfl-main-header .pfl-nav-area { min-width: 0; }
+  /* Overflow fallbacks (any look) — set by the fit script in header.php */
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a { padding-inline: 6px !important; gap: 3px; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a .mnav-main-icon { display: none !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tighter .nav-menu > li > a { font-size: 12.5px !important; padding-inline: 4px !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-wrap .nav-menu { flex-wrap: wrap !important; justify-content: flex-end; row-gap: 2px !important; }
+}
+
+/* Small laptops: give the menu more room — the logo strip shrinks first */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: 20vw !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   READABILITY GUARD — a look that repaints a dark surface light
+   must also flip its text (white-on-white was unreadable).
+   Soft untouched. Checked with an automated contrast scan.
+   ════════════════════════════════════════════════════════════ */
+
+/* Page hero breadcrumb: looks give .breadcrumb a light pill, but inside the
+   dark page banner its text is white → glass pill instead */
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(4px);
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb a,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active,
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-look]:not([data-ui-look="soft"]) .page-banner .breadcrumb .breadcrumb-item.active {
+  opacity: 0.85 !important;
+}

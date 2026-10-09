@@ -1,0 +1,81 @@
+/* AUTO-GENERATED: public-ui-looks.soft.css — do not edit.
+ * Source: assets/css/public-ui-looks.css (edit there), then
+ * python3 scripts/build-public-ui-looks.py
+ */
+
+html[data-ui-look="soft"],
+html.ui-look-soft { /* intentional no-op — live Soft unchanged */
+}
+
+/* Beat late-bundle .hero-slider .btn.hero-btn-modern { border-radius: 999px !important
+}
+
+/* Mobile drawer per look */
+@media (max-width: 991.98px) {
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: 0 !important;
+    border-left: 3px solid var(--primary-color, var(--primary));
+  }
+  html[data-ui-look="sharp"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 !important;
+    border-bottom: 2px solid color-mix(in srgb, var(--primary-color, var(--primary)) 25%, transparent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2.main-nav {
+    border-radius: var(--look-radius-lg) 0 0 var(--look-radius-lg) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .close-menu {
+    border-radius: 0 0 var(--look-radius) var(--look-radius) !important;
+  }
+  html[data-ui-look="editorial"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    border-radius: 999px !important;
+    margin-inline: 0.35rem;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+  html[data-ui-look="compact"] body.header-v2 #mainNavV2 .close-menu {
+    padding: 0.55rem 0.75rem !important;
+  }
+}
+
+/* ══ Header: logo + main menu on ONE line (desktop, every look except Soft which already fits) ══
+   Editorial wrapped the menu (flex-wrap + wider pill padding) so the last item ("थप") fell under
+   "गृहपृष्ठ" next to a wide logo strip. Keep one row; spacing and the logo give way first.
+   header.php adds .nav-tight / .nav-tighter only if the row still overflows (long custom menus). */
+@media (min-width: 992px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) body.header-v2 #mainNavV2 .nav-menu > li > a {
+    padding-inline: clamp(7px, 0.62vw, 13.6px) !important;
+    white-space: nowrap;
+  }
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-area {
+    flex: 0 0 auto;
+    max-width: none !important;
+  }
+  /* shrink the logo image (not the area) so the since-badge always stays whole */
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: min(400px, 27vw) !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  html[data-ui-look] .pfl-main-header .pfl-nav-area { min-width: 0; }
+  /* Overflow fallbacks (any look) — set by the fit script in header.php */
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a { padding-inline: 6px !important; gap: 3px; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tight .nav-menu > li > a .mnav-main-icon { display: none !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-tighter .nav-menu > li > a { font-size: 12.5px !important; padding-inline: 4px !important; }
+  html[data-ui-look] body.header-v2 #mainNavV2.nav-wrap .nav-menu { flex-wrap: wrap !important; justify-content: flex-end; row-gap: 2px !important; }
+}
+
+/* Small laptops: give the menu more room — the logo strip shrinks first */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  html[data-ui-look]:not([data-ui-look="soft"]) .pfl-main-header .pfl-brand-logo {
+    max-width: 20vw !important;
+  }
+}
