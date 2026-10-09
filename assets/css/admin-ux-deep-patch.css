@@ -2504,3 +2504,64 @@ body[class*="admin-page-"].dark-mode .main-content .nav-tabs:not(.admin-nav-tabs
 body[class*="admin-page-"].dark-mode .main-content .nav-tabs:not(.admin-nav-tabs) .nav-link:is(:hover, :focus-visible) {
   background: #182230 !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN LIST FILTER BARS — every GET filter form reads as one row
+   (members, portal, election, reports … — not only the 13 .adm-filter-bar
+   pages). The base `.form-select { width:100% }` stacked flex filter
+   forms into one control per line.
+   ═══════════════════════════════════════════════════════════════════ */
+body[class*="admin-page-"] .main-content form[method="get" i]:is(.d-flex, .adm-filter-form) > :is(.form-select, .form-control),
+body[class*="admin-page-"] .main-content form[method="get" i]:is(.d-flex, .adm-filter-form) > .input-group {
+  width: auto !important;
+  flex: 1 1 200px;
+  max-width: 360px !important;
+}
+body[class*="admin-page-"] .main-content form[method="get" i]:is(.d-flex, .adm-filter-form) > .input-group > .form-control {
+  width: auto;
+  flex: 1 1 auto;
+}
+/* one control height + text size on every filter bar (same numbers as .adm-filter-bar) */
+body[class*="admin-page-"] .main-content form[method="get" i] :is(.form-select, .form-control):not(textarea) {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-top: 0.35rem !important;
+  padding-bottom: 0.35rem !important;
+  font-size: 0.875rem !important;
+  border-radius: var(--adm-form-radius) !important;
+}
+body[class*="admin-page-"] .main-content form[method="get" i] .input-group {
+  min-height: 40px;
+}
+body[class*="admin-page-"] .main-content form[method="get" i] .input-group > .input-group-text {
+  min-height: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+body[class*="admin-page-"] .main-content form[method="get" i] .form-label,
+body[class*="admin-page-"] .main-content form[method="get" i] label:not(.form-check-label):not(.btn) {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--adm-form-muted) !important;
+  -webkit-text-fill-color: var(--adm-form-muted) !important;
+  text-transform: none !important;
+  margin-bottom: 0.3rem !important;
+}
+body[class*="admin-page-"] .main-content form[method="get" i] .btn:not(.btn-sm):not(.adm-icon-btn) {
+  min-height: 40px;
+  height: 40px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem !important;
+  border-radius: var(--adm-form-radius) !important;
+  white-space: nowrap;
+}
+@media (max-width: 575.98px) {
+  body[class*="admin-page-"] .main-content form[method="get" i]:is(.d-flex, .adm-filter-form) > :is(.form-select, .form-control, .input-group) {
+    flex-basis: 100%;
+    max-width: 100% !important;
+  }
+}
