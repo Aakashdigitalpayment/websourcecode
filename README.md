@@ -193,3 +193,4 @@ PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 *Internal property of Aakash Cooperative — Not for redistribution.*  
 **Last updated: 2026-09-18** (popup expiry, राहत Opening, import DOB BS, brand/contact icons, center UI polish)
 | **Admin spacing** | One gap token: `--adm-gap` (1rem) between every top-level block, `--adm-gap-lg` (1.5rem) after stat strips, page padding from `.page-content` only (inner `.container-fluid` padding zeroed) — `ADMIN SPACING RHYTHM` block in `admin-ux-deep-patch.css`. Do not add `mb-*` / `py-*` utilities on page-level blocks to tune spacing; change the token |
+| **Member spacing** | `--mem-gap` (1rem) between every top-level block of `.mem-main-content` (`member-shell-polish.css`); page markup should not carry `mb-*` / `mt-*` on those blocks |
